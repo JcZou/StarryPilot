@@ -7,7 +7,7 @@ A lightweight and powerful autopilot software, which focus on research and devel
 - RT-Thread RTOS, Fatfs file system
 - Completely support with Pixhawk hardware
 - ADRC control & PID control
-- Support with hardware-in-the-loop (HITL) simulation, using Gazebo simulator
+- Support with Gazebo hardware-in-the-loop (HITL) simulation
 - Msh shell system
 - Logger system
 - Parameter system
