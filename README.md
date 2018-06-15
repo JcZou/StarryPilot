@@ -22,3 +22,6 @@ A lightweight and powerful autopilot software, which focus on research and devel
 # Tools
 - Calibration software (magnetometer and accelerometer calibration)
 - Logger checker
+
+# Author
+Jiachi Zou  email: jiachi.zou@gmail.com  QQ:529380360
