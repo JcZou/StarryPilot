@@ -1,7 +1,0 @@
-# Request set parameter value
-
-string param_id
-mavros_msgs/ParamValue value
----
-bool success
-mavros_msgs/ParamValue value
