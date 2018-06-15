@@ -1,0 +1,36 @@
+<package>
+  <name>rotors_control</name>
+  <version>2.1.1</version>
+  <description>RotorS control package</description>
+
+  <maintainer email="fadri.furrer@mavt.ethz.ch">Fadri Furrer</maintainer>
+  <maintainer email="mina.kamel@mavt.ethz.ch">Mina Kamel</maintainer>
+
+  <author>Fadri Furrer</author>
+  <author>Michael Burri</author>
+  <author>Mina Kamel</author>
+  <author>Janosch Nikolic</author>
+  <author>Markus Achtelik</author>
+
+  <license>ASL 2.0</license>
+
+  <url type="website">https://github.com/ethz-asl/rotors_simulator</url>
+  <url type="bugtracker">https://github.com/ethz-asl/rotors_simulator/issues</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>mav_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>cmake_modules</build_depend>
+
+  <run_depend>dynamic_reconfigure</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>mav_msgs</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+
+</package>

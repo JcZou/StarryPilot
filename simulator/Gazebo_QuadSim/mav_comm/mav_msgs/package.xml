@@ -1,0 +1,37 @@
+<package>
+  <name>mav_msgs</name>
+  <version>3.2.0</version>
+  <description>Package containing messages for communicating with rotary wing MAVs</description>
+
+  <maintainer email="fadri.furrer@mavt.ethz.ch">Fadri Furrer</maintainer>
+
+  <author>Simon Lynen</author>
+  <author>Markus Achtelik</author>
+  <author>Pascal Gohl</author>
+  <author>Sammy Omari</author>
+  <author>Michael Burri</author>
+  <author>Fadri Furrer</author>
+  <author>Helen Oleynikova</author>
+  <author>Mina Kamel</author>
+
+  <license>ASL 2.0</license>
+
+  <url type="website">https://github.com/ethz-asl/mav_comm</url>
+  <url type="bugtracker">https://github.com/ethz-asl/mav_comm/issues</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>cmake_modules</build_depend>
+  <build_depend>eigen</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>trajectory_msgs</build_depend>
+
+  <run_depend>eigen</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>message_runtime</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>trajectory_msgs</run_depend>
+
+</package>

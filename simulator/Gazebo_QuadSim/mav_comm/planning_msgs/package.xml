@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>planning_msgs</name>
+  <version>3.2.0</version>
+  <description>
+    Messages specific to MAV planning, especially polynomial planning.
+  </description>
+
+  <maintainer email="helen.oleynikova@mavt.ethz.ch">Helen Oleynikova</maintainer>
+
+  <author>Simon Lynen</author>
+  <author>Markus Achtelik</author>
+  <author>Pascal Gohl</author>
+  <author>Sammy Omari</author>
+  <author>Michael Burri</author>
+  <author>Fadri Furrer</author>
+  <author>Helen Oleynikova</author>
+
+  <license>ASL 2.0</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>mav_msgs</depend>
+  <depend>message_generation</depend>
+  <depend>message_runtime</depend>
+  <depend>trajectory_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+</package>
