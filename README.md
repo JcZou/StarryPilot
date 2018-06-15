@@ -29,12 +29,18 @@ A lightweight and powerful autopilot software, which focus on research and devel
 The project is developed on Pixhawk (autopilot hardware). To download firmware into Pixhawk, please follow the these steps:
 - First compile the starry_fmu and generate bin file.
 - Use QGroundControl (QGC) to download the bin file into fmu. To download custom firmware, choose the following choice.
+
 ![](docs/images/fmu_download.png)
+
 - Now the firmware of starry_fmu should be correctly downloaded (If failed, please try again, or use the newer version of QGC). Connect Radio-telemetry to the **TELEM 2** port of Pixhawk, then you should see the Msh shell system output via serial terminal (default baudrate is **57600**).
+
 ![](docs/images/msh.png)
+
 - If you didn't format the SD card before, please type `mkfs` command to format the SD card.
 - Then you should download the starry_io firmware. To do so, first compile starry_io project to get the bin file and name it as **starryio.bin**. Copy the starryio.bin to the **root directory** of SD card, then open Msh shell system and type `uploader`, which is shown below.
+
 ![](docs/images/io_download.png)
+
 - Choose **file system** option to start download. Notice that if it's the first time that you download starry_io, after you type uploader, you should push reset button of io (in the side of Pixhawk) to let io enter the bootloader.
 - Congratulation, now the download is finished!
 
