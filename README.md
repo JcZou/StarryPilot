@@ -26,7 +26,7 @@ A lightweight and powerful autopilot software, which focus on research and devel
 - Logger checker
 
 # Usage
-The project is developed on Pixhawk (autopilot hardware). To download firmware into Pixhawk, please follow the these steps:
+The project is developed on Pixhawk (autopilot hardware). To download firmware into Pixhawk, please follow these steps:
 - First compile the starry_fmu and generate bin file.
 - Use QGroundControl (QGC) to download the bin file into fmu. To download custom firmware, choose the following choice.
 
