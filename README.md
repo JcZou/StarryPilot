@@ -16,8 +16,8 @@ A lightweight and powerful autopilot software, which focus on research and devel
 [![ADRC vs PID](docs/images/adrc_video_demo.png)](https://www.youtube.com/watch?v=77-_nF-qqpA&t=63s)
 
 # Simulator
-- [*Matlab simulator*](https://github.com/JcZou/StarryPilot/tree/master/simulator/Matlab_QuadSim) (Software-in-the-loop)
-- [*Gazebo simulator*](https://github.com/JcZou/StarryPilot/tree/master/simulator/Gazebo_QuadSim) (Hardware-in-the-loop)
+- [*Matlab simulator*](https://github.com/JcZou/matlab_quadsim) (Software-in-the-loop)
+- [*Gazebo simulator*](https://github.com/JcZou/gazebo_quadsim) (Hardware-in-the-loop)
 
 # Tools
 - Calibration software (magnetometer and accelerometer calibration)
