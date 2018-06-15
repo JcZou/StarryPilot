@@ -12,6 +12,9 @@ A lightweight and powerful autopilot software, which focus on research and devel
 - Logger system
 - Parameter system
 
+# Control
+[![ADRC vs PID](docs/images/adrc_video_demo.png)](https://www.youtube.com/watch?v=77-_nF-qqpA&t=63s)
+
 # Simulator
 - [*Matlab simulator*](https://github.com/JcZou/StarryPilot/edit/master) (SITL)
 - [*Gazebo simulator*](https://github.com/JcZou/StarryPilot/edit/master) (HITL)
