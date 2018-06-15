@@ -45,4 +45,10 @@ The project is developed on Pixhawk (autopilot hardware). To download firmware i
 - Congratulation, now the download is finished!
 
 # Author
-Jiachi Zou  email: zoujiachi666@163.com  LinkedIn:www.linkedin.com/in/jiachizou-0710 QQ群:459133925
+*Jiachi Zou*
+---------------------------
+*email*: zoujiachi666@163.com 
+
+*LinkedIn*: www.linkedin.com/in/jiachizou-0710
+
+*QQ群*: 459133925
