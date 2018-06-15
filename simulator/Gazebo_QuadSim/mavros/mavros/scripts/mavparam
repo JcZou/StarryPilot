@@ -1,0 +1,103 @@
+#!/usr/bin/env python
+# vim:set ts=4 sw=4 et:
+#
+# Copyright 2014 Vladimir Ermakov.
+#
+# This file is part of the mavros package and subject to the license terms
+# in the top-level LICENSE file of the mavros repository.
+# https://github.com/mavlink/mavros/tree/master/LICENSE.md
+
+import argparse
+
+import rospy
+from mavros.utils import *
+from mavros.param import *
+
+
+def get_param_file_io(args):
+    if args.mission_planner:
+        print_if(args.verbose, "MissionPlanner format")
+        return MissionPlannerParam(args)
+
+    elif args.qgroundcontrol:
+        print_if(args.verbose, "QGroundControl format")
+        return QGroundControlParam(args)
+
+    else:
+        if args.file.name.endswith('.txt'):
+            print_if(args.verbose, "Suggestion: QGroundControl format")
+            return QGroundControlParam(args)
+        else:
+            print_if(args.verbose, "Suggestion: MissionPlanner format")
+            return MissionPlannerParam(args)
+
+
+def do_load(args):
+    param_file = get_param_file_io(args)
+    with args.file:
+        param_transfered = param_set_list(param_file.read(args.file))
+
+    print_if(args.verbose, "Parameters transfered:", param_transfered)
+
+
+def do_dump(args):
+    param_received, param_list = param_get_all(args.force)
+    print_if(args.verbose, "Parameters received:", param_received)
+
+    param_file = get_param_file_io(args)
+    with args.file:
+        param_file.write(args.file, param_list)
+
+
+def do_get(args):
+    print(param_get(args.param_id))
+
+
+def do_set(args):
+    if '.' in args.value:
+        val = float(args.value)
+    else:
+        val = int(args.value)
+
+    print(param_set(args.param_id, val))
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Commad line tool for getting, setting, parameters from MAVLink device.")
+    parser.add_argument('-n', '--mavros-ns', help="ROS node namespace", default="/mavros")
+    parser.add_argument('-v', '--verbose', action='store_true', help="verbose output")
+    subarg = parser.add_subparsers()
+
+    load_args = subarg.add_parser('load', help="load parameters from file")
+    load_args.set_defaults(func=do_load)
+    load_args.add_argument('file', type=argparse.FileType('rb'), help="input file")
+    load_format = load_args.add_mutually_exclusive_group()
+    load_format.add_argument('-mp', '--mission-planner', action="store_true", help="Select MissionPlanner param file format")
+    load_format.add_argument('-qgc', '--qgroundcontrol', action="store_true", help="Select QGroundControl param file format")
+
+    dump_args = subarg.add_parser('dump', help="dump parameters to file")
+    dump_args.set_defaults(func=do_dump)
+    dump_args.add_argument('file', type=argparse.FileType('wb'), help="output file")
+    dump_args.add_argument('-f', '--force', action="store_true", help="Force pull params from FCU, not cache.")
+    dump_format = dump_args.add_mutually_exclusive_group()
+    dump_format.add_argument('-mp', '--mission-planner', action="store_true", help="Select MissionPlanner param file format")
+    dump_format.add_argument('-qgc', '--qgroundcontrol', action="store_true", help="Select QGroundControl param file format")
+
+    get_args = subarg.add_parser('get', help="get parameter")
+    get_args.set_defaults(func=do_get)
+    get_args.add_argument('param_id', help="Parameter ID string")
+
+    set_args = subarg.add_parser('set', help="set parameter")
+    set_args.set_defaults(func=do_set)
+    set_args.add_argument('param_id', help="Parameter ID string")
+    set_args.add_argument('value', help="new value")
+
+    args = parser.parse_args(rospy.myargv(argv=sys.argv)[1:])
+
+    rospy.init_node("mavparam", anonymous=True)
+    mavros.set_namespace(args.mavros_ns)
+    args.func(args)
+
+
+if __name__ == '__main__':
+    main()
