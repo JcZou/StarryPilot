@@ -74,8 +74,6 @@ void adrc_leso_init(ADRC_LESO_Def* leso_t, float h, float w, float b0);
 void adrc_leso(ADRC_LESO_Def* leso_t, float y);
 void adrc_nlsef_init(ADRC_NLSEF_Def* nlsef_t, float h, float r1, float h1, float c);
 float adrc_nlsef(ADRC_NLSEF_Def* nlsef_t, float e1, float e2, float b0, bool i_enable);
-float ADRC_Calculate_B0(float base_throttle);
-float adrc_dis_comp(float tot_dis, float u0, float b0, float gamma);
 
 #endif
 

@@ -135,22 +135,3 @@ float adrc_nlsef(ADRC_NLSEF_Def* nlsef_t, float e1, float e2, float b0, bool i_e
 {
 	return -adrc_fhan(e1, nlsef_t->c*e2, nlsef_t->r1, nlsef_t->h1);
 }
-
-//float ADRC_Calculate_B0(float base_throttle)
-//{
-//	float b_factor = PARAM_GET_FLOAT(ADRC_ATT, GAMMA);
-//	// update b0
-//	float bt = base_throttle;
-//	// do not let base_throttle to be too small or too large
-//	constrain(&bt, 0.3f, 0.7f);
-//	float b0 = b_const*(cR*bt+d)/Ixx_yy;
-
-//	return b0;
-//}
-
-float adrc_dis_comp(float tot_dis, float u0, float b0, float gamma)
-{
-	float u = u0 - gamma*tot_dis/b0;
-
-	return u;
-}

@@ -468,10 +468,12 @@ ARM Macro Assembler    Page 8
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
 ork --depend=.\build\startup_stm32f10x_md_vl.d -o.\build\startup_stm32f10x_md_v
-l.o -IE:\App\Keil_v5\ARM\RV31\INC -IE:\App\Keil_v5\ARM\CMSIS\Include -IE:\App\K
-eil_v5\ARM\Inc\ST\STM32F10x --predefine="__MICROLIB SETA 1" --predefine="__UVIS
-ION_VERSION SETA 523" --list=.\startup_stm32f10x_md_vl.lst ..\..\..\Libraries\C
-MSIS\CM3\DeviceSupport\ST\STM32F10x\startup\arm\startup_stm32f10x_md_vl.s
+l.o -I.\RTE\_StarryIO -IE:\App\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include -
+IE:\App\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include --predefine="_
+_MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 523" --predefine="_RTE_ S
+ETA 1" --predefine="STM32F10X_MD_VL SETA 1" --list=.\startup_stm32f10x_md_vl.ls
+t ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\startup\arm\startup_s
+tm32f10x_md_vl.s
 
 
 
@@ -1355,4 +1357,4 @@ Symbol: __main
 0x\startup\arm\startup_stm32f10x_md_vl.s
 Comment: __main used once
 2 symbols
-402 symbols in table
+404 symbols in table
