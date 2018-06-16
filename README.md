@@ -1,12 +1,13 @@
 StarryPilot
 ============================
 # About
-A lightweight and powerful autopilot software, which focus on research and development of state-of-the-arts software for UAVs. One of the project’s primary goals is to provide an open and flexible platform making it easy to be applied into a broad range of domains.
+A lightweight and powerful autopilot software, which focus on research and development of state-of-the-art software for UAVs. One of the project’s primary goals is to provide an open and flexible platform making it easy to be applied to a broad range of domains.
 
 # Feature
 - RT-Thread RTOS, Fatfs file system
 - Completely support with Pixhawk hardware
 - ADRC control & PID control
+- Support with Mavlink
 - Support with Gazebo hardware-in-the-loop (HITL) simulation
 - Msh shell system
 - Logger system
@@ -26,7 +27,7 @@ A lightweight and powerful autopilot software, which focus on research and devel
 - Logger checker
 
 # Usage
-The project is developed on Pixhawk (autopilot hardware). To download firmware into Pixhawk, please follow the these steps:
+The project is developed on Pixhawk (autopilot hardware). To download firmware into Pixhawk, please follow these steps:
 - First compile the starry_fmu and generate bin file.
 - Use QGroundControl (QGC) to download the bin file into fmu. To download custom firmware, choose the following choice.
 
@@ -45,4 +46,10 @@ The project is developed on Pixhawk (autopilot hardware). To download firmware i
 - Congratulation, now the download is finished!
 
 # Author
-Jiachi Zou  email: zoujiachi666@163.com  QQ群:459133925
+*Jiachi Zou*
+---------------------------
+*email*: zoujiachi666@163.com 
+
+*LinkedIn*: www.linkedin.com/in/jiachizou-0710
+
+*QQ群*: 459133925
