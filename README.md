@@ -45,6 +45,11 @@ The project is developed on Pixhawk (autopilot hardware). To download firmware i
 - Choose **file system** option to start download. Notice that if it's the first time that you download starry_io, after you type uploader, you should push reset button of io (in the side of Pixhawk) to let io enter the bootloader.
 - Congratulation, now the download is finished!
 
+# Compile Environment
+The compiler environment is based on Keil MDK5.
+
+![](docs/images/mdk5.png)
+
 # Author
 *Jiachi Zou*
 ---------------------------
