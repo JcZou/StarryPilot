@@ -46,7 +46,7 @@ The project is developed on Pixhawk (autopilot hardware). To download firmware i
 - Congratulation, now the download is finished!
 
 # Compile Environment
-The compiler environment is based on Keil MDK5.
+The compile environment is based on Keil MDK5.
 
 ![](docs/images/mdk5.png)
 
