@@ -404,9 +404,6 @@ void _ctrl_att_with_baseThrottle(float baseThrottle, float dT)
 //			adrc_log.v = Rad2Deg(et.pitch);
 //			mcn_publish(MCN_ID(ADRC), &adrc_log);
 		}
-		
-		out[0] = 0.0f;
-		out[2] =0.0f;
 
 		/* calculate motor output */
 		_ctrl_mix_throttle_out(_throttle_out, out, baseThrottle);
