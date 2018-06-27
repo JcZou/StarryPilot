@@ -1,5 +1,5 @@
 /*
- * File      : px4io_manager.h
+ * File      : starryio_manager.h
  *
  * Change Logs:
  * Date           Author       Notes
@@ -12,8 +12,8 @@
 #include "stm32f4xx.h"
 #include <rtthread.h>
 
-void px4io_loop(void *parameter);
-rt_device_t px4io_get_device(void);
+void starryio_entry(void *parameter);
+rt_device_t starryio_get_device(void);
 void px4io_reset_rx_ind(void);
 rt_err_t request_reboot(void);
 rt_err_t reply_sync(void);

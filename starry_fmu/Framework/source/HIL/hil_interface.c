@@ -10,7 +10,7 @@
 #include "hil_interface.h"
 #include "uMCN.h"
 #include "console.h"
-#include "mavlink_protocol.h"
+#include "mavproxy.h"
 #include "filter.h"
 #include "ms5611.h"
 

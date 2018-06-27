@@ -21,7 +21,7 @@
 #include "console.h"
 #include "filter.h"
 #include "att_pid.h"
-#include "px4io_manager.h"
+#include "starryio_manager.h"
 #include "pid.h"
 #include "ekf.h"
 #include "delay.h"

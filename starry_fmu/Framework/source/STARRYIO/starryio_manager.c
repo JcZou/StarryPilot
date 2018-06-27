@@ -1,5 +1,5 @@
 /*
- * File      : px4io_manager.c
+ * File      : starryio_manager.c
  *
  * Change Logs:
  * Date           Author       Notes
@@ -9,19 +9,19 @@
 #include <rthw.h>
 #include <rtdevice.h>
 #include <rtthread.h>
-#include "px4io_manager.h"
-#include "px4io_protocol.h"
+#include "starryio_manager.h"
+#include "starryio_protocol.h"
 #include "console.h"
 #include "uMCN.h"
 
 //#define PX4IO_DEBUG
 
 //static rt_device_t debug_dev;
-struct rt_semaphore px4io_dbg_rx_sem;
-struct rt_semaphore px4io_rx_pack_sem;
+struct rt_semaphore starryio_dbg_rx_sem;
+struct rt_semaphore starryio_rx_pack_sem;
 static rt_device_t serial_dev;
 //static ringbuffer* rb;
-static char* TAG = "PX4IO Manager";
+static char* TAG = "STARRYIO Manager";
 
 uint8_t ppm_send_freq = 20;	/* sending frequemcy of ppm signal, HZ */
 
@@ -50,28 +50,28 @@ static rt_err_t send(uint8_t* buff, uint32_t size)
 }
 
 //this function will be callback on rt_hw_serial_isr()
-static rt_err_t px4io_serial_rx_ind(rt_device_t dev, rt_size_t size)
+static rt_err_t starryio_serial_rx_ind(rt_device_t dev, rt_size_t size)
 {	
-	rt_sem_release(&px4io_rx_pack_sem);
+	rt_sem_release(&starryio_rx_pack_sem);
 
     return RT_EOK;
 }
 
-static rt_err_t px4io_debug_rx_ind(rt_device_t dev, rt_size_t size)
+static rt_err_t starryio_debug_rx_ind(rt_device_t dev, rt_size_t size)
 {
-	rt_sem_release(&px4io_dbg_rx_sem);
+	rt_sem_release(&starryio_dbg_rx_sem);
 
     return RT_EOK;
 }
 
-rt_device_t px4io_get_device(void)
+rt_device_t starryio_get_device(void)
 {
 	return serial_dev;
 }
 
 void px4io_reset_rx_ind(void)
 {
-	rt_device_set_rx_indicate(serial_dev, px4io_serial_rx_ind);
+	rt_device_set_rx_indicate(serial_dev, starryio_serial_rx_ind);
 }
 
 uint8_t send_package(uint8_t cmd, uint8_t* data, uint16_t len)
@@ -114,13 +114,13 @@ rt_err_t reply_sync(void)
 {
 	send_package(ACK_SYNC, NULL, 0);
 	
-	/* after sync, we should config px4io */
+	/* after sync, we should config starryio */
 	send_package(CMD_CONFIG_CHANNEL, &ppm_send_freq, 1);
 	
 	return RT_EOK;
 }
 
-void px4io_loop(void *parameter)
+void starryio_entry(void *parameter)
 {	
 #ifdef PX4IO_DEBUG
 	rt_size_t bytes;
@@ -132,9 +132,9 @@ void px4io_loop(void *parameter)
         printf("debug device uart1 not found!\r\n");
     }
 	
-	rt_sem_init(&px4io_dbg_rx_sem, "iodbg", 0, 0);
+	rt_sem_init(&starryio_dbg_rx_sem, "iodbg", 0, 0);
 	
-	rt_device_set_rx_indicate(debug_dev, px4io_debug_rx_ind);
+	rt_device_set_rx_indicate(debug_dev, starryio_debug_rx_ind);
 	rt_device_open(debug_dev, RT_DEVICE_OFLAG_RDONLY | RT_DEVICE_FLAG_INT_RX);
 #endif
 	
@@ -145,9 +145,9 @@ void px4io_loop(void *parameter)
         Console.e(TAG, "serial device %s not found!\r\n", "uart6");
     }
 	
-	rt_sem_init(&px4io_rx_pack_sem, "rxpack", 0, 0);
+	rt_sem_init(&starryio_rx_pack_sem, "rxpack", 0, 0);
 	
-	rt_device_set_rx_indicate(serial_dev, px4io_serial_rx_ind);
+	rt_device_set_rx_indicate(serial_dev, starryio_serial_rx_ind);
 	rt_device_open(serial_dev, RT_DEVICE_OFLAG_RDWR | RT_DEVICE_FLAG_INT_RX);
 	
 	int mcn_res;
@@ -158,7 +158,7 @@ void px4io_loop(void *parameter)
 	
 	while(1){
 #ifdef PX4IO_DEBUG
-		if (rt_sem_take(&px4io_dbg_rx_sem, 1) == RT_EOK){
+		if (rt_sem_take(&starryio_dbg_rx_sem, 1) == RT_EOK){
 			uint8_t ch;
 			while(rt_device_read(debug_dev , 0 , &ch , 1)){
 				fputc((int)ch, NULL);
@@ -166,7 +166,7 @@ void px4io_loop(void *parameter)
 		}
 #endif
 	
-		if (rt_sem_take(&px4io_rx_pack_sem, 20) == RT_EOK){
+		if (rt_sem_take(&starryio_rx_pack_sem, 20) == RT_EOK){
 			uint8_t ch;
 			while(rt_device_read(serial_dev , 0 , &ch , 1)){
 				if(wait_complete_pack(ch))

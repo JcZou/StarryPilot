@@ -33,7 +33,7 @@
 #include <shell.h>
 #include <string.h>
 #include "calibration.h"
-#include "px4io_uploader.h"
+#include "starryio_uploader.h"
 #include "pos_estimator.h"
 #include "msh.h"
 

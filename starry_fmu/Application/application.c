@@ -20,9 +20,9 @@
 #include "board.h"
 #include "att_estimator.h"
 #include "global.h"
-#include "px4io_manager.h"
+#include "starryio_manager.h"
 #include "control_main.h"
-#include "mavlink_protocol.h"
+#include "mavproxy.h"
 #include "pos_estimator.h"
 #include "led.h"
 #include "param.h"
@@ -51,8 +51,8 @@ static rt_thread_t tid0;
 static char thread_mavlink_stack[2048];
 struct rt_thread thread_mavlink_handle;
 
-static char thread_px4io_stack[1024];
-struct rt_thread thread_px4io_handle;
+static char thread_starryio_stack[1024];
+struct rt_thread thread_starryio_handle;
 
 static char thread_copter_stack[2048];
 struct rt_thread thread_copter_handle;
@@ -82,7 +82,7 @@ void rt_init_thread_entry(void* parameter)
 	param_init();
 	device_led_init();
 	device_sensor_init();
-	device_mavlink_init();
+	device_mavproxy_init();
 	
 	//rt_console_set_device(CONSOLE_DEVICE);
 	
@@ -114,18 +114,18 @@ void rt_init_thread_entry(void* parameter)
 	if (res == RT_EOK)
 		rt_thread_startup(&thread_copter_handle);
 	
-	res = rt_thread_init(&thread_px4io_handle,
-						   "px4io",
-						   px4io_loop,
+	res = rt_thread_init(&thread_starryio_handle,
+						   "starryio",
+						   starryio_entry,
 						   RT_NULL,
-						   &thread_px4io_stack[0],
-						   sizeof(thread_px4io_stack),PX4IO_THREAD_PRIORITY,1);
+						   &thread_starryio_stack[0],
+						   sizeof(thread_starryio_stack),STARRYIO_THREAD_PRIORITY,1);
 	if (res == RT_EOK)
-		rt_thread_startup(&thread_px4io_handle);
+		rt_thread_startup(&thread_starryio_handle);
 	
 	res = rt_thread_init(&thread_mavlink_handle,
-						   "mavlink",
-						   mavlink_loop,
+						   "mavproxy",
+						   mavproxy_entry,
 						   RT_NULL,
 						   &thread_mavlink_stack[0],
 						   sizeof(thread_mavlink_stack),MAVLINK_THREAD_PRIORITY,1);
@@ -137,7 +137,7 @@ void rt_init_thread_entry(void* parameter)
 						   logger_entry,
 						   RT_NULL,
 						   &thread_logger_stack[0],
-						   sizeof(thread_logger_stack),LED_THREAD_PRIORITY,1);
+						   sizeof(thread_logger_stack),LOGGER_THREAD_PRIORITY,1);
 	if (res == RT_EOK)
 		rt_thread_startup(&thread_logger_handle);
 	

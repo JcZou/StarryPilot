@@ -1,5 +1,5 @@
 /*
- * File      : px4io_protocol.h
+ * File      : starryio_protocol.h
  *
  * Change Logs:
  * Date           Author       Notes

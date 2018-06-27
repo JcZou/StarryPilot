@@ -1,5 +1,5 @@
 /*
-* File      : mavlink.c
+* File      : mavproxy.c
 *
 *
 * Change Logs:
@@ -15,7 +15,7 @@
 #include "quaternion.h"
 #include "pos_estimator.h"
 #include "att_estimator.h"
-#include "mavlink_protocol.h"
+#include "mavproxy.h"
 #include "uMCN.h"
 #include "sensor_manager.h"
 
@@ -33,7 +33,7 @@ mavlink_system_t mavlink_system;
 /* disable mavlink sending */
 uint8_t mav_disenable = 0;
 
-static char *TAG = "Mavlink";
+static char *TAG = "Mavproxy";
 
 static struct rt_timer timer_1HZ;
 static struct rt_timer timer_3HZ;
@@ -92,7 +92,7 @@ uint8_t mavlink_msg_transfer(uint8_t chan, uint8_t* msg_buff, uint16_t len)
 		return 1;
 }
 
-rt_err_t device_mavlink_init(void)
+rt_err_t device_mavproxy_init(void)
 {
 	mavlink_system.sysid = 20;                   
 	mavlink_system.compid = MAV_COMP_ID_IMU;     
@@ -329,7 +329,7 @@ static void timer_mavlink_3HZ_update(void* parameter)
 	rt_event_send(&event_mavlink, EVENT_MAV_3HZ_UPDATE);
 }
 
-rt_err_t mavlink_recv_ind(rt_device_t dev, rt_size_t size)
+rt_err_t mavproxy_recv_ind(rt_device_t dev, rt_size_t size)
 {
 	mavlink_message_t msg;
 	int chan = 0;
@@ -370,7 +370,7 @@ rt_err_t mavlink_recv_ind(rt_device_t dev, rt_size_t size)
 	}
 }
 
-int handle_mavlink_shell_cmd(int argc, char** argv)
+int handle_mavproxy_shell_cmd(int argc, char** argv)
 {
 	if(argc > 1){
 		if(strcmp(argv[1], "send") == 0){
@@ -391,7 +391,7 @@ int handle_mavlink_shell_cmd(int argc, char** argv)
 	}
 }
 
-void mavlink_loop(void *parameter)
+void mavproxy_entry(void *parameter)
 {
 	rt_err_t res;
 	rt_uint32_t recv_set = 0;
@@ -407,7 +407,7 @@ void mavlink_loop(void *parameter)
 	else{
 		rt_device_open(usb_device , RT_DEVICE_OFLAG_RDWR);
 		/* set receive indicate function */
-		rt_err_t err = rt_device_set_rx_indicate(usb_device, mavlink_recv_ind);
+		rt_err_t err = rt_device_set_rx_indicate(usb_device, mavproxy_recv_ind);
 		if(err != RT_EOK)
 			Console.e(TAG, "set mavlink receive indicate err:%d\n", err);
 	}

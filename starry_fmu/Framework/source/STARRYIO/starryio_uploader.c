@@ -1,5 +1,5 @@
 /*
- * File      : px4io_uploader.c
+ * File      : starryio_uploader.c
  *
  * Change Logs:
  * Date           Author       Notes
@@ -12,9 +12,9 @@
 #include <stdlib.h>
 #include "ringbuffer.h"
 #include "console.h"
-#include "px4io_uploader.h"
+#include "starryio_uploader.h"
 #include "delay.h"
-#include "px4io_manager.h"
+#include "starryio_manager.h"
 #include "ff.h"
 
 static const uint32_t crc32_tab[] = {
@@ -476,7 +476,7 @@ static rt_err_t uploader_serial_rx_ind(rt_device_t dev, rt_size_t size)
     return RT_EOK;
 }
 
-void px4io_upload(void)
+void starryio_upload(void)
 {
 	uint32_t bl_rev;
 	rt_err_t ret;
@@ -486,14 +486,14 @@ void px4io_upload(void)
 	
 	struct finsh_shell* shell = finsh_get_shell();
 	
-	Console.print("px4uploader...\r\n");
+	Console.print("starryio uploader, wait sync signal...\r\n");
 	
 	if(uploader_init() != RT_EOK){
 		uploader_deinit();
 		return ;
 	}
 	
-	request_reboot();	/* reboot px4io to let device enter bootloader */
+	request_reboot();	/* reboot starryio to let device enter bootloader */
 	
 	ringbuffer_flush(rb);	/*flush ring buffer*/
 	
@@ -561,7 +561,7 @@ void px4io_upload(void)
 
 rt_err_t uploader_init(void)
 {	
-	_dev = px4io_get_device();
+	_dev = starryio_get_device();
 	
 	if(_dev == RT_NULL)
     {

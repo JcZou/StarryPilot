@@ -12,7 +12,7 @@
 #include <shell.h>
 #include <string.h>
 #include "calibration.h"
-#include "px4io_uploader.h"
+#include "starryio_uploader.h"
 #include "pos_estimator.h"
 #include "msh_usr_cmd.h"
 #include "msh.h"
@@ -246,11 +246,11 @@ FINSH_FUNCTION_EXPORT_ALIAS(cmd_cali, __cmd_cali, calibrate the acc and mag sens
 
 int cmd_uploader(int argc, char** argv)
 {
-	px4io_upload();
+	starryio_upload();
 	
 	return 1;
 }
-FINSH_FUNCTION_EXPORT_ALIAS(cmd_uploader, __cmd_uploader, upload bin file to px4io.);
+FINSH_FUNCTION_EXPORT_ALIAS(cmd_uploader, __cmd_uploader, upload bin file to starryio.);
 
 int cmd_sethome(int argc, char** argv)
 {
@@ -372,12 +372,12 @@ int cmd_att_est(int argc, char** argv)
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_att_est, __cmd_att_est, attitude estimator commands);
 
-int handle_mavlink_shell_cmd(int argc, char** argv);
-int cmd_mavlink(int argc, char** argv)
+int handle_mavproxy_shell_cmd(int argc, char** argv);
+int cmd_mavproxy(int argc, char** argv)
 {
-	return handle_mavlink_shell_cmd(argc, argv);
+	return handle_mavproxy_shell_cmd(argc, argv);
 }
-FINSH_FUNCTION_EXPORT_ALIAS(cmd_mavlink, __cmd_mavlink, mavlink commands);
+FINSH_FUNCTION_EXPORT_ALIAS(cmd_mavproxy, __cmd_mavproxy, mavlink proxy commands);
 
 int handle_logger_shell_cmd(int argc, char** argv);
 int cmd_logger(int argc, char** argv)

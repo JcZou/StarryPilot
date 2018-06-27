@@ -1,5 +1,5 @@
 /*
- * File      : px4io_uploader.h
+ * File      : starryio_uploader.h
  *
  *
  * Change Logs:
@@ -15,6 +15,6 @@
 
 rt_err_t uploader_init(void);
 rt_err_t uploader_deinit(void);
-void px4io_upload(void);
+void starryio_upload(void);
 
 #endif

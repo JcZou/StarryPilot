@@ -1,5 +1,5 @@
 /*
- * File      : px4io_protocol.c
+ * File      : starryio_protocol.c
  *
  * Change Logs:
  * Date           Author       Notes
@@ -11,8 +11,8 @@
 #include <rtthread.h>
 #include <stdlib.h>
 #include "rc.h"
-#include "px4io_protocol.h"
-#include "px4io_manager.h"
+#include "starryio_protocol.h"
+#include "starryio_manager.h"
 #include "console.h"
 #include "delay.h"
 #include "sensor_manager.h"

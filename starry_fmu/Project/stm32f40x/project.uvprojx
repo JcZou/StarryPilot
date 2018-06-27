@@ -496,9 +496,9 @@
               <FilePath>..\..\Framework\source\Logger\logger.c</FilePath>
             </File>
             <File>
-              <FileName>mavlink_protocol.c</FileName>
+              <FileName>mavproxy.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\Mavlink\mavlink_protocol.c</FilePath>
+              <FilePath>..\..\Framework\source\Mavproxy\mavproxy.c</FilePath>
             </File>
             <File>
               <FileName>pos_estimator.c</FileName>
@@ -509,21 +509,6 @@
               <FileName>param.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\Param\param.c</FilePath>
-            </File>
-            <File>
-              <FileName>px4io_manager.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\PX4IO\px4io_manager.c</FilePath>
-            </File>
-            <File>
-              <FileName>px4io_protocol.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\PX4IO\px4io_protocol.c</FilePath>
-            </File>
-            <File>
-              <FileName>px4io_uploader.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\PX4IO\px4io_uploader.c</FilePath>
             </File>
             <File>
               <FileName>pid.c</FileName>
@@ -554,6 +539,21 @@
               <FileName>system.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\System\system.c</FilePath>
+            </File>
+            <File>
+              <FileName>starryio_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\STARRYIO\starryio_manager.c</FilePath>
+            </File>
+            <File>
+              <FileName>starryio_protocol.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\STARRYIO\starryio_protocol.c</FilePath>
+            </File>
+            <File>
+              <FileName>starryio_uploader.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\STARRYIO\starryio_uploader.c</FilePath>
             </File>
             <File>
               <FileName>test.c</FileName>
