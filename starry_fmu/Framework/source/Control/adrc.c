@@ -131,7 +131,9 @@ void adrc_nlsef_init(ADRC_NLSEF_Def* nlsef_t, float h, float r1, float h1, float
 	nlsef_t->c = c;
 }
 
-float adrc_nlsef(ADRC_NLSEF_Def* nlsef_t, float e1, float e2, float b0, bool i_enable)
+float adrc_nlsef(ADRC_NLSEF_Def* nlsef_t, float e1, float e2)
 {
-	return -adrc_fhan(e1, nlsef_t->c*e2, nlsef_t->r1, nlsef_t->h1);
+	float u0 = -adrc_fhan(e1, nlsef_t->c*e2, nlsef_t->r1, nlsef_t->h1);
+
+	return u0;
 }

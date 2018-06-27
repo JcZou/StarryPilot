@@ -332,13 +332,6 @@ void throttle_compensate(float* throttle)
 	}
 }
 
-//extern float rate_i_accum[3];
-//extern ADRC_LESO_Def _roll_leso;
-//extern ADRC_LESO_Def _pitch_leso;
-//extern Delay_Block roll_leso_delay;
-//extern Delay_Block pitch_leso_delay;
-//void _delay_block_push(Delay_Block *block, float val);
-//float _delay_block_pop(Delay_Block *block);
 ADRC_Log adrc_log;
 void _ctrl_att_with_baseThrottle(float baseThrottle, float dT)
 {
@@ -397,12 +390,6 @@ void _ctrl_att_with_baseThrottle(float baseThrottle, float dT)
 			err[1] = Rad2Deg(err[1]);
 			err[2] = Rad2Deg(err[2]);
 			att_pid_update(err, out, gyr_t, dT, baseThrottle);
-			
-			//adrc_log.sp_rate = Rad2Deg(et.pitch);
-//			adrc_log.z1 = _pitch_leso.z1;
-//			adrc_log.z2 = _pitch_leso.z2;
-//			adrc_log.v = Rad2Deg(et.pitch);
-//			mcn_publish(MCN_ID(ADRC), &adrc_log);
 		}
 
 		/* calculate motor output */

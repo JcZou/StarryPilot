@@ -30,6 +30,7 @@ typedef struct
 }Delay_Block;
 
 void adrc_att_init(float h);
+void adrc_att_reset(float h);
 void adrc_att_dis_comp(float* in, float* out);
 void adrc_att_control(float euler_err[3], const float gyr[3], float out[3], float bth);
 void adrc_att_observer_update(const float gyr[3], float bth);

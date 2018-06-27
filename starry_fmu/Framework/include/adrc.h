@@ -73,7 +73,7 @@ void adrc_eso(ADRC_ESO_Def* eso_t, float y);
 void adrc_leso_init(ADRC_LESO_Def* leso_t, float h, float w, float b0);
 void adrc_leso(ADRC_LESO_Def* leso_t, float y);
 void adrc_nlsef_init(ADRC_NLSEF_Def* nlsef_t, float h, float r1, float h1, float c);
-float adrc_nlsef(ADRC_NLSEF_Def* nlsef_t, float e1, float e2, float b0, bool i_enable);
+float adrc_nlsef(ADRC_NLSEF_Def* nlsef_t, float e1, float e2);
 
 #endif
 

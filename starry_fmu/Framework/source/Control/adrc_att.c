@@ -102,10 +102,14 @@ void adrc_att_init(float h)
 						PARAM_GET_FLOAT(ADRC_ATT, NLSEF_C));
 	
 	// delay time = (size-1)*sample_time
+#ifdef HIL_SIMULATION
+	// there is no filtering for HIL simulation
+	_delay_block_create(&roll_leso_delay, 1);
+	_delay_block_create(&pitch_leso_delay, 1);
+#else
 	_delay_block_create(&roll_leso_delay, 5);
 	_delay_block_create(&pitch_leso_delay, 5);
-//	_delay_block_create(&roll_leso_delay, 3);
-//	_delay_block_create(&pitch_leso_delay, 3);
+#endif
 	
 	_outerloop_update = 1;
 	
@@ -168,13 +172,14 @@ void adrc_att_control(float err[3], const float gyr[3], float out[3], float bth)
 	sp_rate[1] = adrc_td_control(&_pitch_td_controller, err[1]);
 	rate_err[0] = sp_rate[0] - gyr[0];
 	rate_err[1] = sp_rate[1] - gyr[1];
+	
 	/* control law */
 	// TD extracts derivative of error
 	adrc_td(&_roll_td, rate_err[0]);
 	adrc_td(&_pitch_td, rate_err[1]);
 	// NLSEF control
-	u0[0] = adrc_nlsef(&_roll_nlsef, rate_err[0], _roll_td.v2, _roll_leso.b0, bth>0.3f) / _roll_leso.b0;
-	u0[1] = adrc_nlsef(&_pitch_nlsef, rate_err[1], _pitch_td.v2, _pitch_leso.b0, bth>0.3f) / _pitch_leso.b0;
+	u0[0] = adrc_nlsef(&_roll_nlsef, rate_err[0], _roll_td.v2)/_roll_leso.b0;
+	u0[1] = adrc_nlsef(&_pitch_nlsef, rate_err[1], _pitch_td.v2)/_pitch_leso.b0;
 	// integral action
 	float ki = PARAM_GET_FLOAT(ADRC_ATT, NLSEF_KI);
 	if(IN_RANGE(int_i[0], -0.1f, 0.1f))
@@ -186,7 +191,8 @@ void adrc_att_control(float err[3], const float gyr[3], float out[3], float bth)
 	// constrain output
 	constrain(&u0[0], -0.5f, 0.5f);
 	constrain(&u0[1], -0.5f, 0.5f);
-	// disturbance rejection
+	
+	/* disturbance rejection */
 	adrc_att_dis_comp(u0, out);
 
 	/* yaw axis control uses pid */
