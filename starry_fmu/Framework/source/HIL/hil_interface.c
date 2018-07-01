@@ -85,11 +85,6 @@ int hil_collect_data(void)
 	return 0;
 }
 
-int hil_actuator_control(float *control, int motor_num)
-{
-	
-}
-
 bool hil_baro_poll(void)
 {
 	return mcn_poll(hil_baro_node_t);
