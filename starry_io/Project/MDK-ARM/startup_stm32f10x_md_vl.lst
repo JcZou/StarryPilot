@@ -472,8 +472,8 @@ l.o -I.\RTE\_StarryIO -IE:\App\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include -
 IE:\App\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include --predefine="_
 _MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 523" --predefine="_RTE_ S
 ETA 1" --predefine="STM32F10X_MD_VL SETA 1" --list=.\startup_stm32f10x_md_vl.ls
-t ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\startup\arm\startup_s
-tm32f10x_md_vl.s
+t ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\startup\arm\startup_stm3
+2f10x_md_vl.s
 
 
 
@@ -484,8 +484,8 @@ STACK 00000000
 
 Symbol: STACK
    Definitions
-      At line 35 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 35 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
    Uses
       None
 Comment: STACK unused
@@ -493,8 +493,8 @@ Stack_Mem 00000000
 
 Symbol: Stack_Mem
    Definitions
-      At line 36 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 36 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
    Uses
       None
 Comment: Stack_Mem unused
@@ -502,13 +502,13 @@ __initial_sp 00000400
 
 Symbol: __initial_sp
    Definitions
-      At line 37 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 37 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 61 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 292 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 61 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 292 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 3 symbols
 
@@ -521,8 +521,8 @@ HEAP 00000000
 
 Symbol: HEAP
    Definitions
-      At line 46 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 46 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
    Uses
       None
 Comment: HEAP unused
@@ -530,8 +530,8 @@ Heap_Mem 00000000
 
 Symbol: Heap_Mem
    Definitions
-      At line 48 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 48 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
    Uses
       None
 Comment: Heap_Mem unused
@@ -539,21 +539,21 @@ __heap_base 00000000
 
 Symbol: __heap_base
    Definitions
-      At line 47 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 47 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 293 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 293 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 Comment: __heap_base used once
 __heap_limit 00000200
 
 Symbol: __heap_limit
    Definitions
-      At line 49 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 49 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 294 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 294 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 Comment: __heap_limit used once
 4 symbols
 
@@ -566,8 +566,8 @@ RESET 00000000
 
 Symbol: RESET
    Definitions
-      At line 56 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 56 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
    Uses
       None
 Comment: RESET unused
@@ -575,25 +575,25 @@ __Vectors 00000000
 
 Symbol: __Vectors
    Definitions
-      At line 61 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 61 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 57 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 137 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 57 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 137 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 __Vectors_End 00000120
 
 Symbol: __Vectors_End
    Definitions
-      At line 135 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 135 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 58 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 137 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 58 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 137 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 3 symbols
 
@@ -606,8 +606,8 @@ Relocatable symbols
 
 Symbol: .text
    Definitions
-      At line 139 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 139 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
       None
 Comment: .text unused
@@ -615,49 +615,49 @@ ADC1_IRQHandler 0000001A
 
 Symbol: ADC1_IRQHandler
    Definitions
-      At line 258 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 258 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 97 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 216 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 97 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 216 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 BusFault_Handler 0000000E
 
 Symbol: BusFault_Handler
    Definitions
-      At line 169 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 169 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 66 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 170 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 66 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 170 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 CEC_IRQHandler 0000001A
 
 Symbol: CEC_IRQHandler
    Definitions
-      At line 278 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 278 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 121 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 236 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 121 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 236 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 DMA1_Channel1_IRQHandler 0000001A
 
 Symbol: DMA1_Channel1_IRQHandler
    Definitions
-      At line 251 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 251 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 90 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 209 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 90 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 209 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 DMA1_Channel2_IRQHandler 0000001A
 
@@ -669,61 +669,61 @@ Relocatable symbols
 
 Symbol: DMA1_Channel2_IRQHandler
    Definitions
-      At line 252 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 252 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 91 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 210 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 91 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 210 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 DMA1_Channel3_IRQHandler 0000001A
 
 Symbol: DMA1_Channel3_IRQHandler
    Definitions
-      At line 253 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 253 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 92 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 211 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 92 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 211 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 DMA1_Channel4_IRQHandler 0000001A
 
 Symbol: DMA1_Channel4_IRQHandler
    Definitions
-      At line 254 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 254 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 93 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 212 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 93 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 212 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 DMA1_Channel5_IRQHandler 0000001A
 
 Symbol: DMA1_Channel5_IRQHandler
    Definitions
-      At line 255 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 255 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 94 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 213 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 94 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 213 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 DMA1_Channel6_IRQHandler 0000001A
 
 Symbol: DMA1_Channel6_IRQHandler
    Definitions
-      At line 256 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 256 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 95 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 214 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 95 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 214 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 DMA1_Channel7_IRQHandler 0000001A
 
@@ -735,32 +735,32 @@ Relocatable symbols
 
 Symbol: DMA1_Channel7_IRQHandler
    Definitions
-      At line 257 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 257 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 96 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 215 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 96 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 215 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 DebugMon_Handler 00000014
 
 Symbol: DebugMon_Handler
    Definitions
-      At line 183 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 183 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 73 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 184 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 73 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 184 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 Default_Handler 0000001A
 
 Symbol: Default_Handler
    Definitions
-      At line 196 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 196 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
       None
 Comment: Default_Handler unused
@@ -768,25 +768,25 @@ EXTI0_IRQHandler 0000001A
 
 Symbol: EXTI0_IRQHandler
    Definitions
-      At line 246 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 246 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 85 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 204 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 85 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 204 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 EXTI15_10_IRQHandler 0000001A
 
 Symbol: EXTI15_10_IRQHandler
    Definitions
-      At line 276 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 276 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 119 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 234 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 119 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 234 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 EXTI1_IRQHandler 0000001A
 
@@ -798,61 +798,61 @@ ARM Macro Assembler    Page 4 Alphabetic symbol ordering
 Relocatable symbols
 
    Definitions
-      At line 247 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 247 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 86 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 205 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 86 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 205 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 EXTI2_IRQHandler 0000001A
 
 Symbol: EXTI2_IRQHandler
    Definitions
-      At line 248 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 248 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 87 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 206 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 87 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 206 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 EXTI3_IRQHandler 0000001A
 
 Symbol: EXTI3_IRQHandler
    Definitions
-      At line 249 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 249 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 88 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 207 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 88 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 207 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 EXTI4_IRQHandler 0000001A
 
 Symbol: EXTI4_IRQHandler
    Definitions
-      At line 250 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 250 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 89 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 208 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 89 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 208 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 EXTI9_5_IRQHandler 0000001A
 
 Symbol: EXTI9_5_IRQHandler
    Definitions
-      At line 259 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 259 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 102 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 217 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 102 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 217 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 FLASH_IRQHandler 0000001A
 
@@ -864,61 +864,61 @@ Relocatable symbols
 
 Symbol: FLASH_IRQHandler
    Definitions
-      At line 244 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 244 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 83 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 202 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 83 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 202 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 HardFault_Handler 0000000A
 
 Symbol: HardFault_Handler
    Definitions
-      At line 159 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 159 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 64 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 160 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 64 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 160 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 I2C1_ER_IRQHandler 0000001A
 
 Symbol: I2C1_ER_IRQHandler
    Definitions
-      At line 268 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 268 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 111 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 226 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 111 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 226 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 I2C1_EV_IRQHandler 0000001A
 
 Symbol: I2C1_EV_IRQHandler
    Definitions
-      At line 267 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 267 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 110 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 225 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 110 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 225 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 I2C2_ER_IRQHandler 0000001A
 
 Symbol: I2C2_ER_IRQHandler
    Definitions
-      At line 270 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 270 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 113 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 228 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 113 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 228 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 I2C2_EV_IRQHandler 0000001A
 
@@ -930,61 +930,61 @@ Relocatable symbols
 
 Symbol: I2C2_EV_IRQHandler
    Definitions
-      At line 269 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 269 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 112 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 227 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 112 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 227 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 MemManage_Handler 0000000C
 
 Symbol: MemManage_Handler
    Definitions
-      At line 164 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 164 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 65 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 165 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 65 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 165 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 NMI_Handler 00000008
 
 Symbol: NMI_Handler
    Definitions
-      At line 154 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 154 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 63 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 155 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 63 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 155 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 PVD_IRQHandler 0000001A
 
 Symbol: PVD_IRQHandler
    Definitions
-      At line 241 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 241 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 80 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 199 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 80 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 199 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 PendSV_Handler 00000016
 
 Symbol: PendSV_Handler
    Definitions
-      At line 187 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 187 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 75 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 188 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 75 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 188 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 
 
@@ -996,61 +996,61 @@ RCC_IRQHandler 0000001A
 
 Symbol: RCC_IRQHandler
    Definitions
-      At line 245 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 245 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 84 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 203 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 84 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 203 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 RTCAlarm_IRQHandler 0000001A
 
 Symbol: RTCAlarm_IRQHandler
    Definitions
-      At line 277 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 277 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 120 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 235 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 120 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 235 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 RTC_IRQHandler 0000001A
 
 Symbol: RTC_IRQHandler
    Definitions
-      At line 243 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 243 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 82 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 201 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 82 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 201 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 Reset_Handler 00000000
 
 Symbol: Reset_Handler
    Definitions
-      At line 142 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 142 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 62 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 143 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 62 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 143 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 SPI1_IRQHandler 0000001A
 
 Symbol: SPI1_IRQHandler
    Definitions
-      At line 271 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 271 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 114 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 229 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 114 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 229 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 
 
@@ -1062,235 +1062,235 @@ SPI2_IRQHandler 0000001A
 
 Symbol: SPI2_IRQHandler
    Definitions
-      At line 272 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 272 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 115 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 230 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 115 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 230 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 SVC_Handler 00000012
 
 Symbol: SVC_Handler
    Definitions
-      At line 178 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 178 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 72 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 179 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 72 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 179 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 SysTick_Handler 00000018
 
 Symbol: SysTick_Handler
    Definitions
-      At line 191 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 191 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 76 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 192 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 76 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 192 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 TAMPER_IRQHandler 0000001A
 
 Symbol: TAMPER_IRQHandler
    Definitions
-      At line 242 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 242 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 81 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 200 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 81 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 200 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 TIM1_BRK_TIM15_IRQHandler 0000001A
 
 Symbol: TIM1_BRK_TIM15_IRQHandler
    Definitions
-      At line 260 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 260 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 103 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 218 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
+      At line 103 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 218 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
 
 
 
 ARM Macro Assembler    Page 9 Alphabetic symbol ordering
 Relocatable symbols
 
-0x\startup\arm\startup_stm32f10x_md_vl.s
+startup\arm\startup_stm32f10x_md_vl.s
 
 TIM1_CC_IRQHandler 0000001A
 
 Symbol: TIM1_CC_IRQHandler
    Definitions
-      At line 263 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 263 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 106 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 221 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 106 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 221 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 TIM1_TRG_COM_TIM17_IRQHandler 0000001A
 
 Symbol: TIM1_TRG_COM_TIM17_IRQHandler
    Definitions
-      At line 262 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 262 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 105 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 220 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 105 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 220 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 TIM1_UP_TIM16_IRQHandler 0000001A
 
 Symbol: TIM1_UP_TIM16_IRQHandler
    Definitions
-      At line 261 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 261 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 104 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 219 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 104 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 219 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 TIM2_IRQHandler 0000001A
 
 Symbol: TIM2_IRQHandler
    Definitions
-      At line 264 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 264 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 107 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 222 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 107 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 222 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 TIM3_IRQHandler 0000001A
 
 Symbol: TIM3_IRQHandler
    Definitions
-      At line 265 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 265 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 108 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 108 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 
 
 ARM Macro Assembler    Page 10 Alphabetic symbol ordering
 Relocatable symbols
 
-      At line 223 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 223 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 TIM4_IRQHandler 0000001A
 
 Symbol: TIM4_IRQHandler
    Definitions
-      At line 266 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 266 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 109 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 224 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 109 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 224 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 TIM6_DAC_IRQHandler 0000001A
 
 Symbol: TIM6_DAC_IRQHandler
    Definitions
-      At line 279 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 279 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 133 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 237 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 133 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 237 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 TIM7_IRQHandler 0000001A
 
 Symbol: TIM7_IRQHandler
    Definitions
-      At line 280 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 280 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 134 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 238 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 134 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 238 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 USART1_IRQHandler 0000001A
 
 Symbol: USART1_IRQHandler
    Definitions
-      At line 273 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 273 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 116 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 231 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 116 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 231 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 USART2_IRQHandler 0000001A
 
 Symbol: USART2_IRQHandler
    Definitions
-      At line 274 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 274 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 117 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
+      At line 117 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
 
 
 
 ARM Macro Assembler    Page 11 Alphabetic symbol ordering
 Relocatable symbols
 
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 232 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 232 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 USART3_IRQHandler 0000001A
 
 Symbol: USART3_IRQHandler
    Definitions
-      At line 275 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 275 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 118 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 233 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 118 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
+      At line 233 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 UsageFault_Handler 00000010
 
 Symbol: UsageFault_Handler
    Definitions
-      At line 174 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 174 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 67 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 175 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 67 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 175 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 WWDG_IRQHandler 0000001A
 
 Symbol: WWDG_IRQHandler
    Definitions
-      At line 240 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 240 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 79 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
-      At line 198 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 79 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
+      At line 198 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 
 53 symbols
 
@@ -1303,31 +1303,31 @@ Heap_Size 00000200
 
 Symbol: Heap_Size
    Definitions
-      At line 44 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 44 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 48 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 48 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
 Comment: Heap_Size used once
 Stack_Size 00000400
 
 Symbol: Stack_Size
    Definitions
-      At line 33 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 33 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 36 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 36 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
 Comment: Stack_Size used once
 __Vectors_Size 00000120
 
 Symbol: __Vectors_Size
    Definitions
-      At line 137 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 137 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 59 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10
-x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 59 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\s
+tartup\arm\startup_stm32f10x_md_vl.s
 Comment: __Vectors_Size used once
 3 symbols
 
@@ -1340,21 +1340,21 @@ SystemInit 00000000
 
 Symbol: SystemInit
    Definitions
-      At line 145 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 145 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 146 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 146 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 Comment: SystemInit used once
 __main 00000000
 
 Symbol: __main
    Definitions
-      At line 144 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 144 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
    Uses
-      At line 148 in file ..\..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F1
-0x\startup\arm\startup_stm32f10x_md_vl.s
+      At line 148 in file ..\..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\
+startup\arm\startup_stm32f10x_md_vl.s
 Comment: __main used once
 2 symbols
 404 symbols in table
