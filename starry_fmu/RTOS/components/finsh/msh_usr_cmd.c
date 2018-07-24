@@ -252,34 +252,19 @@ int cmd_uploader(int argc, char** argv)
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_uploader, __cmd_uploader, upload bin file to starryio.);
 
-int cmd_sethome(int argc, char** argv)
-{
-	if(argc > 1){
-		if(strcmp(argv[1], "curpos") == 0)
-			set_home_with_current_pos();
-		else if(argc == 4){
-			unsigned int lon, lat;
-			float alt;
-			lon = atoi(argv[1]);
-			lat = atoi(argv[2]);
-			alt = atof(argv[3]);
-			rt_kprintf("set home: %d %d %.2f\n", lon, lat, alt);
-			set_home(lon, lat, alt);
-		}
-		
-		return 0;
-	}
-	
-	return 1;
-}
-FINSH_FUNCTION_EXPORT_ALIAS(cmd_sethome, __cmd_sethome, set home with current position.);
-
 int handle_sensor_shell_cmd(int argc, char** argv);
 int cmd_sensor(int argc, char** argv)
 {
 	return handle_sensor_shell_cmd(argc, argv);
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_sensor, __cmd_sensor, get sensor information.);
+
+int handle_gps_shell_cmd(int argc, char** argv);
+int cmd_gps(int argc, char** argv)
+{
+	return handle_gps_shell_cmd(argc, argv);
+}
+FINSH_FUNCTION_EXPORT_ALIAS(cmd_gps, __cmd_gps, get gps information.);
 
 int handle_motor_shell_cmd(int argc, char** argv);
 int cmd_motor(int argc, char** argv)

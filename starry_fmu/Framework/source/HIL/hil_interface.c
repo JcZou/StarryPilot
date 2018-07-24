@@ -13,6 +13,8 @@
 #include "mavproxy.h"
 #include "filter.h"
 #include "ms5611.h"
+#include "delay.h"
+#include "sensor_manager.h"
 
 MCN_DECLARE(HIL_STATE_Q);
 MCN_DECLARE(HIL_SENSOR);
@@ -23,6 +25,9 @@ static McnNode_t hil_state_node_t;
 static McnNode_t hil_sensor_node_t;
 static McnNode_t hil_gps_node_t;
 static McnNode_t hil_baro_node_t;
+static float _hil_baro_last_alt = 0;
+static uint32_t _hil_baro_last_time = 0;
+static BaroPosition _hil_baro_pos = {0,0};
 
 static char* TAG = "HIL";
 
@@ -33,6 +38,7 @@ MCN_DECLARE(SENSOR_FILTER_ACC);
 MCN_DECLARE(SENSOR_MAG);
 MCN_DECLARE(SENSOR_FILTER_MAG);
 MCN_DECLARE(SENSOR_BARO);
+MCN_DECLARE(BARO_POSITION);
 
 int hil_collect_data(void)
 {
@@ -55,7 +61,8 @@ int hil_collect_data(void)
 			hil_baro_report.temperature = hil_sensor.temperature;
 			hil_baro_report.pressure = hil_sensor.abs_pressure;
 			hil_baro_report.altitude = hil_sensor.pressure_alt;
-			
+			hil_baro_report.time_stamp = time_nowMs();
+
 			/* publish gyro data */
 			gyrfilter_input(gyr);
 			mcn_publish(MCN_ID(SENSOR_GYR), gyr);
@@ -68,8 +75,20 @@ int hil_collect_data(void)
 			magfilter_input(mag);
 			mcn_publish(MCN_ID(SENSOR_MAG), mag);
 			mcn_publish(MCN_ID(SENSOR_FILTER_MAG), magfilter_current());
-			/* publish baro data */
-			mcn_publish(MCN_ID(SENSOR_BARO), &hil_baro_report);
+			
+			if(hil_baro_report.time_stamp - _hil_baro_last_time >= 20){
+				float dt = 0.02f;
+				
+				_hil_baro_pos.time_stamp = hil_baro_report.time_stamp;
+				_hil_baro_pos.altitude = -hil_baro_report.altitude; // change to NED coordinate
+				float vel = (_hil_baro_pos.altitude-_hil_baro_last_alt)/dt;
+				_hil_baro_pos.velocity = _hil_baro_pos.velocity + 0.05*(vel-_hil_baro_pos.velocity);
+				_hil_baro_last_alt = _hil_baro_pos.altitude;
+				_hil_baro_last_time = hil_baro_report.time_stamp;
+				/* publish baro data */
+				mcn_publish(MCN_ID(SENSOR_BARO), &hil_baro_report);
+				mcn_publish(MCN_ID(BARO_POSITION), &_hil_baro_pos);
+			}
 		}
 	}else if(_hil_op == HIL_STATE_LEVEL){
 		if(mcn_poll(hil_state_node_t)){

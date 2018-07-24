@@ -13,6 +13,17 @@
 #include <rtthread.h>
 #include <rtdevice.h>
 
+typedef struct{
+	float x;
+	float y;
+}Vector2f_t;
+
+typedef struct{
+	float x;
+	float y;
+	float z;
+}Vector3f_t;
+
 float math_rsqrt(float number);
 float math_vector_length(const float v[3]);
 float math_vector_dot(const float left[3],const float right[3]);
@@ -31,5 +42,6 @@ float Vector2_DotProduct(const float vector1[2], const float vector2[2]);
 
 uint8_t constrain(float *val, float min_val, float max_val);
 float constrain_float(float amt, float low, float high);
+uint32_t constrain_uint32(uint32_t amt, uint32_t low, uint32_t high);
 
 #endif

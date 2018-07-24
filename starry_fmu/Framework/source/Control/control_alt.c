@@ -23,7 +23,7 @@
 #include "att_pid.h"
 #include "starryio_manager.h"
 #include "pid.h"
-#include "ekf.h"
+#include "kf.h"
 #include "delay.h"
 
 #define MAX_ALT_RATE		1.0f		/* in m/s */

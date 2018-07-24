@@ -28,6 +28,7 @@ MCN_DECLARE(SENSOR_ACC);
 MCN_DECLARE(SENSOR_MAG);
 
 MCN_DEFINE(ATT_EULER, sizeof(Euler));	
+MCN_DEFINE(ATT_QUATERNION, sizeof(quaternion));
 
 static char *TAG = "Att_Est";
 
@@ -49,6 +50,7 @@ void attitude_est_run(float dT)
 	#error Please select AHRS method.
 #endif
 	
+	mcn_publish(MCN_ID(ATT_QUATERNION), &drone_attitude);
 	Euler euler = attitude_est_get_euler();
 	mcn_publish(MCN_ID(ATT_EULER), &euler);
 }
@@ -66,7 +68,12 @@ rt_err_t attitude_est_init(void)
 #endif
 	AHRS_reset(&drone_attitude, acc, mag);
 	
-	int mcn_res = mcn_advertise(MCN_ID(ATT_EULER));
+	
+	int mcn_res = mcn_advertise(MCN_ID(ATT_QUATERNION));
+	if(mcn_res != 0){
+		Console.e(TAG, "err:%d, ATT_QUATERNION advertise fail!\n", mcn_res);
+	}
+	mcn_res = mcn_advertise(MCN_ID(ATT_EULER));
 	if(mcn_res != 0){
 		Console.e(TAG, "err:%d, ATT_EULER advertise fail!\n", mcn_res);
 	}

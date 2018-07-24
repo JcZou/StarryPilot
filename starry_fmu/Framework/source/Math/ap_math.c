@@ -199,3 +199,8 @@ float constrain_float(float amt, float low, float high)
 	}
 	return ((amt)<(low)?(low):((amt)>(high)?(high):(amt)));
 }
+
+uint32_t constrain_uint32(uint32_t amt, uint32_t low, uint32_t high)
+{
+	return ((amt)<(low)?(low):((amt)>(high)?(high):(amt)));
+}

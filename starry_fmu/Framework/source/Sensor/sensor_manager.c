@@ -47,6 +47,8 @@
 
 #define BARO_UPDATE_INTERVAL    10
 
+#define EARTH_RADIUS			6371000
+
 static char *TAG = "Sensor";
 
 static uint32_t gyr_read_time_stamp = 0;
@@ -71,15 +73,22 @@ static struct rt_timer timer_mag;
 static struct rt_timer timer_gyr;
 static struct rt_timer timer_baro;
 
+static McnNode_t gps_node_t;
+
 static struct rt_timer timer_vehicle;
 struct rt_event event_vehicle;
 
 static volatile bool _baro_update_flag = false;
 static volatile bool _mag_update_flag = false;
 
+static GPS_Status _gps_status;
+
 float _lidar_dis = 0.0f;
 uint32_t _lidar_recv_stamp = 0;
 static uint32_t _lidar_time = 0;
+static float _baro_last_alt = 0.0f;
+static uint32_t _baro_last_time = 0;
+static BaroPosition _baro_pos = {0.0f, 0.0f, 0};
 
 MCN_DEFINE(SENSOR_GYR, 12);	
 MCN_DEFINE(SENSOR_ACC, 12);
@@ -90,6 +99,10 @@ MCN_DEFINE(SENSOR_FILTER_MAG, 12);
 MCN_DEFINE(SENSOR_BARO, sizeof(MS5611_REPORT_Def));
 MCN_DEFINE(SENSOR_LIDAR, sizeof(float));
 MCN_DEFINE(CORRECT_LIDAR, sizeof(float));
+MCN_DEFINE(BARO_POSITION, sizeof(BaroPosition));
+MCN_DEFINE(GPS_STATUS, sizeof(GPS_Status));
+
+MCN_DECLARE(GPS_POSITION);
 
 /**************************	ACC API	**************************/
 bool sensor_acc_ready(void)
@@ -462,6 +475,11 @@ MS5611_REPORT_Def* sensor_baro_get_report(void)
 	return &report_baro;
 }
 
+BaroPosition sensor_baro_get_position(void)
+{
+	return _baro_pos;
+}
+
 /**************************	LIDAR-LITE API **************************/
 void lidar_lite_store(float dis)
 {
@@ -532,17 +550,83 @@ bool lidar_is_ready(void)
 	}
 }
 
-struct vehicle_gps_position_s get_gps_position(void)
+//////////////// GPS Function ///////////////////////
+//	while(1)
+//	{
+//		//example code to read gps data
+//		if( rt_device_read(gps_device_t, RD_COMPLETED_REPORT, NULL, 1) == RT_EOK){
+////			printf("lat:%d lon:%d alt:%d vd:%.2f ve:%.2f vn:%.2f\r\n", gps_position.lat, gps_position.lon, gps_position.alt, 
+////				gps_position.vel_d_m_s,gps_position.vel_e_m_s, gps_position.vel_n_m_s);
+//			printf("gpspos:%d %d %d gpsv:%f %f %f\r\n", gps_position.lat, gps_position.lon, gps_position.alt, 
+//				gps_position.vel_d_m_s,gps_position.vel_e_m_s, gps_position.vel_n_m_s);
+//		}
+////		if( rt_device_read(gps_device_t, RD_SVINFO, NULL, 1) == RT_EOK){
+////			printf("satellite cnt:%d\r\n", satellite_info.count);
+////		}
+//		
+//		time_waitMs(300);
+//	}
+
+void gps_calc_geometry_distance(Vector3f_t* dis, double ref_lat, double ref_lon, double lat, double lon)
 {
-	return gps_position;
+	double delta_lat = Deg2Rad(lat - ref_lat);
+	double delta_lon = Deg2Rad(lon - ref_lon);
+	
+	dis->x = (float)(delta_lat * EARTH_RADIUS);
+	dis->y = (float)(delta_lon * EARTH_RADIUS * arm_cos_f32(lat));
 }
 
-/* sensor axis is diffirent with attitude(NED) axis */
-void sensorAxis2NedAxis(float from[3], float to[3])
+void gps_calc_geometry_distance2(Vector3f_t* dis, double ref_lat, double ref_lon, double lat, double lon)
 {
-	to[0] = from[0];
-	to[1] = -from[1];
-	to[2] = -from[2];
+	const double lat_rad = Deg2Rad(lat);
+	const double lon_rad = Deg2Rad(lon);
+
+	const double sin_lat = sin(lat_rad);
+	const double cos_lat = cos(lat_rad);
+
+	const double cos_d_lon = cos(lon_rad - Deg2Rad(ref_lon));
+
+	const double arg = constrain_float(sin(Deg2Rad(ref_lat)) * sin_lat + cos(Deg2Rad(ref_lat)) * cos_lat * cos_d_lon, -1.0,  1.0);
+	const double c = acos(arg);
+
+	double k = 1.0;
+
+	if (fabs(c) > 0) {
+		k = (c / sin(c));
+	}
+
+	dis->x = (float)(k * (cos(Deg2Rad(ref_lat)) * sin_lat - sin(Deg2Rad(ref_lat)) * cos_lat * cos_d_lon) * EARTH_RADIUS);
+	dis->y = (float)(k * cos_lat * sin(lon_rad - Deg2Rad(ref_lon)) * EARTH_RADIUS);
+}
+
+struct vehicle_gps_position_s gps_get_report(void)
+{
+	struct vehicle_gps_position_s gps_pos_t;
+	
+	mcn_copy_from_hub(MCN_ID(GPS_POSITION), &gps_pos_t);
+	
+	return gps_pos_t;
+}
+
+int gps_get_position(Vector3f_t* gps_pos, struct vehicle_gps_position_s gps_report)
+{
+	HomePosition home = ctrl_get_home();
+	if(!home.home_set)
+		return -1;
+
+	gps_calc_geometry_distance2(gps_pos, home.lat, home.lon, (double)gps_report.lat*1e-7, (double)gps_report.lon*1e-7);
+	gps_pos->z = (float)gps_report.alt*1e-3;
+	
+	return 0;
+}
+
+int gps_get_velocity(Vector3f_t* gps_vel, struct vehicle_gps_position_s gps_report)
+{
+	gps_vel->x = gps_report.vel_n_m_s;
+	gps_vel->y = gps_report.vel_e_m_s;
+	gps_vel->z = gps_report.vel_d_m_s;
+	
+	return 0;
 }
 
 rt_err_t lsm303d_mag_measure(float mag[3]);
@@ -658,6 +742,24 @@ rt_err_t device_sensor_init(void)
 	if(mcn_res != 0){
 		Console.e(TAG, "err:%d, correct_lidar advertise fail!\n", mcn_res);
 	}
+	mcn_res = mcn_advertise(MCN_ID(BARO_POSITION));
+	if(mcn_res != 0){
+		Console.e(TAG, "err:%d, baro_position advertise fail!\n", mcn_res);
+	}
+	mcn_res = mcn_advertise(MCN_ID(GPS_STATUS));
+	if(mcn_res != 0){
+		Console.e(TAG, "err:%d, GPS_STATUS advertise fail!\n", mcn_res);
+	}
+	
+	gps_node_t = mcn_subscribe(MCN_ID(GPS_POSITION), NULL);
+	if(gps_node_t == NULL)
+		Console.e(TAG, "gps_node_t subscribe err\n");
+	
+	_baro_last_alt = 0.0f;
+	_gps_status.status = GPS_UNDETECTED;
+	_gps_status.fix_cnt = 0;
+	// publish init gps status
+	mcn_publish(MCN_ID(GPS_STATUS), &_gps_status);
 	
 	return res;
 }
@@ -686,10 +788,6 @@ static void timer_vehicle_update(void* parameter)
 //	//rt_event_send(&event_sensor, EVENT_MAG_UPDATE);
 //}
 
-#include "file_manager.h"
-FIL my_fp;
-UINT bw;
-int start = 0;
 void sensor_collect(void)
 {
 	float gyr[3], acc[3], mag[3];
@@ -710,14 +808,6 @@ void sensor_collect(void)
 		Console.e(TAG, "fail to get acc data\n");
 	}
 	
-	if(start){
-		char str_buff[60];
-		const float *fgyr = gyrfilter_current();
-		const float *facc = accfilter_current();
-		sprintf(str_buff, "%.3f %.3f %.3f %.3f", gyr[1],acc[0], fgyr[1], facc[0]);
-		f_printf (&my_fp, "%s\n", str_buff);
-	}
-	
 	if(sensor_mag_ready()){
 		if(sensor_mag_get_calibrated_data(mag) == RT_EOK){
 			magfilter_input(mag);
@@ -731,8 +821,49 @@ void sensor_collect(void)
 
 	if(sensor_baro_ready()){
 		if(sensor_baro_update()){
+			
 			MS5611_REPORT_Def* baro_report = sensor_baro_get_report();
+
+			float dt = (float)(baro_report->time_stamp-_baro_last_time)*1e-3;
+			_baro_pos.time_stamp = baro_report->time_stamp;
+			if(dt <= 0.0f)
+				dt = 0.02f;
+			
+			_baro_pos.altitude = -baro_report->altitude; // change to NED coordinate
+			float vel = (_baro_pos.altitude-_baro_last_alt)/dt;
+			_baro_pos.velocity = _baro_pos.velocity + 0.05*(vel-_baro_pos.velocity);
+			
 			mcn_publish(MCN_ID(SENSOR_BARO), baro_report);
+			mcn_publish(MCN_ID(BARO_POSITION), &_baro_pos);
+			
+			_baro_last_alt = _baro_pos.altitude;
+			_baro_last_time = baro_report->time_stamp;
+		}
+	}
+	
+	if(mcn_poll(gps_node_t)){
+		
+		struct vehicle_gps_position_s gps_pos_t;
+		mcn_copy(MCN_ID(GPS_POSITION), gps_node_t, &gps_pos_t);
+		
+		// check legality
+		if(_gps_status.status!=GPS_AVAILABLE && gps_pos_t.satellites_used>=6 && IN_RANGE(gps_pos_t.eph, 0.0f, 2.5f)){
+			
+			_gps_status.fix_cnt++;
+			
+			if(_gps_status.fix_cnt >= 10){
+				_gps_status.status = GPS_AVAILABLE;
+				
+				// gps becomes available, publish
+				mcn_publish(MCN_ID(GPS_STATUS), &_gps_status);
+			}
+		}
+		if(_gps_status.status!=GPS_INAVAILABLE && (gps_pos_t.satellites_used<=4 || gps_pos_t.eph>3.5f)){
+			
+			_gps_status.status = GPS_INAVAILABLE;
+			_gps_status.fix_cnt = 0;
+			
+			mcn_publish(MCN_ID(GPS_STATUS), &_gps_status);
 		}
 	}
 }
@@ -757,6 +888,34 @@ void sensor_manager_init(void)
 	// do something here
 }
 
+int handle_gps_shell_cmd(int argc, char** argv)
+{
+	if(argc > 1){
+		if(strcmp(argv[1], "status") == 0){
+			char status_str[20] = "";
+			GPS_Status gps_status;
+			mcn_copy_from_hub(MCN_ID(GPS_STATUS), &gps_status);
+				
+			if(gps_status.status == GPS_UNDETECTED){
+				strcpy(status_str, "UNDETECTED");
+			}
+			else if(gps_status.status == GPS_AVAILABLE){
+				strcpy(status_str, "AVAILABLE");
+			}
+			else{
+				strcpy(status_str, "INAVAILABLE");
+			}
+			
+			struct vehicle_gps_position_s gps_pos = gps_get_report();
+			
+			Console.print("gps status: %s, satelites:%d, fix type:%d [eph,epv]:[%.3f %.3f], [hdop,vdop]:[%.3f %.3f]\n", status_str, gps_pos.satellites_used, 
+				gps_pos.fix_type, gps_pos.eph, gps_pos.epv, gps_pos.hdop, gps_pos.vdop);
+		}
+	}
+	
+	return 0;
+}
+
 int handle_sensor_shell_cmd(int argc, char** argv)
 {
 	uint8_t sensor_type = 0;
@@ -774,6 +933,8 @@ int handle_sensor_shell_cmd(int argc, char** argv)
 		}
 		else if(strcmp(argv[1], "gyr") == 0){
 			sensor_type = 3;
+		}else if(strcmp(argv[1], "gps") == 0){
+			sensor_type = 4;
 		}else{
 			Console.print("unknow parameter:%s\n", argv[1]);
 			return 1;
@@ -869,6 +1030,21 @@ int handle_sensor_shell_cmd(int argc, char** argv)
 					if(cnt > 1)
 						rt_thread_delay(interval);
 				}	
+			}break;
+			case 4:	//gps
+			{
+					if(argc > 2){
+						if(strcmp(argv[2], "sethome") == 0){
+							ctrl_set_home();
+							Console.print("set home success!\n");
+						}else{
+							for(uint32_t i = 0 ; i < cnt ; i++){
+								struct vehicle_gps_position_s gps_report = gps_get_report();
+								Console.print("sv:%d lat:%f lon:%f vn:%f ve:%f eph:%f hdop:%f\n", gps_report.satellites_used, (float)gps_report.lat*1e-7, (float)gps_report.lon*1e-7,
+									gps_report.vel_n_m_s, gps_report.vel_e_m_s, gps_report.eph, gps_report.hdop);
+							}
+						}
+					}
 			}break;
 			default:
 				break;

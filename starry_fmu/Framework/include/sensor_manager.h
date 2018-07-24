@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include "ms5611.h"
 #include "global.h"
+#include "ap_math.h"
 
 //#define USE_EXTERNAL_MAG_DEV
 
@@ -81,6 +82,26 @@ typedef enum
 	S_COLLECT_REPORT
 }Baro_Machine_State;
 
+typedef struct
+{
+	float altitude;
+	float velocity;
+	uint32_t time_stamp;
+}BaroPosition;
+
+typedef enum
+{
+	GPS_UNDETECTED,
+	GPS_AVAILABLE,
+	GPS_INAVAILABLE
+}GPS_Status_Def;
+
+typedef struct
+{
+	GPS_Status_Def status;
+	uint8_t fix_cnt;
+}GPS_Status;
+
 
 rt_err_t device_sensor_init(void);
 void sensor_manager_init(void);
@@ -109,6 +130,7 @@ rt_err_t sensor_gyr_get_calibrated_data(float gyr[3]);
 /* barometer API */
 Baro_Machine_State sensor_baro_get_state(void);
 MS5611_REPORT_Def* sensor_baro_get_report(void);
+BaroPosition sensor_baro_get_position(void);
 rt_err_t sensor_process_baro_state_machine(void);
 bool sensor_baro_get_update_flag(void);
 void sensor_baro_clear_update_flag(void);
@@ -120,10 +142,13 @@ bool lidar_is_ready(void);
 void lidar_lite_store(float dis);
 
 /* gps API */
-struct vehicle_gps_position_s get_gps_position(void);
+struct vehicle_gps_position_s gps_get_report(void);
+int gps_get_position(Vector3f_t* gps_pos, struct vehicle_gps_position_s gps_report);
+int gps_get_velocity(Vector3f_t* gps_vel, struct vehicle_gps_position_s gps_report);
+void gps_calc_geometry_distance(Vector3f_t* dis, double lat1, double lon1, double lat2, double lon2);
+void gps_calc_geometry_distance2(Vector3f_t* dis, double ref_lat, double ref_lon, double lat, double lon);
 
 /* common api */
-void sensorAxis2NedAxis(float from[3], float to[3]);
 void sensor_collect(void);
 
 #endif

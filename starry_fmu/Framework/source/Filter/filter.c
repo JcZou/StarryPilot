@@ -36,9 +36,9 @@ void accfilter_init(void)
     for(int i=0;i<3;i++)
 		g_acc[i] = 0.0f;
 	
-//	butter2_set_cutoff_frequency(&_butter_acc[0], 1000, 30);
-//	butter2_set_cutoff_frequency(&_butter_acc[1], 1000, 30);
-//	butter2_set_cutoff_frequency(&_butter_acc[2], 1000, 30);
+	butter2_set_cutoff_frequency(&_butter_acc[0], 1000, 30);
+	butter2_set_cutoff_frequency(&_butter_acc[1], 1000, 30);
+	butter2_set_cutoff_frequency(&_butter_acc[2], 1000, 30);
 
 #ifdef HIL_SIMULATION
 	/* 30Hz cut-off frequency, 250Hz sampling frequency */
@@ -59,10 +59,10 @@ void accfilter_init(void)
 	_butter3_acc[1] = butter3_filter_create(B, A);
 	_butter3_acc[2] = butter3_filter_create(B, A);
 	
-//	/* set initial data */
-//	butter2_reset(&_butter_acc[0], 0);
-//	butter2_reset(&_butter_acc[1], 0);
-//	butter2_reset(&_butter_acc[2], -9.8f);
+	/* set initial data */
+	butter2_reset(&_butter_acc[0], 0);
+	butter2_reset(&_butter_acc[1], 0);
+	butter2_reset(&_butter_acc[2], -9.8f);
 }
 
 void accfilter_input(const float val[3])
@@ -73,7 +73,8 @@ void accfilter_input(const float val[3])
 		// do not filter for HIL simulation
 		g_acc[i] = val[i];
 #else
-		g_acc[i] = butter3_filter_process(val[i], _butter3_acc[i]);
+		//g_acc[i] = butter3_filter_process(val[i], _butter3_acc[i]);
+		g_acc[i] = butter2_filter_process(&_butter_acc[i], val[i]);
 #endif
 		//g_acc[i] = butter2_filter_process(&_butter_acc[i], val[i]);
 		//g_acc[i] = butter3_filter_process(val[i], _butter3_acc[i]);
@@ -100,9 +101,9 @@ void gyrfilter_init(void)
     for(uint8_t i=0;i<3;i++)
         g_gyr[i] = 0;
 	
-//	butter2_set_cutoff_frequency(&_butter_gyr[0], 1000, 30);
-//	butter2_set_cutoff_frequency(&_butter_gyr[1], 1000, 30);
-//	butter2_set_cutoff_frequency(&_butter_gyr[2], 1000, 30);
+	butter2_set_cutoff_frequency(&_butter_gyr[0], 1000, 30);
+	butter2_set_cutoff_frequency(&_butter_gyr[1], 1000, 30);
+	butter2_set_cutoff_frequency(&_butter_gyr[2], 1000, 30);
 
 #ifdef HIL_SIMULATION
 	/* 30Hz cut-off frequency, 250Hz sampling frequency */
@@ -123,10 +124,10 @@ void gyrfilter_init(void)
 	_butter3_gyr[1] = butter3_filter_create(B, A);
 	_butter3_gyr[2] = butter3_filter_create(B, A);
 	
-//	/* set initial data */
-//	butter2_reset(&_butter_gyr[0], 0);
-//	butter2_reset(&_butter_gyr[1], 0);
-//	butter2_reset(&_butter_gyr[2], 0);
+	/* set initial data */
+	butter2_reset(&_butter_gyr[0], 0);
+	butter2_reset(&_butter_gyr[1], 0);
+	butter2_reset(&_butter_gyr[2], 0);
 }
 
 void gyrfilter_input(const float val[3])
@@ -137,7 +138,8 @@ void gyrfilter_input(const float val[3])
 		// do not filter for HIL simulation
 		g_gyr[i] = val[i];
 #else
-		g_gyr[i] = butter3_filter_process(val[i], _butter3_gyr[i]);
+		//g_gyr[i] = butter3_filter_process(val[i], _butter3_gyr[i]);
+		g_gyr[i] = butter2_filter_process(&_butter_gyr[i], val[i]);
 #endif
 		//g_gyr[i] = butter2_filter_process(&_butter_gyr[i], val[i]);
 		//g_gyr[i] = butter3_filter_process(val[i], _butter3_gyr[i]);

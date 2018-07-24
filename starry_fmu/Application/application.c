@@ -25,6 +25,7 @@
 #include "mavproxy.h"
 #include "pos_estimator.h"
 #include "led.h"
+#include "cdcacm.h"
 #include "param.h"
 #include "sensor_manager.h"
 #include "console.h"
@@ -54,10 +55,10 @@ struct rt_thread thread_mavlink_handle;
 static char thread_starryio_stack[1024];
 struct rt_thread thread_starryio_handle;
 
-static char thread_copter_stack[2048];
+static char thread_copter_stack[4096];
 struct rt_thread thread_copter_handle;
 
-static char thread_logger_stack[1024];
+static char thread_logger_stack[2048];
 struct rt_thread thread_logger_handle;
 
 static char thread_led_stack[512];

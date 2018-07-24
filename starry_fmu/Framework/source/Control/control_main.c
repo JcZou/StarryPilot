@@ -32,6 +32,7 @@
 #include "adrc.h"
 #include "copter_main.h"
 #include "adrc_att.h"
+#include "gps.h"
 
 #define EVENT_CONTROL			(1<<0)
 
@@ -84,6 +85,7 @@ static float alt_setpoint = 0.0f;
 static float _att_err[3] = {0.0f, 0.0f, 0.0f};
 static uint8_t _att_outerloop_update = 1;
 Euler _ec;	//current euler angle
+HomePosition _home = {0.0f, 0.0f, 0};	// home position
 
 #ifdef BLUEJAY
 FrameType _frame_type = frame_type_4;
@@ -407,6 +409,21 @@ void _ctrl_att_with_baseThrottle(float baseThrottle, float dT)
 	ctrl_set_throttle(_throttle_out, MOTOR_NUM);
 }
 
+HomePosition ctrl_get_home(void)
+{
+	return _home;
+}
+
+uint8_t ctrl_set_home(void)
+{
+	struct vehicle_gps_position_s gps_t = gps_get_report();
+	_home.lat = (double)gps_t.lat*1e-7;	// change to degree
+	_home.lon = (double)gps_t.lon*1e-7;
+	_home.home_set = 1;
+	
+	return 0;
+}
+
 /*****************************ADRC*********************************/
 void ctrl_att_adrc_update(void)
 {
@@ -472,6 +489,9 @@ void ctrl_unlock_vehicle(void)
 	
 	rt_device_control(motor_device_t, PWM_CMD_SWITCH, (void*)&on_off);
 	_vehicle_status = 1;
+	
+	/* set home position */
+	ctrl_set_home();
 	
 	uint32_t att_update_period = copter_get_event_period(AHRS_Period);
 	uint32_t control_period = copter_get_event_period(Control_Period);
@@ -618,8 +638,8 @@ void control_altitude(float dT)
 				vel_sp = (raw_th-(0.5f+THROTTLE_DEAD_ZONE))/(0.5f-THROTTLE_DEAD_ZONE)*MAX_ALT_RATE*100.0f;
 			}
 		}
-		accel_sp = vel_to_accel(vel_sp, -alt_info.vz*100.0f);
-		base_throttle = accel_to_throttle(accel_sp, -(alt_info.az+alt_info.az_bias)*100.0f);
+		accel_sp = vel_to_accel(vel_sp, alt_info.vz*100.0f);
+		base_throttle = accel_to_throttle(accel_sp, (alt_info.az-alt_info.az_bias)*100.0f);
 		/* change to 0~1 */
 		base_throttle = base_throttle*0.001f;
 		ctrl_set_basethrottle(base_throttle);
@@ -681,4 +701,6 @@ int handle_control_shell_cmd(int argc, char** argv)
 			Console.print("pitch_sp:%f\n", _ctrl_req_param.pitch_sp);
 		}
 	}
+	
+	return 0;
 }

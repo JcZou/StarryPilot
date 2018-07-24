@@ -316,7 +316,7 @@ uint8_t mavlink_send_hil_actuator_control(float control[16], int motor_num)
                                time_nowUs(), control, 0, motor_num);
 	
 	len = mavlink_msg_to_send_buffer(mav_tx_buff, &msg);
-	mavlink_msg_transfer(0, mav_tx_buff, len);
+	return mavlink_msg_transfer(0, mav_tx_buff, len);
 }
 
 static void timer_mavlink_1HZ_update(void* parameter)
@@ -334,11 +334,13 @@ rt_err_t mavproxy_recv_ind(rt_device_t dev, rt_size_t size)
 	mavlink_message_t msg;
 	int chan = 0;
 	char byte;
+	rt_err_t res = RT_EOK;
 	
 	for(int i = 0 ; i < size ; i++){
 		rt_size_t rb = rt_device_read(dev, 0, &byte, 1);
 		if(!rb){
 			Console.e(TAG, "mavlink read byte err\n");
+			res = RT_ERROR;
 			break;
 		}
 		if(mavlink_parse_char(chan, byte, &msg, &mav_status)){
@@ -368,6 +370,8 @@ rt_err_t mavproxy_recv_ind(rt_device_t dev, rt_size_t size)
 			}
 		}
 	}
+	
+	return res;
 }
 
 int handle_mavproxy_shell_cmd(int argc, char** argv)
@@ -389,6 +393,8 @@ int handle_mavproxy_shell_cmd(int argc, char** argv)
 			}
 		}
 	}
+	
+	return 0;
 }
 
 void mavproxy_entry(void *parameter)

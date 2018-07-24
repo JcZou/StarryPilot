@@ -86,7 +86,7 @@
 #define UBX_TX_CFG_PRT_OUTPROTOMASK	0x01		/**< UBX out */
 
 /* TX CFG-RATE message contents */
-#define UBX_TX_CFG_RATE_MEASINTERVAL	200		/**< 200ms for 5Hz */
+#define UBX_TX_CFG_RATE_MEASINTERVAL	100		/**< 100ms for 10Hz */
 #define UBX_TX_CFG_RATE_NAVRATE		1		/**< cannot be changed */
 #define UBX_TX_CFG_RATE_TIMEREF		0		/**< 0: UTC, 1: GPS time */
 

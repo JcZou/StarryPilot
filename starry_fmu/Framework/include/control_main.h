@@ -29,6 +29,13 @@ typedef enum
 	frame_type_4,
 }FrameType;
 
+typedef struct
+{
+	double lat;
+	double lon;
+	uint8_t home_set;
+}HomePosition;
+
 void control_loop(void *parameter);
 void control_init(void);
 int control_vehicle(float dT);
@@ -43,5 +50,7 @@ void calculate_target_attitude(float dT);
 void ctrl_att_adrc_update(void);
 uint8_t control_request(bool request);
 uint8_t control_set(char* name, float val);
+HomePosition ctrl_get_home(void);
+uint8_t ctrl_set_home(void);
 
 #endif

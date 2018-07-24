@@ -456,11 +456,6 @@
               <FilePath>..\..\Framework\source\Time\delay.c</FilePath>
             </File>
             <File>
-              <FileName>ekf.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\EKF\ekf.c</FilePath>
-            </File>
-            <File>
               <FileName>file_manager.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\FileManager\file_manager.c</FilePath>
@@ -521,11 +516,6 @@
               <FilePath>..\..\Framework\source\RC\rc.c</FilePath>
             </File>
             <File>
-              <FileName>ringbuffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\Tool\ringbuffer.c</FilePath>
-            </File>
-            <File>
               <FileName>sensor_manager.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\Sensor\sensor_manager.c</FilePath>
@@ -569,6 +559,11 @@
               <FileName>yxml.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\YXML\yxml.c</FilePath>
+            </File>
+            <File>
+              <FileName>kf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\KF\kf.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -869,6 +864,21 @@
               <FileName>mpu6000.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Driver\mpu6000\mpu6000.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Utils</GroupName>
+          <Files>
+            <File>
+              <FileName>ringbuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\Tool\ringbuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>fifo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\Tool\fifo.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1414,6 +1424,21 @@
               <FileName>arm_mat_sub_f32.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Library\STM_Lib\CMSIS\DSP_Lib\Source\MatrixFunctions\arm_mat_sub_f32.c</FilePath>
+            </File>
+            <File>
+              <FileName>arm_copy_f32.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Library\STM_Lib\CMSIS\DSP_Lib\Source\SupportFunctions\arm_copy_f32.c</FilePath>
+            </File>
+            <File>
+              <FileName>arm_fill_f32.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Library\STM_Lib\CMSIS\DSP_Lib\Source\SupportFunctions\arm_fill_f32.c</FilePath>
+            </File>
+            <File>
+              <FileName>arm_mat_trans_f32.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Library\STM_Lib\CMSIS\DSP_Lib\Source\MatrixFunctions\arm_mat_trans_f32.c</FilePath>
             </File>
           </Files>
         </Group>

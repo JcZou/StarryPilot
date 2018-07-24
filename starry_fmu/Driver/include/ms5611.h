@@ -32,6 +32,7 @@ typedef struct
 	float temperature;
 	float pressure;
 	float altitude;
+	u32 time_stamp;
 }MS5611_REPORT_Def;
 
 rt_err_t rt_ms5611_init(char* spi_device_name);

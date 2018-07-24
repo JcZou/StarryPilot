@@ -13,8 +13,7 @@
 #include "FIR.h"
 #include "ms5611.h"
 #include "pos_estimator.h"
-#include "kalman.h"
-#include "ekf.h"
+#include "kf.h"
 #include "sensor_manager.h"
 #include "console.h"
 #include "gps.h"
@@ -25,388 +24,46 @@
 #include "control_alt.h"
 #include "filter.h"
 #include "uMCN.h"
+#include "fifo.h"
 
-#define EVENT_POS_UPDATE        (1<<0)
-#define EVENT_ACC_UPDATE		(1<<1)
+#define KF_GPS_POS_DELAY		100
+#define KF_BARO_POS_DELAY		100
+#define KF_GPS_VEL_DELAY		100
+#define KF_BARO_VEL_DELAY		200
+#define KF_MAX_DELAY_OFFFSET	20
 
-#define EVENT_SET_HOME        (1<<0)
+static HOME_Pos _home_pos;
+static McnNode_t alt_node_t;
+static McnNode_t gps_node_t;
+static KF_Def pos_kf[3];
+static FIFO _hist_x[3][2];
+static float _acc_bias[3] = {0,0,0};
 
-//#define POS_UPDATE_INTERVAL     50
-#define POS_UPDATE_INTERVAL     25
-#define BARO_UPDATE_INTERVAL    10
-
-#define TO_DEGREE(a)	((float)a*1e-7)
-//#define Deg2Rad(a)		(a*PI/180.0f)
-
-const float EARTH_RADIUS = 6371393;	/* average earth radius, meter */
-//const float PI = 3.1415926536;
-
-static struct rt_timer timer_pos;
-static struct rt_timer timer_baro;
-
-static struct rt_event event_position;
-static struct rt_event event_sethome;
-
-static rt_device_t baro_device_t1, gps_device_t1;
-static struct vehicle_gps_position_s gps_position;
-static struct satellite_info_s satellite_info;
-
-//static MS5611_REPORT_Def _baro_report;
-
-static HOME_Pos home_pos;
-kalman2_state state_x;
-kalman2_state state_y;
-kalman2_state state_z;
-static uint8_t home_flag = 0;
-static uint8_t init_flag = 0;
-//static float dt = POS_UPDATE_INTERVAL * 0.001f;
-static float dt = 0.02f;
-static float cur_alt = 0.0f;
-static bool _baroReportReceive = false;
+static Position_Info pos_info;
 static AltInfo _altInfo;
-static bool _altInfo_ready = false;
-static bool _ekf2_set_init_state = false;
-static uint32_t _pos_est_time_stamp;
-static float pre_lidat_alt = 0.0f;
-static float saltation = 0.0f;
-
-static float alt_throttle = 0.0f;
-
-float pre_alt;
-float calc_v;
-
-static EKF_Def ekf;
-
-Position_Info pos_info;
 
 static char *TAG = "POS";
 
 MCN_DEFINE(ALT_INFO, sizeof(AltInfo));
+MCN_DEFINE(POS_KF, sizeof(POS_KF_Log));
 
-static void timer_pos_update(void* parameter)
-{
-	/* send acc update event */
-	//rt_event_send(&event_position, EVENT_POS_UPDATE);
-}
+MCN_DECLARE(BARO_POSITION);
+MCN_DECLARE(GPS_POSITION);
+MCN_DECLARE(GPS_STATUS);
 
-static void timer_baro_update(void* parameter)
-{
-//	rt_err_t res;
-//	
-//	if(sensor_baro_get_state() == S_COLLECT_REPORT){
-//		res = sensor_process_baro_state_machine();
-//		//get report;
-//		if(res == RT_EOK){
-//			OS_ENTER_CRITICAL;
-//			baro_report = *sensor_baro_get_report();
-//			OS_EXIT_CRITICAL;
-//			_baroReportReceive = true;
-//			rt_event_send(&event_position, EVENT_POS_UPDATE);
-//		}
-//	}else{
-//		res = sensor_process_baro_state_machine();
-//	}
-}
+static float q_x = 1.0f;
+static float q_y = 1.0f;
+static float q_z = 1.0f;
+static float q_vx = 1.0f;
+static float q_vy = 1.0f;
+static float q_vz = 1.0f;
 
-bool _is_baro_report_available(void)
-{
-	return _baroReportReceive;
-}
-
-MS5611_REPORT_Def _get_baro_report(void)
-{
-	MS5611_REPORT_Def tempBaroReport;
-	
-	OS_ENTER_CRITICAL;
-	//tempBaroReport = baro_report;
-	OS_EXIT_CRITICAL;
-	
-	return tempBaroReport;
-}
-
-float _pos_get_baro_alt(void)
-{
-//	float alt;
-//	
-//	rt_enter_critical();
-//	alt = baro_report.altitude;
-//	rt_exit_critical();
-//	
-//	return alt;
-}
-
-float pos_get_alt_throttle(void)
-{
-	return alt_throttle;
-}
-
-uint8_t setInitialState(void)
-{
-	if(!home_flag)
-		return 0;
-	
-//	float cov_ax = 0.002633;
-//	//float cov_vx = 0.108990;
-//	float cov_vx = 0.1;
-//	//float cov_sx = 1364.084034;
-//	float cov_sx = 0.1;
-	//float cov_ax = 0.529286;
-	float cov_ax = 0.1f;
-	//float cov_vx = 0.097278;
-	float cov_vx = 0.1f;
-	//float cov_sy = 6171.600817;
-	float cov_sx = 1;
-	
-	//float cov_ay = 0.529286;
-	float cov_ay = 0.1f;
-	//float cov_vy = 0.097278;
-	float cov_vy = 0.1f;
-	//float cov_sy = 6171.600817;
-	float cov_sy = 1;
-	
-	//float cov_az = 0.019341;
-	//float cov_az = 0.019341;
-	//float cov_az = 0.09;
-	float cov_az = 1;
-	//float cov_vz = 0.046193;
-	float cov_vz = 1;
-	//float cov_sz = 0.033301;
-	float cov_sz = 1;
-	
-	/* set initial state to home */
-	state_x.x[0] = (float)home_pos.lat;
-	state_x.x[1] = 0.0f;
-	state_y.x[0] = (float)home_pos.lon;
-	//state_y.x[0] = (float)home_pos.lat;
-	state_y.x[1] = 0.0f;
-	state_z.x[0] = (float)home_pos.alt;
-	state_z.x[1] = 0.0f;
-
-	/* Tx is the operator which transfer Delta(x)(meter) to Delta(lat)(1e7 degree) */
-	/* Tx = 180/(PI*R), where R is the average radius of earth */
-	float Tx = 180.0f/(PI*EARTH_RADIUS)*1e7;
-	/* Ax = [ 1  dt*Tx ] */
-	/*	    [ 0     1  ] */
-	state_x.A[0][0] = 1.0f;
-	state_x.A[0][1] = dt*Tx;
-	state_x.A[1][0] = 0.0f;
-	state_x.A[1][1] = 1.0f;		
-	/* Ty is the operator which transfer Delta(y)(meter) to Delta(lon)(1e7 degree) */
-	/* Ty = 180/(PI*r), r = R*cos(sita), sita = lat*PI/180, where R is the average radius of earth */
-	float sita = Deg2Rad(90.0f-state_x.x[0]*1e-7);
-	float r = EARTH_RADIUS*arm_sin_f32(sita);
-	float Ty = 180.0f/(PI*r)*1e7;
-	
-	printf("Tx:%f Ty:%f\n", Tx, Ty);
-	
-	/* Ay = [ 1  dt*Ty ] */
-	/*	    [ 0     1  ] */
-	state_y.A[0][0] = 1.0f;
-	state_y.A[0][1] = dt*Ty;
-	state_y.A[1][0] = 0.0f;
-	state_y.A[1][1] = 1.0f;
-	/* Az = [ 1  dt] */
-	/*	    [ 0  1 ] */
-	state_z.A[0][0] = 1.0f;
-	state_z.A[0][1] = dt;
-	state_z.A[1][0] = 0.0f;
-	state_z.A[1][1] = 1.0f;
-	
-	/* Bx = [ Tx*dt^2/2  dt ]^T */
-	state_x.B[0] = Tx*dt*dt/2;
-	//state_x.B[0] = 0;
-	state_x.B[1] = dt;	
-	/* By = [ Ty*dt^2/2  dt ]^T */
-	state_y.B[0] = Ty*dt*dt/2;
-	//state_y.B[0] = 0;
-	state_y.B[1] = dt;	
-	/* Bz = [ dt^2/2  dt ]^T */
-	state_z.B[0] = dt*dt/2;
-	//state_z.B[0] = 0;
-	state_z.B[1] = dt;
-	/* H = I, don't need to initialize H, because we has ignored H */
-	state_x.H[0][0] = state_y.H[0][0] = state_z.H[0][0] = 1.0f;
-	state_x.H[0][1] = state_y.H[0][1] = state_z.H[0][1] = 0.0f;
-	state_x.H[1][0] = state_y.H[1][0] = state_z.H[1][0] = 0.0f;
-	state_x.H[1][1] = state_y.H[1][1] = state_z.H[1][1] = 1.0f;
-	/* Q = cov(a)^2 * B * B^T */
-	state_x.q[0][0] = Tx*Tx*cov_ax*cov_ax*dt*dt*dt*dt/4;
-	state_x.q[0][1] = Tx*cov_ax*cov_ax*dt*dt*dt/2;
-	state_x.q[1][0] = Tx*cov_ax*cov_ax*dt*dt*dt/2;
-	state_x.q[1][1] = cov_ax*cov_ax*dt*dt;
-	state_y.q[0][0] = Ty*Ty*cov_ay*cov_ay*dt*dt*dt*dt/4;
-	state_y.q[0][1] = Ty*cov_ay*cov_ay*dt*dt*dt/2;
-	state_y.q[1][0] = Ty*cov_ay*cov_ay*dt*dt*dt/2;
-	state_y.q[1][1] = cov_ay*cov_ay*dt*dt;
-	state_z.q[0][0] = cov_az*cov_az*dt*dt*dt*dt/4;
-	state_z.q[0][1] = cov_az*cov_az*dt*dt*dt/2;
-	state_z.q[1][0] = cov_az*cov_az*dt*dt*dt/2;
-	state_z.q[1][1] = cov_az*cov_az*dt*dt;
-
-//	state_x.q[0][0] = 0;
-//	state_x.q[0][1] = 0;
-//	state_x.q[1][0] = 0;
-//	state_x.q[1][1] = cov_ax*cov_ax*dt*dt;
-//	state_y.q[0][0] = 0;
-//	state_y.q[0][1] = 0;
-//	state_y.q[1][0] = 0;
-//	state_y.q[1][1] = cov_ay*cov_ay*dt*dt;
-//	state_z.q[0][0] = 0;
-//	state_z.q[0][1] = 0;
-//	state_z.q[1][0] = 0;
-//	state_z.q[1][1] = cov_az*cov_az*dt*dt;
-	printf("\nQx:\n");
-	printf("%f\n", state_x.q[0][0]);
-	printf("%f\n", state_x.q[0][1]);
-	printf("%f\n", state_x.q[1][0]);
-	printf("%f\n", state_x.q[1][1]);
-	printf("Qy:\n");
-	printf("%f\n", state_y.q[0][0]);
-	printf("%f\n", state_y.q[0][1]);
-	printf("%f\n", state_y.q[1][0]);
-	printf("%f\n", state_y.q[1][1]);
-	printf("Qz:\n");
-	printf("%f\n", state_z.q[0][0]);
-	printf("%f\n", state_z.q[0][1]);
-	printf("%f\n", state_z.q[1][0]);
-	printf("%f\n", state_z.q[1][1]);
-	/* R = [ cov(s)^2        0    ] */
-	/*     [    0        cov(v)^2 ] */
-	state_x.r[0][0] = cov_sx*cov_sx;
-	state_x.r[0][1] = 0.0f;
-	state_x.r[1][0] = 0.0f;
-	state_x.r[1][1] = cov_vx*cov_vx;
-	state_y.r[0][0] = cov_sy*cov_sy;
-	state_y.r[0][1] = 0.0f;
-	state_y.r[1][0] = 0.0f;
-	state_y.r[1][1] = cov_vy*cov_vy;
-	state_z.r[0][0] = cov_sz*cov_sz;
-	state_z.r[0][1] = 0.0f;
-	state_z.r[1][0] = 0.0f;
-	state_z.r[1][1] = cov_vz*cov_vz;
-	printf("\nRx:\n");
-	printf("%f\n", state_x.r[0][0]);
-	printf("%f\n", state_x.r[0][1]);
-	printf("%f\n", state_x.r[1][0]);
-	printf("%f\n", state_x.r[1][1]);
-	printf("Ry:\n");
-	printf("%f\n", state_y.r[0][0]);
-	printf("%f\n", state_y.r[0][1]);
-	printf("%f\n", state_y.r[1][0]);
-	printf("%f\n", state_y.r[1][1]);
-	printf("Rz:\n");
-	printf("%f\n", state_z.r[0][0]);
-	printf("%f\n", state_z.r[0][1]);
-	printf("%f\n", state_z.r[1][0]);
-	printf("%f\n", state_z.r[1][1]);
-	
-	state_x.p[0][0] = state_x.r[0][0];
-	state_x.p[0][1] = state_x.r[0][1];
-	state_x.p[1][0] = state_x.r[1][0];
-	state_x.p[1][1] = state_x.r[1][1];
-	state_y.p[0][0] = state_y.r[0][0];
-	state_y.p[0][1] = state_y.r[0][1];
-	state_y.p[1][0] = state_y.r[1][0];
-	state_y.p[1][1] = state_y.r[1][1];
-	state_z.p[0][0] = state_z.r[0][0];
-	state_z.p[0][1] = state_z.r[0][1];
-	state_z.p[1][0] = state_z.r[1][0];
-	state_z.p[1][1] = state_z.r[1][1];
-	
-	init_flag = 1;
-	
-	return 1;
-}
-
-void set_home_alt(float alt)
-{
-	home_pos.alt = alt;
-}
-
-void _set_home_alt(void)
-{
-	MS5611_REPORT_Def* baro_report = sensor_baro_get_report();
-	sensor_baro_clear_update_flag();
-	home_pos.alt = baro_report->altitude;
-	
-#ifdef USE_LIDAR
-	home_pos.lidar_alt = lidar_lite_get_dis();	//lidar value
-#endif
-}
-
-void set_home_cur_alt(void)
-{
-#ifdef USE_LIDAR
-	home_pos.lidar_alt = ekf.x.element[0][0]+home_pos.lidar_alt;
-#else
-	home_pos.alt = ekf.x.element[0][0]+home_pos.alt;
-#endif
-}
-
-float get_home_alt(void)
-{
-#ifdef USE_LIDAR
-	return home_pos.lidar_alt;
-#else
-	return home_pos.alt;
-#endif
-}
-
-uint8_t set_home(uint32_t lon, uint32_t lat, float alt)
-{
-	home_pos.lon = lon;
-	home_pos.lat = lat;
-	home_pos.alt = alt;
-	
-	home_flag = 1;
-	
-	//setInitialState();
-	
-	rt_event_send(&event_sethome, EVENT_SET_HOME);
-	
-	cur_alt = home_pos.alt;
-	
-	return home_flag;
-}
-
-void set_home_with_current_pos(void)
-{
-	uint32_t lon, lat;
-	float alt;
-	gps_position = get_gps_position();
-	
-//	lon = TO_DEGREE(gps_position.lon);
-//	lat = TO_DEGREE(gps_position.lat);
-	lon = gps_position.lon;
-	lat = gps_position.lat;
-	//alt = baro_report.altitude;
-	
-	Console.w(TAG, "set cur home with lon:%d lat:%d alt:%f\n", lon, lat, alt);
-	
-	set_home(lon, lat, alt);
-}
-
-void update_pos_info(Position_Info* p_i, int32_t lat, int32_t lon, int32_t alt, 
-						int32_t relative_alt, int16_t vx, int16_t vy, int16_t vz)
-{
-	p_i->lat = lat;
-	p_i->lon = lon;
-	p_i->alt = alt;
-	p_i->relative_alt = relative_alt;
-	p_i->vx = vx;
-	p_i->vy = vy;
-	p_i->vz = vz;
-}
-
-bool alt_info_ready(void)
-{
-	return _altInfo_ready;
-}
-
-void alt_info_clear(void)
-{
-	_altInfo_ready = false;
-}
+static float r_x = 1.0f;
+static float r_y = 1.0f;
+static float r_z = 1.0f;
+static float r_vx = 1.5f;
+static float r_vy = 1.5f;
+static float r_vz = 2.5f;
 
 void save_alt_info(float alt, float relative_alt, float vz, float az, float az_bias)
 {
@@ -415,12 +72,6 @@ void save_alt_info(float alt, float relative_alt, float vz, float az, float az_b
 	_altInfo.vz = vz;
 	_altInfo.az = az;
 	_altInfo.az_bias = az_bias;
-	_altInfo_ready = true;
-}
-
-AltInfo get_alt_info(void)
-{
-	return _altInfo;
 }
 
 Position_Info get_pos_info(void)
@@ -434,136 +85,264 @@ Position_Info get_pos_info(void)
 	return temp_info;
 }
 
-float lidat_alt_saltation(float lidar_alt, float dT)
-{	
-//		float delta_alt = ekf.z.element[0][0]-pre_lidat_alt;
-//		float derivative = delta_alt/ekf.T;
-//		if(fabs(derivative) > 5){
-//			alt_saltation += delta_alt;
-//		}
-//		//alt_saltation = alt_saltation + ()
-//		
-//		float cor_alt = ekf.z.element[0][0]-alt_saltation;
-//		float baro_alt = baro_report->altitude - home_pos.alt;
-//		float saltation_observe = ekf.z.element[0][0] - baro_alt;
-//		alt_saltation = alt_saltation + (saltation_observe - alt_saltation) * 0.1f;
-//		cor_alt = ekf.z.element[0][0]-alt_saltation;
-//		//cor_alt = cor_alt + (baro_alt-cor_alt)*0.05f;
-//		
-//		Console.print("%.2f %.2f %.2f\n", ekf.z.element[0][0], cor_alt, baro_alt);
-//		pre_lidat_alt = ekf.z.element[0][0];
-	
-	float delta_alt = lidar_alt-pre_lidat_alt;
-	float derivative = delta_alt/dT;
-	if(fabs(derivative) >= 5.0f){
-		saltation += delta_alt;
+void pos_home_set(HOME_Item item, void* data)
+{
+	if(item == BARO_ALT){
+		float alt = *(float*)data;
+		_home_pos.alt = alt;
+		_home_pos.baro_altitude_set = true;
 	}
-	pre_lidat_alt = lidar_alt;
-	
-	//Console.print("%.2f %.2f %.2f\n", lidar_alt, lidar_alt - saltation, derivative);
-	
-	return lidar_alt - saltation;
+	if(item == LIDAR_ALT){
+		float alt = *(float*)data;
+		_home_pos.lidar_alt = alt;
+		_home_pos.lidar_altitude_set = true;
+	}
+	if(item == GPS_COORDINATE){
+		double *gps_coor = data;
+		_home_pos.lat = gps_coor[0];
+		_home_pos.lon = gps_coor[1];
+		_home_pos.gps_coordinate_set = true;
+	}
 }
 
-void pos_est_init(void)
+HOME_Pos pos_home_get(void)
 {
-	/* EKF2 update each 20ms */
-	//EKF2_Init(&ekf, 0.02f);
+	return _home_pos;
+}
 
+void pos_est_update(float dT)
+{
+	const float* acc;
+	float accE[3];
+	
+	if(mcn_poll(alt_node_t) && _home_pos.baro_altitude_set==false){
+		
+		// TODO: check legality of altitude
+		BaroPosition baro_pos;
+		mcn_copy(MCN_ID(BARO_POSITION), alt_node_t, &baro_pos);
+		
+		pos_home_set(BARO_ALT, &baro_pos.altitude);
+		Console.print("alt home set to:%f\n", baro_pos.altitude);
+	}
+	if(mcn_poll(gps_node_t) && _home_pos.gps_coordinate_set==false){
+		
+		GPS_Status gps_status;
+		mcn_copy_from_hub(MCN_ID(GPS_STATUS), &gps_status);
+		
+		// check if gps is available
+		if(gps_status.status == GPS_AVAILABLE){
+			
+			struct vehicle_gps_position_s gps_pos = gps_get_report();
+			double gps_coordinate[2] = {(double)gps_pos.lat*1e-7, (double)gps_pos.lon*1e-7};
+			
+			pos_home_set(GPS_COORDINATE, gps_coordinate);
+			Console.print("gps home set to:%f %f\n", gps_coordinate[0], gps_coordinate[1]);
+		}
+	}
+	
+	acc = accfilter_current();
+	/* transfer acceleration from body grame to navigation frame */
+	quaternion_rotateVector(attitude_est_get_quaternion(), acc, accE);	
+	/* remove gravity */
+	accE[2] += 9.8f;
+	
+	pos_kf[0].u.element[0][0] = accE[0] - _acc_bias[0];
+	pos_kf[1].u.element[0][0] = accE[1] - _acc_bias[1];
+	pos_kf[2].u.element[0][0] = accE[2] - _acc_bias[2];
+	
+	Vector3f_t pos = {0,0,0};
+	Vector3f_t vel = {0,0,0};
+	struct vehicle_gps_position_s gps_pos = gps_get_report();
+	gps_get_position(&pos, gps_pos);
+	gps_get_velocity(&vel, gps_pos);
+#ifdef USE_LIDAR
+	pos.z = lidar_lite_get_dis() - get_home_alt();
+	vel.z = 0; //TODO
+#else
+	BaroPosition baro_pos;
+	mcn_copy_from_hub(MCN_ID(BARO_POSITION), &baro_pos);
+	pos.z = baro_pos.altitude;
+	vel.z = baro_pos.velocity;
+#endif
+	
+	pos_kf[0].z.element[0][0] = pos.x;
+	pos_kf[0].z.element[1][0] = vel.x;
+	pos_kf[1].z.element[0][0] = pos.y;
+	pos_kf[1].z.element[1][0] = vel.y;
+	pos_kf[2].z.element[0][0] = pos.z;
+	pos_kf[2].z.element[1][0] = vel.z;
+	
+	/* predict process */
+	KF_Predict(&pos_kf[0]);
+	KF_Predict(&pos_kf[1]);
+	KF_Predict(&pos_kf[2]);
+	
+	// store history state
+	for(uint8_t i = 0 ; i < 3 ; i++){
+		for(uint8_t j = 0 ; j < 2 ; j++){
+			fifo_push(&_hist_x[i][j], pos_kf[i].x.element[j][0]);
+		}
+	}
+	
+	// calculate observer delay offset
+	uint32_t now = time_nowMs();
+	int interval = (int)(1e3f*dT);
+	uint32_t gps_pos_hist_offset = (now - (gps_pos.timestamp_position-KF_GPS_POS_DELAY))/interval;
+	uint32_t baro_pos_hist_offset = (now - (baro_pos.time_stamp-KF_BARO_POS_DELAY))/interval;
+	uint32_t gps_vel_hist_offset = (now - (gps_pos.timestamp_velocity-KF_GPS_VEL_DELAY))/interval;
+	uint32_t baro_vel_hist_offset = (now - (baro_pos.time_stamp-KF_BARO_VEL_DELAY))/interval;
+	
+	// constrain offset
+	gps_pos_hist_offset = constrain_uint32(gps_pos_hist_offset, 0, KF_MAX_DELAY_OFFFSET);
+	baro_pos_hist_offset = constrain_uint32(baro_pos_hist_offset, 0, KF_MAX_DELAY_OFFFSET);
+	gps_vel_hist_offset = constrain_uint32(gps_vel_hist_offset, 0, KF_MAX_DELAY_OFFFSET);
+	baro_vel_hist_offset = constrain_uint32(baro_vel_hist_offset, 0, KF_MAX_DELAY_OFFFSET);
+	
+	uint32_t hist_offset[3][2] = {
+		{gps_pos_hist_offset, gps_vel_hist_offset},
+		{gps_pos_hist_offset, gps_vel_hist_offset},
+		{baro_pos_hist_offset, baro_vel_hist_offset}
+	};
+	
+	float delta_x[3][2];
+	for(uint8_t i = 0 ; i < 3 ; i++){
+		
+		// calculate delta state
+		for(uint8_t j = 0 ; j < 2 ; j++){
+			float hist_val = fifo_read_back(&_hist_x[i][j], hist_offset[i][j]);
+			delta_x[i][j] = pos_kf[i].x.element[j][0] - hist_val;
+			
+			// set current state to history value
+			pos_kf[i].x.element[j][0] = hist_val;
+		}
+		
+		// calculate bias
+		_acc_bias[i] += (pos_kf[i].x.element[1][0] - pos_kf[i].z.element[1][0])*dT*0.1;
+		_acc_bias[i] = constrain_float(_acc_bias[i], -0.5f, 0.5f);
+	}
+	
+	/* update process */
+	KF_Update(&pos_kf[0]);
+	KF_Update(&pos_kf[1]);
+	KF_Update(&pos_kf[2]);
+	
+	for(uint8_t i = 0 ; i < 3 ; i++){
+		// add delta state back
+		for(uint8_t j = 0 ; j < 2 ; j++){
+			pos_kf[i].x.element[j][0] += delta_x[i][j];
+		}
+	}
+
+	/* save altitude information */
+	//save_alt_info(ekf.x.element[0][0], ekf.x.element[0][0]-get_home_alt(), ekf.x.element[1][0], accE[2]);
+	HOME_Pos home = pos_home_get();
+	// change direction from down to up
+	save_alt_info(-pos_kf[2].x.element[0][0], -(pos_kf[2].x.element[0][0]-home.alt), -pos_kf[2].x.element[1][0], -accE[2], -_acc_bias[2]);
+	/* publish altitude information */
+	mcn_publish(MCN_ID(ALT_INFO), &_altInfo);
+
+	POS_KF_Log pos_kf_log;
+	pos_kf_log.est_x = pos_kf[0].x.element[0][0];
+	pos_kf_log.est_vx = pos_kf[0].x.element[1][0];
+	pos_kf_log.est_y = pos_kf[1].x.element[0][0];
+	pos_kf_log.est_vy = pos_kf[1].x.element[1][0];
+	pos_kf_log.est_z = pos_kf[2].x.element[0][0];
+	pos_kf_log.est_vz = pos_kf[2].x.element[1][0];
+	pos_kf_log.obs_x = pos_kf[0].z.element[0][0];
+	pos_kf_log.obs_vx = pos_kf[0].z.element[1][0];
+	pos_kf_log.obs_y = pos_kf[1].z.element[0][0];
+	pos_kf_log.obs_vy = pos_kf[1].z.element[1][0];
+	pos_kf_log.obs_z = pos_kf[2].z.element[0][0];
+	pos_kf_log.obs_vz = pos_kf[2].z.element[1][0];
+	mcn_publish(MCN_ID(POS_KF), &pos_kf_log);
+}
+
+void pos_est_reset(void)
+{	
+	_home_pos.baro_altitude_set = false;
+	_home_pos.lidar_altitude_set = false;
+	_home_pos.gps_coordinate_set = false;
+	
+	/* reset home position when vehicle unlock */
+	//set_home_cur_alt();
+}
+
+void pos_est_init(float dT)
+{
 	int mcn_res = mcn_advertise(MCN_ID(ALT_INFO));
 	if(mcn_res != 0){
 		Console.e(TAG, "ALT_INFO advertise err:%d\n", mcn_res);
 	}
-
-	_ekf2_set_init_state = false;
-	_pos_est_time_stamp = 0;
-}
-
-void pos_est_reset(void)
-{
-	pre_lidat_alt = 0.0f;
-	saltation = 0.0f;
-	
-	/* reset home position when vehicle unlock */
-	set_home_cur_alt();
-}
-
-
-void pos_est_update(float dT)
-{
-	if(_ekf2_set_init_state){
-		const float* acc;
-		float accE[3];
-		
-		acc = accfilter_current();
-		/* transfer acceleration from body grame to navigation frame */
-		quaternion_rotateVector(attitude_est_get_quaternion(), acc, accE);	
-		/* remove gravity */
-		accE[2] += 9.8f;
-
-		pre_alt = ekf.x.element[0][0];
-
-#ifndef USE_LIDAR
-		MS5611_REPORT_Def* baro_report = sensor_baro_get_report();
-		sensor_baro_clear_update_flag();
-#endif			
-		
-		ekf.u.element[0][0] = 0.0f;
-		ekf.u.element[1][0] = accE[2];
-		
-		/* the observed altitude is relative altitude */
-#ifdef USE_LIDAR
-		ekf.z.element[0][0] = lidar_lite_get_dis() - get_home_alt();
-		/* correct with lidat altitude saltation */
-		//ekf.z.element[0][0] = lidat_alt_saltation(ekf.z.element[0][0], dT);
-#else
-		ekf.z.element[0][0] = baro_report->altitude - get_home_alt();
-#endif
-		ekf.z.element[1][0] = calc_v;
-		
-		//Console.print("%.3f %.3f\n", accE[2], ekf.z.element[0][0]);
-		
-		EKF2_Update(&ekf);
-
-		//calc_v = calc_v*0.7f+(pre_alt-ekf.x.element[0][0])/ekf.T*0.3f;
-		//calc_v = calc_v + ((pre_alt-ekf.x.element[0][0])/ekf.T-calc_v)*0.5569f;
-		calc_v = (pre_alt-ekf.x.element[0][0])/ekf.T;
-		
-		/* save altitude information */
-		//save_alt_info(ekf.x.element[0][0], ekf.x.element[0][0]-get_home_alt(), ekf.x.element[1][0], accE[2]);
-		save_alt_info(ekf.x.element[0][0]+get_home_alt(), ekf.x.element[0][0], ekf.x.element[1][0], accE[2], EKF2_GetZ_Bias());
-		/* publish altitude information */
-		mcn_publish(MCN_ID(ALT_INFO), &_altInfo);
-		
-		//Console.print("%.3f %.3f\n", ekf.u.element[1][0], ekf.z.element[0][0]);
-		//Console.print("%.2f %.2f %.2f\n", ekf.u.element[1][0], lidar_lite_get_dis() - get_home_alt(), baro_report->altitude - get_home_alt());
-		//Console.print("%.3f %.3f %.3f %.3f\n", filter_acc, baro_report->altitude, ekf.x.element[0][0], ekf.x.element[1][0]);
-
-//		static uint32_t time = 0;
-//		Console.print_eachtime(&time, 500, "rel_h:%.3f v:%.3f home:%.3f h:%.3f\n", _altInfo.relative_alt, _altInfo.vz, get_home_alt(),
-//				ekf.x.element[0][0]);
-	}else{
-		/* wait until baro report is available */
-		if(sensor_baro_get_update_flag()){
-			//EKF2_Init(&ekf, 0.1, 0.1, 0.05, 0.05, dT);
-//			EKF2_Init(&ekf, 0.05, 0.05, 0.05, 0.05, dT);
-			EKF2_Init(&ekf, 0.04, 0.04, 0.05, 0.05, dT);
-			
-			//MS5611_REPORT_Def* baro_report = sensor_baro_get_report();
-			//sensor_baro_clear_update_flag();
-			
-			/* set initial state for EKF2 */
-			ekf.x.element[0][0] = 0.0f;
-			ekf.x.element[1][0] = 0.0f;
-			ekf.last_x.element[0][0] = 0.0f;
-			ekf.last_x.element[1][0] = 0.0f;
-			/* set home to current altitude */
-			_set_home_alt();
-			
-			pre_alt = ekf.x.element[0][0];
-			calc_v = ekf.x.element[1][0];
-
-			_ekf2_set_init_state = true;
-		}	
+	mcn_res = mcn_advertise(MCN_ID(POS_KF));
+	if(mcn_res != 0){
+		Console.e(TAG, "POS_KF advertise err:%d\n", mcn_res);
 	}
+	
+	alt_node_t = mcn_subscribe(MCN_ID(BARO_POSITION), NULL);
+	if(alt_node_t == NULL)
+		Console.e(TAG, "alt_node_t subscribe err\n");
+	gps_node_t = mcn_subscribe(MCN_ID(GPS_POSITION), NULL);
+	if(gps_node_t == NULL)
+		Console.e(TAG, "gps_node_t subscribe err\n");
+	
+	// create kalman filter for position estimation
+	KF_Create(&pos_kf[0], 2, 1);
+	KF_Create(&pos_kf[1], 2, 1);
+	KF_Create(&pos_kf[2], 2, 1);
+	
+	// initialize position kalman filter
+	float F[] = 
+	{
+		1, dT,
+		0,  1,
+	};	
+	float B[] = 
+	{
+		 0,
+		dT,
+	};
+	float H[] = 
+	{
+		1, 0,
+		0, 1,
+	};
+	float Q[] = 
+	{
+		1, 0,
+		0, 1,
+	};	
+	float R[9*9] = 
+	{
+		1, 0,
+		0, 1,
+	};
+	float *P = Q;
+	float x_init[2] = {0, 0};
+	
+	Q[0] = q_x*q_x*dT*dT;
+	Q[3] = q_vx*q_vx*dT*dT;
+	R[0] = r_x*r_x;
+	R[3] = r_vx*r_vx;
+	KF_Init(&pos_kf[0], F, B, H, P, Q, R, x_init, true, dT);
+	Q[0] = q_y*q_y*dT*dT;
+	Q[3] = q_vy*q_vy*dT*dT;
+	R[0] = r_y*r_y;
+	R[3] = r_vy*r_vy;
+	KF_Init(&pos_kf[1], F, B, H, P, Q, R, x_init, true, dT);
+	Q[0] = q_z*q_z*dT*dT;
+	Q[3] = q_vz*q_vz*dT*dT;
+	R[0] = r_z*r_z;
+	R[3] = r_vz*r_vz;
+	KF_Init(&pos_kf[2], F, B, H, P, Q, R, x_init, true, dT);
+
+	for(int i = 0 ; i < 3 ; i++){
+		for(int j = 0 ; j < 2 ; j++){
+			fifo_create(&_hist_x[i][j], KF_MAX_DELAY_OFFFSET+1);
+			fifo_flush(&_hist_x[i][j]);
+		}
+	}
+
+	_home_pos.baro_altitude_set = false;
+	_home_pos.lidar_altitude_set = false;
+	_home_pos.gps_coordinate_set = false;
 }

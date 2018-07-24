@@ -14,6 +14,7 @@
 #include "console.h"
 #include "delay.h"
 #include "sensor_manager.h"
+#include "uMCN.h"
 
 #define FNV1_32_INIT	((uint32_t)0x811c9dc5)	// init value for FNV1 hash algorithm
 #define FNV1_32_PRIME	((uint32_t)0x01000193)	// magic prime for FNV1 hash algorithm
@@ -44,6 +45,8 @@ uint8_t _rate_count_vel;
 rt_bool_t _got_posllh;
 rt_bool_t _got_velned;
 rt_bool_t _got_svinfo;
+
+MCN_DEFINE(GPS_POSITION, sizeof(struct vehicle_gps_position_s));
 
 void _decode_init(void)
 {
@@ -205,7 +208,7 @@ payload_rx_done(void)
 		{
 			struct tm timeinfo;
 			
-			//Console.print("Rx NAV-PVT\r\n");
+			//Console.print("Rx NAV-PVT %d\r\n", time_nowMs());
 			
 			if ((_buf.payload_rx_nav_pvt.flags & UBX_RX_NAV_PVT_FLAGS_GNSSFIXOK) == 1) {
 				_gps_position->fix_type		 = _buf.payload_rx_nav_pvt.fixType;
@@ -258,8 +261,8 @@ payload_rx_done(void)
 			_rate_count_vel++;
 			_rate_count_lat_lon++;
 			
-			//Console.print("alt:%d lat:%d lon:%d %d-%d-%d %d:%d:%d\r\n" , _gps_position->alt, _gps_position->lat,_gps_position->lon,
-			//timeinfo.tm_year,timeinfo.tm_mon,timeinfo.tm_mday,timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
+//			Console.print("sat:%d alt:%d lat:%d lon:%d %f %f %f\n" , _gps_position->satellites_used, _gps_position->alt, _gps_position->lat,_gps_position->lon,
+//				_gps_position->vel_n_m_s,_gps_position->vel_e_m_s,_gps_position->vel_d_m_s);
 
 			_got_posllh = RT_TRUE;
 			_got_velned = RT_TRUE;
@@ -412,11 +415,12 @@ payload_rx_done(void)
 			break;
 	}
 	
-//	Console.print("r: %x,%x," , _rx_msg, _rx_payload_length);
-//	for(int i = 0 ; i<_rx_payload_length ; i++){
-//		Console.print(" %x" , _buf.raw[i]);
-//	}
-//	Console.print("\r\n");
+	/* publish gps report */
+	if(_got_posllh && _got_velned){
+		_got_posllh = RT_FALSE;
+		_got_velned = RT_FALSE;
+		mcn_publish(MCN_ID(GPS_POSITION), _gps_position);
+	}
 
 	return ret;
 }
@@ -768,20 +772,6 @@ void _send_ubx_msg(const uint16_t msg, const uint8_t *payload, const uint16_t le
 		_calc_ubx_checksum(payload, length, &checksum);
 	}
 	
-//	Console.print("head:");
-//	for(int i = 0 ; i<sizeof(header) ; i++){
-//		Console.print("%x " , ((uint8_t*)&header)[i]);
-//	}
-//	Console.print(" payload:");
-//	for(int i = 0 ; i<length ; i++){
-//		Console.print("%x " , payload[i]);
-//	}
-//	Console.print(" checksum:");
-//	for(int i = 0 ; i<sizeof(checksum) ; i++){
-//		Console.print("%x " , ((uint8_t*)&checksum)[i]);
-//	}
-//	Console.print("\r\n");
-	
 	rt_device_write(serial_device, 0, (const void *)&header, sizeof(header));
 	
 	if (payload != NULL) {
@@ -886,7 +876,7 @@ int _configure_by_ubx(void)
 	}
 	
 	/* configure message rates */
-	/* the last argument is divisor for measurement rate (set by CFG RATE), i.e. 1 means 5Hz */
+	/* the last argument is divisor for measurement rate (set by CFG RATE), i.e. 1 means 10Hz */
 
 	/* try to set rate for NAV-PVT */
 	/* (implemented for ubx7+ modules only, use NAV-SOL, NAV-POSLLH, NAV-VELNED and NAV-TIMEUTC for ubx6) */
@@ -899,29 +889,32 @@ int _configure_by_ubx(void)
 		_use_nav_pvt = RT_TRUE;
 	}
 	
-	
 	if (!_use_nav_pvt) {
 		_configure_message_rate(UBX_MSG_NAV_TIMEUTC, 5);
 
 		if (_wait_for_ack(UBX_MSG_CFG_MSG, UBX_CONFIG_TIMEOUT) < 0) {
+			Console.print("UBX_MSG_NAV_TIMEUTC configure fail!\n");
 			return 1;
 		}
 
 		_configure_message_rate(UBX_MSG_NAV_POSLLH, 1);
 
 		if (_wait_for_ack(UBX_MSG_CFG_MSG, UBX_CONFIG_TIMEOUT) < 0) {
+			Console.print("UBX_MSG_CFG_MSG configure fail!\n");
 			return 1;
 		}
 
 		_configure_message_rate(UBX_MSG_NAV_SOL, 1);
 
 		if (_wait_for_ack(UBX_MSG_CFG_MSG, UBX_CONFIG_TIMEOUT) < 0) {
+			Console.print("UBX_MSG_NAV_SOL configure fail!\n");
 			return 1;
 		}
 
 		_configure_message_rate(UBX_MSG_NAV_VELNED, 1);
 
 		if (_wait_for_ack(UBX_MSG_CFG_MSG, UBX_CONFIG_TIMEOUT) < 0) {
+			Console.print("UBX_MSG_NAV_VELNED configure fail!\n");
 			return 1;
 		}
 	}
@@ -1078,6 +1071,13 @@ rt_err_t rt_gps_init(char* serial_device_name , struct vehicle_gps_position_s *g
     
     /* register to device manager */
     res |= rt_device_register(&gps_device , GPS_DEVICE_NAME, RT_DEVICE_FLAG_RDWR);
+	
+	/* advertise gps position */
+	int mcn_res;
+	mcn_res = mcn_advertise(MCN_ID(GPS_POSITION));
+	if(mcn_res != 0){
+		rt_kprintf("err:%d, gps position advertise fail!\n", mcn_res);
+	}
 	
 	serial_device = rt_device_find(serial_device_name);
 	

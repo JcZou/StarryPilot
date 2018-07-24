@@ -107,8 +107,10 @@ void adrc_att_init(float h)
 	_delay_block_create(&roll_leso_delay, 1);
 	_delay_block_create(&pitch_leso_delay, 1);
 #else
-	_delay_block_create(&roll_leso_delay, 5);
-	_delay_block_create(&pitch_leso_delay, 5);
+//	_delay_block_create(&roll_leso_delay, 5);
+//	_delay_block_create(&pitch_leso_delay, 5);
+	_delay_block_create(&roll_leso_delay, 3);
+	_delay_block_create(&pitch_leso_delay, 3);
 #endif
 	
 	_outerloop_update = 1;
@@ -215,6 +217,7 @@ void adrc_att_observer_update(const float gyr[3], float bth)
 	// do not let base_throttle to be too small or too large
 	constrain(&bt, 0.3f, 0.7f);
 	float b0 = b_const*(cR*bt+d)/Ixx_yy;
+	//float b0 = PARAM_GET_FLOAT(ADRC_ATT, B0);
 	_pitch_leso.b0 = b0;
 	_roll_leso.b0 = b0;
 	

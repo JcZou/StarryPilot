@@ -16,11 +16,21 @@
 
 typedef struct
 {
-	uint32_t 	lon;		/* Lonitude in 1E-7 degrees */
-	uint32_t 	lat;		/* Latitude in 1E-7 degrees */
-	float		alt;		/* unit: m */
-	float		lidar_alt;	/* unit: m */
+	double 	lat;		/* Latitude in degrees */
+	double 	lon;		/* Lonitude in degrees */
+	float	alt;		/* unit: m, NED frame */
+	float	lidar_alt;	/* unit: m, NED frame */
+	bool	baro_altitude_set;
+	bool	lidar_altitude_set;
+	bool	gps_coordinate_set;
 }HOME_Pos;
+
+typedef enum
+{
+	BARO_ALT = 0,
+	LIDAR_ALT,
+	GPS_COORDINATE
+}HOME_Item;
 
 typedef struct
 {
@@ -42,21 +52,27 @@ typedef struct
 	float az_bias;	/* bias of z axis acceleration */
 }AltInfo;
 
-void pos_est_init(void);
+typedef struct
+{
+	float est_x;
+	float est_y;
+	float est_z;
+	float est_vx;
+	float est_vy;
+	float est_vz;
+	float obs_x;
+	float obs_y;
+	float obs_z;
+	float obs_vx;
+	float obs_vy;
+	float obs_vz;
+}POS_KF_Log;
+
+void pos_est_init(float dT);
 void pos_est_reset(void);
 void pos_est_update(float dT);
-void pos_est_update2(float dT);
-void pos_est_update3(void);
-void pos_est_update4(float dT);
-void position_loop(void *parameter);
-void set_home_alt(float alt);
-void set_home_cur_alt(void);
-float get_home_alt(void);
-void set_home_with_current_pos(void);
-uint8_t set_home(uint32_t lon, uint32_t lat, float alt);
+HOME_Pos pos_home_get(void);
+void pos_home_set(HOME_Item item, void* data);
 Position_Info get_pos_info(void);
-bool alt_info_ready(void);
-void alt_info_clear(void);
-AltInfo get_alt_info(void);
 	
 #endif

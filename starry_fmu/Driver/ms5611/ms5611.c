@@ -196,6 +196,8 @@ rt_err_t baro_collect_data(void *args)
 	 */
 	//report->altitude = (((exp((-(a * R) / g) * log((p / p1)))) * T1) - T1) / a;
 	report->altitude = (((pow((p / p1), (-(a * R) / g))) * T1) - T1) / a;
+	
+	report->time_stamp = time_nowMs();
 
 	return RT_EOK;
 }

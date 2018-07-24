@@ -366,9 +366,13 @@ Mat* MatInv(Mat* src, Mat* dst)
 		return NULL;
 	}
 #endif
+	//printf("create\n");
 	MatCreate(&adj_mat, src->row, src->col);
+	//printf("create finish\n");
 	MatAdj(src, &adj_mat);
+	//printf("adj\n");
 	det = MatDet(src);
+	//printf("inv det:%f\n", det);
 
 	if(equal(det, 0.0f)){
 		printf("err, determinate is 0 for MatInv\n");
