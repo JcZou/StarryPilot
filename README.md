@@ -7,14 +7,11 @@ StarryPilot
 A lightweight and powerful autopilot software, which focus on research and development of state-of-the-art software for UAVs. One of the project’s primary goals is to provide an open and flexible platform making it easy to be applied to a broad range of domains.
 
 # Feature
-- RT-Thread RTOS, Fatfs file system
+- RT-Thread RTOS, Fatfs file system, System components, such as IPC, Msh shell system, file manager, parameter system, log system, etc.
 - Completely support with Pixhawk hardware
 - ADRC control & PID control
-- Support with Mavlink
+- Support with Mavlink(QGround Control)
 - Support with Gazebo hardware-in-the-loop (HITL) simulation
-- Msh shell system
-- Logger system
-- Parameter system
 
 # Control
 [![ADRC vs PID](docs/images/adrc_video_demo.png)](https://www.youtube.com/watch?v=77-_nF-qqpA&t=63s)
