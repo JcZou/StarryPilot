@@ -58,11 +58,11 @@ static float q_vx = 1.0f;
 static float q_vy = 1.0f;
 static float q_vz = 1.0f;
 
-static float r_x = 1.0f;
-static float r_y = 1.0f;
+static float r_x = 0.8f;
+static float r_y = 0.8f;
 static float r_z = 1.0f;
-static float r_vx = 1.5f;
-static float r_vy = 1.5f;
+static float r_vx = 1.25f;
+static float r_vy = 1.25f;
 static float r_vz = 2.5f;
 
 void save_alt_info(float alt, float relative_alt, float vz, float az, float az_bias)
@@ -114,6 +114,9 @@ void pos_est_update(float dT)
 {
 	const float* acc;
 	float accE[3];
+	GPS_Status gps_status;
+	
+	mcn_copy_from_hub(MCN_ID(GPS_STATUS), &gps_status);
 	
 	if(mcn_poll(alt_node_t) && _home_pos.baro_altitude_set==false){
 		
@@ -125,9 +128,6 @@ void pos_est_update(float dT)
 		Console.print("alt home set to:%f\n", baro_pos.altitude);
 	}
 	if(mcn_poll(gps_node_t) && _home_pos.gps_coordinate_set==false){
-		
-		GPS_Status gps_status;
-		mcn_copy_from_hub(MCN_ID(GPS_STATUS), &gps_status);
 		
 		// check if gps is available
 		if(gps_status.status == GPS_AVAILABLE){
@@ -153,22 +153,37 @@ void pos_est_update(float dT)
 	Vector3f_t pos = {0,0,0};
 	Vector3f_t vel = {0,0,0};
 	struct vehicle_gps_position_s gps_pos = gps_get_report();
-	gps_get_position(&pos, gps_pos);
-	gps_get_velocity(&vel, gps_pos);
+
+	if(gps_status.status == GPS_AVAILABLE && _home_pos.gps_coordinate_set){
+		
+		gps_get_position(&pos, gps_pos);
+		gps_get_velocity(&vel, gps_pos);
+		
+		pos_kf[0].z.element[0][0] = pos.x;
+		pos_kf[0].z.element[1][0] = vel.x;
+		pos_kf[1].z.element[0][0] = pos.y;
+		pos_kf[1].z.element[1][0] = vel.y;
+	}else{
+		pos_kf[0].z.element[0][0] = 0.0f;
+		pos_kf[0].z.element[1][0] = 0.0f;
+		pos_kf[1].z.element[0][0] = 0.0f;
+		pos_kf[1].z.element[1][0] = 0.0f;
+	}
 #ifdef USE_LIDAR
 	pos.z = lidar_lite_get_dis() - get_home_alt();
 	vel.z = 0; //TODO
 #else
 	BaroPosition baro_pos;
 	mcn_copy_from_hub(MCN_ID(BARO_POSITION), &baro_pos);
-	pos.z = baro_pos.altitude;
-	vel.z = baro_pos.velocity;
+	if(_home_pos.baro_altitude_set){
+		pos.z = baro_pos.altitude;
+		vel.z = baro_pos.velocity;
+	}else{
+		pos.z = 0.0f;
+		vel.z = 0.0f;
+	}
 #endif
 	
-	pos_kf[0].z.element[0][0] = pos.x;
-	pos_kf[0].z.element[1][0] = vel.x;
-	pos_kf[1].z.element[0][0] = pos.y;
-	pos_kf[1].z.element[1][0] = vel.y;
 	pos_kf[2].z.element[0][0] = pos.z;
 	pos_kf[2].z.element[1][0] = vel.z;
 	
@@ -345,4 +360,19 @@ void pos_est_init(float dT)
 	_home_pos.baro_altitude_set = false;
 	_home_pos.lidar_altitude_set = false;
 	_home_pos.gps_coordinate_set = false;
+}
+
+int handle_pos_est_shell_cmd(int argc, char** argv)
+{
+	if(argc > 1){
+		if(strcmp(argv[1], "state") == 0){
+			POS_KF_Log pos_kf;
+			mcn_copy_from_hub(MCN_ID(POS_KF), &pos_kf);
+				
+			Console.print("kf states, x:%f y:%f z:%f vx:%f vy:%f vz:%f\n", pos_kf.est_x, pos_kf.est_y, pos_kf.est_z,
+				pos_kf.est_vx, pos_kf.est_vy, pos_kf.est_vz);
+		}
+	}
+	
+	return 0;
 }

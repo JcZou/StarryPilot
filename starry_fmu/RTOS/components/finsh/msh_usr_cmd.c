@@ -357,6 +357,13 @@ int cmd_att_est(int argc, char** argv)
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_att_est, __cmd_att_est, attitude estimator commands);
 
+int handle_pos_est_shell_cmd(int argc, char** argv);
+int cmd_pos_est(int argc, char** argv)
+{
+	return handle_pos_est_shell_cmd(argc, argv);
+}
+FINSH_FUNCTION_EXPORT_ALIAS(cmd_pos_est, __cmd_pos_est, position estimator commands);
+
 int handle_mavproxy_shell_cmd(int argc, char** argv);
 int cmd_mavproxy(int argc, char** argv)
 {

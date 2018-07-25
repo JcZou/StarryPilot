@@ -49,6 +49,8 @@ void KF_Init(KF_Def* kf_t, float *F_val, float *B_val, float *H_val, float *P_va
 	MatSetVal(&kf_t->x, x_val);
 	
 	MatEye(&kf_t->I);
+	MatZeros(&kf_t->u);
+	MatZeros(&kf_t->z);
 	
 	kf_t->dT = dt;
 	kf_t->identity_h = identity_h;

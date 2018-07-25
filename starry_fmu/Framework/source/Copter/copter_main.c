@@ -57,15 +57,6 @@ void copter_main_loop(uint32_t att_est_period, uint32_t pos_est_period, uint32_t
 		ctrl_time = now;
 		control_vehicle(0.001f*control_period);
 	}
-	
-//	HomePosition home = ctrl_get_home();
-//	struct vehicle_gps_position_s gps_t = gps_get_report();
-//	Vector3f_t dis, dis2;
-//	gps_calc_geometry_distance(&dis, home.lat, home.lon, (float)gps_t.lat*1e-7, (float)gps_t.lon*1e-7);
-//	gps_calc_geometry_distance2(&dis2, home.lat, home.lon, (float)gps_t.lat*1e-7, (float)gps_t.lon*1e-7);
-//	static uint32_t time = 0;
-//	Console.print_eachtime(&time, 300, "x:%f y:%f x2:%f y2:%f sn:%d gps:%f %f eph:%f hdop:%f\n", dis.x, dis.y, dis2.x, dis2.y, gps_t.satellites_used,
-//		(float)gps_t.lat*1e-7, (float)gps_t.lon*1e-7, gps_t.eph, gps_t.hdop);
 }
 
 static void timer_copter_update(void* parameter)

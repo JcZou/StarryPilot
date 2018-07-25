@@ -481,6 +481,11 @@
               <FilePath>..\..\Framework\source\HIL\hil_interface.c</FilePath>
             </File>
             <File>
+              <FileName>kf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\KF\kf.c</FilePath>
+            </File>
+            <File>
               <FileName>led.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\LED\led.c</FilePath>
@@ -559,11 +564,6 @@
               <FileName>yxml.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\YXML\yxml.c</FilePath>
-            </File>
-            <File>
-              <FileName>kf.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\KF\kf.c</FilePath>
             </File>
           </Files>
         </Group>

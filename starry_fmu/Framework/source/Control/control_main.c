@@ -409,10 +409,10 @@ void _ctrl_att_with_baseThrottle(float baseThrottle, float dT)
 	ctrl_set_throttle(_throttle_out, MOTOR_NUM);
 }
 
-HomePosition ctrl_get_home(void)
-{
-	return _home;
-}
+//HomePosition ctrl_get_home(void)
+//{
+//	return _home;
+//}
 
 uint8_t ctrl_set_home(void)
 {

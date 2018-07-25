@@ -29,6 +29,7 @@
 #include "hil_interface.h"
 #include "control_main.h"
 #include "att_estimator.h"
+#include "pos_estimator.h"
 
 //#define GYR_UPDATE_INTERVAL		1
 //#define ACC_UPDATE_INTERVAL		1
@@ -610,9 +611,11 @@ struct vehicle_gps_position_s gps_get_report(void)
 
 int gps_get_position(Vector3f_t* gps_pos, struct vehicle_gps_position_s gps_report)
 {
-	HomePosition home = ctrl_get_home();
-	if(!home.home_set)
+	HOME_Pos home = pos_home_get();
+	if(home.gps_coordinate_set == false){
+		// gps home have not set yet
 		return -1;
+	}
 
 	gps_calc_geometry_distance2(gps_pos, home.lat, home.lon, (double)gps_report.lat*1e-7, (double)gps_report.lon*1e-7);
 	gps_pos->z = (float)gps_report.alt*1e-3;
