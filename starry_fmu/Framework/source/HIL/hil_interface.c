@@ -15,10 +15,7 @@
 #include "ms5611.h"
 #include "delay.h"
 #include "sensor_manager.h"
-
-MCN_DECLARE(HIL_STATE_Q);
-MCN_DECLARE(HIL_SENSOR);
-MCN_DECLARE(HIL_GPS);
+#include "gps.h"
 
 static HIL_Option _hil_op;
 static McnNode_t hil_state_node_t;
@@ -28,9 +25,12 @@ static McnNode_t hil_baro_node_t;
 static float _hil_baro_last_alt = 0;
 static uint32_t _hil_baro_last_time = 0;
 static BaroPosition _hil_baro_pos = {0,0};
+static GPS_Status _hil_gps_status;
 
 static char* TAG = "HIL";
 
+MCN_DECLARE(HIL_STATE_Q);
+MCN_DECLARE(HIL_SENSOR);
 MCN_DECLARE(SENSOR_GYR);
 MCN_DECLARE(SENSOR_FILTER_GYR);
 MCN_DECLARE(SENSOR_ACC);
@@ -39,20 +39,20 @@ MCN_DECLARE(SENSOR_MAG);
 MCN_DECLARE(SENSOR_FILTER_MAG);
 MCN_DECLARE(SENSOR_BARO);
 MCN_DECLARE(BARO_POSITION);
+MCN_DECLARE(GPS_POSITION);
+MCN_DECLARE(GPS_STATUS);
 
 int hil_collect_data(void)
 {
 	static uint32_t last_time = 0;
 	if(_hil_op == HIL_SENSOR_LEVEL){
 		if(mcn_poll(hil_sensor_node_t)){
+			
 			uint32_t now = time_nowMs();
-			//Console.print("%d\n", now - last_time);
 			last_time = now;
 			mavlink_hil_sensor_t hil_sensor;
 			mcn_copy(MCN_ID(HIL_SENSOR), hil_sensor_node_t, &hil_sensor);
-			//Console.print("acc:%f %f %f gyr:%f %f %f mag:%f %f %f\n", hil_sensor.xacc, hil_sensor.yacc, hil_sensor.zacc,
-			//			hil_sensor.xgyro, hil_sensor.ygyro, hil_sensor.zgyro, hil_sensor.xmag, hil_sensor.ymag, hil_sensor.zmag);
-			
+
 			float gyr[3] = {hil_sensor.xgyro, hil_sensor.ygyro, hil_sensor.zgyro};
 			float acc[3] = {hil_sensor.xacc, hil_sensor.yacc, hil_sensor.zacc};
 			float mag[3] = {hil_sensor.xmag, hil_sensor.ymag, hil_sensor.zmag};
@@ -90,6 +90,32 @@ int hil_collect_data(void)
 				mcn_publish(MCN_ID(BARO_POSITION), &_hil_baro_pos);
 			}
 		}
+		
+		if(mcn_poll(hil_gps_node_t)){
+			
+			struct vehicle_gps_position_s gps_pos_t;
+			mcn_copy(MCN_ID(GPS_POSITION), hil_gps_node_t, &gps_pos_t);
+			
+			// check legality
+			if(_hil_gps_status.status!=GPS_AVAILABLE && gps_pos_t.satellites_used>=6 && IN_RANGE(gps_pos_t.eph, 0.0f, 2.5f)){
+				
+				_hil_gps_status.fix_cnt++;
+				
+				if(_hil_gps_status.fix_cnt >= 10){
+					_hil_gps_status.status = GPS_AVAILABLE;
+					
+					// gps becomes available, publish
+					mcn_publish(MCN_ID(GPS_STATUS), &_hil_gps_status);
+				}
+			}
+			if(_hil_gps_status.status!=GPS_INAVAILABLE && (gps_pos_t.satellites_used<=4 || gps_pos_t.eph>3.5f)){
+				
+				_hil_gps_status.status = GPS_INAVAILABLE;
+				_hil_gps_status.fix_cnt = 0;
+				
+				mcn_publish(MCN_ID(GPS_STATUS), &_hil_gps_status);
+			}
+		}
 	}else if(_hil_op == HIL_STATE_LEVEL){
 		if(mcn_poll(hil_state_node_t)){
 			mavlink_hil_state_quaternion_t hil_state_q;
@@ -119,7 +145,7 @@ int hil_interface_init(HIL_Option hil_op)
 			Console.e(TAG, "hil_sensor_node_t subscribe err\n");
 		}
 		
-		hil_gps_node_t = mcn_subscribe(MCN_ID(HIL_GPS), NULL);
+		hil_gps_node_t = mcn_subscribe(MCN_ID(GPS_POSITION), NULL);
 		if(hil_gps_node_t == NULL){
 			Console.e(TAG, "hil_gps_node_t subscribe err\n");
 		}
@@ -137,6 +163,9 @@ int hil_interface_init(HIL_Option hil_op)
 		Console.e(TAG, "err, unknow hil_op\n");
 		return 1;
 	}
+	
+	_hil_gps_status.status = GPS_UNDETECTED;
+	_hil_gps_status.fix_cnt = 0;
 	
 	return 0;
 }

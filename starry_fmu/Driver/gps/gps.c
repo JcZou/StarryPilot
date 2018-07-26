@@ -415,12 +415,14 @@ payload_rx_done(void)
 			break;
 	}
 	
+#ifndef HIL_SIMULATION
 	/* publish gps report */
 	if(_got_posllh && _got_velned){
 		_got_posllh = RT_FALSE;
 		_got_velned = RT_FALSE;
 		mcn_publish(MCN_ID(GPS_POSITION), _gps_position);
 	}
+#endif
 
 	return ret;
 }

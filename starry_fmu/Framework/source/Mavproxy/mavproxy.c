@@ -18,6 +18,7 @@
 #include "mavproxy.h"
 #include "uMCN.h"
 #include "sensor_manager.h"
+#include "gps.h"
 
 #define MAVLINK_USE_USB
 
@@ -55,6 +56,7 @@ MCN_DECLARE(ALT_INFO);
 MCN_DECLARE(SENSOR_LIDAR);
 MCN_DECLARE(CORRECT_LIDAR);
 MCN_DECLARE(ATT_EULER);
+MCN_DECLARE(GPS_POSITION);
 
 static McnNode_t gyr_node_t;
 static McnNode_t acc_node_t;
@@ -356,7 +358,24 @@ rt_err_t mavproxy_recv_ind(rt_device_t dev, rt_size_t size)
 				}break;
 				case MAVLINK_MSG_ID_HIL_GPS:
 				{
-				
+					mavlink_hil_gps_t hil_gps;
+					mavlink_msg_hil_gps_decode(&msg, &hil_gps);
+					//Console.print("lat:%f, vn:%f eph:%f\n", (double)hil_gps.lat*1e-7, (float)hil_gps.vn*1e-2, (float)hil_gps.eph*1e-2);
+					
+					struct vehicle_gps_position_s gps_position;
+					gps_position.lat = hil_gps.lat;
+					gps_position.lon = hil_gps.lon;
+					gps_position.alt = hil_gps.alt;
+					gps_position.eph = (float)hil_gps.eph*1e-2;
+					gps_position.epv = (float)hil_gps.epv*1e-2;
+					gps_position.vel_m_s = (float)hil_gps.vel*1e-2;
+					gps_position.vel_n_m_s = (float)hil_gps.vn*1e-2;
+					gps_position.vel_e_m_s = (float)hil_gps.ve*1e-2;
+					gps_position.vel_d_m_s = (float)hil_gps.vd*1e-2;
+					gps_position.fix_type = hil_gps.fix_type;
+					gps_position.satellites_used = hil_gps.satellites_visible;
+					
+					mcn_publish(MCN_ID(GPS_POSITION), &gps_position);
 				}break;
 				case MAVLINK_MSG_ID_HIL_STATE_QUATERNION:
 				{
