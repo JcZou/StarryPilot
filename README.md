@@ -50,11 +50,8 @@ The compile environment is based on Keil MDK5.
 
 ![](docs/images/mdk5.png)
 
-# Author
-*Jiachi Zou*
+# Developer List
+- *JcZou*: jiachi.zou@gmail.com, zoujiachi666@163.com 
 ---------------------------
-*email*: zoujiachi666@163.com 
 
-*LinkedIn*: www.linkedin.com/in/jiachizou-0710
-
-*QQ群*: 459133925
+**QQ群: 459133925**
