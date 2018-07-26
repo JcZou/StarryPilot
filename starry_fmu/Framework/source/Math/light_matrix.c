@@ -294,7 +294,7 @@ float MatDet(Mat* mat)
 	list = (int*)rt_malloc(sizeof(int)*mat->col);
 	if(list == NULL){
 		printf("malloc list fail\n");
-		return NULL;
+		return 0.0f;
 	}
 	for(i = 0 ; i < mat->col ; i++)
 		list[i] = i;

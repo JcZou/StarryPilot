@@ -1,0 +1,26 @@
+Import('RTT_ROOT')
+Import('rtconfig')
+from building import *
+
+cwd     = GetCurrentDir()
+src = Split("""
+motor/motor.c
+printf/printf.c
+rc_receiver/rc_receiver.c
+usb/cdcacm.c
+""")
+
+src += Glob('i2c/*.c')
+src += Glob('pin/*.c')
+src += Glob('serial/*.c')
+src += Split("""
+spi/spi_core.c
+spi/spi_dev.c
+""")
+src += Glob('tools/*.c')
+
+CPPPATH = [cwd + '/include']
+
+group = DefineGroup('HAL', src, depend = [''], CPPPATH = CPPPATH)
+
+Return('group')

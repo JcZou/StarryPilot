@@ -112,6 +112,10 @@
 /* Using ROM file system */
 // #define RT_USING_DFS_ROMFS
 
+/* C standard library */
+#define RT_USING_LIBC
+//#define RT_USING_PTHREADS
+
 /* SECTION: lwip, a lighwight TCP/IP protocol stack */
 /* #define RT_USING_LWIP */
 /* LwIP uses RT-Thread Memory Management */

@@ -21,13 +21,13 @@ static float _derivative[2] = {0, 0};
 static float pre_err[2];
 static float d_alpha = 0.0f;
 
-static const float sin_45 = 0.70711f;
-static const float cR = 718.078f;
-static const float cT = 1.23884e-5;
-static const float L = 0.255f;
-static const float d = 88.448f;
-static const float Ixx_yy = 0.016f;
-static const float b_const = 8.0f*cR*cT*L*sin_45;
+#define sin_45 0.70711f
+#define cR     718.078f
+#define cT     1.23884e-5
+#define L      0.255f
+#define d      88.448f
+#define Ixx_yy 0.016f
+static float b_const = 8.0f*cR*cT*L*sin_45;
 static float int_i[2] = {0.0f, 0.0f};
 static TD_Controller_Def _roll_td_controller;
 static TD_Controller_Def _pitch_td_controller;

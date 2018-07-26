@@ -32,7 +32,7 @@
 
 #include <rtthread.h>
 #include "finsh.h"
-#include "global.h"
+//#include "global.h"
 
 /* For historical reasons, users don't define FINSH_USING_HISTORY in rtconfig.h
  * but expect the history feature. So you sould define FINSH_USING_HISTORY to 0
