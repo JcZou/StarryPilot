@@ -39,7 +39,7 @@
 
 #include "finsh.h"
 #include "shell.h"
-#include "file_manager.h"
+//#include "file_manager.h"
 
 #ifdef FINSH_USING_MSH
 #include "msh.h"
@@ -611,7 +611,7 @@ int finsh_system_init(void)
     rt_err_t result;
 
 #ifdef FINSH_USING_SYMTAB
-#ifdef __CC_ARM                 /* ARM C Compiler */
+#if defined(__CC_ARM) || defined(__ARMCC_VERSION)&& (__ARMCC_VERSION >= 6010050)                 /* ARM C Compiler */
     extern const int FSymTab$$Base;
     extern const int FSymTab$$Limit;
     extern const int VSymTab$$Base;
@@ -627,18 +627,12 @@ int finsh_system_init(void)
                           __section_end("VSymTab"));
 #elif defined (__GNUC__) || defined(__TI_COMPILER_VERSION__)
     /* GNU GCC Compiler and TI CCS */
-//    extern const int __fsymtab_start;
-//    extern const int __fsymtab_end;
-//    extern const int __vsymtab_start;
-//    extern const int __vsymtab_end;
-//    finsh_system_function_init(&__fsymtab_start, &__fsymtab_end);
-//    finsh_system_var_init(&__vsymtab_start, &__vsymtab_end);
-	/* For MDK Compiler6.6(GNUC), we still use MDK as IDE */
-	extern const int FSymTab$$Base;
-    extern const int FSymTab$$Limit;
-    extern const int VSymTab$$Base;
-    extern const int VSymTab$$Limit;
-    finsh_system_function_init(&FSymTab$$Base, &FSymTab$$Limit);
+    extern const int __fsymtab_start;
+    extern const int __fsymtab_end;
+    extern const int __vsymtab_start;
+    extern const int __vsymtab_end;
+    finsh_system_function_init(&__fsymtab_start, &__fsymtab_end);
+    finsh_system_var_init(&__vsymtab_start, &__vsymtab_end);
 #elif defined(__ADSPBLACKFIN__) /* for VisualDSP++ Compiler */
     finsh_system_function_init(&__fsymtab_start, &__fsymtab_end);
     finsh_system_var_init(&__vsymtab_start, &__vsymtab_end);

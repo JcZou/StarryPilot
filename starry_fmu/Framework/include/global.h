@@ -54,10 +54,8 @@
 //#define AHRS_USE_MAHONY
 //#define AHRS_USE_MARG
 
-typedef enum
-{
-	false = 0,
-	true = 1,
-}bool;
+typedef int bool;
+#define true	1
+#define false	0
 
 #endif

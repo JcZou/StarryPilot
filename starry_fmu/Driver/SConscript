@@ -2,26 +2,46 @@ Import('RTT_ROOT')
 Import('rtconfig')
 from building import *
 
-cwd     = os.path.join(str(Dir('#')), 'drivers')
+cwd = GetCurrentDir()
 
 # add the general drivers.
 src = Split("""
-board.c
+board/board.c
+gpio/gpio.c
+gps/gps.c
+hmc5883/hmc5883.c
+hw_timer/drv_hwtimer.c
+i2c/i2c_soft.c
+l3gd20h/l3gd20h.c
+lidar/lidar.c
+lsm303d/lsm303d.c
+mpu6000/mpu6000.c
+ms5611/ms5611.c
+pwm/pwm.c
+rtc/stm32f4_rtc.c
+sdio/sdio.c
+spi/stm32f4_spi.c
+usart/usart.c
+usb/src/usb_bsp.c
+usb/src/usb_core.c
+usb/src/usb_dcd.c
+usb/src/usb_dcd_int.c
+usb/src/usbd_cdc_core_loopback.c
+usb/src/usbd_core.c
+usb/src/usbd_desc.c
+usb/src/usbd_ioreq.c
+usb/src/usbd_req.c
+usb/src/usbd_usr.c
 stm32f4xx_it.c
-usart.c
 """)
 
 # add Ethernet drivers.
 if GetDepend('RT_USING_LWIP'):
     src += ['stm32f4xx_eth.c']
 
-# add gpio drivers.
-if GetDepend('RT_USING_PIN'):
-    src += ['gpio.c']
+CPPPATH = [cwd, cwd + '/include', cwd + '/usb/inc']
 
-CPPPATH = [cwd]
-
-group = DefineGroup('Drivers', src, depend = [''], CPPPATH = CPPPATH)
+group = DefineGroup('Driver', src, depend = [''], CPPPATH = CPPPATH)
 
 Return('group')
 
