@@ -374,6 +374,8 @@ rt_err_t mavproxy_recv_ind(rt_device_t dev, rt_size_t size)
 					gps_position.vel_d_m_s = (float)hil_gps.vd*1e-2;
 					gps_position.fix_type = hil_gps.fix_type;
 					gps_position.satellites_used = hil_gps.satellites_visible;
+					uint32_t now = time_nowMs();
+					gps_position.timestamp_position = gps_position.timestamp_velocity = now;
 					
 					mcn_publish(MCN_ID(GPS_POSITION), &gps_position);
 				}break;

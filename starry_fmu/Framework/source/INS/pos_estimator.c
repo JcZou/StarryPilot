@@ -26,10 +26,18 @@
 #include "uMCN.h"
 #include "fifo.h"
 
-#define KF_GPS_POS_DELAY		100
-#define KF_BARO_POS_DELAY		100
-#define KF_GPS_VEL_DELAY		100
-#define KF_BARO_VEL_DELAY		200
+#ifdef HIL_SIMULATION
+	#define KF_GPS_POS_DELAY		0
+	#define KF_BARO_POS_DELAY		0
+	#define KF_GPS_VEL_DELAY		0
+	#define KF_BARO_VEL_DELAY		0
+#else
+	#define KF_GPS_POS_DELAY		100
+	#define KF_BARO_POS_DELAY		100
+	#define KF_GPS_VEL_DELAY		120
+	#define KF_BARO_VEL_DELAY		200
+#endif
+
 #define KF_MAX_DELAY_OFFFSET	20
 
 static HOME_Pos _home_pos;
@@ -58,11 +66,11 @@ static float q_vx = 1.0f;
 static float q_vy = 1.0f;
 static float q_vz = 1.0f;
 
-static float r_x = 0.8f;
-static float r_y = 0.8f;
+static float r_x = 1.0f;
+static float r_y = 1.0f;
 static float r_z = 1.0f;
-static float r_vx = 1.25f;
-static float r_vy = 1.25f;
+static float r_vx = 0.2f;
+static float r_vy = 0.2f;
 static float r_vz = 2.5f;
 
 void save_alt_info(float alt, float relative_alt, float vz, float az, float az_bias)
@@ -141,7 +149,7 @@ void pos_est_update(float dT)
 	}
 	
 	acc = accfilter_current();
-	/* transfer acceleration from body grame to navigation frame */
+	/* transfer acceleration from body frame to navigation frame */
 	quaternion_rotateVector(attitude_est_get_quaternion(), acc, accE);	
 	/* remove gravity */
 	accE[2] += 9.8f;
@@ -158,17 +166,13 @@ void pos_est_update(float dT)
 		
 		gps_get_position(&pos, gps_pos);
 		gps_get_velocity(&vel, gps_pos);
-		
-		pos_kf[0].z.element[0][0] = pos.x;
-		pos_kf[0].z.element[1][0] = vel.x;
-		pos_kf[1].z.element[0][0] = pos.y;
-		pos_kf[1].z.element[1][0] = vel.y;
-	}else{
-		pos_kf[0].z.element[0][0] = 0.0f;
-		pos_kf[0].z.element[1][0] = 0.0f;
-		pos_kf[1].z.element[0][0] = 0.0f;
-		pos_kf[1].z.element[1][0] = 0.0f;
 	}
+	
+	pos_kf[0].z.element[0][0] = pos.x;
+	pos_kf[0].z.element[1][0] = vel.x;
+	pos_kf[1].z.element[0][0] = pos.y;
+	pos_kf[1].z.element[1][0] = vel.y;
+	
 #ifdef USE_LIDAR
 	pos.z = lidar_lite_get_dis() - get_home_alt();
 	vel.z = 0; //TODO
@@ -178,12 +182,8 @@ void pos_est_update(float dT)
 	if(_home_pos.baro_altitude_set){
 		pos.z = baro_pos.altitude;
 		vel.z = baro_pos.velocity;
-	}else{
-		pos.z = 0.0f;
-		vel.z = 0.0f;
 	}
 #endif
-	
 	pos_kf[2].z.element[0][0] = pos.z;
 	pos_kf[2].z.element[1][0] = vel.z;
 	
@@ -212,7 +212,7 @@ void pos_est_update(float dT)
 	baro_pos_hist_offset = constrain_uint32(baro_pos_hist_offset, 0, KF_MAX_DELAY_OFFFSET);
 	gps_vel_hist_offset = constrain_uint32(gps_vel_hist_offset, 0, KF_MAX_DELAY_OFFFSET);
 	baro_vel_hist_offset = constrain_uint32(baro_vel_hist_offset, 0, KF_MAX_DELAY_OFFFSET);
-	
+
 	uint32_t hist_offset[3][2] = {
 		{gps_pos_hist_offset, gps_vel_hist_offset},
 		{gps_pos_hist_offset, gps_vel_hist_offset},
@@ -257,6 +257,9 @@ void pos_est_update(float dT)
 	mcn_publish(MCN_ID(ALT_INFO), &_altInfo);
 
 	POS_KF_Log pos_kf_log;
+	pos_kf_log.u_x = pos_kf[0].u.element[0][0];
+	pos_kf_log.u_y = pos_kf[1].u.element[0][0];
+	pos_kf_log.u_z = pos_kf[2].u.element[0][0];
 	pos_kf_log.est_x = pos_kf[0].x.element[0][0];
 	pos_kf_log.est_vx = pos_kf[0].x.element[1][0];
 	pos_kf_log.est_y = pos_kf[1].x.element[0][0];
@@ -334,20 +337,20 @@ void pos_est_init(float dT)
 	float *P = Q;
 	float x_init[2] = {0, 0};
 	
-	Q[0] = q_x*q_x*dT*dT;
-	Q[3] = q_vx*q_vx*dT*dT;
-	R[0] = r_x*r_x;
-	R[3] = r_vx*r_vx;
+	Q[0] = (double)q_x*q_x*dT*dT;
+	Q[3] = (double)q_vx*q_vx*dT*dT;
+	R[0] = (double)r_x*r_x;
+	R[3] = (double)r_vx*r_vx;
 	KF_Init(&pos_kf[0], F, B, H, P, Q, R, x_init, true, dT);
-	Q[0] = q_y*q_y*dT*dT;
-	Q[3] = q_vy*q_vy*dT*dT;
-	R[0] = r_y*r_y;
-	R[3] = r_vy*r_vy;
+	Q[0] = (double)q_y*q_y*dT*dT;
+	Q[3] = (double)q_vy*q_vy*dT*dT;
+	R[0] = (double)r_y*r_y;
+	R[3] = (double)r_vy*r_vy;
 	KF_Init(&pos_kf[1], F, B, H, P, Q, R, x_init, true, dT);
-	Q[0] = q_z*q_z*dT*dT;
-	Q[3] = q_vz*q_vz*dT*dT;
-	R[0] = r_z*r_z;
-	R[3] = r_vz*r_vz;
+	Q[0] = (double)q_z*q_z*dT*dT;
+	Q[3] = (double)q_vz*q_vz*dT*dT;
+	R[0] = (double)r_z*r_z;
+	R[3] = (double)r_vz*r_vz;
 	KF_Init(&pos_kf[2], F, B, H, P, Q, R, x_init, true, dT);
 
 	for(int i = 0 ; i < 3 ; i++){

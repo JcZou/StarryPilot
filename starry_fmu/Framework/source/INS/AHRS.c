@@ -89,7 +89,6 @@ void AHRS_reset(quaternion * q, const float acc[3],const float mag[3])
 
 void AHRS_update(quaternion * q, const float gyr[3], const float acc[3], const float mag[3], float dT)
 {	
-	//float acc_len = math_vector_length(acc);
 	Vector3_Normalize(accU, acc);
 	Vector3_Normalize(magU, mag);
 	
@@ -109,13 +108,7 @@ void AHRS_update(quaternion * q, const float gyr[3], const float acc[3], const f
 	/* calculate error in navigation frame */
 	/* error of roll and pitch come from acc, error of yaw come from mag */
 	float err_N[3], err_B[3];
-//	if(acc_len>11.0f){
-//		err_N[0] = acc_cross[0]*9.8f/((acc_len-9.8f)*(acc_len-9.8f)*5+9.8f);
-//		err_N[1] = acc_cross[1]*9.8f/((acc_len-9.8f)*(acc_len-9.8f)*5+9.8f);
-//	}else{
-//		err_N[0] = acc_cross[0];
-//		err_N[1] = acc_cross[ 1];
-//	}
+
 	err_N[0] = acc_cross[0] + mag_cross[0];
 	err_N[1] = acc_cross[1] + mag_cross[1];
 	err_N[2] = acc_cross[2] + mag_cross[2];
@@ -127,6 +120,7 @@ void AHRS_update(quaternion * q, const float gyr[3], const float acc[3], const f
 	errY_Int += err_B[1]*FACTOR_I* dT;  
 	errZ_Int += err_B[2]*FACTOR_I* dT; 
 
+	//TODO: add gyr bias estimation
 	delta[0] = gyr[0] + FACTOR_P*err_B[0] + errX_Int;  
 	delta[1] = gyr[1] + FACTOR_P*err_B[1] + errY_Int;  
 	delta[2] = gyr[2] + FACTOR_P*err_B[2] + errZ_Int;

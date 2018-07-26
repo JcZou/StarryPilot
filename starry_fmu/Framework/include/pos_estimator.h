@@ -54,6 +54,9 @@ typedef struct
 
 typedef struct
 {
+	float u_x;
+	float u_y;
+	float u_z;
 	float est_x;
 	float est_y;
 	float est_z;

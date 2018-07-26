@@ -95,6 +95,9 @@ LOG_ElementInfoDef element_info_list[] =
 	LOG_ELEMENT_INFO_FLOAT(GPS_HDOP),
 	LOG_ELEMENT_INFO_FLOAT(BARO_ALT),
 	LOG_ELEMENT_INFO_FLOAT(BARO_VEL),
+	LOG_ELEMENT_INFO_FLOAT(KF_U_X),
+	LOG_ELEMENT_INFO_FLOAT(KF_U_Y),
+	LOG_ELEMENT_INFO_FLOAT(KF_U_Z),
 	LOG_ELEMENT_INFO_FLOAT(KF_X),
 	LOG_ELEMENT_INFO_FLOAT(KF_Y),
 	LOG_ELEMENT_INFO_FLOAT(KF_Z),
@@ -280,6 +283,9 @@ uint8_t logger_record(void)
 	LOG_SET_ELEMENT(_logger_info, GPS_HDOP, gps_report.hdop);
 	LOG_SET_ELEMENT(_logger_info, BARO_ALT, baro_pos.altitude);
 	LOG_SET_ELEMENT(_logger_info, BARO_VEL, baro_pos.velocity);
+	LOG_SET_ELEMENT(_logger_info, KF_U_X, pos_kf_log.u_x);
+	LOG_SET_ELEMENT(_logger_info, KF_U_Y, pos_kf_log.u_y);
+	LOG_SET_ELEMENT(_logger_info, KF_U_Z, pos_kf_log.u_z);
 	LOG_SET_ELEMENT(_logger_info, KF_X, pos_kf_log.est_x);
 	LOG_SET_ELEMENT(_logger_info, KF_Y, pos_kf_log.est_y);
 	LOG_SET_ELEMENT(_logger_info, KF_Z, pos_kf_log.est_z);
