@@ -3,7 +3,7 @@ import os
 # toolchains options
 ARCH='arm'
 CPU='cortex-m4'
-CROSS_TOOL='keil'
+CROSS_TOOL='gcc'
 
 if os.getenv('RTT_CC'):
     CROSS_TOOL = os.getenv('RTT_CC')
@@ -25,7 +25,7 @@ elif CROSS_TOOL == 'iar':
 if os.getenv('RTT_EXEC_PATH'):
 	EXEC_PATH = os.getenv('RTT_EXEC_PATH')
 
-BUILD = 'debug'
+BUILD = ''
 STM32_TYPE = 'STM32F4XX'
 
 if PLATFORM == 'gcc':
@@ -41,9 +41,10 @@ if PLATFORM == 'gcc':
     OBJCPY = PREFIX + 'objcopy'
 
     DEVICE = '  -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffunction-sections -fdata-sections'
-    CFLAGS = DEVICE + ' -g -Wall -DSTM32F407ZG -DSTM32F4XX -DUSE_STDPERIPH_DRIVER -D__ASSEMBLY__ -D__FPU_USED'
+    CFLAGS = DEVICE + ' -g -Wall -DSTM32F427VI -DSTM32F4XX -DUSE_STDPERIPH_DRIVER -D__ASSEMBLY__ -D__VFP_FP__ -D__FPU_PRESENT -D__FPU_USED'
+    CFLAGS += ' -std=c99'
     AFLAGS = ' -c' + DEVICE + ' -x assembler-with-cpp -Wa,-mimplicit-it=thumb '
-    LFLAGS = DEVICE + ' -lm -lgcc -lc' + ' -nostartfiles -Wl,--gc-sections,-Map=rtthread-stm32.map,-cref,-u,Reset_Handler -T stm32_rom.ld'
+    LFLAGS = DEVICE + ' -lm -lgcc -lc' + ' -nostartfiles -Wl,--gc-sections,-Map=starry_fmu.map,-cref,-u,Reset_Handler -T stm32_rom.ld'
 
     CPATH = ''
     LPATH = ''
@@ -54,7 +55,8 @@ if PLATFORM == 'gcc':
     else:
         CFLAGS += ' -O2'
 
-    POST_ACTION = OBJCPY + ' -O binary $TARGET rtthread.bin\n' + SIZE + ' $TARGET \n'
+    POST_ACTION = OBJCPY + ' -O binary $TARGET starry_fmu.bin\n' + SIZE + ' $TARGET \n'
+    POST_ACTION += 'python px_mkfw.py --prototype px4fmu-v2.prototype --git_identity ../../.. --image starry_fmu.bin \n'
 
 elif PLATFORM == 'armcc':
     # toolchains
@@ -67,7 +69,7 @@ elif PLATFORM == 'armcc':
     DEVICE = ' --cpu=cortex-m4.fp'
     CFLAGS = DEVICE + ' --apcs=interwork -DUSE_STDPERIPH_DRIVER -DSTM32F40_41xxx'
     AFLAGS = DEVICE
-    LFLAGS = DEVICE + ' --info sizes --info totals --info unused --info veneers --list rtthread-stm32.map --scatter stm32_rom.sct'
+    LFLAGS = DEVICE + ' --info sizes --info totals --info unused --info veneers --list starry_fmu.map --scatter stm32_rom.sct'
 
     CFLAGS += ' -I' + EXEC_PATH + '/ARM/RV31/INC'
     LFLAGS += ' --libpath ' + EXEC_PATH + '/ARM/RV31/LIB'
@@ -80,7 +82,7 @@ elif PLATFORM == 'armcc':
     else:
         CFLAGS += ' -O2'
 
-    POST_ACTION = 'fromelf --bin $TARGET --output rtthread.bin \nfromelf -z $TARGET'
+    POST_ACTION = 'fromelf --bin $TARGET --output starry_fmu.bin \nfromelf -z $TARGET'
 
 elif PLATFORM == 'iar':
     # toolchains

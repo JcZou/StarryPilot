@@ -10,7 +10,7 @@
 #include <rtdevice.h>
 #include <rtthread.h>
 #include <math.h>
-#include "FIR.h"
+#include "fir.h"
 #include "ms5611.h"
 #include "pos_estimator.h"
 #include "kf.h"

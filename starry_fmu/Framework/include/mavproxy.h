@@ -13,7 +13,7 @@
 //#include <rtdevice.h>
 
 #pragma anon_unions
-#include <..\..\mavlink\v1.0\common/mavlink.h>
+#include <../../Library/mavlink/v1.0/common/mavlink.h>
 
 rt_err_t device_mavproxy_init(void);
 void mavproxy_entry(void *parameter);

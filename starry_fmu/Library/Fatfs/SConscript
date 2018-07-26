@@ -1,0 +1,18 @@
+Import('RTT_ROOT')
+Import('rtconfig')
+from building import *
+
+cwd     = GetCurrentDir()
+src	= Glob('*.c') + Glob('option/*.c')
+src = Split("""
+diskio.c
+ff.c
+fs.c
+option/syscall.c
+option/unicode.c
+""")
+CPPPATH = [cwd]
+
+group = DefineGroup('Fatfs', src, depend = [''], CPPPATH = CPPPATH)
+
+Return('group')

@@ -423,11 +423,15 @@ float c = 1.03;
 //非正交量
 float alpha = 0.2;
 float beta = 0.13;
-float gamma = 0.08;
+float gamma_param = 0.08;
 
 int g_is_first = 1; 
 
 double a11, a12, a13, bx, a22, a23, by, bz;
+
+#ifndef RAND_MAX
+#define RAND_MAX (0xFFFFFFFFU)
+#endif
 
 /* 
 ** return a random real in the interval 
@@ -457,7 +461,7 @@ void randomEllipsoidPoint(double* P)
 //添加非正交量
 void addNonOrthogonality(double* P)
 {
-	P[0] = P[0]*cos(gamma)*cos(alpha)+P[1]*sin(gamma)+P[2]*sin(alpha);
+	P[0] = P[0]*cos(gamma_param)*cos(alpha)+P[1]*sin(gamma_param)+P[2]*sin(alpha);
 	P[1] = P[1]*cos(beta)+P[2]*sin(beta);
 	P[2] = P[2];
 }

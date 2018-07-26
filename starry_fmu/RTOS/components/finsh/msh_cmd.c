@@ -32,9 +32,9 @@
 #include <finsh.h>
 #include <shell.h>
 #include <string.h>
-#include "calibration.h"
-#include "starryio_uploader.h"
-#include "pos_estimator.h"
+//#include "calibration.h"
+//#include "starryio_uploader.h"
+//#include "pos_estimator.h"
 #include "msh.h"
 
 #ifdef FINSH_USING_MSH
