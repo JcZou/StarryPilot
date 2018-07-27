@@ -60,6 +60,10 @@
 #if defined(RT_USING_NEWLIB) || defined (RT_USING_MINILIBC)
 #include <sys/types.h>
 #include <string.h>
+#ifndef __u_char_defined
+typedef unsigned char u_char;
+#define __u_char_defined
+#endif
 #else
 typedef unsigned char  u_char;
 typedef unsigned short u_short;
