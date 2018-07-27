@@ -52,6 +52,7 @@ The compile environment is based on Keil MDK5.
 
 # Developer List
 - *JcZou*: jiachi.zou@gmail.com, zoujiachi666@163.com 
+- *weety*: luohui2320@gmail.com
 ---------------------------
 
 **QQ群: 459133925**
