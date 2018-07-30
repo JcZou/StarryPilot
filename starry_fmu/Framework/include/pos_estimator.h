@@ -23,6 +23,7 @@ typedef struct
 	bool	baro_altitude_set;
 	bool	lidar_altitude_set;
 	bool	gps_coordinate_set;
+	float	mag_decl;	/* magnetic declination, in degree */
 }HOME_Pos;
 
 typedef enum

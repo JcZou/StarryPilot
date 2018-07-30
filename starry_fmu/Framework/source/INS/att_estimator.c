@@ -26,6 +26,7 @@
 
 MCN_DECLARE(SENSOR_ACC);
 MCN_DECLARE(SENSOR_MAG);
+MCN_DECLARE(HOME_POS);
 
 MCN_DEFINE(ATT_EULER, sizeof(Euler));	
 MCN_DEFINE(ATT_QUATERNION, sizeof(quaternion));
@@ -33,6 +34,8 @@ MCN_DEFINE(ATT_QUATERNION, sizeof(quaternion));
 static char *TAG = "Att_Est";
 
 static quaternion drone_attitude;
+
+McnNode_t _home_node_t;
 
 void attitude_est_run(float dT)
 {	
@@ -77,6 +80,10 @@ rt_err_t attitude_est_init(void)
 	if(mcn_res != 0){
 		Console.e(TAG, "err:%d, ATT_EULER advertise fail!\n", mcn_res);
 	}
+	
+	_home_node_t = mcn_subscribe(MCN_ID(HOME_POS), NULL);
+	if(_home_node_t == NULL)
+		Console.e(TAG, "_home_node_t subscribe err\n");
 
 	/* delay 10ms to make sure mag data is ready while AHRS_calculating() is invoked */
 	rt_thread_delay(10);

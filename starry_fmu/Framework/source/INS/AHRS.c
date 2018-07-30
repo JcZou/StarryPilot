@@ -11,6 +11,8 @@
 #include "AHRS.h"
 #include "global.h"
 #include "console.h"
+#include "uMCN.h"
+#include "pos_estimator.h"
 
 // System constants
 //#define deltat 0.004f // sampling period in seconds (shown as 1 ms)
@@ -47,6 +49,9 @@ static float gyr_bias[3];
 static float errX_Int = 0.0f;
 static float errY_Int = 0.0f;
 static float errZ_Int = 0.0f;
+
+extern McnNode_t _home_node_t;
+MCN_DECLARE(HOME_POS);
 
 void Runge_Kutta_1st(quaternion* attitude, quaternion q, float g[3], float dT)
 {
@@ -102,6 +107,19 @@ void AHRS_update(quaternion * q, const float gyr[3], const float acc[3], const f
 	quaternion_rotateVector(*q, accU, acc_N);
 	quaternion_rotateVector(*q, magU, mag_N);
 	
+	/* correct magnetic declination */
+	if(mcn_poll(_home_node_t)){
+		HOME_Pos home;
+		mcn_copy(MCN_ID(HOME_POS), _home_node_t, &home);
+		
+		float axis[3] = {0,0,-1};
+		float mag_axis[3] = {1,0,0};
+		quaternion qr;
+		
+		quaternion_create(&qr, Deg2Rad(-home.mag_decl), axis);
+		quaternion_rotateVector(qr, mag_axis, mag_const);
+	}
+		
 	/* we only need x and y value for mag to calculate error of yaw */
 	mag_N[2] = 0.0f;
 	Vector3_Normalize(mag_N, mag_N);

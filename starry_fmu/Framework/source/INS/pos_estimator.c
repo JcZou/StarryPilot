@@ -25,6 +25,7 @@
 #include "filter.h"
 #include "uMCN.h"
 #include "fifo.h"
+#include "declination.h"
 
 #ifdef HIL_SIMULATION
 	#define KF_GPS_POS_DELAY		0
@@ -54,6 +55,7 @@ static char *TAG = "POS";
 
 MCN_DEFINE(ALT_INFO, sizeof(AltInfo));
 MCN_DEFINE(POS_KF, sizeof(POS_KF_Log));
+MCN_DEFINE(HOME_POS, sizeof(HOME_Pos));
 
 MCN_DECLARE(BARO_POSITION);
 MCN_DECLARE(GPS_POSITION);
@@ -110,7 +112,12 @@ void pos_home_set(HOME_Item item, void* data)
 		_home_pos.lat = gps_coor[0];
 		_home_pos.lon = gps_coor[1];
 		_home_pos.gps_coordinate_set = true;
+		
+		//calculate magnetic declination
+		_home_pos.mag_decl = compass_get_declination(_home_pos.lat, _home_pos.lon);
 	}
+	
+	mcn_publish(MCN_ID(HOME_POS), &_home_pos);
 }
 
 HOME_Pos pos_home_get(void)
@@ -280,6 +287,7 @@ void pos_est_reset(void)
 	_home_pos.baro_altitude_set = false;
 	_home_pos.lidar_altitude_set = false;
 	_home_pos.gps_coordinate_set = false;
+	_home_pos.mag_decl = 0.0f;
 	
 	/* reset home position when vehicle unlock */
 	//set_home_cur_alt();
@@ -294,6 +302,10 @@ void pos_est_init(float dT)
 	mcn_res = mcn_advertise(MCN_ID(POS_KF));
 	if(mcn_res != 0){
 		Console.e(TAG, "POS_KF advertise err:%d\n", mcn_res);
+	}
+	mcn_res = mcn_advertise(MCN_ID(HOME_POS));
+	if(mcn_res != 0){
+		Console.e(TAG, "HOME_POS advertise err:%d\n", mcn_res);
 	}
 	
 	alt_node_t = mcn_subscribe(MCN_ID(BARO_POSITION), NULL);
@@ -363,6 +375,7 @@ void pos_est_init(float dT)
 	_home_pos.baro_altitude_set = false;
 	_home_pos.lidar_altitude_set = false;
 	_home_pos.gps_coordinate_set = false;
+	_home_pos.mag_decl = 0.0f;
 }
 
 int handle_pos_est_shell_cmd(int argc, char** argv)
