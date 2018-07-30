@@ -123,17 +123,6 @@ static const struct pin_index pins[] =
 #define ITEM_NUM(items) sizeof(items)/sizeof(items[0])
 const struct pin_index *get_pin(uint8_t pin)
 {
-    const struct pin_index *index;
-
-//    if (pin < ITEM_NUM(pins))
-//    {
-//        index = &pins[pin];
-//    }
-//    else
-//    {
-//        index = RT_NULL;
-//    }
-	/* changed by Jc Zou */
 	for(int i = 0 ; i < ITEM_NUM(pins) ; i++){
 		if(pin == pins[i].index){
 			return &pins[i];

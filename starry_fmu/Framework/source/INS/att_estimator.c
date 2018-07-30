@@ -44,11 +44,11 @@ void attitude_est_run(float dT)
 	const float* mag_t = magfilter_current();
 	
 #if   defined ( AHRS_USE_DEFAULT ) 
-	AHRS_update(&drone_attitude, gyrfilter_current(), accfilter_current(), magfilter_current(), dT);
+	AHRS_update(&drone_attitude, gyr_t, acc_t, mag_t, dT);
 #elif defined ( AHRS_USE_MARG )
 	MARG_AHRS_Update(&drone_attitude, gyr_t[0], gyr_t[1], gyr_t[2], -acc_t[0], -acc_t[1], -acc_t[2], mag_t[0], mag_t[1], mag_t[2], dT);
 #elif defined ( AHRS_USE_MAHONY )
-	MahonyAHRS_update(&drone_attitude, gyrfilter_current(), accfilter_current(), magfilter_current(), dT);
+	MahonyAHRS_update(&drone_attitude, gyr_t, acc_t, mag_t, dT);
 #else
 	#error Please select AHRS method.
 #endif

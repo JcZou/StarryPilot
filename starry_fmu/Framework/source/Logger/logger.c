@@ -300,7 +300,7 @@ uint8_t logger_record(void)
 	LOG_SET_ELEMENT(_logger_info, KF_Z_VZ, pos_kf_log.obs_vz);
 	
 	UINT bw;
-	FRESULT res = f_write(&logger_fp, &_logger_info.log_field, sizeof(_logger_info.log_field), &bw);
+	f_write(&logger_fp, &_logger_info.log_field, sizeof(_logger_info.log_field), &bw);
 	
 	return (bw == sizeof(_logger_info.log_field)) ? 0 : 1;
 }

@@ -69,7 +69,6 @@ void Runge_Kutta_1st(quaternion* attitude, quaternion q, float g[3], float dT)
 void AHRS_reset(quaternion * q, const float acc[3],const float mag[3])
 {
 	quaternion q1,q2;
-	Euler e;
 	float to[3];
 	float from[3];
 	
@@ -116,7 +115,7 @@ void AHRS_update(quaternion * q, const float gyr[3], const float acc[3], const f
 		float mag_axis[3] = {1,0,0};
 		quaternion qr;
 		
-		quaternion_create(&qr, Deg2Rad(-home.mag_decl), axis);
+		quaternion_create(&qr, Deg2Rad(home.mag_decl), axis);
 		quaternion_rotateVector(qr, mag_axis, mag_const);
 	}
 		
@@ -156,7 +155,7 @@ void AHRS_update(quaternion * q, const float gyr[3], const float acc[3], const f
 
 void MahonyAHRS_update(quaternion * q,const float gyr[3],const float acc[3],const float mag[3],float dT)
 { 
-	float hx, hy, hz, bx, by, bz;  
+	float hx, hy, hz, bx, bz;  
 	float vx, vy, vz, wx, wy, wz;   
 	float ex, ey, ez;  
 	static float exInt = 0.0f;

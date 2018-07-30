@@ -17,10 +17,6 @@
 
 MCN_DECLARE(ADRC);
 
-static float _derivative[2] = {0, 0};
-static float pre_err[2];
-static float d_alpha = 0.0f;
-
 #define sin_45 0.70711f
 #define cR     718.078f
 #define cT     1.23884e-5

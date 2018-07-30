@@ -19,6 +19,7 @@
 #include "uMCN.h"
 #include "sensor_manager.h"
 #include "gps.h"
+#include "statistic.h"
 
 #define MAVLINK_USE_USB
 
@@ -81,11 +82,7 @@ uint8_t mavlink_msg_transfer(uint8_t chan, uint8_t* msg_buff, uint16_t len)
 		}
 #endif
 	}else{
-		rt_uint16_t old_flag = _console_device->open_flag;
-		
-		//_console_device->open_flag |= RT_DEVICE_FLAG_STREAM;
 		s_bytes = rt_device_write(_console_device, 0, msg_buff, len);
-		//_console_device->open_flag = old_flag;
 	}
 	
 	if(s_bytes == len)
@@ -112,6 +109,23 @@ uint8_t mavlink_send_msg_heartbeat(uint8_t system_status)
 	
 	mavlink_msg_heartbeat_pack(mavlink_system.sysid, mavlink_system.compid, &msg,
 						       MAV_TYPE_QUADROTOR, MAV_AUTOPILOT_GENERIC, 0xFE, 0, system_status);
+	
+	len = mavlink_msg_to_send_buffer(mav_tx_buff, &msg);
+	mavlink_msg_transfer(0, mav_tx_buff, len);
+	
+	return 1;
+}
+
+uint8_t mavlink_send_msg_sys_status(uint8_t system_status)
+{
+	mavlink_message_t msg;
+	uint16_t len;
+	
+	if(mav_disenable)
+		return 0;
+
+	mavlink_msg_sys_status_pack(mavlink_system.sysid, mavlink_system.compid, &msg,
+						       1, 1, 1, get_cpu_usage(), 1100, 1100, 0, 0, 0, 0, 0, 0, 0);
 	
 	len = mavlink_msg_to_send_buffer(mav_tx_buff, &msg);
 	mavlink_msg_transfer(0, mav_tx_buff, len);
@@ -511,7 +525,8 @@ void mavproxy_entry(void *parameter)
 			
 			if(recv_set & EVENT_MAV_1HZ_UPDATE)
 			{
-				mavlink_send_msg_heartbeat(MAV_STATE_STANDBY);	
+				mavlink_send_msg_heartbeat(MAV_STATE_UNINIT);	
+				mavlink_send_msg_sys_status(MAV_STATE_UNINIT);
 			}
 			
 			if(recv_set & EVENT_MAV_3HZ_UPDATE)

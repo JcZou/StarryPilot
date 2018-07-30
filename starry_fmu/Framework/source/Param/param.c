@@ -162,7 +162,6 @@ static char* TAG = "PARAM";
 
 void param_show_group_list(void)
 {
-	param_info_t* p;
 	param_group_info* gp = (param_group_info*)&param_list;
 	for(int j = 0 ; j < sizeof(param_list)/sizeof(param_group_info) ; j++){
 		printf("%s:\n", gp->name);
@@ -425,7 +424,6 @@ void param_store(void)
 {
 	if(fm_init_complete()){
 		FIL fp;
-		UINT bw;
 		FRESULT res = f_open(&fp, PARAM_FILE_NAME, FA_OPEN_ALWAYS | FA_WRITE);
 		if(res == FR_OK){
 			/* add title */
