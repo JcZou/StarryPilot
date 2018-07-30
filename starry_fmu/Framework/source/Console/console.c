@@ -10,6 +10,7 @@
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "console.h"
 #include "delay.h"
 #include "ringbuffer.h"

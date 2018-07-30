@@ -50,7 +50,10 @@ struct vehicle_gps_position_s {
 
 	uint8_t satellites_used;			/**< Number of satellites used */
 	float hdop;
+	float ndop;
+	float edop;
 	float vdop;
+	float tdop;
 	uint32_t alt_ellipsoid;
 };
 

@@ -617,7 +617,8 @@ int gps_get_position(Vector3f_t* gps_pos, struct vehicle_gps_position_s gps_repo
 		return -1;
 	}
 
-	gps_calc_geometry_distance2(gps_pos, home.lat, home.lon, (double)gps_report.lat*1e-7, (double)gps_report.lon*1e-7);
+	//gps_calc_geometry_distance2(gps_pos, home.lat, home.lon, (double)gps_report.lat*1e-7, (double)gps_report.lon*1e-7);
+	gps_calc_geometry_distance(gps_pos, home.lat, home.lon, (double)gps_report.lat*1e-7, (double)gps_report.lon*1e-7);
 	gps_pos->z = (float)gps_report.alt*1e-3;
 	
 	return 0;

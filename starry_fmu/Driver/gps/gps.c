@@ -305,6 +305,9 @@ payload_rx_done(void)
 			
 			_gps_position->hdop		= _buf.payload_rx_nav_dop.hDOP * 0.01f;	// from cm to m
 			_gps_position->vdop		= _buf.payload_rx_nav_dop.vDOP * 0.01f;	// from cm to m
+			_gps_position->tdop		= _buf.payload_rx_nav_dop.tDOP * 0.01f;	// from cm to m
+			_gps_position->ndop		= _buf.payload_rx_nav_dop.nDOP * 0.01f;	// from cm to m
+			_gps_position->edop		= _buf.payload_rx_nav_dop.eDOP * 0.01f;	// from cm to m
 
 			_gps_position->timestamp_variance = time_nowUs();
 

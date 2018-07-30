@@ -66,11 +66,11 @@ static float q_vx = 1.0f;
 static float q_vy = 1.0f;
 static float q_vz = 1.0f;
 
-static float r_x = 1.0f;
-static float r_y = 1.0f;
+static float r_x = 0.25f;
+static float r_y = 0.25f;
 static float r_z = 1.0f;
-static float r_vx = 0.2f;
-static float r_vy = 0.2f;
+static float r_vx = 0.4f;
+static float r_vy = 0.4f;
 static float r_vz = 2.5f;
 
 void save_alt_info(float alt, float relative_alt, float vz, float az, float az_bias)

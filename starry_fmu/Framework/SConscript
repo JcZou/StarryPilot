@@ -14,12 +14,12 @@ src += Glob('source/FileManager/*.c')
 src += Glob('source/Filter/*.c')
 src += Glob('source/Global/*.c')
 src += Glob('source/HIL/*.c')
-#src += Glob('source/INS/*.c')
-src += Split("""
-source/INS/AHRS.c
-source/INS/att_estimator.c
-source/INS/pos_estimator.c
-""")
+src += Glob('source/INS/*.c')
+# src += Split("""
+# source/INS/AHRS.c
+# source/INS/att_estimator.c
+# source/INS/pos_estimator.c
+# """)
 src += Glob('source/KF/*.c')
 src += Glob('source/LED/*.c')
 src += Glob('source/Logger/*.c')
@@ -28,11 +28,11 @@ src += Glob('source/Mavproxy/*.c')
 src += Glob('source/Param/*.c')
 src += Glob('source/PID/*.c')
 src += Glob('source/RC/*.c')
-#src += Glob('source/Sensor/*.c')
-src += Split("""
-source/Sensor/sensor_manager.c
-source/Sensor/calibration.c
-""")
+src += Glob('source/Sensor/*.c')
+#src += Split("""
+#source/Sensor/sensor_manager.c
+#source/Sensor/calibration.c
+#""")
 src += Glob('source/STARRYIO/*.c')
 src += Glob('source/Statistic/*.c')
 src += Glob('source/System/*.c')
@@ -41,13 +41,13 @@ src += Glob('source/Time/*.c')
 src += Glob('source/Tools/*.c')
 src += Glob('source/uMCN/*.c')
 src += Glob('source/YXML/*.c')
+src += Glob('source/Tool/*.c')
+# src += Split("""
+# source/Tool/ringbuffer.c
+# source/Tool/fifo.c
+# """)
 
-src += Split("""
-source/Tool/ringbuffer.c
-source/Tool/fifo.c
-""")
-
-src += ['source/command/msh_usr_cmd.c']
+#src += ['source/command/msh_usr_cmd.c']
 
 CPPPATH = [cwd + '/include']
 

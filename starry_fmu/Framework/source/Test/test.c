@@ -26,6 +26,7 @@
 #include "control_main.h"
 #include "shell.h"
 #include "delay.h"
+#include "declination.h"
 
 MCN_DECLARE(SENSOR_BARO);
 MCN_DECLARE(SENSOR_GYR);
@@ -34,37 +35,40 @@ extern FIL my_fp;
 extern int start;
 int handle_test_shell_cmd(int argc, char** argv)
 {
-	if(argc > 1){
-		float bth = atof(argv[1]);
-		if(bth > 0){
-			control_request(true);
-			control_set("base_throttle", bth);
-		}else{
-			control_set("base_throttle", 0.0);
-			control_request(false);
-		}
-	}else{
-		control_set("base_throttle", 0.0);
-		control_set("roll_sp", 0.0);
-		control_set("pitch_sp", 0.0);
-		Console.print("request control\n");
-		control_request(true);
-		Console.print("set base_throttle=0.5\n");
-		control_set("base_throttle", 0.5);
-		rt_thread_delay(3000);
-		Console.print("set pitch=20deg\n");
-		control_set("pitch_sp", 20.0);
-		rt_thread_delay(3000);
-		Console.print("set pitch=-20deg\n");
-		control_set("pitch_sp", -20.0);
-		rt_thread_delay(3000);
-		Console.print("set pitch=0deg\n");
-		control_set("pitch_sp", 0.0);
-		rt_thread_delay(3000);
-		control_set("base_throttle", 0.0);
-		control_request(false);
-		Console.print("finish\n");
-	}
+	Console.print("am mag dec:%f %f\n", compass_get_declination(52.3702, 4.8952), compass_get_declination(-52.3702, -4.8952));
+	Console.print("sh mag dec:%f\n", compass_get_declination(31.2304, 121.4737));
+	Console.print("roma mag dec:%f\n", compass_get_declination(41.9028, 12.4964));
+//	if(argc > 1){
+//		float bth = atof(argv[1]);
+//		if(bth > 0){
+//			control_request(true);
+//			control_set("base_throttle", bth);
+//		}else{
+//			control_set("base_throttle", 0.0);
+//			control_request(false);
+//		}
+//	}else{
+//		control_set("base_throttle", 0.0);
+//		control_set("roll_sp", 0.0);
+//		control_set("pitch_sp", 0.0);
+//		Console.print("request control\n");
+//		control_request(true);
+//		Console.print("set base_throttle=0.5\n");
+//		control_set("base_throttle", 0.5);
+//		rt_thread_delay(3000);
+//		Console.print("set pitch=20deg\n");
+//		control_set("pitch_sp", 20.0);
+//		rt_thread_delay(3000);
+//		Console.print("set pitch=-20deg\n");
+//		control_set("pitch_sp", -20.0);
+//		rt_thread_delay(3000);
+//		Console.print("set pitch=0deg\n");
+//		control_set("pitch_sp", 0.0);
+//		rt_thread_delay(3000);
+//		control_set("base_throttle", 0.0);
+//		control_request(false);
+//		Console.print("finish\n");
+//	}
 	
 //	float gyr[3];
 //	Euler e = {0,0,0};

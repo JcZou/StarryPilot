@@ -12,7 +12,7 @@ if os.getenv('RTT_CC'):
 # EXEC_PATH is the compiler execute path, for example, CodeSourcery, Keil MDK, IAR
 if  CROSS_TOOL == 'gcc':
     PLATFORM 	= 'gcc'
-    EXEC_PATH 	= r'E:/Program Files/CodeSourcery/Sourcery G++ Lite/bin'
+    EXEC_PATH 	= r'E:\App\gnu-arm\bin'
 elif CROSS_TOOL == 'keil':
     PLATFORM 	= 'armcc'
     EXEC_PATH 	= r'C:/Keil'
@@ -41,7 +41,7 @@ if PLATFORM == 'gcc':
     OBJCPY = PREFIX + 'objcopy'
 
     DEVICE = '  -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffunction-sections -fdata-sections'
-    CFLAGS = DEVICE + ' -g -Wall -DSTM32F427VI -DSTM32F4XX -DUSE_STDPERIPH_DRIVER -D__ASSEMBLY__ -D__VFP_FP__ -D__FPU_PRESENT -D__FPU_USED'
+    CFLAGS = DEVICE + ' -g -Wall -DUSE_STDPERIPH_DRIVER -DSTM32F427X -D__VFP_FP__ -DARM_MATH_MATRIX_CHECK -DARM_MATH_CM4 -D__FPU_PRESENT="1" -D__FPU_USED="1"'
     CFLAGS += ' -std=c99'
     AFLAGS = ' -c' + DEVICE + ' -x assembler-with-cpp -Wa,-mimplicit-it=thumb '
     LFLAGS = DEVICE + ' -lm -lgcc -lc' + ' -nostartfiles -Wl,--gc-sections,-Map=starry_fmu.map,-cref,-u,Reset_Handler -T stm32_rom.ld'

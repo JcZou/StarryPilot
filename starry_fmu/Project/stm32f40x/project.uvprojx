@@ -334,7 +334,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_STDPERIPH_DRIVER,STM32F427X,__VFP_FP__,ARM_MATH_MATRIX_CHECK,ARM_MATH_CM4,__FPU_PRESENT=1,__FPU_USED=1,HIL_SIMULATION</Define>
+              <Define>USE_STDPERIPH_DRIVER,STM32F427X,__VFP_FP__,ARM_MATH_MATRIX_CHECK,ARM_MATH_CM4,__FPU_PRESENT=1,__FPU_USED=1</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\Library\STM_Lib\STM32F4xx_StdPeriph_Driver\inc;..\..\Library\STM_Lib\CMSIS\Include;..\..\Library\STM_Lib\CMSIS\Device\ST\STM32F4xx\Include;..\..\Library\mavlink\v2.0;..\..\Library\mavlink\v2.0\common;..\..\Library\Fatfs;..\..\Driver\usb\inc;..\..\Driver\include;..\..\RTOS\components\finsh;..\..\RTOS\libcpu\arm\common;..\..\RTOS\libcpu\arm\cortex-m4;..\..\RTOS\include;..\..\HAL\include;..\..\Framework\include;..\stm32f40x</IncludePath>
             </VariousControls>
@@ -564,6 +564,16 @@
               <FileName>yxml.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\YXML\yxml.c</FilePath>
+            </File>
+            <File>
+              <FileName>msh_usr_cmd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\Console\msh_usr_cmd.c</FilePath>
+            </File>
+            <File>
+              <FileName>declination.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\declination.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1019,11 +1029,6 @@
               <FileName>symbol.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\RTOS\components\finsh\symbol.c</FilePath>
-            </File>
-            <File>
-              <FileName>msh_usr_cmd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\RTOS\components\finsh\msh_usr_cmd.c</FilePath>
             </File>
           </Files>
         </Group>

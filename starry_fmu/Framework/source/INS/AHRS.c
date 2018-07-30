@@ -37,12 +37,13 @@ static float delta[3];
 //static float FACTOR_P = 2.0f;
 //static float FACTOR_I = 0.005f;
 static float FACTOR_P = 0.25f;
-static float FACTOR_I = 0.0f;
+static float FACTOR_I = 0.1f;
 
 static float acc_cross[3];
 static float mag_cross[3];
 static float acc_const[3] = {0.0f, 0.0f, -1.0f};
 static float mag_const[3] = {1.0f, 0.0f, 0.0f};
+static float gyr_bias[3];
 static float errX_Int = 0.0f;
 static float errY_Int = 0.0f;
 static float errZ_Int = 0.0f;
@@ -85,6 +86,10 @@ void AHRS_reset(quaternion * q, const float acc[3],const float mag[3])
 	/* combine two rotations to get current attitude */
 	quaternion_mult(q, q2, q1);
 	quaternion_normalize(q);
+	
+	gyr_bias[0] = 0.0f;
+	gyr_bias[1] = 0.0f;
+	gyr_bias[2] = 0.0f;
 }
 
 void AHRS_update(quaternion * q, const float gyr[3], const float acc[3], const float mag[3], float dT)
@@ -116,14 +121,15 @@ void AHRS_update(quaternion * q, const float gyr[3], const float acc[3], const f
 	/* transfer error from navigation frame to body frame */
 	quaternion_inv_rotateVector(*q, err_N, err_B);
 	
-	errX_Int += err_B[0]*FACTOR_I* dT;  
-	errY_Int += err_B[1]*FACTOR_I* dT;  
-	errZ_Int += err_B[2]*FACTOR_I* dT; 
-
-	//TODO: add gyr bias estimation
-	delta[0] = gyr[0] + FACTOR_P*err_B[0] + errX_Int;  
-	delta[1] = gyr[1] + FACTOR_P*err_B[1] + errY_Int;  
-	delta[2] = gyr[2] + FACTOR_P*err_B[2] + errZ_Int;
+	/* integrate error to estimate gyr bias */
+	gyr_bias[0] += err_B[0]*FACTOR_I*dT;  
+	gyr_bias[1] += err_B[1]*FACTOR_I*dT;  
+	gyr_bias[2] += err_B[2]*FACTOR_I*dT; 
+ 
+	/* calculate delta value */
+	delta[0] = gyr[0] + FACTOR_P*err_B[0] + gyr_bias[0];  
+	delta[1] = gyr[1] + FACTOR_P*err_B[1] + gyr_bias[1];  
+	delta[2] = gyr[2] + FACTOR_P*err_B[2] + gyr_bias[2];
 
 	/* first order runge-kutta to create quaternion */
 	Runge_Kutta_1st(q, *q, delta, dT);
