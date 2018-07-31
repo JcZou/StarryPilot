@@ -940,6 +940,7 @@ typedef enum ESTIMATOR_STATUS_FLAGS
 #include "./mavlink_msg_hil_state.h"
 #include "./mavlink_msg_hil_controls.h"
 #include "./mavlink_msg_hil_rc_inputs_raw.h"
+#include "./mavlink_msg_hil_actuator_controls.h"
 #include "./mavlink_msg_optical_flow.h"
 #include "./mavlink_msg_global_vision_position_estimate.h"
 #include "./mavlink_msg_vision_position_estimate.h"

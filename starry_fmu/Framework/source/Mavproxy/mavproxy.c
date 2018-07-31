@@ -23,8 +23,8 @@
 
 #define MAVLINK_USE_USB
 
-#define EVENT_MAV_1HZ_UPDATE		(1<<0)
-#define EVENT_MAV_3HZ_UPDATE		(1<<1)
+#define EVENT_MAVPROXY_UPDATE		(1<<0)
+//#define EVENT_MAV_10HZ_UPDATE		(1<<1)
 
 #define MAV_PKG_RETRANSMIT
 #define MAX_RETRY_NUM				5
@@ -35,15 +35,15 @@ mavlink_system_t mavlink_system;
 /* disable mavlink sending */
 uint8_t mav_disenable = 0;
 
-static char *TAG = "Mavproxy";
+static char *TAG = "MAV_Proxy";
 
-static struct rt_timer timer_1HZ;
-static struct rt_timer timer_3HZ;
-
-static struct rt_event event_mavlink;
+static struct rt_timer timer_mavproxy;
+static struct rt_event event_mavproxy;
 
 extern rt_device_t _console_device;
 mavlink_status_t mav_status;
+static MAV_PeriodMsg_Queue _period_msg_queue;
+static MAV_TempMsg_Queue _temp_msg_queue;
 
 MCN_DEFINE(HIL_STATE_Q, sizeof(mavlink_hil_state_quaternion_t));
 MCN_DEFINE(HIL_SENSOR, sizeof(mavlink_hil_sensor_t));
@@ -58,14 +58,6 @@ MCN_DECLARE(SENSOR_LIDAR);
 MCN_DECLARE(CORRECT_LIDAR);
 MCN_DECLARE(ATT_EULER);
 MCN_DECLARE(GPS_POSITION);
-
-static McnNode_t gyr_node_t;
-static McnNode_t acc_node_t;
-static McnNode_t mag_node_t;
-static McnNode_t baro_node_t;
-static McnNode_t alt_node_t;
-static McnNode_t lidar_node_t;
-static McnNode_t cor_lidar_node_t;
 
 uint8_t mavlink_msg_transfer(uint8_t chan, uint8_t* msg_buff, uint16_t len)
 {
@@ -93,232 +85,146 @@ uint8_t mavlink_msg_transfer(uint8_t chan, uint8_t* msg_buff, uint16_t len)
 
 rt_err_t device_mavproxy_init(void)
 {
-	mavlink_system.sysid = 20;                   
-	mavlink_system.compid = MAV_COMP_ID_IMU;     
+	mavlink_system.sysid = 1;        
+	mavlink_system.compid = 1;    
 
 	return 0;
 }
 
-uint8_t mavlink_send_msg_heartbeat(uint8_t system_status)
+void mavproxy_msg_heartbeat_pack(mavlink_message_t *msg_t)
 {
-	mavlink_message_t msg;
+    mavlink_heartbeat_t heartbeat;
 	uint16_t len;
 	
-	if(mav_disenable)
-		return 0;
+	heartbeat.type          = MAV_TYPE_QUADROTOR;
+    heartbeat.autopilot     = MAV_AUTOPILOT_PX4;
+	//TODO, fill base_mode and custom_mode
+    heartbeat.base_mode     = MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
+	heartbeat.custom_mode   = 0;
+	heartbeat.system_status = MAV_STATE_STANDBY;
 	
-	mavlink_msg_heartbeat_pack(mavlink_system.sysid, mavlink_system.compid, &msg,
-						       MAV_TYPE_QUADROTOR, MAV_AUTOPILOT_GENERIC, 0xFE, 0, system_status);
-	
-	len = mavlink_msg_to_send_buffer(mav_tx_buff, &msg);
-	mavlink_msg_transfer(0, mav_tx_buff, len);
-	
-	return 1;
+	mavlink_msg_heartbeat_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &heartbeat);
 }
 
-uint8_t mavlink_send_msg_sys_status(uint8_t system_status)
+void mavproxy_msg_sys_status_pack(mavlink_message_t *msg_t)
 {
-	mavlink_message_t msg;
+    mavlink_sys_status_t sys_status;
 	uint16_t len;
 	
-	if(mav_disenable)
-		return 0;
-
-	mavlink_msg_sys_status_pack(mavlink_system.sysid, mavlink_system.compid, &msg,
-						       1, 1, 1, get_cpu_usage(), 1100, 1100, 0, 0, 0, 0, 0, 0, 0);
+	sys_status.onboard_control_sensors_present = 1;
+	sys_status.onboard_control_sensors_enabled = 1;
+	sys_status.onboard_control_sensors_health = 1;
+	sys_status.load = (uint16_t)(get_cpu_usage()*1e3);
+	sys_status.voltage_battery = 11000;
+	sys_status.current_battery = -1;
+	sys_status.battery_remaining = -1;
 	
-	len = mavlink_msg_to_send_buffer(mav_tx_buff, &msg);
-	mavlink_msg_transfer(0, mav_tx_buff, len);
-	
-	return 1;
+	mavlink_msg_sys_status_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &sys_status);
 }
 
-uint8_t mavlink_send_msg_attitude_quaternion(uint8_t system_status, quaternion attitude)
+void mavproxy_msg_scaled_imu_pack(mavlink_message_t *msg_t)
 {
-	mavlink_message_t msg;
+	mavlink_scaled_imu_t scaled_imu;
 	uint16_t len;
+
+	float gyr[3], acc[3], mag[3];
+	mcn_copy_from_hub(MCN_ID(SENSOR_FILTER_GYR), gyr);
+	mcn_copy_from_hub(MCN_ID(SENSOR_FILTER_ACC), acc);
+	mcn_copy_from_hub(MCN_ID(SENSOR_FILTER_MAG), mag);
 	
-	if(mav_disenable)
-		return 0;
+	scaled_imu.xacc = (int16_t)(acc[0]*1000.0f);
+	scaled_imu.yacc = (int16_t)(acc[1]*1000.0f);
+	scaled_imu.zacc = (int16_t)(acc[2]*1000.0f);
+	scaled_imu.xgyro = (int16_t)(gyr[0]*1000.0f);
+	scaled_imu.ygyro = (int16_t)(gyr[1]*1000.0f);
+	scaled_imu.zgyro = (int16_t)(gyr[2]*1000.0f);
+	scaled_imu.xmag = (int16_t)(mag[0]*1000.0f);
+	scaled_imu.ymag = (int16_t)(mag[1]*1000.0f);
+	scaled_imu.zmag = (int16_t)(mag[2]*1000.0f);
 	
-	mavlink_msg_attitude_quaternion_pack(mavlink_system.sysid, mavlink_system.compid, &msg,
-						       0, attitude.w, attitude.x, attitude.y, attitude.z,0,0,0);
-	
-	len = mavlink_msg_to_send_buffer(mav_tx_buff, &msg);
-	mavlink_msg_transfer(0, mav_tx_buff, len);	
-	
-	return 1;
+	mavlink_msg_scaled_imu_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &scaled_imu);
 }
 
-uint8_t mavlink_send_msg_attitude(uint8_t system_status)
+void mavproxy_msg_attitude_pack(mavlink_message_t *msg_t)
 {
-	mavlink_message_t msg;
+	mavlink_attitude_t attitude;
 	uint16_t len;
-	
-	if(mav_disenable)
-		return 0;
 
-	Euler att;
-	mcn_copy_from_hub(MCN_ID(ATT_EULER), &att);
-	
+	Euler e;
+	mcn_copy_from_hub(MCN_ID(ATT_EULER), &e);
 	float gyr[3];
-	mcn_copy(MCN_ID(SENSOR_FILTER_GYR), gyr_node_t, gyr);
+	mcn_copy_from_hub(MCN_ID(SENSOR_FILTER_GYR), gyr);
 	
-	mavlink_msg_attitude_pack(mavlink_system.sysid, mavlink_system.compid, &msg,
-						       0, att.roll, att.pitch, att.yaw, gyr[0], gyr[1], gyr[2]);
+	attitude.roll = e.roll;
+	attitude.pitch = e.pitch;
+	attitude.yaw = e.yaw;
+	attitude.rollspeed = gyr[0];
+	attitude.pitchspeed = gyr[1];
+	attitude.yawspeed = gyr[2];
 	
-	len = mavlink_msg_to_send_buffer(mav_tx_buff, &msg);
-	mavlink_msg_transfer(0, mav_tx_buff, len);	
-	
-	return 1;
+	mavlink_msg_attitude_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &attitude);
 }
 
-uint8_t mavlink_send_msg_global_position(uint8_t system_status)
+void mavproxy_msg_global_position_pack(mavlink_message_t *msg_t)
 {
-	mavlink_message_t msg;
+	mavlink_global_position_int_t global_position;
 	uint16_t len;
-	Position_Info pos_info;
+
+	struct vehicle_gps_position_s gps_pos_t;
+	mcn_copy_from_hub(MCN_ID(GPS_POSITION), &gps_pos_t);
 	AltInfo alt_info;
+	mcn_copy_from_hub(MCN_ID(ALT_INFO), &alt_info);
 	
-	if(mav_disenable)
-		return 0;
+	global_position.lat 			= gps_pos_t.lat;
+	global_position.lon 			= gps_pos_t.lon;
+	global_position.alt 			= alt_info.alt*1e3;
+	global_position.relative_alt 	= alt_info.relative_alt*1e3;
+	global_position.vx				= gps_pos_t.vel_n_m_s*1e2;
+	global_position.vy 				= gps_pos_t.vel_e_m_s*1e2;
+	global_position.vz				= alt_info.vz*1e2;
 	
-	pos_info = get_pos_info();
-	mcn_copy(MCN_ID(ALT_INFO), alt_node_t, &alt_info);
-	
-	mavlink_msg_global_position_int_pack(mavlink_system.sysid, mavlink_system.compid, &msg,
-						       0, 0, 0, (int32_t)(alt_info.alt*1000.0f), (int32_t)(alt_info.relative_alt*1000.0f), 
-								0, 0, (int16_t)(alt_info.vz*100.0f), UINT16_MAX);
-	
-	len = mavlink_msg_to_send_buffer(mav_tx_buff, &msg);
-	mavlink_msg_transfer(0, mav_tx_buff, len);	
-	
-	return 1;
+	mavlink_msg_global_position_int_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &global_position);
 }
 
-uint8_t mavlink_send_altitude(void)
+void mavproxy_msg_gps_raw_int_pack(mavlink_message_t *msg_t)
 {
-	mavlink_message_t msg;
+	mavlink_gps_raw_int_t gps_raw_int;
 	uint16_t len;
-	mavlink_altitude_t alt;
-	
-	if(mav_disenable)
-		return 0;
 
-	AltInfo alt_info;
-	mcn_copy(MCN_ID(ALT_INFO), alt_node_t, &alt_info);
-	float lidar_dis;
-	mcn_copy(MCN_ID(SENSOR_LIDAR), lidar_node_t, &lidar_dis);
-	float cor_lidar_dis;
-	mcn_copy(MCN_ID(CORRECT_LIDAR), cor_lidar_node_t, &cor_lidar_dis);
+	struct vehicle_gps_position_s gps_pos_t;
+	mcn_copy_from_hub(MCN_ID(GPS_POSITION), &gps_pos_t);
 	
-	alt.time_usec = 0;
-	alt.altitude_monotonic = 0.0f;
-	alt.altitude_amsl = cor_lidar_dis;;
-	alt.altitude_local = alt_info.alt;
-	alt.altitude_relative = alt_info.relative_alt;
-	alt.altitude_terrain = lidar_dis; 
-	alt.bottom_clearance = 0.0f; 
-
-	mavlink_msg_altitude_encode(mavlink_system.sysid, mavlink_system.compid, &msg, &alt);
+	gps_raw_int.lat = gps_pos_t.lat;
+	gps_raw_int.lon = gps_pos_t.lon;
+	gps_raw_int.alt = gps_pos_t.alt;
+	gps_raw_int.eph = gps_pos_t.eph*1e3;
+	gps_raw_int.epv = gps_pos_t.epv*1e3;
+	gps_raw_int.vel = gps_pos_t.vel_m_s*1e2;
+	gps_raw_int.cog = Rad2Deg(gps_pos_t.cog_rad)*1e2;
+	gps_raw_int.fix_type = gps_pos_t.fix_type;
+	gps_raw_int.satellites_visible = gps_pos_t.satellites_used;
 	
-	len = mavlink_msg_to_send_buffer(mav_tx_buff, &msg);
-	mavlink_msg_transfer(0, mav_tx_buff, len);	
-	
-	return 1;
+	mavlink_msg_gps_raw_int_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &gps_raw_int);
 }
 
-uint8_t mavlink_send_hil_imu(void)
-{
-	mavlink_message_t msg;
-	uint16_t len;
-	mavlink_hil_sensor_t hil_imu;
-	
-	if(mav_disenable)
-		return 0;
-	
-	float gyr[3], acc[3], mag[3];
-	mcn_copy(MCN_ID(SENSOR_FILTER_GYR), gyr_node_t, gyr);
-	mcn_copy(MCN_ID(SENSOR_FILTER_ACC), acc_node_t, acc);
-	mcn_copy(MCN_ID(SENSOR_FILTER_MAG), mag_node_t, mag);
-	MS5611_REPORT_Def baro_report;
-	mcn_copy(MCN_ID(SENSOR_BARO), baro_node_t, &baro_report);
-
-	hil_imu.time_usec = 0;
-	hil_imu.xacc = acc[0]; 
-	hil_imu.yacc = acc[1]; 
-	hil_imu.zacc = acc[2]; 
-	hil_imu.xgyro = gyr[0];
-	hil_imu.ygyro = gyr[1];
-	hil_imu.zgyro = gyr[2];
-	hil_imu.xmag = mag[0]; 
-	hil_imu.ymag = mag[1]; 
-	hil_imu.zmag = mag[2]; 
-	hil_imu.abs_pressure = baro_report.pressure; 
-	hil_imu.diff_pressure = baro_report.pressure;
-	hil_imu.pressure_alt = baro_report.altitude; 
-	hil_imu.temperature = baro_report.temperature;
-	
-	mavlink_msg_hil_sensor_encode(mavlink_system.sysid, mavlink_system.compid, &msg, &hil_imu);
-	
-	len = mavlink_msg_to_send_buffer(mav_tx_buff, &msg);
-	mavlink_msg_transfer(0, mav_tx_buff, len);	
-	
-	return 1;
-}
-
-uint8_t mavlink_send_imu(void)
-{
-	mavlink_message_t msg;
-	uint16_t len;
-	mavlink_scaled_imu_t imu;
-	
-	if(mav_disenable)
-		return 0;
-	
-	float gyr[3], acc[3], mag[3];
-	mcn_copy(MCN_ID(SENSOR_FILTER_GYR), gyr_node_t, gyr);
-	mcn_copy(MCN_ID(SENSOR_FILTER_ACC), acc_node_t, acc);
-	mcn_copy(MCN_ID(SENSOR_FILTER_MAG), mag_node_t, mag);
-	
-	imu.xacc = (int16_t)(acc[0]*1000.0f);
-	imu.yacc = (int16_t)(acc[1]*1000.0f);
-	imu.zacc = (int16_t)(acc[2]*1000.0f);
-	
-	imu.xgyro = (int16_t)(gyr[0]*1000.0f);
-	imu.ygyro = (int16_t)(gyr[1]*1000.0f);
-	imu.zgyro = (int16_t)(gyr[2]*1000.0f);
-	
-	imu.xmag = (int16_t)(mag[0]*1000.0f);
-	imu.ymag = (int16_t)(mag[1]*1000.0f);
-	imu.zmag = (int16_t)(mag[2]*1000.0f);
-	
-	mavlink_msg_scaled_imu_encode(mavlink_system.sysid, mavlink_system.compid, &msg, &imu);
-	
-	len = mavlink_msg_to_send_buffer(mav_tx_buff, &msg);
-	mavlink_msg_transfer(0, mav_tx_buff, len);	
-	
-	return 1;
-}
-
-uint8_t mavlink_send_msg_rc_channels_raw(uint32_t channel[8])
-{
-	mavlink_message_t msg;
-	uint16_t len;
-	
-	if(mav_disenable)
-		return 0;
-	
-	mavlink_msg_rc_channels_raw_pack(mavlink_system.sysid, mavlink_system.compid, &msg,
-						       time_nowUs(), 1, (uint16_t)1000*channel[0], (uint16_t)1000*channel[1], 
-								(uint16_t)1000*channel[2], (uint16_t)1000*channel[3], (uint16_t)1000*channel[4], (uint16_t)1000*channel[5], 
-								(uint16_t)1000*channel[6], (uint16_t)1000*channel[7], 70);
-	
-	len = mavlink_msg_to_send_buffer(mav_tx_buff, &msg);
-	mavlink_msg_transfer(0, mav_tx_buff, len);	
-	
-	return 1;
-}
+//uint8_t mavlink_send_msg_rc_channels_raw(uint32_t channel[8])
+//{
+//	mavlink_message_t msg;
+//	uint16_t len;
+//	
+//	if(mav_disenable)
+//		return 0;
+//	
+//	mavlink_msg_rc_channels_raw_pack(mavlink_system.sysid, mavlink_system.compid, &msg,
+//						       time_nowUs(), 1, (uint16_t)1000*channel[0], (uint16_t)1000*channel[1], 
+//								(uint16_t)1000*channel[2], (uint16_t)1000*channel[3], (uint16_t)1000*channel[4], (uint16_t)1000*channel[5], 
+//								(uint16_t)1000*channel[6], (uint16_t)1000*channel[7], 70);
+//	
+//	len = mavlink_msg_to_send_buffer(mav_tx_buff, &msg);
+//	mavlink_msg_transfer(0, mav_tx_buff, len);	
+//	
+//	return 1;
+//}
 
 uint8_t mavlink_send_hil_actuator_control(float control[16], int motor_num)
 {
@@ -335,14 +241,9 @@ uint8_t mavlink_send_hil_actuator_control(float control[16], int motor_num)
 	return mavlink_msg_transfer(0, mav_tx_buff, len);
 }
 
-static void timer_mavlink_1HZ_update(void* parameter)
+static void timer_mavproxy_update(void* parameter)
 {
-	rt_event_send(&event_mavlink, EVENT_MAV_1HZ_UPDATE);
-}
-
-static void timer_mavlink_3HZ_update(void* parameter)
-{
-	rt_event_send(&event_mavlink, EVENT_MAV_3HZ_UPDATE);
+	rt_event_send(&event_mavproxy, EVENT_MAVPROXY_UPDATE);
 }
 
 rt_err_t mavproxy_recv_ind(rt_device_t dev, rt_size_t size)
@@ -360,7 +261,7 @@ rt_err_t mavproxy_recv_ind(rt_device_t dev, rt_size_t size)
 			break;
 		}
 		if(mavlink_parse_char(chan, byte, &msg, &mav_status)){
-			//Console.print("%d\n", msg.seq);
+			Console.print("mav msg:%d\n", msg.msgid);
 			/* decode mavlink package */
 			switch(msg.msgid){
 				case MAVLINK_MSG_ID_HIL_SENSOR:
@@ -401,7 +302,9 @@ rt_err_t mavproxy_recv_ind(rt_device_t dev, rt_size_t size)
 					mcn_publish(MCN_ID(HIL_STATE_Q), &hil_state_q);
 				}break;
 				default :
-					break;
+				{
+					//Console.print("mav unknown msg:%d\n", msg.msgid);
+				}break;
 			}
 		}
 	}
@@ -432,14 +335,107 @@ int handle_mavproxy_shell_cmd(int argc, char** argv)
 	return 0;
 }
 
+uint8_t mavproxy_period_msg_register(uint8_t msgid, uint16_t period_ms, void (* msg_pack_cb)(mavlink_message_t *msg_t), uint8_t enable)
+{
+	MAV_PeriodMsg msg;
+	
+	msg.msgid = msgid;
+	msg.enable = enable;
+	msg.period = period_ms;
+	msg.msg_pack_cb = msg_pack_cb;
+	msg.time_stamp = 0;
+	
+	if(_period_msg_queue.size < MAX_PERIOD_MSG_QUEUE_SIZE){
+		
+		_period_msg_queue.queue[_period_msg_queue.size++] = msg;
+		return 1;
+	}else{
+		
+		Console.print("mavproxy period msg queue is full\n");
+		return 0;
+	}
+}
+
+uint8_t mavproxy_temp_msg_push(mavlink_message_t msg)
+{
+	if(mav_disenable)
+		return 0;
+	
+	if( (_temp_msg_queue.head+1) % MAX_TEMP_MSG_QUEUE_SIZE == _temp_msg_queue.tail ){
+
+		Console.print("mavproxy temperary msg queue is full\n");
+		return 0;
+	}
+	
+	_temp_msg_queue.queue[_temp_msg_queue.head] = msg;
+	_temp_msg_queue.head = (_temp_msg_queue.head+1) % MAX_TEMP_MSG_QUEUE_SIZE;
+	
+	return 1;
+}
+
+uint8_t mavproxy_try_send_temp_msg(void)
+{
+	if(_temp_msg_queue.head == _temp_msg_queue.tail){
+		//queue is empty
+		return 0;
+	}
+	
+	uint16_t len;
+
+	len = mavlink_msg_to_send_buffer(mav_tx_buff, &_temp_msg_queue.queue[_temp_msg_queue.tail]);
+	_temp_msg_queue.tail = (_temp_msg_queue.tail+1) % MAX_TEMP_MSG_QUEUE_SIZE;
+	
+	mavlink_msg_transfer(0, mav_tx_buff, len);
+	
+	return 1;
+}
+
+uint8_t mavproxy_try_send_period_msg(void)
+{
+	if(mav_disenable)
+		return 0;
+	
+	for(uint16_t i = 0 ; i < _period_msg_queue.size ; i++){
+		
+		uint32_t now = time_nowMs();
+		MAV_PeriodMsg *msg_t = &_period_msg_queue.queue[_period_msg_queue.index];
+		_period_msg_queue.index = (_period_msg_queue.index+1) % _period_msg_queue.size;
+		
+		// find next msg to be sent
+		if(now - msg_t->time_stamp >= msg_t->period && msg_t->enable){
+			uint16_t len;
+			msg_t->time_stamp = now;
+			// pack msg
+			mavlink_message_t msg;
+			msg_t->msg_pack_cb(&msg);
+			// send out msg
+			len = mavlink_msg_to_send_buffer(mav_tx_buff, &msg);
+			mavlink_msg_transfer(0, mav_tx_buff, len);
+			
+			return 1;
+		}
+	}
+	
+	return 0;
+}
+
+void mavproxy_msg_queue_init(void)
+{
+	_period_msg_queue.size = 0;
+	_period_msg_queue.index = 0;
+	
+	_temp_msg_queue.head = 0;
+	_temp_msg_queue.tail = 0;
+}
+
 void mavproxy_entry(void *parameter)
 {
 	rt_err_t res;
 	rt_uint32_t recv_set = 0;
-	rt_uint32_t wait_set = EVENT_MAV_1HZ_UPDATE | EVENT_MAV_3HZ_UPDATE;
+	rt_uint32_t wait_set = EVENT_MAVPROXY_UPDATE;
 
 	/* create event */
-	res = rt_event_init(&event_mavlink, "mavlink_event", RT_IPC_FLAG_FIFO);
+	res = rt_event_init(&event_mavproxy, "mavproxy", RT_IPC_FLAG_FIFO);
 
 #ifdef MAVLINK_USE_USB	
 	usb_device = rt_device_find("usb");
@@ -455,19 +451,12 @@ void mavproxy_entry(void *parameter)
 #endif
 	
 	/* register timer event */
-	rt_timer_init(&timer_1HZ, "timer_1HZ",
-					timer_mavlink_1HZ_update,
+	rt_timer_init(&timer_mavproxy, "mavproxy",
+					timer_mavproxy_update,
 					RT_NULL,
-					1000,
+					10,
 					RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);
-	rt_timer_start(&timer_1HZ);
-	
-	rt_timer_init(&timer_3HZ, "timer_3HZ",
-					timer_mavlink_3HZ_update,
-					RT_NULL,
-					100,
-					RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);
-	rt_timer_start(&timer_3HZ);
+	rt_timer_start(&timer_mavproxy);
 	
 	/* advertise HIL publisher */
 	int mcn_res;
@@ -484,80 +473,32 @@ void mavproxy_entry(void *parameter)
 		Console.e(TAG, "err:%d, HIL_GPS advertise fail!\n", mcn_res);
 	}
 	
-	gyr_node_t = mcn_subscribe(MCN_ID(SENSOR_FILTER_GYR), NULL);
-	if(gyr_node_t == NULL)
-		Console.e(TAG, "gyr subscribe err\n");
-	acc_node_t = mcn_subscribe(MCN_ID(SENSOR_FILTER_ACC), NULL);
-	if(acc_node_t == NULL)
-		Console.e(TAG, "acc subscribe err\n");
-	mag_node_t = mcn_subscribe(MCN_ID(SENSOR_FILTER_MAG), NULL);
-	if(mag_node_t == NULL)
-		Console.e(TAG, "mag subscribe err\n");
-	baro_node_t = mcn_subscribe(MCN_ID(SENSOR_BARO), NULL);
-	if(baro_node_t == NULL)
-		Console.e(TAG, "baro subscribe err\n");
-	alt_node_t = mcn_subscribe(MCN_ID(ALT_INFO), NULL);
-	if(alt_node_t == NULL)
-		Console.e(TAG, "alt info subscribe err\n");
-	lidar_node_t = mcn_subscribe(MCN_ID(SENSOR_LIDAR), NULL);
-	if(lidar_node_t == NULL)
-		Console.e(TAG, "lidar subscribe err\n");
-	cor_lidar_node_t = mcn_subscribe(MCN_ID(CORRECT_LIDAR), NULL);
-	if(cor_lidar_node_t == NULL)
-		Console.e(TAG, "correct lidar subscribe err\n");
+	mavproxy_msg_queue_init();
+	// register periodical mavlink msg
+	mavproxy_period_msg_register(MAVLINK_MSG_ID_HEARTBEAT, 1000, mavproxy_msg_heartbeat_pack, 1);
+	mavproxy_period_msg_register(MAVLINK_MSG_ID_SYS_STATUS, 1000, mavproxy_msg_sys_status_pack, 1);
+	mavproxy_period_msg_register(MAVLINK_MSG_ID_SCALED_IMU, 50, mavproxy_msg_scaled_imu_pack, 1);
+	mavproxy_period_msg_register(MAVLINK_MSG_ID_ATTITUDE, 100, mavproxy_msg_attitude_pack, 1);
+	mavproxy_period_msg_register(MAVLINK_MSG_ID_GLOBAL_POSITION_INT, 100, mavproxy_msg_global_position_pack, 1);
+	mavproxy_period_msg_register(MAVLINK_MSG_ID_GPS_RAW_INT, 100, mavproxy_msg_gps_raw_int_pack, 1);
 	
 	while(1)
 	{
 		/* wait event occur */
-		res = rt_event_recv(&event_mavlink, wait_set, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, 
+		res = rt_event_recv(&event_mavproxy, wait_set, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, 
 								RT_WAITING_FOREVER, &recv_set);
 
 		if(res == RT_EOK)
 		{
-#ifdef HIL_SIMULATION
-//			if(recv_set & EVENT_MAV_3HZ_UPDATE)
-//			{
-//				mavlink_send_msg_attitude(MAV_STATE_STANDBY);
-//				mavlink_send_imu();
-//				mavlink_send_msg_global_position(MAV_STATE_STANDBY);
-//				mavlink_send_altitude();
-//			}
-			
-			if(recv_set & EVENT_MAV_1HZ_UPDATE)
-			{
-				mavlink_send_msg_heartbeat(MAV_STATE_UNINIT);	
-				mavlink_send_msg_sys_status(MAV_STATE_UNINIT);
-			}
-			
-			if(recv_set & EVENT_MAV_3HZ_UPDATE)
-			{
-				//mavlink_send_msg_attitude_quaternion(MAV_STATE_STANDBY, attitude_est_get_quaternion());
-				mavlink_send_msg_attitude(MAV_STATE_STANDBY);
-				//mavlink_send_imu();
-				mavlink_send_hil_imu();
-				mavlink_send_msg_global_position(MAV_STATE_STANDBY);
-				mavlink_send_altitude();
-			}
-#else
-			if(recv_set & EVENT_MAV_1HZ_UPDATE)
-			{
-				mavlink_send_msg_heartbeat(MAV_STATE_STANDBY);	
-			}
-			
-			if(recv_set & EVENT_MAV_3HZ_UPDATE)
-			{
-				//mavlink_send_msg_attitude_quaternion(MAV_STATE_STANDBY, attitude_est_get_quaternion());
-				mavlink_send_msg_attitude(MAV_STATE_STANDBY);
-				mavlink_send_imu();
-				mavlink_send_msg_global_position(MAV_STATE_STANDBY);
-				mavlink_send_altitude();
-			}
-#endif
+			// try to send out temporary msg first
+			mavproxy_try_send_temp_msg();
+			// try to send out periodical msg
+			mavproxy_try_send_period_msg();
 		}
 		else
 		{
 			//some err happen
-			Console.e(TAG, "mavlink loop, err:%d\r\n" , res);
+			Console.e(TAG, "mavproxy loop, err:%d\r\n" , res);
 		}
 	}
 }
