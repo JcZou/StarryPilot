@@ -136,6 +136,17 @@ int fputc(int ch, FILE *f)
   return ch;
 }
 
+void console_putc(uint8_t ch)
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the USART */
+  USART_SendData(USART1, (uint8_t) ch);
+
+  /* Loop until the end of transmission */
+  while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
+  {}
+}
+
 void USART2_irq_event_handler(void)
 {
 	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET){

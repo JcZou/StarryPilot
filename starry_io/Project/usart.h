@@ -26,5 +26,6 @@ uint8_t usart_init(void);
 uint8_t read_ch(uint8_t* ch);
 uint8_t send_ch(uint8_t ch);
 uint16_t send(uint8_t* data, uint16_t len);
+void console_putc(uint8_t ch);
 
 #endif
