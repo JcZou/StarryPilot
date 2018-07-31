@@ -60,7 +60,7 @@ uint8_t TCA62724_write_reg(uint8_t duty0, uint8_t duty1, uint8_t duty2)
 	
 	rt_size_t w_bytes = rt_device_write(_i2c_device, pos, (void*)buffer, sizeof(buffer));
 	
-	return 0;
+	return w_bytes>0 ? 0 : 1;
 }
 
 uint8_t TCA62724_read_reg(uint8_t reg_val[2])

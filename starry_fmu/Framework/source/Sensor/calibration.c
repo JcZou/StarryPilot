@@ -597,7 +597,7 @@ u8 Matrix_GaussElimination2(void)
 //求行最简型矩阵
 void Matrix_RowSimplify2(void)
 {
-    int row,column,k,s,t;
+    int row,column,s,t;
     //
     for(row=0,column=0 ; row<MAX_ROW && column<MAX_COL ; row++,column++)
     {
@@ -684,7 +684,6 @@ void reset_cali(void)
 
 void calibrate_process2(void)
 {
-	int i;
 	double solution[8];
 
 	if(solveMatrix2(solution))

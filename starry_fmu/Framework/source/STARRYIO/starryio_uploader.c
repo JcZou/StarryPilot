@@ -215,7 +215,6 @@ static rt_err_t erase(void)
 
 static rt_err_t program_fs(char* file_name)
 {
-	size_t sent = 0;
 	size_t count = 0;
 	uint8_t* file_buf;
 	rt_err_t ret;
@@ -329,7 +328,6 @@ static rt_err_t program_fs(char* file_name)
 
 static rt_err_t program_serial(size_t fw_size)
 {
-	size_t sent = 0;
 	size_t count = 0;
 	uint8_t* file_buf;
 	rt_err_t ret;
@@ -482,7 +480,6 @@ void starryio_upload(void)
 	rt_err_t ret;
 	uint8_t file_size[32] = {0};
 	uint32_t time = time_nowMs();
-	uint8_t c;
 	
 	struct finsh_shell* shell = finsh_get_shell();
 	

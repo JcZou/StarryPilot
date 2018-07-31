@@ -38,8 +38,6 @@ static int _read_reg(uint8_t reg, uint8_t* buffer, uint8_t count)
 
 float lidar_measure(void)
 {
-	uint8_t reg_val;
-	uint8_t retry_cnt = 0;
 	uint8_t dis_reg[2];
 	uint16_t distance_cm;
 	float distance_m;
@@ -57,8 +55,6 @@ float lidar_measure(void)
 
 rt_size_t lidar_read(rt_device_t dev, rt_off_t pos, void *buffer, rt_size_t size)
 {
-	int res;
-
 	if(pos == 1)	/* read lidar data */
 	{
 		float dis;

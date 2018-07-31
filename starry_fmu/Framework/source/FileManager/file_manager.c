@@ -125,7 +125,6 @@ void fm_cmd_ls(int mode)
 {
 	DIR dir;
 	FILINFO fno;
-	FRESULT res;
 	
 	if(mode == 0){	// normal
 		if(f_opendir(&dir,".") == FR_OK) {

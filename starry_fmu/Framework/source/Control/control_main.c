@@ -66,8 +66,6 @@ struct	Control_Req_Param
 
 static bool _request_control = false;
 static rt_device_t motor_device_t;
-static struct rt_timer timer_ctrl;
-static struct rt_event event_ctrl;
 static float yaw_target;
 static Euler _att_et;
 /* 0:lock	1:unlock*/
@@ -82,7 +80,6 @@ static float _throttle_alpha = 0.0f;	//throttle LPF
 static float _throttle_lpf = 0.0f;
 static uint8_t alt_hold_mode = 0;
 static float alt_setpoint = 0.0f;
-static float _att_err[3] = {0.0f, 0.0f, 0.0f};
 static uint8_t _att_outerloop_update = 1;
 Euler _ec;	//current euler angle
 HomePosition _home = {0.0f, 0.0f, 0};	// home position
@@ -316,8 +313,8 @@ Euler _calc_target_euler(int ctrl_mode, float dT)
 
 void throttle_compensate(float* throttle)
 {
-	const float cR = 718.078;
-	const float b = 88.448;
+//	const float cR = 718.078;
+//	const float b = 88.448;
 	float T_up = PARAM_GET_FLOAT(ADRC_ATT, T_UP);
 	float T_down = PARAM_GET_FLOAT(ADRC_ATT, T_DOWN);
 	

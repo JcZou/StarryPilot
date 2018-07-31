@@ -57,12 +57,12 @@ static rt_err_t starryio_serial_rx_ind(rt_device_t dev, rt_size_t size)
     return RT_EOK;
 }
 
-static rt_err_t starryio_debug_rx_ind(rt_device_t dev, rt_size_t size)
-{
-	rt_sem_release(&starryio_dbg_rx_sem);
+//static rt_err_t starryio_debug_rx_ind(rt_device_t dev, rt_size_t size)
+//{
+//	rt_sem_release(&starryio_dbg_rx_sem);
 
-    return RT_EOK;
-}
+//    return RT_EOK;
+//}
 
 rt_device_t starryio_get_device(void)
 {

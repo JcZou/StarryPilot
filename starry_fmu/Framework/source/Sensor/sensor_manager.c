@@ -31,18 +31,6 @@
 #include "att_estimator.h"
 #include "pos_estimator.h"
 
-//#define GYR_UPDATE_INTERVAL		1
-//#define ACC_UPDATE_INTERVAL		1
-//#define MAG_UPDATE_INTERVAL		4
-
-//#define GYR_ACC_UPDATE_INTERVAL		3
-//#define MAG_UPDATE_INTERVAL			10
-
-#define EVENT_GYR_ACC_UPDATE		(1<<0)
-#define EVENT_MAG_UPDATE			(1<<1)
-//#define EVENT_MAG_UPDATE		(1<<2)
-#define EVENT_2MS				(1<<3)
-
 #define ADDR_CMD_CONVERT_D1			0x48	/* write to this address to start pressure conversion */
 #define ADDR_CMD_CONVERT_D2			0x58	/* write to this address to start temperature conversion */
 
@@ -62,21 +50,14 @@ static rt_device_t mag_device_t;
 static rt_device_t gyr_device_t;
 static rt_device_t baro_device_t;
 static rt_device_t gps_device_t;
-static rt_device_t lidar_device_t;
+//static rt_device_t lidar_device_t;
 
 //for debug use
 static struct vehicle_gps_position_s gps_position;
 static struct satellite_info_s satellite_info;
 
-struct rt_event event_sensor;
-static struct rt_timer timer_acc;
-static struct rt_timer timer_mag;
-static struct rt_timer timer_gyr;
-static struct rt_timer timer_baro;
-
 static McnNode_t gps_node_t;
 
-static struct rt_timer timer_vehicle;
 struct rt_event event_vehicle;
 
 static volatile bool _baro_update_flag = false;
@@ -552,22 +533,6 @@ bool lidar_is_ready(void)
 }
 
 //////////////// GPS Function ///////////////////////
-//	while(1)
-//	{
-//		//example code to read gps data
-//		if( rt_device_read(gps_device_t, RD_COMPLETED_REPORT, NULL, 1) == RT_EOK){
-////			printf("lat:%d lon:%d alt:%d vd:%.2f ve:%.2f vn:%.2f\r\n", gps_position.lat, gps_position.lon, gps_position.alt, 
-////				gps_position.vel_d_m_s,gps_position.vel_e_m_s, gps_position.vel_n_m_s);
-//			printf("gpspos:%d %d %d gpsv:%f %f %f\r\n", gps_position.lat, gps_position.lon, gps_position.alt, 
-//				gps_position.vel_d_m_s,gps_position.vel_e_m_s, gps_position.vel_n_m_s);
-//		}
-////		if( rt_device_read(gps_device_t, RD_SVINFO, NULL, 1) == RT_EOK){
-////			printf("satellite cnt:%d\r\n", satellite_info.count);
-////		}
-//		
-//		time_waitMs(300);
-//	}
-
 void gps_calc_geometry_distance(Vector3f_t* dis, double ref_lat, double ref_lon, double lat, double lon)
 {
 	double delta_lat = Deg2Rad(lat - ref_lat);
@@ -633,7 +598,6 @@ int gps_get_velocity(Vector3f_t* gps_vel, struct vehicle_gps_position_s gps_repo
 	return 0;
 }
 
-rt_err_t lsm303d_mag_measure(float mag[3]);
 /**************************	INIT FUNC **************************/
 rt_err_t device_sensor_init(void)
 {
@@ -768,30 +732,6 @@ rt_err_t device_sensor_init(void)
 	return res;
 }
 
-static void timer_gyr_acc_update(void* parameter)
-{
-	/* send acc update event */
-	rt_event_send(&event_sensor, EVENT_GYR_ACC_UPDATE);
-}
-
-static void timer_mag_update(void* parameter)
-{
-	/* send acc update event */
-	rt_event_send(&event_sensor, EVENT_MAG_UPDATE);
-}
-
-static void timer_vehicle_update(void* parameter)
-{
-	/* send acc update event */
-	rt_event_send(&event_vehicle, EVENT_2MS);
-}
-
-//static void timer_mag_update(void* parameter)
-//{
-//	/* send acc update event */
-//	//rt_event_send(&event_sensor, EVENT_MAG_UPDATE);
-//}
-
 void sensor_collect(void)
 {
 	float gyr[3], acc[3], mag[3];
@@ -869,21 +809,6 @@ void sensor_collect(void)
 			
 			mcn_publish(MCN_ID(GPS_STATUS), &_gps_status);
 		}
-	}
-}
-
-static void timer_baro_update(void* parameter)
-{
-	rt_err_t res;
-	
-	if(sensor_baro_get_state() == S_COLLECT_REPORT){
-		res = sensor_process_baro_state_machine();
-		//get report;
-		if(res == RT_EOK){
-			_baro_update_flag = true;
-		}
-	}else{
-		res = sensor_process_baro_state_machine();
 	}
 }
 
@@ -1049,6 +974,8 @@ int handle_sensor_shell_cmd(int argc, char** argv)
 							}
 						}
 					}
+					if(cnt > 1)
+						rt_thread_delay(interval);
 			}break;
 			default:
 				break;
