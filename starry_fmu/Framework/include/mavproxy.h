@@ -16,7 +16,7 @@
 #include "../../Library/mavlink/v2.0/common/mavlink.h"
 
 #define MAX_PERIOD_MSG_QUEUE_SIZE	20
-#define MAX_TEMP_MSG_QUEUE_SIZE		20
+#define MAX_TEMP_MSG_QUEUE_SIZE		5
 
 typedef struct
 {

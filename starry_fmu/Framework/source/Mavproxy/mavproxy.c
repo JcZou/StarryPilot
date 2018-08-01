@@ -33,6 +33,7 @@
 
 static rt_device_t usb_device = NULL;
 uint8_t mav_tx_buff[1024];
+uint8_t mav_tx_buff2[256];
 mavlink_system_t mavlink_system;
 /* disable mavlink sending */
 uint8_t mav_disenable = 0;
@@ -398,12 +399,12 @@ uint8_t mavproxy_send_out_msg(mavlink_message_t msg)
 	if(mav_disenable)
 		return 0;
 	
-	uint8_t tx_buff[sizeof(mavlink_message_t)];
+	//uint8_t tx_buff[sizeof(mavlink_message_t)];
 	uint16_t len;
 
-	len = mavlink_msg_to_send_buffer(tx_buff, &msg);
+	len = mavlink_msg_to_send_buffer(mav_tx_buff2, &msg);
 	
-	return mavlink_msg_transfer(0, tx_buff, len);
+	return mavlink_msg_transfer(0, mav_tx_buff2, len);
 }
 
 uint8_t mavproxy_try_send_temp_msg(void)
