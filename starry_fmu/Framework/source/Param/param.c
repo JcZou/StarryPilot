@@ -164,7 +164,7 @@ void param_show_group_list(void)
 {
 	param_group_info* gp = (param_group_info*)&param_list;
 	for(int j = 0 ; j < sizeof(param_list)/sizeof(param_group_info) ; j++){
-		printf("%s:\n", gp->name);
+		Console.print("%s:\n", gp->name);
 		gp++;
 	}
 }
@@ -174,18 +174,18 @@ void param_dump(void)
 	param_info_t* p;
 	param_group_info* gp = (param_group_info*)&param_list;
 	for(int j = 0 ; j < sizeof(param_list)/sizeof(param_group_info) ; j++){
-		printf("%s:\n", gp->name);
+		Console.print("%s:\n", gp->name);
 		p = gp->content;
 		for(int i= 0 ; i < gp->param_num ; i++){
-			printf("%25s: ", p->name);
+			Console.print("%25s: ", p->name);
 			if(p->type == PARAM_TYPE_INT32){
-				printf("%d\n", p->val.i);
+				Console.print("%d\n", p->val.i);
 			}
 			if(p->type == PARAM_TYPE_UINT32){
-				printf("%d\n", p->val.u);
+				Console.print("%d\n", p->val.u);
 			}
 			if(p->type == PARAM_TYPE_FLOAT){
-				printf("%f\n", p->val.f);
+				Console.print("%f\n", p->val.f);
 			}
 			p++;
 		}
@@ -199,18 +199,18 @@ int param_dump_group(char* group_name)
 	param_group_info* gp = (param_group_info*)&param_list;
 	for(int j = 0 ; j < sizeof(param_list)/sizeof(param_group_info) ; j++){
 		if( strcmp(group_name, gp->name)==0 ){
-			printf("%s:\n", gp->name);
+			Console.print("%s:\n", gp->name);
 			p = gp->content;
 			for(int i= 0 ; i < gp->param_num ; i++){
-				printf("%25s: ", p->name);
+				Console.print("%25s: ", p->name);
 				if(p->type == PARAM_TYPE_INT32){
-					printf("%d\n", p->val.i);
+					Console.print("%d\n", p->val.i);
 				}
 				if(p->type == PARAM_TYPE_UINT32){
-					printf("%d\n", p->val.u);
+					Console.print("%d\n", p->val.u);
 				}
 				if(p->type == PARAM_TYPE_FLOAT){
-					printf("%f\n", p->val.f);
+					Console.print("%f\n", p->val.f);
 				}
 				p++;
 			}
@@ -228,15 +228,15 @@ int param_dump_param(char* group_name, char* param_name)
 	param_info_t* p = param_get(group_name, param_name);
 	
 	if(p != NULL){
-		printf("%25s: ", p->name);
+		Console.print("%25s: ", p->name);
 		if(p->type == PARAM_TYPE_INT32){
-			printf("%d\n", p->val.i);
+			Console.print("%d\n", p->val.i);
 		}
 		if(p->type == PARAM_TYPE_UINT32){
-			printf("%d\n", p->val.u);
+			Console.print("%d\n", p->val.u);
 		}
 		if(p->type == PARAM_TYPE_FLOAT){
-			printf("%f\n", p->val.f);
+			Console.print("%f\n", p->val.f);
 		}
 		
 		return 1;
@@ -338,7 +338,7 @@ int param_parse_state_machine(yxml_t *x, yxml_ret_t r, PARAM_PARSE_STATE* status
 			}
 			if(r == YXML_ATTREND){
 				group_name[attr_cnt] = '\0';
-				//printf("group %s\n", group_name);
+				//Console.print("group %s\n", group_name);
 				attr_cnt = 0;
 				*status = PARAM_PARSE_GROUP;
 			}
@@ -383,7 +383,7 @@ int param_parse_state_machine(yxml_t *x, yxml_ret_t r, PARAM_PARSE_STATE* status
 			}
 			if(r == YXML_ATTREND){
 				param_name[attr_cnt] = '\0';
-				//printf("param %s\n", param_name);
+				//Console.print("param %s\n", param_name);
 				attr_cnt = 0;
 				*status = PARAM_PARSE_PARAM_VAL;
 			}
@@ -408,7 +408,7 @@ int param_parse_state_machine(yxml_t *x, yxml_ret_t r, PARAM_PARSE_STATE* status
 			}
 			if(r == YXML_ELEMEND){
 				content[attr_cnt] = '\0';
-				//printf("val %s\n", content);
+				//Console.print("val %s\n", content);
 				attr_cnt = 0;
 				*status = PARAM_PARSE_PARAM;
 				
@@ -434,25 +434,25 @@ void param_store(void)
 			param_info_t* p;
 			param_group_info* gp = (param_group_info*)&param_list;
 			for(int j = 0 ; j < sizeof(param_list)/sizeof(param_group_info) ; j++){
-				//printf("%s:\n", gp->name);
+				//Console.print("%s:\n", gp->name);
 				/* add group element */
 				f_printf (&fp, "\x20\x20<group name=\"%s\">\n", gp->name);
 				p = gp->content;
 				for(int i= 0 ; i < gp->param_num ; i++){
 					/* add param element */
-					//printf("%25s: ", p->name);
+					//Console.print("%25s: ", p->name);
 					f_printf(&fp, "\x20\x20\x20\x20<param name=\"%s\">\n", p->name);
 					/* add value element */
 					if(p->type == PARAM_TYPE_INT32){
-						//printf("%d\n", p->val.i);
+						//Console.print("%d\n", p->val.i);
 						f_printf(&fp, "\x20\x20\x20\x20\x20\x20<value>%d</value>\n", p->val.i);
 					}
 					if(p->type == PARAM_TYPE_UINT32){
-						//printf("%d\n", p->val.u);
+						//Console.print("%d\n", p->val.u);
 						f_printf(&fp, "\x20\x20\x20\x20\x20\x20<value>%d</value>\n", p->val.u);
 					}
 					if(p->type == PARAM_TYPE_FLOAT){
-						//printf("%f\n", p->val.f);
+						//Console.print("%f\n", p->val.f);
 						char val[32];
 						sprintf(val, "%f", p->val.f);
 						/* f_printf do not support %f */

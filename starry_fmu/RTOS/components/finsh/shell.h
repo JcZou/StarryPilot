@@ -34,6 +34,9 @@
 #include "finsh.h"
 //#include "global.h"
 
+#define EVENT_HARD_SERIAL_RX			(1<<0)
+#define EVENT_MAV_SERIAL_RX				(1<<1)
+
 /* For historical reasons, users don't define FINSH_USING_HISTORY in rtconfig.h
  * but expect the history feature. So you sould define FINSH_USING_HISTORY to 0
  * to disable it from the rtconfig.h. */
@@ -78,7 +81,8 @@ enum input_stat
 };
 struct finsh_shell
 {
-	struct rt_semaphore rx_sem;
+	//struct rt_semaphore rx_sem;
+	struct rt_event rx_event;
 
 	enum input_stat stat;
 

@@ -510,8 +510,9 @@ void starryio_upload(void)
 				Console.print(".bin file size:");
 			
 				for(uint32_t i = 0 ; ; i++){
-					rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER);
-					rt_device_read(shell->device, 0, &file_size[i], 1);
+					//rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER);
+					//rt_device_read(shell->device, 0, &file_size[i], 1);
+					file_size[i] = shell_wait_ch();
 					Console.print("%c", file_size[i]);
 					if(file_size[i] < '0' || file_size[i] > '9'){
 						file_size[i] = '\0';

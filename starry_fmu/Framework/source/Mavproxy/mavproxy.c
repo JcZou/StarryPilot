@@ -20,12 +20,14 @@
 #include "sensor_manager.h"
 #include "gps.h"
 #include "statistic.h"
+#include "shell.h"
+
+#include <stdio.h>
 
 #define MAVLINK_USE_USB
 
 #define EVENT_MAVPROXY_UPDATE		(1<<0)
-//#define EVENT_MAV_10HZ_UPDATE		(1<<1)
-
+#define MAV_SERIAL_BUFFER_SIZE		128
 #define MAV_PKG_RETRANSMIT
 #define MAX_RETRY_NUM				5
 
@@ -34,6 +36,9 @@ uint8_t mav_tx_buff[1024];
 mavlink_system_t mavlink_system;
 /* disable mavlink sending */
 uint8_t mav_disenable = 0;
+
+ringbuffer* _mav_serial_rb;
+uint8_t _mav_serial_buffer[MAV_SERIAL_BUFFER_SIZE];
 
 static char *TAG = "MAV_Proxy";
 
@@ -261,9 +266,23 @@ rt_err_t mavproxy_recv_ind(rt_device_t dev, rt_size_t size)
 			break;
 		}
 		if(mavlink_parse_char(chan, byte, &msg, &mav_status)){
-			Console.print("mav msg:%d\n", msg.msgid);
+			//Console.print("mav msg:%d\n", msg.msgid);
 			/* decode mavlink package */
 			switch(msg.msgid){
+				case MAVLINK_MSG_ID_SERIAL_CONTROL:
+				{
+					mavlink_serial_control_t serial_control;
+					mavlink_msg_serial_control_decode(&msg, &serial_control);
+					
+					// the last byte for data is '\0', change to '\r'
+					serial_control.data[serial_control.count] = '\r';	
+
+					struct finsh_shell* shell = finsh_get_shell();
+					for(uint8_t i = 0 ; i < serial_control.count ; i++){
+						if(!ringbuffer_putc(_mav_serial_rb, serial_control.data[i])) break;
+					}
+					rt_event_send(&shell->rx_event, EVENT_MAV_SERIAL_RX);
+				}
 				case MAVLINK_MSG_ID_HIL_SENSOR:
 				{
 					mavlink_hil_sensor_t hil_sensor;
@@ -363,14 +382,28 @@ uint8_t mavproxy_temp_msg_push(mavlink_message_t msg)
 	
 	if( (_temp_msg_queue.head+1) % MAX_TEMP_MSG_QUEUE_SIZE == _temp_msg_queue.tail ){
 
-		Console.print("mavproxy temperary msg queue is full\n");
 		return 0;
 	}
 	
 	_temp_msg_queue.queue[_temp_msg_queue.head] = msg;
 	_temp_msg_queue.head = (_temp_msg_queue.head+1) % MAX_TEMP_MSG_QUEUE_SIZE;
 	
+	//printf("temp push msg\n");
+	
 	return 1;
+}
+
+uint8_t mavproxy_send_out_msg(mavlink_message_t msg)
+{
+	if(mav_disenable)
+		return 0;
+	
+	uint8_t tx_buff[sizeof(mavlink_message_t)];
+	uint16_t len;
+
+	len = mavlink_msg_to_send_buffer(tx_buff, &msg);
+	
+	return mavlink_msg_transfer(0, tx_buff, len);
 }
 
 uint8_t mavproxy_try_send_temp_msg(void)
@@ -386,6 +419,8 @@ uint8_t mavproxy_try_send_temp_msg(void)
 	_temp_msg_queue.tail = (_temp_msg_queue.tail+1) % MAX_TEMP_MSG_QUEUE_SIZE;
 	
 	mavlink_msg_transfer(0, mav_tx_buff, len);
+	
+	//printf("send temp msg:%d len:%d\n", _temp_msg_queue.queue[_temp_msg_queue.tail].msgid, len);
 	
 	return 1;
 }
@@ -419,6 +454,25 @@ uint8_t mavproxy_try_send_period_msg(void)
 	return 0;
 }
 
+uint8_t mavproxy_msg_serial_control_send(uint8_t *data, uint8_t count)
+{
+	mavlink_serial_control_t serial_control;
+	mavlink_message_t msg;
+	
+	serial_control.baudrate = 0;
+	serial_control.count = count<=70 ? count : 70;
+	serial_control.device = SERIAL_CONTROL_DEV_SHELL;
+	serial_control.flags = SERIAL_CONTROL_FLAG_REPLY;
+	
+	for(uint8_t i = 0 ; i < serial_control.count ; i++){
+		serial_control.data[i] = data[i];
+	}
+	
+	mavlink_msg_serial_control_encode(mavlink_system.sysid, mavlink_system.compid, &msg, &serial_control);
+
+	return mavproxy_send_out_msg(msg);
+}
+
 void mavproxy_msg_queue_init(void)
 {
 	_period_msg_queue.size = 0;
@@ -433,6 +487,8 @@ void mavproxy_entry(void *parameter)
 	rt_err_t res;
 	rt_uint32_t recv_set = 0;
 	rt_uint32_t wait_set = EVENT_MAVPROXY_UPDATE;
+	
+	_mav_serial_rb = ringbuffer_static_create(_mav_serial_buffer, MAV_SERIAL_BUFFER_SIZE);
 
 	/* create event */
 	res = rt_event_init(&event_mavproxy, "mavproxy", RT_IPC_FLAG_FIFO);

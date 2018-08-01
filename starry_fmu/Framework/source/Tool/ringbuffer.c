@@ -64,23 +64,27 @@ uint16_t ringbuffer_getlen(ringbuffer* rb)
 {
 	uint16_t len;
 	
+	OS_ENTER_CRITICAL;
 	if(rb->head >= rb->tail)
 		len = rb->head - rb->tail;
 	else
 		len = rb->head + (rb->size - rb->tail);
+	OS_EXIT_CRITICAL;
 	
 	return len;
 }
 
 uint8_t ringbuffer_putc(ringbuffer* rb, uint8_t c)
 {
+	OS_ENTER_CRITICAL;
 	if( (rb->head+1)%rb->size == rb->tail ){
-		//ringbuffer is full
+		OS_EXIT_CRITICAL;
 		return 0;
 	}
 	
 	rb->buff[rb->head] = c;
 	rb->head = (rb->head+1)%rb->size;
+	OS_EXIT_CRITICAL;
 	
 	return 1;
 }
@@ -88,12 +92,11 @@ uint8_t ringbuffer_putc(ringbuffer* rb, uint8_t c)
 uint8_t ringbuffer_getc(ringbuffer* rb)
 {
 	uint8_t c;
-	
-//	if(!ringbuffer_getlen(rb))
-//		return 0;
-	
+
+	OS_ENTER_CRITICAL;
 	c = rb->buff[rb->tail];
 	rb->tail = (rb->tail+1)%rb->size;
+	OS_EXIT_CRITICAL;
 	
 	return c;
 }
@@ -103,16 +106,20 @@ uint16_t ringbuffer_get(ringbuffer* rb, uint8_t* buffer, uint16_t len)
 	if( ringbuffer_getlen(rb) < len )
 		return 0;
 	
+	OS_ENTER_CRITICAL;
 	for(uint16_t i = 0 ; i < len ; i++){
 		buffer[i] = rb->buff[rb->tail];
 		rb->tail = (rb->tail+1)%rb->size;	
 	}
+	OS_EXIT_CRITICAL;
 
 	return len;
 }
 
 void ringbuffer_flush(ringbuffer* rb)
 {
+	OS_ENTER_CRITICAL;
 	rb->head = rb->tail = 0;
+	OS_EXIT_CRITICAL;
 }
 

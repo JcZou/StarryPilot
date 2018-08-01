@@ -710,131 +710,135 @@ void calibrate_process2(void)
 
 int calibrate_acc_run(struct finsh_shell *shell)
 {
-	Console.print("Calibrate acc:\r\n");
-	char ch;
+//	Console.print("Calibrate acc:\r\n");
+//	char ch;
 
-	/* reset matrix */
-	ResetMatrix();
+//	/* reset matrix */
+//	ResetMatrix();
 
-	Console.print("forward [Y/N]\r\n");
-	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
-	rt_device_read(shell->device, 0, &ch, 1);
-	if(ch != 'Y' && ch != 'y')
-		return 1;
-	cali_input_acc_data(6);
+//	Console.print("forward [Y/N]\r\n");
+//	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
+//	rt_device_read(shell->device, 0, &ch, 1);
+//	if(ch != 'Y' && ch != 'y')
+//		return 1;
+//	cali_input_acc_data(6);
 
-	Console.print("behind [Y/N]\r\n");
-	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
-	rt_device_read(shell->device, 0, &ch, 1);
-	if(ch != 'Y' && ch != 'y')
-		return 1;
-	cali_input_acc_data(6);
+//	Console.print("behind [Y/N]\r\n");
+//	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
+//	rt_device_read(shell->device, 0, &ch, 1);
+//	if(ch != 'Y' && ch != 'y')
+//		return 1;
+//	cali_input_acc_data(6);
 
-	Console.print("left [Y/N]\r\n");
-	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
-	rt_device_read(shell->device, 0, &ch, 1);
-	if(ch != 'Y' && ch != 'y')
-		return 1;
-	cali_input_acc_data(6);
+//	Console.print("left [Y/N]\r\n");
+//	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
+//	rt_device_read(shell->device, 0, &ch, 1);
+//	if(ch != 'Y' && ch != 'y')
+//		return 1;
+//	cali_input_acc_data(6);
 
-	Console.print("right [Y/N]\r\n");
-	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
-	rt_device_read(shell->device, 0, &ch, 1);
-	if(ch != 'Y' && ch != 'y')
-		return 1;
-	cali_input_acc_data(6);
+//	Console.print("right [Y/N]\r\n");
+//	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
+//	rt_device_read(shell->device, 0, &ch, 1);
+//	if(ch != 'Y' && ch != 'y')
+//		return 1;
+//	cali_input_acc_data(6);
 
-	Console.print("up [Y/N]\r\n");
-	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
-	rt_device_read(shell->device, 0, &ch, 1);
-	if(ch != 'Y' && ch != 'y')
-		return 1;
-	cali_input_acc_data(6);
+//	Console.print("up [Y/N]\r\n");
+//	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
+//	rt_device_read(shell->device, 0, &ch, 1);
+//	if(ch != 'Y' && ch != 'y')
+//		return 1;
+//	cali_input_acc_data(6);
 
-	Console.print("down [Y/N]\r\n");
-	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
-	rt_device_read(shell->device, 0, &ch, 1);
-	if(ch != 'Y' && ch != 'y')
-		return 1;
-	cali_input_acc_data(6);
+//	Console.print("down [Y/N]\r\n");
+//	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
+//	rt_device_read(shell->device, 0, &ch, 1);
+//	if(ch != 'Y' && ch != 'y')
+//		return 1;
+//	cali_input_acc_data(6);
 
-	/* calculate result */
-	if(calibrate_process(ACC_STANDARD_VALUE) == RT_NULL)
-		return 1;
-	else
-		return 0;
+//	/* calculate result */
+//	if(calibrate_process(ACC_STANDARD_VALUE) == RT_NULL)
+//		return 1;
+//	else
+//		return 0;
+
+	return 0;
 }
 
 int calibrate_mag_run(struct finsh_shell *shell)
 {
-	Console.print("Calibrate mag:\r\n");
-	char ch;
+//	Console.print("Calibrate mag:\r\n");
+//	char ch;
 
-#ifdef CALI_METHOD_1	
-	/* reset matrix */
-	ResetMatrix();
-	
-	Console.print("forward [Y/N]\r\n");
-	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
-	rt_device_read(shell->device, 0, &ch, 1);
-	if(ch != 'Y' && ch != 'y')
-		return 1;
-	cali_input_mag_data(6);
-	
-	Console.print("behind [Y/N]\r\n");
-	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
-	rt_device_read(shell->device, 0, &ch, 1);
-	if(ch != 'Y' && ch != 'y')
-		return 1;
-	cali_input_mag_data(6);
-	
-	Console.print("left [Y/N]\r\n");
-	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
-	rt_device_read(shell->device, 0, &ch, 1);
-	if(ch != 'Y' && ch != 'y')
-		return 1;
-	cali_input_mag_data(6);
-	
-	Console.print("right [Y/N]\r\n");
-	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
-	rt_device_read(shell->device, 0, &ch, 1);
-	if(ch != 'Y' && ch != 'y')
-		return 1;
-	cali_input_mag_data(6);
-	
-	Console.print("up [Y/N]\r\n");
-	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
-	rt_device_read(shell->device, 0, &ch, 1);
-	if(ch != 'Y' && ch != 'y')
-		return 1;
-	cali_input_mag_data(6);
-	
-	Console.print("down [Y/N]\r\n");
-	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
-	rt_device_read(shell->device, 0, &ch, 1);
-	if(ch != 'Y' && ch != 'y')
-		return 1;
-	cali_input_mag_data(6);
-	
-	/* calculate result */
-	if(calibrate_process(MAG_STANDARD_VALUE) == RT_NULL )
-		return 1;
-	else
-		return 0;
-#elif defined CALI_METHOD_2
-	reset_cali();
-	
-	for(int i = 0 ; i < 9 ; i++){
-		Console.print("%d point [Y/N]\r\n", i+1);
-		if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
-		rt_device_read(shell->device, 0, &ch, 1);
-		if(ch != 'Y' && ch != 'y')
-			return 1;
-		cali_input_mag_data2(1);
-	}
-	
-	calibrate_process2();	
-#endif
+//#ifdef CALI_METHOD_1	
+//	/* reset matrix */
+//	ResetMatrix();
+//	
+//	Console.print("forward [Y/N]\r\n");
+//	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
+//	rt_device_read(shell->device, 0, &ch, 1);
+//	if(ch != 'Y' && ch != 'y')
+//		return 1;
+//	cali_input_mag_data(6);
+//	
+//	Console.print("behind [Y/N]\r\n");
+//	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
+//	rt_device_read(shell->device, 0, &ch, 1);
+//	if(ch != 'Y' && ch != 'y')
+//		return 1;
+//	cali_input_mag_data(6);
+//	
+//	Console.print("left [Y/N]\r\n");
+//	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
+//	rt_device_read(shell->device, 0, &ch, 1);
+//	if(ch != 'Y' && ch != 'y')
+//		return 1;
+//	cali_input_mag_data(6);
+//	
+//	Console.print("right [Y/N]\r\n");
+//	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
+//	rt_device_read(shell->device, 0, &ch, 1);
+//	if(ch != 'Y' && ch != 'y')
+//		return 1;
+//	cali_input_mag_data(6);
+//	
+//	Console.print("up [Y/N]\r\n");
+//	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
+//	rt_device_read(shell->device, 0, &ch, 1);
+//	if(ch != 'Y' && ch != 'y')
+//		return 1;
+//	cali_input_mag_data(6);
+//	
+//	Console.print("down [Y/N]\r\n");
+//	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
+//	rt_device_read(shell->device, 0, &ch, 1);
+//	if(ch != 'Y' && ch != 'y')
+//		return 1;
+//	cali_input_mag_data(6);
+//	
+//	/* calculate result */
+//	if(calibrate_process(MAG_STANDARD_VALUE) == RT_NULL )
+//		return 1;
+//	else
+//		return 0;
+//#elif defined CALI_METHOD_2
+//	reset_cali();
+//	
+//	for(int i = 0 ; i < 9 ; i++){
+//		Console.print("%d point [Y/N]\r\n", i+1);
+//		if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return 1;
+//		rt_device_read(shell->device, 0, &ch, 1);
+//		if(ch != 'Y' && ch != 'y')
+//			return 1;
+//		cali_input_mag_data2(1);
+//	}
+//	
+//	calibrate_process2();	
+//#endif
+
+	return 0;
 }
 
 void calibrate_gyr_run(struct finsh_shell *shell)

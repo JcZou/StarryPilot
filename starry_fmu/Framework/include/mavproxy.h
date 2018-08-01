@@ -10,12 +10,13 @@
 #include <rtthread.h>
 #include <stdint.h>
 #include "quaternion.h"
+#include "ringbuffer.h"
 
 #pragma anon_unions
-#include "..\..\Library\mavlink\v2.0\common\mavlink.h"
+#include "../../Library/mavlink/v2.0/common/mavlink.h"
 
 #define MAX_PERIOD_MSG_QUEUE_SIZE	20
-#define MAX_TEMP_MSG_QUEUE_SIZE		5
+#define MAX_TEMP_MSG_QUEUE_SIZE		20
 
 typedef struct
 {
@@ -40,8 +41,8 @@ typedef struct
 	uint16_t			tail;
 }MAV_TempMsg_Queue;
 
+extern ringbuffer* _mav_serial_rb;
+
 rt_err_t device_mavproxy_init(void);
 void mavproxy_entry(void *parameter);
-uint8_t mavlink_send_msg_rc_channels_raw(uint32_t channel[8]);
-uint8_t mavlink_send_msg_attitude_quaternion(uint8_t system_status, quaternion attitude);
-uint8_t mavlink_send_hil_actuator_control(float control[16], int motor_num);
+uint8_t mavproxy_msg_serial_control_send(uint8_t *data, uint8_t count);

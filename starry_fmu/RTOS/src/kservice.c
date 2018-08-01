@@ -36,6 +36,7 @@
 #include <rtthread.h>
 #include <rthw.h>
 #include "console.h"
+#include "mavproxy.h"
 
 /* use precision */
 #define RT_PRINTF_PRECISION
@@ -1122,6 +1123,8 @@ void rt_kprintf(const char *fmt, ...)
         _console_device->open_flag |= RT_DEVICE_FLAG_STREAM;
         rt_device_write(_console_device, 0, rt_log_buf, length);
         _console_device->open_flag = old_flag;
+		//TODO, handle len>70
+		mavproxy_msg_serial_control_send((uint8_t *)rt_log_buf, length);
     }
 #else
     rt_hw_console_output(rt_log_buf);

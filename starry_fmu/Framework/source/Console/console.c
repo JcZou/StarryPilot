@@ -14,6 +14,7 @@
 #include "console.h"
 #include "delay.h"
 #include "ringbuffer.h"
+#include "mavproxy.h"
 
 CONSOLE_Typedef Console;
 
@@ -28,8 +29,9 @@ static char console_buf[CONSOLE_BUFF_SIZE];
 /* redefine fputc(),for printf() function to call */
 int fputc(int ch, FILE * file)
 {
-	if(console_device != NULL)
+	if(console_device != NULL){
 		rt_device_write(console_device, 0, (void*)&ch, 1);
+	}
 
 	return ch; 
 }
@@ -37,6 +39,8 @@ int fputc(int ch, FILE * file)
 void console_output(rt_device_t dev, char* content, uint32_t len)
 {
 	rt_device_write(dev, 0, (void*)content, len);
+	//TODO, handle len>70
+	mavproxy_msg_serial_control_send((uint8_t *)content, len);
 }
 
 void console_error(char* tag, const char *fmt, ...)
