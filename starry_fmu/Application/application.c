@@ -52,7 +52,7 @@ static rt_thread_t tid0;
 static char thread_mavlink_stack[2048];
 struct rt_thread thread_mavlink_handle;
 
-static char thread_starryio_stack[1024];
+static char thread_starryio_stack[2048];
 struct rt_thread thread_starryio_handle;
 
 static char thread_copter_stack[4096];
