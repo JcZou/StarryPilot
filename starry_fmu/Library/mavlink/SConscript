@@ -4,7 +4,7 @@ from building import *
 
 cwd     = GetCurrentDir()
 src	= []
-CPPPATH = [cwd + '/v2.0', cwd + '/v2.0/common']
+CPPPATH = [cwd + '/v1.0', cwd + '/v1.0/common']
 
 group = DefineGroup('mavlink', src, depend = [''], CPPPATH = CPPPATH)
 

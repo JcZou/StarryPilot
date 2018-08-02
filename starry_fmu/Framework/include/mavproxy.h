@@ -13,7 +13,7 @@
 #include "ringbuffer.h"
 
 #pragma anon_unions
-#include "../../Library/mavlink/v2.0/common/mavlink.h"
+#include "../../Library/mavlink/v1.0/common/mavlink.h"
 
 #define MAX_PERIOD_MSG_QUEUE_SIZE	20
 #define MAX_TEMP_MSG_QUEUE_SIZE		5
