@@ -67,10 +67,12 @@ struct rt_thread thread_led_handle;
 FATFS FatFs;
 
 void vehicle_main_loop(void *parameter);
+extern rt_err_t rt_hw_mavlink_console_init(void);
 void rt_init_thread_entry(void* parameter)
 {
 	rt_err_t res;
-	
+
+	rt_hw_mavlink_console_init();
 	statistic_init();
 	
     /* GDB STUB */

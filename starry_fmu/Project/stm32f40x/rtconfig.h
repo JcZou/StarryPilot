@@ -88,6 +88,7 @@
 #define FINSH_USING_MSH
 #define FINSH_USING_MSH_ONLY
 #define DFS_USING_WORKDIR
+#define FINSH_THREAD_STACK_SIZE 4096
 
 /* SECTION: device filesystem */
 /* Using Device file system */

@@ -24,7 +24,6 @@
 #include "statistic.h"
 #include "shell.h"
 
-#include <stdio.h>
 
 #define MAVLINK_USE_USB
 
@@ -52,6 +51,11 @@ extern rt_device_t _console_device;
 mavlink_status_t mav_status;
 static MAV_PeriodMsg_Queue _period_msg_queue;
 static MAV_TempMsg_Queue _temp_msg_queue;
+
+#define UART_CONSOLE_DEV_NAME "uart3"
+#define USB_CONSOLE_DEV_NAME "usb"
+#define MAVLINK_CONSOLE_DEV_NAME "mav"
+static rt_device_t _mavlink_console_dev = RT_NULL;
 
 MCN_DEFINE(HIL_STATE_Q, sizeof(mavlink_hil_state_quaternion_t));
 MCN_DEFINE(HIL_SENSOR, sizeof(mavlink_hil_sensor_t));
@@ -280,11 +284,20 @@ rt_err_t mavproxy_recv_ind(rt_device_t dev, rt_size_t size)
 					// the last byte for data is '\0', change to '\r'
 					serial_control.data[serial_control.count] = '\r';	
 
-					struct finsh_shell* shell = finsh_get_shell();
 					for(uint8_t i = 0 ; i < serial_control.count ; i++){
 						if(!ringbuffer_putc(_mav_serial_rb, serial_control.data[i])) break;
 					}
-					rt_event_send(&shell->rx_event, EVENT_MAV_SERIAL_RX);
+					if (_mavlink_console_dev) {
+						if (_mavlink_console_dev->user_data == RT_NULL) {
+							_mavlink_console_dev->user_data = (void*)-1;
+							console_redirect_device(MAVLINK_CONSOLE_DEV_NAME);
+							rt_console_set_device(MAVLINK_CONSOLE_DEV_NAME);
+							finsh_set_device(MAVLINK_CONSOLE_DEV_NAME);
+						}
+						if (_mavlink_console_dev->rx_indicate) {
+							_mavlink_console_dev->rx_indicate(_mavlink_console_dev, serial_control.count);
+						}
+					}
 				}
 				case MAVLINK_MSG_ID_HIL_SENSOR:
 				{
@@ -356,6 +369,21 @@ int handle_mavproxy_shell_cmd(int argc, char** argv)
 	
 	return 0;
 }
+
+int handle_exit_shell_cmd(int argc, char** argv)
+{
+	if (_mavlink_console_dev) {
+		if (_mavlink_console_dev->user_data == (void*)-1) {
+			Console.print("Redirect console device to %s\n", UART_CONSOLE_DEV_NAME);
+			_mavlink_console_dev->user_data = RT_NULL;
+			console_redirect_device(UART_CONSOLE_DEV_NAME);
+			rt_console_set_device(UART_CONSOLE_DEV_NAME);
+			finsh_set_device(UART_CONSOLE_DEV_NAME);
+			Console.print("\n");
+		}
+	}
+}
+
 
 uint8_t mavproxy_period_msg_register(uint8_t msgid, uint16_t period_ms, void (* msg_pack_cb)(mavlink_message_t *msg_t), uint8_t enable)
 {
@@ -466,16 +494,22 @@ uint8_t mavproxy_msg_serial_control_send(uint8_t *data, uint8_t count)
 	serial_control.count = count<=70 ? count : 70;
 	serial_control.device = SERIAL_CONTROL_DEV_SHELL;
 	serial_control.flags = SERIAL_CONTROL_FLAG_REPLY;
-	
-//	for(uint8_t i = 0 ; i < serial_control.count ; i++){
-//		serial_control.data[i] = data[i];
-//	}
-	
+
 	memcpy(serial_control.data, data, serial_control.count);
-	
+
 	mavlink_msg_serial_control_encode(mavlink_system.sysid, mavlink_system.compid, &msg, &serial_control);
 
 	return mavproxy_send_out_msg(msg);
+}
+
+uint16_t mavproxy_msg_serial_control_read(uint8_t *data, uint16_t size)
+{
+	uint16_t len;
+	len = ringbuffer_getlen(_mav_serial_rb);
+	if (!len)
+		return 0;
+	size = size > len ? len : size;
+	return ringbuffer_get(_mav_serial_rb, data, size);
 }
 
 void mavproxy_msg_queue_init(void)
@@ -497,6 +531,10 @@ void mavproxy_entry(void *parameter)
 
 	/* create event */
 	res = rt_event_init(&event_mavproxy, "mavproxy", RT_IPC_FLAG_FIFO);
+
+	_mavlink_console_dev = rt_device_find(MAVLINK_CONSOLE_DEV_NAME);
+	if(!_mavlink_console_dev)
+		Console.e(TAG, "mavlink console device not found\n");
 
 #ifdef MAVLINK_USE_USB	
 	usb_device = rt_device_find("usb");
