@@ -39,7 +39,6 @@
 
 #include "finsh.h"
 #include "shell.h"
-#include "mavproxy.h"
 
 #ifdef FINSH_USING_MSH
 #include "msh.h"
@@ -88,10 +87,8 @@ static rt_err_t finsh_rx_ind(rt_device_t dev, rt_size_t size)
 {
     RT_ASSERT(shell != RT_NULL);
 
-//    /* release semaphore to let finsh thread rx data */
-//    rt_sem_release(&shell->rx_sem);
-	
-	rt_event_send(&shell->rx_event, EVENT_HARD_SERIAL_RX);
+    /* release semaphore to let finsh thread rx data */
+    rt_sem_release(&shell->rx_sem);
 
     return RT_EOK;
 }
@@ -297,244 +294,12 @@ static void shell_push_history(struct finsh_shell *shell)
 }
 #endif
 
-// return value, 0: next iteration, 1: continue, 2: break
-int finsh_handle_key(char ch)
-{
-	/*
-	 * handle control key
-	 * up key  : 0x1b 0x5b 0x41
-	 * down key: 0x1b 0x5b 0x42
-	 * right key:0x1b 0x5b 0x43
-	 * left key: 0x1b 0x5b 0x44
-	 */
-	if (ch == 0x1b)
-	{
-		shell->stat = WAIT_SPEC_KEY;
-		return 1;
-	}
-	else if (shell->stat == WAIT_SPEC_KEY)
-	{
-		if (ch == 0x5b)
-		{
-			shell->stat = WAIT_FUNC_KEY;
-			return 1;
-		}
-
-		shell->stat = WAIT_NORMAL;
-	}
-	else if (shell->stat == WAIT_FUNC_KEY)
-	{
-		shell->stat = WAIT_NORMAL;
-
-		if (ch == 0x41) /* up key */
-		{
-#ifdef FINSH_USING_HISTORY
-			/* prev history */
-			if (shell->current_history > 0)
-				shell->current_history --;
-			else
-			{
-				shell->current_history = 0;
-				return 1;
-			}
-
-			/* copy the history command */
-			memcpy(shell->line, &shell->cmd_history[shell->current_history][0],
-				   FINSH_CMD_SIZE);
-			shell->line_curpos = shell->line_position = strlen(shell->line);
-			shell_handle_history(shell);
-#endif
-			return 1;
-		}
-		else if (ch == 0x42) /* down key */
-		{
-#ifdef FINSH_USING_HISTORY
-			/* next history */
-			if (shell->current_history < shell->history_count - 1)
-				shell->current_history ++;
-			else
-			{
-				/* set to the end of history */
-				if (shell->history_count != 0)
-					shell->current_history = shell->history_count - 1;
-				else
-					return 1;
-			}
-
-			memcpy(shell->line, &shell->cmd_history[shell->current_history][0],
-				   FINSH_CMD_SIZE);
-			shell->line_curpos = shell->line_position = strlen(shell->line);
-			shell_handle_history(shell);
-#endif
-			return 1;
-		}
-		else if (ch == 0x44) /* left key */
-		{
-			if (shell->line_curpos)
-			{
-				rt_kprintf("\b");
-				shell->line_curpos --;
-			}
-
-			return 1;
-		}
-		else if (ch == 0x43) /* right key */
-		{
-			if (shell->line_curpos < shell->line_position)
-			{
-				rt_kprintf("%c", shell->line[shell->line_curpos]);
-				shell->line_curpos ++;
-			}
-
-			return 1;
-		}
-
-	}
-
-	/* handle CR key */
-	if (ch == '\r')
-	{
-		char next;
-
-		if (rt_device_read(shell->device, 0, &next, 1) == 1)
-		{
-			if (next == '\0') ch = '\r'; /* linux telnet will issue '\0' */
-			else ch = next;
-		}
-		else ch = '\r';
-	}
-	/* handle tab key */
-	else if (ch == '\t')
-	{
-		int i;
-		/* move the cursor to the beginning of line */
-		for (i = 0; i < shell->line_curpos; i++)
-			rt_kprintf("\b");
-
-		/* auto complete */
-		shell_auto_complete(&shell->line[0]);
-		/* re-calculate position */
-		shell->line_curpos = shell->line_position = strlen(shell->line);
-
-		return 1;
-	}
-	/* handle backspace key */
-	else if (ch == 0x7f || ch == 0x08)
-	{
-		/* note that shell->line_curpos >= 0 */
-		if (shell->line_curpos == 0)
-			return 1;
-
-		shell->line_position--;
-		shell->line_curpos--;
-
-		if (shell->line_position > shell->line_curpos)
-		{
-			int i;
-
-			rt_memmove(&shell->line[shell->line_curpos],
-					   &shell->line[shell->line_curpos + 1],
-					   shell->line_position - shell->line_curpos);
-			shell->line[shell->line_position] = 0;
-
-			rt_kprintf("\b%s  \b", &shell->line[shell->line_curpos]);
-
-			/* move the cursor to the origin position */
-			for (i = shell->line_curpos; i <= shell->line_position; i++)
-				rt_kprintf("\b");
-		}
-		else
-		{
-			rt_kprintf("\b \b");
-			shell->line[shell->line_position] = 0;
-		}
-
-		return 1;
-	}
-
-	/* handle end of line, break */
-	if (ch == '\r' || ch == '\n')
-	{
-#ifdef FINSH_USING_HISTORY
-		shell_push_history(shell);
-#endif
-
-#ifdef FINSH_USING_MSH
-		if (msh_is_used() == RT_TRUE)
-		{
-			if (shell->echo_mode)
-				rt_kprintf("\n");
-			msh_exec(shell->line, shell->line_position);
-		}
-		else
-#endif
-		{
-#ifndef FINSH_USING_MSH_ONLY
-			/* add ';' and run the command line */
-			shell->line[shell->line_position] = ';';
-
-			if (shell->line_position != 0) finsh_run_line(&shell->parser, shell->line);
-			else
-				if (shell->echo_mode) rt_kprintf("\n");
-#endif
-		}
-
-		rt_kprintf(FINSH_PROMPT);
-		memset(shell->line, 0, sizeof(shell->line));
-		shell->line_curpos = shell->line_position = 0;
-		return 2;
-	}
-
-	/* it's a large line, discard it */
-	if (shell->line_position >= FINSH_CMD_SIZE)
-		shell->line_position = 0;
-
-	/* normal character */
-	if (shell->line_curpos < shell->line_position)
-	{
-		int i;
-
-		rt_memmove(&shell->line[shell->line_curpos + 1],
-				   &shell->line[shell->line_curpos],
-				   shell->line_position - shell->line_curpos);
-		shell->line[shell->line_curpos] = ch;
-		if (shell->echo_mode)
-			rt_kprintf("%s", &shell->line[shell->line_curpos]);
-
-		/* move the cursor to new position */
-		for (i = shell->line_curpos; i < shell->line_position; i++)
-			rt_kprintf("\b");
-	}
-	else
-	{
-		shell->line[shell->line_position] = ch;
-		if (shell->echo_mode)
-			rt_kprintf("%c", ch);
-	}
-
-	ch = 0;
-	shell->line_position ++;
-	shell->line_curpos++;
-	if (shell->line_position >= FINSH_CMD_SIZE)
-	{
-		/* clear command line */
-		shell->line_position = 0;
-		shell->line_curpos = 0;
-	}
-	
-	return 0;
-}
-
 #ifndef RT_USING_HEAP
 struct finsh_shell _shell;
 #endif
-
 void finsh_thread_entry(void *parameter)
 {
     char ch;
-	rt_err_t sh_res;
-	rt_uint32_t recv_set = 0;
-	rt_uint32_t wait_set = EVENT_HARD_SERIAL_RX | EVENT_MAV_SERIAL_RX;
 
     /* normal is echo mode */
     shell->echo_mode = 1;
@@ -560,42 +325,232 @@ void finsh_thread_entry(void *parameter)
     while (1)
     {
         /* wait receive */
-        //if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) continue;
-		
-		sh_res = rt_event_recv(&shell->rx_event, wait_set, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, 
-								RT_WAITING_FOREVER, &recv_set);
-		
-		if(sh_res == RT_EOK){
-			if(recv_set & EVENT_HARD_SERIAL_RX){
-				/* read one character from device */
-				while (rt_device_read(shell->device, 0, &ch, 1) == 1)
-				{
-					int res = finsh_handle_key(ch);
-					if(res == 1){
-						continue;
-					}
-					if(res == 2){
-						break;
-					}
-				} /* end of device read */
-			}else if(recv_set & EVENT_MAV_SERIAL_RX){
-				uint16_t len = ringbuffer_getlen(_mav_serial_rb);
-				for(uint16_t i = 0 ; i < len ; i++){
-					ch = ringbuffer_getc(_mav_serial_rb);
-					int res = finsh_handle_key(ch);
-					if(res == 1){
-						continue;
-					}
-					if(res == 2){
-						break;
-					}
-				}
-			}else{
-				continue;
-			}
-		}else{
-			continue;
-		}
+        if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) continue;
+        /* read one character from device */
+        while (rt_device_read(shell->device, 0, &ch, 1) == 1)
+        {
+            /*
+             * handle control key
+             * up key  : 0x1b 0x5b 0x41
+             * down key: 0x1b 0x5b 0x42
+             * right key:0x1b 0x5b 0x43
+             * left key: 0x1b 0x5b 0x44
+             */
+            if (ch == 0x1b)
+            {
+                shell->stat = WAIT_SPEC_KEY;
+                continue;
+            }
+            else if (shell->stat == WAIT_SPEC_KEY)
+            {
+                if (ch == 0x5b)
+                {
+                    shell->stat = WAIT_FUNC_KEY;
+                    continue;
+                }
+
+                shell->stat = WAIT_NORMAL;
+            }
+            else if (shell->stat == WAIT_FUNC_KEY)
+            {
+                shell->stat = WAIT_NORMAL;
+
+                if (ch == 0x41) /* up key */
+                {
+#ifdef FINSH_USING_HISTORY
+                    /* prev history */
+                    if (shell->current_history > 0)
+                        shell->current_history --;
+                    else
+                    {
+                        shell->current_history = 0;
+                        continue;
+                    }
+
+                    /* copy the history command */
+                    memcpy(shell->line, &shell->cmd_history[shell->current_history][0],
+                           FINSH_CMD_SIZE);
+                    shell->line_curpos = shell->line_position = strlen(shell->line);
+                    shell_handle_history(shell);
+#endif
+                    continue;
+                }
+                else if (ch == 0x42) /* down key */
+                {
+#ifdef FINSH_USING_HISTORY
+                    /* next history */
+                    if (shell->current_history < shell->history_count - 1)
+                        shell->current_history ++;
+                    else
+                    {
+                        /* set to the end of history */
+                        if (shell->history_count != 0)
+                            shell->current_history = shell->history_count - 1;
+                        else
+                            continue;
+                    }
+
+                    memcpy(shell->line, &shell->cmd_history[shell->current_history][0],
+                           FINSH_CMD_SIZE);
+                    shell->line_curpos = shell->line_position = strlen(shell->line);
+                    shell_handle_history(shell);
+#endif
+                    continue;
+                }
+                else if (ch == 0x44) /* left key */
+                {
+                    if (shell->line_curpos)
+                    {
+                        rt_kprintf("\b");
+                        shell->line_curpos --;
+                    }
+
+                    continue;
+                }
+                else if (ch == 0x43) /* right key */
+                {
+                    if (shell->line_curpos < shell->line_position)
+                    {
+                        rt_kprintf("%c", shell->line[shell->line_curpos]);
+                        shell->line_curpos ++;
+                    }
+
+                    continue;
+                }
+
+            }
+
+            /* handle CR key */
+            if (ch == '\r')
+            {
+                char next;
+
+                if (rt_device_read(shell->device, 0, &next, 1) == 1)
+                {
+                    if (next == '\0') ch = '\r'; /* linux telnet will issue '\0' */
+                    else ch = next;
+                }
+                else ch = '\r';
+            }
+            /* handle tab key */
+            else if (ch == '\t')
+            {
+                int i;
+                /* move the cursor to the beginning of line */
+                for (i = 0; i < shell->line_curpos; i++)
+                    rt_kprintf("\b");
+
+                /* auto complete */
+                shell_auto_complete(&shell->line[0]);
+                /* re-calculate position */
+                shell->line_curpos = shell->line_position = strlen(shell->line);
+
+                continue;
+            }
+            /* handle backspace key */
+            else if (ch == 0x7f || ch == 0x08)
+            {
+                /* note that shell->line_curpos >= 0 */
+                if (shell->line_curpos == 0)
+                    continue;
+
+                shell->line_position--;
+                shell->line_curpos--;
+
+                if (shell->line_position > shell->line_curpos)
+                {
+                    int i;
+
+                    rt_memmove(&shell->line[shell->line_curpos],
+                               &shell->line[shell->line_curpos + 1],
+                               shell->line_position - shell->line_curpos);
+                    shell->line[shell->line_position] = 0;
+
+                    rt_kprintf("\b%s  \b", &shell->line[shell->line_curpos]);
+
+                    /* move the cursor to the origin position */
+                    for (i = shell->line_curpos; i <= shell->line_position; i++)
+                        rt_kprintf("\b");
+                }
+                else
+                {
+                    rt_kprintf("\b \b");
+                    shell->line[shell->line_position] = 0;
+                }
+
+                continue;
+            }
+
+            /* handle end of line, break */
+            if (ch == '\r' || ch == '\n')
+            {
+#ifdef FINSH_USING_HISTORY
+                shell_push_history(shell);
+#endif
+
+#ifdef FINSH_USING_MSH
+                if (msh_is_used() == RT_TRUE)
+                {
+                    if (shell->echo_mode)
+                        rt_kprintf("\n");
+                    msh_exec(shell->line, shell->line_position);
+                }
+                else
+#endif
+                {
+#ifndef FINSH_USING_MSH_ONLY
+                    /* add ';' and run the command line */
+                    shell->line[shell->line_position] = ';';
+
+                    if (shell->line_position != 0) finsh_run_line(&shell->parser, shell->line);
+                    else
+                        if (shell->echo_mode) rt_kprintf("\n");
+#endif
+                }
+
+                rt_kprintf(FINSH_PROMPT);
+                memset(shell->line, 0, sizeof(shell->line));
+                shell->line_curpos = shell->line_position = 0;
+                break;
+            }
+
+            /* it's a large line, discard it */
+            if (shell->line_position >= FINSH_CMD_SIZE)
+                shell->line_position = 0;
+
+            /* normal character */
+            if (shell->line_curpos < shell->line_position)
+            {
+                int i;
+
+                rt_memmove(&shell->line[shell->line_curpos + 1],
+                           &shell->line[shell->line_curpos],
+                           shell->line_position - shell->line_curpos);
+                shell->line[shell->line_curpos] = ch;
+                if (shell->echo_mode)
+                    rt_kprintf("%s", &shell->line[shell->line_curpos]);
+
+                /* move the cursor to new position */
+                for (i = shell->line_curpos; i < shell->line_position; i++)
+                    rt_kprintf("\b");
+            }
+            else
+            {
+                shell->line[shell->line_position] = ch;
+                if (shell->echo_mode)
+                    rt_kprintf("%c", ch);
+            }
+
+            ch = 0;
+            shell->line_position ++;
+            shell->line_curpos++;
+            if (shell->line_position >= FINSH_CMD_SIZE)
+            {
+                /* clear command line */
+                shell->line_position = 0;
+                shell->line_curpos = 0;
+            }
+        } /* end of device read */
     }
 }
 
@@ -709,9 +664,7 @@ int finsh_system_init(void)
 
     memset(shell, 0, sizeof(struct finsh_shell));
 
-    //rt_sem_init(&(shell->rx_sem), "shrx", 0, 0);
-	rt_event_init(&(shell->rx_event), "shrx", RT_IPC_FLAG_FIFO);
-	
+    rt_sem_init(&(shell->rx_sem), "shrx", 0, 0);
     result = rt_thread_init(&finsh_thread,
                             "tshell",
                             finsh_thread_entry, RT_NULL,
@@ -733,27 +686,8 @@ struct finsh_shell* finsh_get_shell(void)
 char shell_wait_ch(void)
 {
 	char ch;
-	rt_err_t sh_res;
-	rt_uint32_t recv_set = 0;
-	rt_uint32_t wait_set = EVENT_HARD_SERIAL_RX | EVENT_MAV_SERIAL_RX;
 	
-	//if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return -1;
-	
-	sh_res = rt_event_recv(&shell->rx_event, wait_set, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, 
-								RT_WAITING_FOREVER, &recv_set);
-		
-	if(sh_res == RT_EOK){
-		if(recv_set & EVENT_HARD_SERIAL_RX){
-			/* read one character from device */
-			rt_device_read(shell->device, 0, &ch, 1);
-		}else if(recv_set & EVENT_MAV_SERIAL_RX){
-			ch = ringbuffer_getc(_mav_serial_rb);
-		}else{
-			return -1;
-		}
-	}else{
-		return -1;
-	}
+	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return -1;
 	
 	rt_device_read(shell->device, 0, &ch, 1);
 	
@@ -764,9 +698,9 @@ int shell_is_end(void)
 {
 	char ch;
 	
-//	if (rt_sem_take(&shell->rx_sem, RT_WAITING_NO) != RT_EOK) return 0;
-//	
-//	rt_device_read(shell->device, 0, &ch, 1);
+	if (rt_sem_take(&shell->rx_sem, RT_WAITING_NO) != RT_EOK) return 0;
+	
+	rt_device_read(shell->device, 0, &ch, 1);
 	
 	return ch == 0x03 ? 1 : 0;
 }
