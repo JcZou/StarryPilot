@@ -52,6 +52,8 @@ mavlink_status_t mav_status;
 static MAV_PeriodMsg_Queue _period_msg_queue;
 static MAV_TempMsg_Queue _temp_msg_queue;
 
+#define UART_CONSOLE_DEV_NAME "uart3"
+#define USB_CONSOLE_DEV_NAME "usb"
 #define MAVLINK_CONSOLE_DEV_NAME "mav"
 static rt_device_t _mavlink_console_dev = RT_NULL;
 
@@ -286,9 +288,9 @@ rt_err_t mavproxy_recv_ind(rt_device_t dev, rt_size_t size)
 						if(!ringbuffer_putc(_mav_serial_rb, serial_control.data[i])) break;
 					}
 					if (_mavlink_console_dev) {
-						rt_kprintf("mavlink console enter, %x\n", _mavlink_console_dev->user_data);
 						if (_mavlink_console_dev->user_data == RT_NULL) {
 							_mavlink_console_dev->user_data = (void*)-1;
+							console_redirect_device(MAVLINK_CONSOLE_DEV_NAME);
 							rt_console_set_device(MAVLINK_CONSOLE_DEV_NAME);
 							finsh_set_device(MAVLINK_CONSOLE_DEV_NAME);
 						}
@@ -367,6 +369,21 @@ int handle_mavproxy_shell_cmd(int argc, char** argv)
 	
 	return 0;
 }
+
+int handle_exit_shell_cmd(int argc, char** argv)
+{
+	if (_mavlink_console_dev) {
+		if (_mavlink_console_dev->user_data == (void*)-1) {
+			Console.print("Redirect console device to %s\n", UART_CONSOLE_DEV_NAME);
+			_mavlink_console_dev->user_data = RT_NULL;
+			console_redirect_device(UART_CONSOLE_DEV_NAME);
+			rt_console_set_device(UART_CONSOLE_DEV_NAME);
+			finsh_set_device(UART_CONSOLE_DEV_NAME);
+			Console.print("\n");
+		}
+	}
+}
+
 
 uint8_t mavproxy_period_msg_register(uint8_t msgid, uint16_t period_ms, void (* msg_pack_cb)(mavlink_message_t *msg_t), uint8_t enable)
 {

@@ -114,6 +114,21 @@ void console_write(char* content, uint32_t len)
 	console_output(console_device, content, len);
 }
 
+int console_redirect_device(const char *name)
+{
+	rt_device_t new_dev = rt_device_find(name);
+	if (!new_dev) {
+		return -1;
+	}
+	if (console_device) {
+		rt_device_open(new_dev , RT_DEVICE_OFLAG_RDWR | RT_DEVICE_FLAG_INT_RX);
+		rt_device_close(console_device);
+		console_device = new_dev;
+	}
+
+	return 0;
+}
+
 uint8_t console_init(CONSOLE_INTERFACE_Typedef console_if)
 {	
 	Console.e = console_error;

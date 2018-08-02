@@ -371,6 +371,13 @@ int cmd_mavproxy(int argc, char** argv)
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_mavproxy, __cmd_mavproxy, mavlink proxy commands);
 
+int handle_exit_shell_cmd(int argc, char** argv);
+int cmd_exit(int argc, char** argv)
+{
+	return handle_exit_shell_cmd(argc, argv);
+}
+FINSH_FUNCTION_EXPORT_ALIAS(cmd_exit, __cmd_exit, redirect console device);
+
 int handle_logger_shell_cmd(int argc, char** argv);
 int cmd_logger(int argc, char** argv)
 {

@@ -32,6 +32,8 @@ typedef struct
 
 extern CONSOLE_Typedef Console;
 
+int console_redirect_device(const char *name);
+
 uint8_t console_init(CONSOLE_INTERFACE_Typedef console_if);
 
 #endif
