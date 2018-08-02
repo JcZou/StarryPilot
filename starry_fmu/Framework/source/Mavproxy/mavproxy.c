@@ -10,6 +10,8 @@
 #include <rthw.h>
 #include <rtdevice.h>
 #include <rtthread.h>
+#include <stdio.h>
+#include <string.h>
 #include "console.h"
 #include "delay.h"
 #include "quaternion.h"
@@ -465,9 +467,11 @@ uint8_t mavproxy_msg_serial_control_send(uint8_t *data, uint8_t count)
 	serial_control.device = SERIAL_CONTROL_DEV_SHELL;
 	serial_control.flags = SERIAL_CONTROL_FLAG_REPLY;
 	
-	for(uint8_t i = 0 ; i < serial_control.count ; i++){
-		serial_control.data[i] = data[i];
-	}
+//	for(uint8_t i = 0 ; i < serial_control.count ; i++){
+//		serial_control.data[i] = data[i];
+//	}
+	
+	memcpy(serial_control.data, data, serial_control.count);
 	
 	mavlink_msg_serial_control_encode(mavlink_system.sysid, mavlink_system.compid, &msg, &serial_control);
 
