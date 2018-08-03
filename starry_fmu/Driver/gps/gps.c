@@ -181,7 +181,7 @@ payload_rx_add_mon_ver(const uint8_t b)
 
 		if (buf_index == sizeof(ubx_payload_rx_mon_ver_part2_t) - 1) {
 			// Part 2 complete: decode Part 2 buffer
-			Console.print("VER ext \" %30s\"\r\n", _buf.payload_rx_mon_ver_part2.extension);
+			//Console.print("VER ext \" %30s\"\r\n", _buf.payload_rx_mon_ver_part2.extension);
 		}
 	}
 
@@ -966,22 +966,6 @@ static rt_err_t gps_serial_rx_ind(rt_device_t dev, rt_size_t size)
 	}else{
 		Console.print("ubx listen err:%ld\r\n" , bytes);
 	}
-
-//	for(i = 0 ; i<size ; i++){
-//		uint8_t ch[RT_SERIAL_RB_BUFSZ];
-//		rt_size_t bytes;
-//		
-//		bytes = rt_device_read(serial_device , 0 , ch , RT_SERIAL_RB_BUFSZ);
-
-//		if(bytes){
-//			for(uint32_t j = 0 ; j<bytes ; j++){
-//				Console.print("%x," , ch[j]);
-//				_parse_ubx_char(ch[j]);
-//			}
-//		}else{
-//			Console.print("ubx listen err:%ld\r\n" , bytes);
-//		}
-//	}
 	
     return RT_EOK;
 }
@@ -1081,14 +1065,14 @@ rt_err_t rt_gps_init(char* serial_device_name , struct vehicle_gps_position_s *g
 	int mcn_res;
 	mcn_res = mcn_advertise(MCN_ID(GPS_POSITION));
 	if(mcn_res != 0){
-		rt_kprintf("err:%d, gps position advertise fail!\n", mcn_res);
+		Console.e("GPS", "err:%d, gps position advertise fail!\n", mcn_res);
 	}
 	
 	serial_device = rt_device_find(serial_device_name);
 	
 	if(serial_device == RT_NULL)
     {
-        rt_kprintf("serial device %s not found!\r\n", serial_device);
+        Console.e("GPS", "serial device %s not found!\r\n", serial_device);
         return RT_EEMPTY;
     }
 	
