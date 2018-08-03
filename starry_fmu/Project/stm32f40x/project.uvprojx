@@ -575,6 +575,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\INS\declination.c</FilePath>
             </File>
+            <File>
+              <FileName>mavlink_console.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\Console\mavlink_console.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

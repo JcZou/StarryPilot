@@ -29,6 +29,7 @@
 
 static rt_device_t _pin_device;
 static rt_device_t _i2c_device;
+static uint8_t _rgbled_color;
 
 static char* TAG = "LED";
 
@@ -174,16 +175,22 @@ void led_rc_status_cb(void *parameter)
 	mcn_copy(MCN_ID(RC_STATUS), rc_status_node_t, &status);
 	
 	if(status == RC_LOCK_STATUS){
-		TCA62724_set_color(LED_BLUE);
+		_rgbled_color = LED_BLUE;
 	}else if(status == RC_UNLOCK_STATUS){
-		TCA62724_set_color(LED_GREEN);
+		_rgbled_color = LED_GREEN;
 	}
 }
 
 void led_entry(void *parameter)
 {
+	static int _inc;
+	static int bright = 0;
+	uint32_t delay_time;
+	
+	_rgbled_color = LED_BLUE;
+	
 	TCA62724_blink_control(1);
-	TCA62724_set_color(LED_BLUE);
+	TCA62724_set_color(_rgbled_color);
 	
 	rc_status_node_t = mcn_subscribe(MCN_ID(RC_STATUS), led_rc_status_cb);
 	if(rc_status_node_t == NULL)
@@ -191,21 +198,22 @@ void led_entry(void *parameter)
 
 	while(1)
 	{
-		led_on();
-		TCA62724_blink_control(1);
-		rt_thread_delay(1000);
-		led_off();
-		TCA62724_blink_control(0);
-		rt_thread_delay(1000);
+		if(bright == 0) _inc = 1;
+		if(bright == 15) _inc = -1;
 		
-//		for(uint8_t i = 0 ; i < 15 ; i++){
-//			TCA62724_set_color_with_bright(LED_BLUE, i);
-//			rt_thread_delay(60);
-//		}
-//		for(uint8_t i = 0 ; i < 15 ; i++){
-//			TCA62724_set_color_with_bright(LED_BLUE, 14-i);
-//			rt_thread_delay(60);
-//		}
-//		rt_thread_delay(1000);
+		bright += _inc;
+		
+		if(bright == 0){
+			delay_time = 100;
+		}else{
+			if(bright == 15){
+				delay_time = 300;
+			}else{
+				delay_time = 50;
+			}
+		}
+		
+		TCA62724_set_color_with_bright(_rgbled_color, bright);
+		rt_thread_delay(delay_time);
 	}
 }

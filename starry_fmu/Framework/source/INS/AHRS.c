@@ -50,6 +50,8 @@ static float errX_Int = 0.0f;
 static float errY_Int = 0.0f;
 static float errZ_Int = 0.0f;
 
+float comp_gain = 0.05f;
+
 extern McnNode_t _home_node_t;
 MCN_DECLARE(HOME_POS);
 

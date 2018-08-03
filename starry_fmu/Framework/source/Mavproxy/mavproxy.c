@@ -37,7 +37,7 @@ uint8_t mav_tx_buff[1024];
 uint8_t mav_tx_buff2[256];
 mavlink_system_t mavlink_system;
 /* disable mavlink sending */
-uint8_t mav_disenable = 0;
+uint8_t _mav_disable = 0;
 
 ringbuffer* _mav_serial_rb;
 uint8_t _mav_serial_buffer[MAV_SERIAL_BUFFER_SIZE];
@@ -224,7 +224,7 @@ void mavproxy_msg_gps_raw_int_pack(mavlink_message_t *msg_t)
 //	mavlink_message_t msg;
 //	uint16_t len;
 //	
-//	if(mav_disenable)
+//	if(_mav_disable)
 //		return 0;
 //	
 //	mavlink_msg_rc_channels_raw_pack(mavlink_system.sysid, mavlink_system.compid, &msg,
@@ -243,7 +243,7 @@ uint8_t mavlink_send_hil_actuator_control(float control[16], int motor_num)
 	mavlink_message_t msg;
 	uint16_t len;
 	
-	if(mav_disenable)
+	if(_mav_disable)
 		return 0;
 	
 	mavlink_msg_hil_actuator_controls_pack(mavlink_system.sysid, mavlink_system.compid, &msg,
@@ -408,7 +408,7 @@ uint8_t mavproxy_period_msg_register(uint8_t msgid, uint16_t period_ms, void (* 
 
 uint8_t mavproxy_temp_msg_push(mavlink_message_t msg)
 {
-	if(mav_disenable)
+	if(_mav_disable)
 		return 0;
 	
 	if( (_temp_msg_queue.head+1) % MAX_TEMP_MSG_QUEUE_SIZE == _temp_msg_queue.tail ){
@@ -426,7 +426,7 @@ uint8_t mavproxy_temp_msg_push(mavlink_message_t msg)
 
 uint8_t mavproxy_send_out_msg(mavlink_message_t msg)
 {
-	if(mav_disenable)
+	if(_mav_disable)
 		return 0;
 	
 	//uint8_t tx_buff[sizeof(mavlink_message_t)];
@@ -450,15 +450,13 @@ uint8_t mavproxy_try_send_temp_msg(void)
 	_temp_msg_queue.tail = (_temp_msg_queue.tail+1) % MAX_TEMP_MSG_QUEUE_SIZE;
 	
 	mavlink_msg_transfer(0, mav_tx_buff, len);
-	
-	//printf("send temp msg:%d len:%d\n", _temp_msg_queue.queue[_temp_msg_queue.tail].msgid, len);
-	
+
 	return 1;
 }
 
 uint8_t mavproxy_try_send_period_msg(void)
 {
-	if(mav_disenable)
+	if(_mav_disable)
 		return 0;
 	
 	for(uint16_t i = 0 ; i < _period_msg_queue.size ; i++){
