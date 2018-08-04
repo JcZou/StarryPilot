@@ -53,9 +53,17 @@ static MAV_PeriodMsg_Queue _period_msg_queue;
 static MAV_TempMsg_Queue _temp_msg_queue;
 
 #define UART_CONSOLE_DEV_NAME "uart3"
-#define USB_CONSOLE_DEV_NAME "usb"
 #define MAVLINK_CONSOLE_DEV_NAME "mav"
 static rt_device_t _mavlink_console_dev = RT_NULL;
+
+#define USB_MAVLINK_DEV_NAME "usb"
+#define UART_MAVLINK_DEV_NAME "uart2"
+static rt_device_t _mavlink_dev = RT_NULL;
+static struct rt_semaphore mavlink_rx_sem;
+static int usb_is_connected = 0;
+
+static char thread_mavlink_rx_stack[2048];
+struct rt_thread thread_mavlink_rx_handle;
 
 MCN_DEFINE(HIL_STATE_Q, sizeof(mavlink_hil_state_quaternion_t));
 MCN_DEFINE(HIL_SENSOR, sizeof(mavlink_hil_sensor_t));
@@ -71,21 +79,49 @@ MCN_DECLARE(CORRECT_LIDAR);
 MCN_DECLARE(ATT_EULER);
 MCN_DECLARE(GPS_POSITION);
 
+rt_err_t mavproxy_recv_ind(rt_device_t dev, rt_size_t size);
+extern void usbd_set_connect_callback(void (*callback)(int));
+
+void usbd_is_connected(int connect)
+{
+	const char *dev_name = connect ? USB_MAVLINK_DEV_NAME : UART_MAVLINK_DEV_NAME;
+	rt_device_t new_dev = NULL;
+	usb_is_connected = connect;
+
+	new_dev = rt_device_find(dev_name);
+	if(new_dev == NULL) {
+		Console.e(TAG, "err not find %s device\n", dev_name);
+		return;
+	} else {
+		if (_mavlink_dev == new_dev)
+			return;
+		rt_device_open(new_dev , RT_DEVICE_OFLAG_RDWR);
+		/* set receive indicate function */
+		rt_err_t err = rt_device_set_rx_indicate(new_dev, mavproxy_recv_ind);
+		if(err != RT_EOK)
+			Console.e(TAG, "set mavlink receive indicate err:%d\n", err);
+		if (_mavlink_dev) {
+			rt_device_close(_mavlink_dev);
+		}
+		_mavlink_dev = new_dev;
+	}
+}
+
 uint8_t mavlink_msg_transfer(uint8_t chan, uint8_t* msg_buff, uint16_t len)
 {
 	uint16_t s_bytes;
 	
-	if(usb_device){
-		s_bytes = rt_device_write(usb_device, 0, (void*)msg_buff, len);
+	if(_mavlink_dev) {
+		s_bytes = rt_device_write(_mavlink_dev, 0, (void*)msg_buff, len);
 #ifdef MAV_PKG_RETRANSMIT
 		uint8_t retry = 0;
 		while(retry < MAX_RETRY_NUM && s_bytes != len){
 			rt_thread_delay(1);
-			s_bytes = rt_device_write(usb_device, 0, (void*)msg_buff, len);
+			s_bytes = rt_device_write(_mavlink_dev, 0, (void*)msg_buff, len);
 			retry++;
 		}
 #endif
-	}else{
+	} else {
 		s_bytes = rt_device_write(_console_device, 0, msg_buff, len);
 	}
 	
@@ -260,91 +296,109 @@ static void timer_mavproxy_update(void* parameter)
 
 rt_err_t mavproxy_recv_ind(rt_device_t dev, rt_size_t size)
 {
+	return rt_sem_release(&mavlink_rx_sem);
+}
+
+void mavproxy_rx_entry(void *param)
+{
 	mavlink_message_t msg;
 	int chan = 0;
 	char byte;
 	rt_err_t res = RT_EOK;
-	
-	for(int i = 0 ; i < size ; i++){
-		rt_size_t rb = rt_device_read(dev, 0, &byte, 1);
-		if(!rb){
-			Console.e(TAG, "mavlink read byte err\n");
-			res = RT_ERROR;
-			break;
-		}
-		if(mavlink_parse_char(chan, byte, &msg, &mav_status)){
-			//Console.print("mav msg:%d\n", msg.msgid);
-			/* decode mavlink package */
-			switch(msg.msgid){
-				case MAVLINK_MSG_ID_SERIAL_CONTROL:
-				{
-					mavlink_serial_control_t serial_control;
-					mavlink_msg_serial_control_decode(&msg, &serial_control);
-					
-					// the last byte for data is '\0', change to '\r'
-					serial_control.data[serial_control.count] = '\r';	
 
-					for(uint8_t i = 0 ; i < serial_control.count ; i++){
-						if(!ringbuffer_putc(_mav_serial_rb, serial_control.data[i])) break;
-					}
-					if (_mavlink_console_dev) {
-						if (_mavlink_console_dev->user_data == RT_NULL) {
-							_mavlink_console_dev->user_data = (void*)-1;
-							console_redirect_device(MAVLINK_CONSOLE_DEV_NAME);
-							rt_console_set_device(MAVLINK_CONSOLE_DEV_NAME);
-							finsh_set_device(MAVLINK_CONSOLE_DEV_NAME);
+	rt_sem_init(&mavlink_rx_sem, "mav_rx", 0, RT_IPC_FLAG_FIFO);
+	/* set receive indicate function */
+	if (_mavlink_dev) {
+		rt_err_t err = rt_device_set_rx_indicate(_mavlink_dev, mavproxy_recv_ind);
+		if(err != RT_EOK)
+			Console.e(TAG, "set mavlink receive indicate err:%d\n", err);
+	}
+
+	while (1) {
+		res = rt_sem_take(&mavlink_rx_sem, RT_WAITING_FOREVER);
+		if (res == RT_EOK) {
+			while (1) {
+				rt_size_t rb = rt_device_read(_mavlink_dev, 0, &byte, 1);
+				if(!rb) {
+					break;
+				}
+				if(mavlink_parse_char(chan, byte, &msg, &mav_status)){
+					//Console.print("mav msg:%d\n", msg.msgid);
+					/* decode mavlink package */
+					switch(msg.msgid){
+						case MAVLINK_MSG_ID_SERIAL_CONTROL:
+						{
+							mavlink_serial_control_t serial_control;
+							mavlink_msg_serial_control_decode(&msg, &serial_control);
+							
+							// the last byte for data is '\0', change to '\r'
+							//serial_control.data[serial_control.count] = '\r';	
+
+							for(uint8_t i = 0 ; i < serial_control.count ; i++){
+								if(!ringbuffer_putc(_mav_serial_rb, serial_control.data[i])) break;
+							}
+							if (_mavlink_console_dev) {
+								if (_mavlink_console_dev->user_data == RT_NULL) {
+									_mavlink_console_dev->user_data = (void*)-1;
+									console_redirect_device(MAVLINK_CONSOLE_DEV_NAME);
+									rt_console_set_device(MAVLINK_CONSOLE_DEV_NAME);
+									finsh_set_device(MAVLINK_CONSOLE_DEV_NAME);
+								}
+								if (_mavlink_console_dev->rx_indicate) {
+									_mavlink_console_dev->rx_indicate(_mavlink_console_dev, serial_control.count);
+								}
+							}
 						}
-						if (_mavlink_console_dev->rx_indicate) {
-							_mavlink_console_dev->rx_indicate(_mavlink_console_dev, serial_control.count);
-						}
+						case MAVLINK_MSG_ID_HIL_SENSOR:
+						{
+							mavlink_hil_sensor_t hil_sensor;
+							mavlink_msg_hil_sensor_decode(&msg, &hil_sensor);
+							/* publish */
+							mcn_publish(MCN_ID(HIL_SENSOR), &hil_sensor);
+						}break;
+						case MAVLINK_MSG_ID_HIL_GPS:
+						{
+							mavlink_hil_gps_t hil_gps;
+							mavlink_msg_hil_gps_decode(&msg, &hil_gps);
+							//Console.print("lat:%f, vn:%f eph:%f\n", (double)hil_gps.lat*1e-7, (float)hil_gps.vn*1e-2, (float)hil_gps.eph*1e-2);
+							
+							struct vehicle_gps_position_s gps_position;
+							gps_position.lat = hil_gps.lat;
+							gps_position.lon = hil_gps.lon;
+							gps_position.alt = hil_gps.alt;
+							gps_position.eph = (float)hil_gps.eph*1e-2;
+							gps_position.epv = (float)hil_gps.epv*1e-2;
+							gps_position.vel_m_s = (float)hil_gps.vel*1e-2;
+							gps_position.vel_n_m_s = (float)hil_gps.vn*1e-2;
+							gps_position.vel_e_m_s = (float)hil_gps.ve*1e-2;
+							gps_position.vel_d_m_s = (float)hil_gps.vd*1e-2;
+							gps_position.fix_type = hil_gps.fix_type;
+							gps_position.satellites_used = hil_gps.satellites_visible;
+							uint32_t now = time_nowMs();
+							gps_position.timestamp_position = gps_position.timestamp_velocity = now;
+							
+							mcn_publish(MCN_ID(GPS_POSITION), &gps_position);
+						}break;
+						case MAVLINK_MSG_ID_HIL_STATE_QUATERNION:
+						{
+							mavlink_hil_state_quaternion_t	hil_state_q;
+							mavlink_msg_hil_state_quaternion_decode(&msg, &hil_state_q);
+							/* publish */
+							mcn_publish(MCN_ID(HIL_STATE_Q), &hil_state_q);
+						}break;
+						default :
+						{
+							//Console.print("mav unknown msg:%d\n", msg.msgid);
+						}break;
 					}
 				}
-				case MAVLINK_MSG_ID_HIL_SENSOR:
-				{
-					mavlink_hil_sensor_t hil_sensor;
-					mavlink_msg_hil_sensor_decode(&msg, &hil_sensor);
-					/* publish */
-					mcn_publish(MCN_ID(HIL_SENSOR), &hil_sensor);
-				}break;
-				case MAVLINK_MSG_ID_HIL_GPS:
-				{
-					mavlink_hil_gps_t hil_gps;
-					mavlink_msg_hil_gps_decode(&msg, &hil_gps);
-					//Console.print("lat:%f, vn:%f eph:%f\n", (double)hil_gps.lat*1e-7, (float)hil_gps.vn*1e-2, (float)hil_gps.eph*1e-2);
-					
-					struct vehicle_gps_position_s gps_position;
-					gps_position.lat = hil_gps.lat;
-					gps_position.lon = hil_gps.lon;
-					gps_position.alt = hil_gps.alt;
-					gps_position.eph = (float)hil_gps.eph*1e-2;
-					gps_position.epv = (float)hil_gps.epv*1e-2;
-					gps_position.vel_m_s = (float)hil_gps.vel*1e-2;
-					gps_position.vel_n_m_s = (float)hil_gps.vn*1e-2;
-					gps_position.vel_e_m_s = (float)hil_gps.ve*1e-2;
-					gps_position.vel_d_m_s = (float)hil_gps.vd*1e-2;
-					gps_position.fix_type = hil_gps.fix_type;
-					gps_position.satellites_used = hil_gps.satellites_visible;
-					uint32_t now = time_nowMs();
-					gps_position.timestamp_position = gps_position.timestamp_velocity = now;
-					
-					mcn_publish(MCN_ID(GPS_POSITION), &gps_position);
-				}break;
-				case MAVLINK_MSG_ID_HIL_STATE_QUATERNION:
-				{
-					mavlink_hil_state_quaternion_t	hil_state_q;
-					mavlink_msg_hil_state_quaternion_decode(&msg, &hil_state_q);
-					/* publish */
-					mcn_publish(MCN_ID(HIL_STATE_Q), &hil_state_q);
-				}break;
-				default :
-				{
-					//Console.print("mav unknown msg:%d\n", msg.msgid);
-				}break;
 			}
+		}else {
+			Console.print("mavlink rx err%d\n", res);
 		}
+
 	}
-	
-	return res;
+
 }
 
 int handle_mavproxy_shell_cmd(int argc, char** argv)
@@ -534,18 +588,23 @@ void mavproxy_entry(void *parameter)
 	if(!_mavlink_console_dev)
 		Console.e(TAG, "mavlink console device not found\n");
 
-#ifdef MAVLINK_USE_USB	
-	usb_device = rt_device_find("usb");
-	if(usb_device == NULL)
-		Console.e(TAG, "err not find usb device\n");
-	else{
-		rt_device_open(usb_device , RT_DEVICE_OFLAG_RDWR);
-		/* set receive indicate function */
-		rt_err_t err = rt_device_set_rx_indicate(usb_device, mavproxy_recv_ind);
-		if(err != RT_EOK)
-			Console.e(TAG, "set mavlink receive indicate err:%d\n", err);
+	if (!_mavlink_dev && !usb_is_connected) {
+		_mavlink_dev = rt_device_find(UART_MAVLINK_DEV_NAME);
+		if(_mavlink_dev == NULL) {
+			Console.e(TAG, "err not find %s device\n", UART_MAVLINK_DEV_NAME);
+		} else {
+			rt_device_open(_mavlink_dev , RT_DEVICE_OFLAG_RDWR);
+		}
 	}
-#endif
+
+	res = rt_thread_init(&thread_mavlink_rx_handle,
+						   "mavproxy_rx",
+						   mavproxy_rx_entry,
+						   RT_NULL,
+						   &thread_mavlink_rx_stack[0],
+						   sizeof(thread_mavlink_rx_stack), MAVLINK_RX_THREAD_PRIORITY, 5);
+	if (res == RT_EOK)
+		rt_thread_startup(&thread_mavlink_rx_handle);
 	
 	/* register timer event */
 	rt_timer_init(&timer_mavproxy, "mavproxy",

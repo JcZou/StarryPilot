@@ -43,6 +43,9 @@ CDC_IF_Prop_TypeDef VCP_fops =
   cdc_data_rx
 };
 
+extern void usbd_set_connect_callback(void (*callback)(int));
+extern void usbd_is_connected(int connect);
+
 /* This callback is called when the send status is finished */
 static uint16_t cdc_data_tx(void)
 { 
@@ -155,7 +158,8 @@ uint8_t usb_cdc_init(void)
 	data_receive = 0;
 	
 	rb = ringbuffer_static_create(rb_buffer, RECEIVE_RINGBUFF_SIZE);
-	
+
+	usbd_set_connect_callback(usbd_is_connected);
 	USBD_Init(&USB_OTG_dev,
 #ifdef USE_USB_OTG_HS 
             USB_OTG_HS_CORE_ID,
