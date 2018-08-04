@@ -32,12 +32,12 @@
 #define UART1_TX_DMA        DMA1_Channel4
 #define UART1_RX_DMA        DMA1_Channel5
 
-#define UART2_GPIO_TX       GPIO_Pin_2
-#define UART2_TX_PIN_SOURCE GPIO_PinSource2
-#define UART2_GPIO_RX       GPIO_Pin_3
-#define UART2_RX_PIN_SOURCE GPIO_PinSource3
-#define UART2_GPIO          GPIOA
-#define UART2_GPIO_RCC      RCC_AHB1Periph_GPIOA
+#define UART2_GPIO_TX       GPIO_Pin_5
+#define UART2_TX_PIN_SOURCE GPIO_PinSource5
+#define UART2_GPIO_RX       GPIO_Pin_6
+#define UART2_RX_PIN_SOURCE GPIO_PinSource6
+#define UART2_GPIO          GPIOD
+#define UART2_GPIO_RCC      RCC_AHB1Periph_GPIOD
 #define RCC_APBPeriph_UART2 RCC_APB1Periph_USART2
 #define UART2_TX_DMA        DMA1_Channel4
 #define UART2_RX_DMA        DMA1_Channel5

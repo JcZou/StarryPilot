@@ -42,6 +42,9 @@ USBD_Usr_cb_TypeDef USR_cb =
   USBD_USR_DeviceDisconnected,    
 };
 
+static void (*usb_cdc_connect_cb)(int connect);
+
+
 /**
 * @}
 */
@@ -148,6 +151,9 @@ void USBD_USR_DeviceResumed(void)
 void USBD_USR_DeviceConnected (void)
 {
 	//printf("> USB Device Connected.\n");
+	if (usb_cdc_connect_cb) {
+		usb_cdc_connect_cb(1);
+	}
 }
 
 
@@ -160,7 +166,16 @@ void USBD_USR_DeviceConnected (void)
 void USBD_USR_DeviceDisconnected (void)
 {
 	//printf("> USB Device Disconnected.\n");
+	if (usb_cdc_connect_cb) {
+		usb_cdc_connect_cb(0);
+	}
 }
+
+void usbd_set_connect_callback(void (*callback)(int))
+{
+	usb_cdc_connect_cb = callback;
+}
+
 /**
 * @}
 */ 
