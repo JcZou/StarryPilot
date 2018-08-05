@@ -75,7 +75,7 @@ struct stm32_uart
     IRQn_Type irq;
     struct stm32_uart_dma
     {
-        /* dma stream */
+        /* rx dma stream */
         DMA_Stream_TypeDef *rx_stream;
         /* dma channel */
         uint32_t rx_ch;
@@ -87,8 +87,18 @@ struct stm32_uart
         rt_size_t setting_recv_len;
         /* last receive index */
         rt_size_t last_recv_index;
+        /* tx dma stream */
+        DMA_Stream_TypeDef *tx_stream;
+        /* dma channel */
+        uint32_t tx_ch;
+        /* dma flag */
+        uint32_t tx_flag;
+        /* dma irq channel */
+        uint8_t tx_irq_ch;
     } dma;
 };
+
+static void dma_uart_tx_config(struct rt_serial_device *serial, rt_uint8_t *buf, rt_size_t size);
 
 static void DMA_Configuration(struct rt_serial_device *serial);
 
@@ -196,6 +206,14 @@ static int stm32_getc(struct rt_serial_device *serial)
     return ch;
 }
 
+rt_size_t stm32_dma_transmit(struct rt_serial_device *serial, rt_uint8_t *buf, rt_size_t size, int direction)
+{
+    if (direction == RT_SERIAL_DMA_TX) {
+        dma_uart_tx_config(serial, buf, size);
+    }
+}
+
+
 /**
  * DMA initialize by DMA_InitStruct structure
  *
@@ -229,6 +247,60 @@ static void dma_uart_config(struct rt_serial_device *serial, uint32_t setting_re
     DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
     DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
     DMA_Init(uart->dma.rx_stream, &DMA_InitStructure);
+}
+
+/**
+ * DMA initialize by DMA_InitStruct structure
+ *
+ * @param serial serial device
+ * @param setting_recv_len setting receive length
+ * @param mem_base_addr memory 0 base address for DMA stream
+ */
+static void dma_uart_tx_config(struct rt_serial_device *serial, rt_uint8_t *buf, rt_size_t size)
+{
+    struct stm32_uart *uart = (struct stm32_uart *) serial->parent.user_data;
+    DMA_InitTypeDef DMA_InitStructure;
+    NVIC_InitTypeDef NVIC_InitStructure;
+    static int dma_clk_init = 0;
+
+    /* DMA clock enable */
+    if (!dma_clk_init) {
+        RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+        RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+        dma_clk_init = 1;
+    }
+
+    /* tx dma config */
+    DMA_DeInit(uart->dma.tx_stream);
+    while (DMA_GetCmdStatus(uart->dma.tx_stream) != DISABLE);
+    DMA_InitStructure.DMA_Channel = uart->dma.tx_ch;
+    DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) &(uart->uart_device->DR);
+    DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)buf;
+    DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
+    DMA_InitStructure.DMA_BufferSize = size;
+    DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_MemoryDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+    DMA_InitStructure.DMA_Priority = DMA_Priority_Medium;
+    DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
+    DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
+    DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+    DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+    DMA_Init(uart->dma.tx_stream, &DMA_InitStructure);
+
+    DMA_ClearFlag(uart->dma.tx_stream, uart->dma.tx_flag);
+    DMA_ITConfig(uart->dma.tx_stream, DMA_IT_TC, ENABLE);
+    USART_DMACmd(uart->uart_device, USART_DMAReq_Tx, ENABLE);
+    DMA_Cmd(uart->dma.tx_stream, ENABLE);
+
+    /* tx dma interrupt config */
+    NVIC_InitStructure.NVIC_IRQChannel = uart->dma.tx_irq_ch;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
 }
 
 /**
@@ -286,6 +358,26 @@ static void dma_rx_done_isr(struct rt_serial_device *serial)
 }
 
 /**
+ * DMA receive done process. This need add to DMA receive done ISR.
+ *
+ * @param serial serial device
+ */
+static void dma_tx_done_isr(struct rt_serial_device *serial)
+{
+    struct stm32_uart *uart = (struct stm32_uart *) serial->parent.user_data;
+    rt_base_t level;
+
+    if (DMA_GetFlagStatus(uart->dma.tx_stream, uart->dma.tx_flag) != RESET)
+    {
+        rt_hw_serial_isr(serial, RT_SERIAL_EVENT_TX_DMADONE);
+
+        /* start receive data */
+        DMA_ClearFlag(uart->dma.tx_stream, uart->dma.tx_flag);
+    }
+}
+
+
+/**
  * Uart common interrupt process. This need add to uart ISR.
  *
  * @param serial serial device
@@ -323,6 +415,7 @@ static const struct rt_uart_ops stm32_uart_ops =
     stm32_control,
     stm32_putc,
     stm32_getc,
+    stm32_dma_transmit
 };
 
 #if defined(RT_USING_UART1)
@@ -337,6 +430,11 @@ struct stm32_uart uart1 =
         DMA_FLAG_TCIF5,
         DMA2_Stream5_IRQn,
         0,
+        0,
+        DMA2_Stream7,
+        DMA_Channel_4,
+        DMA_FLAG_TCIF7,
+        DMA2_Stream7_IRQn,
     },
 };
 struct rt_serial_device serial1;
@@ -363,6 +461,18 @@ void DMA2_Stream5_IRQHandler(void)
     rt_interrupt_leave();
 }
 
+void DMA2_Stream7_IRQHandler(void)
+{
+    /* enter interrupt */
+    rt_interrupt_enter();
+
+    dma_tx_done_isr(&serial1);
+
+    /* leave interrupt */
+    rt_interrupt_leave();
+}
+
+
 #endif /* RT_USING_UART1 */
 
 #if defined(RT_USING_UART2)
@@ -378,6 +488,10 @@ struct stm32_uart uart2 =
         DMA1_Stream5_IRQn,
         0,
         0,
+        DMA1_Stream6,
+        DMA_Channel_4,
+        DMA_FLAG_TCIF6,
+        DMA1_Stream6_IRQn,
     },
 };
 struct rt_serial_device serial2;
@@ -404,6 +518,17 @@ void DMA1_Stream5_IRQHandler(void)
     rt_interrupt_leave();
 }
 
+void DMA1_Stream6_IRQHandler(void)
+{
+    /* enter interrupt */
+    rt_interrupt_enter();
+
+    dma_tx_done_isr(&serial2);
+
+    /* leave interrupt */
+    rt_interrupt_leave();
+}
+
 #endif /* RT_USING_UART2 */
 
 #if defined(RT_USING_UART3)
@@ -419,6 +544,10 @@ struct stm32_uart uart3 =
         DMA1_Stream1_IRQn,
         0,
         0,
+        DMA1_Stream3,
+        DMA_Channel_4,
+        DMA_FLAG_TCIF3,
+        DMA1_Stream3_IRQn,
     },
 };
 struct rt_serial_device serial3;
@@ -445,6 +574,17 @@ void DMA1_Stream1_IRQHandler(void)
     rt_interrupt_leave();
 }
 
+void DMA1_Stream3_IRQHandler(void)
+{
+    /* enter interrupt */
+    rt_interrupt_enter();
+
+    dma_tx_done_isr(&serial3);
+
+    /* leave interrupt */
+    rt_interrupt_leave();
+}
+
 #endif /* RT_USING_UART3 */
 
 #if defined(RT_USING_UART4)
@@ -460,6 +600,10 @@ struct stm32_uart uart4 =
         DMA1_Stream2_IRQn,
         0,
         0,
+        DMA1_Stream4,
+        DMA_Channel_4,
+        DMA_FLAG_TCIF4,
+        DMA1_Stream4_IRQn,
     },
 };
 struct rt_serial_device serial4;
@@ -486,6 +630,17 @@ void DMA1_Stream2_IRQHandler(void)
     rt_interrupt_leave();
 }
 
+void DMA1_Stream4_IRQHandler(void)
+{
+    /* enter interrupt */
+    rt_interrupt_enter();
+
+    dma_tx_done_isr(&serial4);
+
+    /* leave interrupt */
+    rt_interrupt_leave();
+}
+
 #endif /* RT_USING_UART4 */
 
 #if defined(RT_USING_UART6)
@@ -501,6 +656,10 @@ struct stm32_uart uart6 =
         DMA2_Stream1_IRQn,
         0,
         0,
+        DMA2_Stream6,
+        DMA_Channel_5,
+        DMA_FLAG_TCIF6,
+        DMA2_Stream6_IRQn,
     },
 };
 struct rt_serial_device serial6;
@@ -522,6 +681,17 @@ void DMA2_Stream1_IRQHandler(void)
     rt_interrupt_enter();
 
     dma_rx_done_isr(&serial6);
+
+    /* leave interrupt */
+    rt_interrupt_leave();
+}
+
+void DMA2_Stream6_IRQHandler(void)
+{
+    /* enter interrupt */
+    rt_interrupt_enter();
+
+    dma_tx_done_isr(&serial6);
 
     /* leave interrupt */
     rt_interrupt_leave();
@@ -723,7 +893,8 @@ int stm32_hw_usart_init(void)
     /* register UART1 device */
     rt_hw_serial_register(&serial1,
                           "uart1",
-                          RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX | RT_DEVICE_FLAG_DMA_RX,
+                          RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX | 
+                          RT_DEVICE_FLAG_DMA_RX | RT_DEVICE_FLAG_DMA_TX,
                           uart);
 #endif /* RT_USING_UART1 */
 
@@ -738,7 +909,8 @@ int stm32_hw_usart_init(void)
     /* register UART1 device */
     rt_hw_serial_register(&serial2,
                           "uart2",
-                          RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX | RT_DEVICE_FLAG_DMA_RX,
+                          RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX | 
+                          RT_DEVICE_FLAG_DMA_RX | RT_DEVICE_FLAG_DMA_TX,
                           uart);
 #endif /* RT_USING_UART2 */
 
@@ -753,7 +925,8 @@ int stm32_hw_usart_init(void)
     /* register UART3 device */
     rt_hw_serial_register(&serial3,
                           "uart3",
-                          RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX | RT_DEVICE_FLAG_DMA_RX,
+                          RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX | 
+                          RT_DEVICE_FLAG_DMA_RX | RT_DEVICE_FLAG_DMA_TX,
                           uart);
 #endif /* RT_USING_UART3 */
 
@@ -769,7 +942,8 @@ int stm32_hw_usart_init(void)
     /* register UART4 device */
     rt_hw_serial_register(&serial4,
                           "uart4",
-                          RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX | RT_DEVICE_FLAG_DMA_RX,
+                          RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX | 
+                          RT_DEVICE_FLAG_DMA_RX | RT_DEVICE_FLAG_DMA_TX,
                           uart);
 #endif /* RT_USING_UART4 */
 
@@ -785,7 +959,8 @@ int stm32_hw_usart_init(void)
     /* register UART6 device */
     rt_hw_serial_register(&serial6,
                           "uart6",
-                          RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX | RT_DEVICE_FLAG_DMA_RX,
+                          RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX | 
+                          RT_DEVICE_FLAG_DMA_RX | RT_DEVICE_FLAG_DMA_TX,
                           uart);
 #endif /* RT_USING_UART6 */
 
