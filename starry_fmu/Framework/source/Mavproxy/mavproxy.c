@@ -28,6 +28,9 @@
 #define MAVLINK_USE_USB
 
 #define EVENT_MAVPROXY_UPDATE		(1<<0)
+#define EVENT_MAVPROXY_RX		(1<<1)
+#define EVENT_MAVPROXY_TX		(1<<2)
+
 #define MAV_SERIAL_BUFFER_SIZE		128
 #define MAV_PKG_RETRANSMIT
 #define MAX_RETRY_NUM				5
@@ -79,12 +82,15 @@ MCN_DECLARE(CORRECT_LIDAR);
 MCN_DECLARE(ATT_EULER);
 MCN_DECLARE(GPS_POSITION);
 
+rt_err_t mavproxy_tx_done(rt_device_t dev, void *buffer);
 rt_err_t mavproxy_recv_ind(rt_device_t dev, rt_size_t size);
 extern void usbd_set_connect_callback(void (*callback)(int));
 
 void usbd_is_connected(int connect)
 {
 	const char *dev_name = connect ? USB_MAVLINK_DEV_NAME : UART_MAVLINK_DEV_NAME;
+	rt_uint16_t oflag = connect ? (RT_DEVICE_OFLAG_RDWR) : \
+		(RT_DEVICE_OFLAG_RDWR | RT_DEVICE_FLAG_DMA_RX | RT_DEVICE_FLAG_DMA_TX);
 	rt_device_t new_dev = NULL;
 	usb_is_connected = connect;
 
@@ -95,21 +101,34 @@ void usbd_is_connected(int connect)
 	} else {
 		if (_mavlink_dev == new_dev)
 			return;
-		rt_device_open(new_dev , RT_DEVICE_OFLAG_RDWR);
+		rt_device_open(new_dev , oflag);
 		/* set receive indicate function */
 		rt_err_t err = rt_device_set_rx_indicate(new_dev, mavproxy_recv_ind);
 		if(err != RT_EOK)
 			Console.e(TAG, "set mavlink receive indicate err:%d\n", err);
 		if (_mavlink_dev) {
 			rt_device_close(_mavlink_dev);
+			rt_device_set_rx_indicate(_mavlink_dev, RT_NULL);
+			rt_device_set_tx_complete(_mavlink_dev, RT_NULL);
+		}
+		if (!connect) {
+			rt_device_set_tx_complete(new_dev, mavproxy_tx_done);
 		}
 		_mavlink_dev = new_dev;
 	}
 }
 
+rt_err_t mavproxy_tx_done(rt_device_t dev, void *buffer)
+{
+	return rt_event_send(&event_mavproxy, EVENT_MAVPROXY_TX);
+}
+
+
 uint8_t mavlink_msg_transfer(uint8_t chan, uint8_t* msg_buff, uint16_t len)
 {
+	rt_err_t res;
 	uint16_t s_bytes;
+	rt_uint32_t recv_set = 0;
 	
 	if(_mavlink_dev) {
 		s_bytes = rt_device_write(_mavlink_dev, 0, (void*)msg_buff, len);
@@ -119,6 +138,14 @@ uint8_t mavlink_msg_transfer(uint8_t chan, uint8_t* msg_buff, uint16_t len)
 			rt_thread_delay(1);
 			s_bytes = rt_device_write(_mavlink_dev, 0, (void*)msg_buff, len);
 			retry++;
+		}
+
+		if (!usb_is_connected) {
+			res = rt_event_recv(&event_mavproxy, EVENT_MAVPROXY_TX, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, 
+									RT_WAITING_FOREVER, &recv_set);
+			if (res != RT_EOK) {
+				Console.e(TAG, "mav tx evt recv err%d\n", res);
+			}
 		}
 #endif
 	} else {
@@ -296,7 +323,8 @@ static void timer_mavproxy_update(void* parameter)
 
 rt_err_t mavproxy_recv_ind(rt_device_t dev, rt_size_t size)
 {
-	return rt_sem_release(&mavlink_rx_sem);
+	//return rt_sem_release(&mavlink_rx_sem);
+	return rt_event_send(&event_mavproxy, EVENT_MAVPROXY_RX);
 }
 
 void mavproxy_rx_entry(void *param)
@@ -305,8 +333,9 @@ void mavproxy_rx_entry(void *param)
 	int chan = 0;
 	char byte;
 	rt_err_t res = RT_EOK;
+	rt_uint32_t recv_set = 0;
 
-	rt_sem_init(&mavlink_rx_sem, "mav_rx", 0, RT_IPC_FLAG_FIFO);
+	//rt_sem_init(&mavlink_rx_sem, "mav_rx", 0, RT_IPC_FLAG_FIFO);
 	/* set receive indicate function */
 	if (_mavlink_dev) {
 		rt_err_t err = rt_device_set_rx_indicate(_mavlink_dev, mavproxy_recv_ind);
@@ -315,7 +344,8 @@ void mavproxy_rx_entry(void *param)
 	}
 
 	while (1) {
-		res = rt_sem_take(&mavlink_rx_sem, RT_WAITING_FOREVER);
+		res = rt_event_recv(&event_mavproxy, EVENT_MAVPROXY_RX, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, 
+								RT_WAITING_FOREVER, &recv_set);
 		if (res == RT_EOK) {
 			while (1) {
 				rt_size_t rb = rt_device_read(_mavlink_dev, 0, &byte, 1);
@@ -593,7 +623,8 @@ void mavproxy_entry(void *parameter)
 		if(_mavlink_dev == NULL) {
 			Console.e(TAG, "err not find %s device\n", UART_MAVLINK_DEV_NAME);
 		} else {
-			rt_device_open(_mavlink_dev , RT_DEVICE_OFLAG_RDWR);
+			rt_device_open(_mavlink_dev , RT_DEVICE_OFLAG_RDWR | RT_DEVICE_FLAG_DMA_RX | RT_DEVICE_FLAG_DMA_TX);
+			rt_device_set_tx_complete(_mavlink_dev, mavproxy_tx_done);
 		}
 	}
 
