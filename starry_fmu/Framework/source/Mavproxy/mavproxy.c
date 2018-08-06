@@ -323,7 +323,7 @@ void mavproxy_rx_entry(void *param)
 					break;
 				}
 				if(mavlink_parse_char(chan, byte, &msg, &mav_status)){
-					//Console.print("mav msg:%d\n", msg.msgid);
+
 					/* decode mavlink package */
 					switch(msg.msgid){
 						case MAVLINK_MSG_ID_SERIAL_CONTROL:
@@ -360,8 +360,7 @@ void mavproxy_rx_entry(void *param)
 						{
 							mavlink_hil_gps_t hil_gps;
 							mavlink_msg_hil_gps_decode(&msg, &hil_gps);
-							//Console.print("lat:%f, vn:%f eph:%f\n", (double)hil_gps.lat*1e-7, (float)hil_gps.vn*1e-2, (float)hil_gps.eph*1e-2);
-							
+
 							struct vehicle_gps_position_s gps_position;
 							gps_position.lat = hil_gps.lat;
 							gps_position.lon = hil_gps.lon;
