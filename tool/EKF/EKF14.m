@@ -1,6 +1,6 @@
 clear all
 %% read log file
-logfile = 'EKF1.LOG';
+logfile = 'EKF2.LOG';
 
 fileID = fopen(logfile, 'r');
 fileDir = dir(logfile);
@@ -122,12 +122,18 @@ q_gx_bias = .0005;
 q_gy_bias = .0005;
 q_gz_bias = .0005;
 % observe covariance
-r_x = .05;
-r_y = .05;
-r_z = .05;
-r_vx = .3;
-r_vy = .3;
-r_vz = .3;
+r_x = .04;
+r_y = .04;
+r_z = .015;
+r_vx = .035;
+r_vy = .035;
+r_vz = .04;
+% r_x = .04;
+% r_y = .04;
+% r_z = .015;
+% r_vx = .06;
+% r_vy = .06;
+% r_vz = .04;
 r_ax = .0013;
 r_ay = .0013;
 r_az = .0013;
@@ -142,6 +148,10 @@ X = [0; 0; 0; 0; 0; 0; 1; 0; 0; 0; 0; 0; 0];
 U = [0; 0; 0; 0; 0; 0];
 % Z = [x, y, z, vx, vy, vz, ax, ay, az, mx, my, mz]
 Z = [0; 0; 0; 0; 0; 0; 0; 0; -1; 1; 0; 0];
+% observer delay in ms
+% Delay = [100; 100; 10; 100; 100; 20; 10; 10; 10; 10; 0; 0; 0];
+Delay = [120; 120; 10; 120; 120; 20; 10; 10; 10; 10; 0; 0; 0];
+HistIndex = Delay/double(LogHeader.log_perid);
 
 NUM_X = length(X);
 NUM_Z = length(Z);
@@ -185,12 +195,12 @@ Q(9,9) = q_gz_bias^2;
 % R(10,10) = r_mx^2;
 % R(11,11) = r_mx^2;
 % R(12,12) = r_mx^2;
-R(1,1) = 0.001;
-R(2,2) = 0.001;
-R(3,3) = 0.008;
-R(4,4) = 0.004;
-R(5,5) = 0.004;
-R(6,6) = 0.008;
+R(1,1) = r_x^2;
+R(2,2) = r_y^2;
+R(3,3) = r_z^2;
+R(4,4) = r_vx^2;
+R(5,5) = r_vy^2;
+R(6,6) = r_vz^2;
 R(7,7) = r_ax^2;
 R(8,8) = r_ay^2;
 R(9,9) = r_az^2;
@@ -198,12 +208,12 @@ R(10,10) = r_mx^2;
 R(11,11) = r_my^2;
 R(12,12) = r_mz^2;
 % init P = Q
-P(1,1) = 25;
-P(2,2) = 25;
-P(3,3) = 25;
-P(4,4) = 5;
-P(5,5) = 5;
-P(6,6) = 5;
+P(1,1) = 1;
+P(2,2) = 1;
+P(3,3) = 1;
+P(4,4) = 0.2;
+P(5,5) = 0.2;
+P(6,6) = 0.2;
 P(7,7) = 1e-5;
 P(8,8) = 1e-5;
 P(9,9) = 1e-5;
@@ -412,6 +422,18 @@ for i = 1 : N
 	
 	% P(k|k-1) = F(k)*P(k-1|k-1)*F(k)' + Q(k)
 	P = (I+F*T)*P*(I+F*T)' + T^2*G*Q*G';
+    
+    %% Use history observer value
+    % store history data
+    hist_x(:,i) = X;
+    % get history data
+    for n = 1:NUM_X
+        HistX(n,1) = hist_x(n,trinocular_op(i>HistIndex(n), i-HistIndex(n), 1));
+    end
+    % calculate delta state
+    DeltaX = X - HistX;
+    % roll-back to history data
+    X = HistX;
 	
 	%% update step
 	q0 = X(ID_Q0);
@@ -474,6 +496,15 @@ for i = 1 : N
 	y = [X(ID_X); X(ID_Y); X(ID_Z); X(ID_VX); X(ID_VY); X(ID_VZ);...
 		accN(1); accN(2); accN(3); magN(1); magN(2); magN(3)];
     
+    GPS_VX = 0;
+    GPS_VY = 0;
+    if(i>50)
+        GPS_VX = (LogField(i,gps_x_col)-LogField(i-50,gps_x_col))/0.1;
+        GPS_VY = (LogField(i,gps_y_col)-LogField(i-50,gps_y_col))/0.1;
+        LogField(i,gps_vx_col) = GPS_VX;
+        LogField(i,gps_vy_col) = GPS_VY;
+    end
+    
     accConst = [0; 0; -1];
     magConst = [1; 0; 0];
 	Z(1) = LogField(i,gps_x_col);
@@ -502,6 +533,9 @@ for i = 1 : N
 	% P(k|k) = P(k|k-1) - K(k)*H(k)*P(k|k-1);
 	P = P - K*H*P;
     
+    %% Add delta state
+    X = X + DeltaX;
+    
     %% save result
     res_x(:,i) = X; 
     [roll(i), pitch(i), yaw(i)] = quad2euler(X(ID_Q0), X(ID_Q1), X(ID_Q2), X(ID_Q3), 'deg');
@@ -513,13 +547,14 @@ end
 index = 1:N;
 
 figure
-plot(index, LogField(:,roll_col), index, roll);
+grid on;
+plot(index, LogField(:,roll_col), index, roll, 'LineWidth', 1.5);
 legend('Roll', 'EKF.Roll')
 figure
-plot(index, LogField(:,pitch_col), index, pitch);
+plot(index, LogField(:,pitch_col), index, pitch, 'LineWidth', 1.5);
 legend('Pitch', 'EKF.Pitch')
 figure
-plot(index, LogField(:,yaw_col), index, yaw);
+plot(index, LogField(:,yaw_col), index, yaw, 'LineWidth', 1.5);
 legend('Yaw', 'EKF.Yaw')
 % figure
 % plot(index, LogField(:,qw_col), index, res_x(ID_Q0,:));
@@ -533,21 +568,21 @@ legend('Yaw', 'EKF.Yaw')
 % figure
 % plot(index, LogField(:,qz_col), index, res_x(ID_Q3,:));
 % legend('Q3', 'EKF.Q3')
-% figure
-% plot(index, LogField(:,gps_x_col), index, res_x(ID_X,:));
-% legend('X', 'EKF.X')
-% figure
-% plot(index, LogField(:,gps_y_col), index, res_x(ID_Y,:));
-% legend('Y', 'EKF.Y')
-% figure
-% plot(index, LogField(:,baro_z_col), index, res_x(ID_Z,:));
-% legend('Z', 'EKF.Z')
-% figure
-% plot(index, LogField(:,gps_vx_col), index, res_x(ID_VX,:));
-% legend('VX', 'EKF.VX')
-% figure
-% plot(index, LogField(:,gps_vy_col), index, res_x(ID_VY,:));
-% legend('VY', 'EKF.VY')
-% figure
-% plot(index, LogField(:,baro_vz_col), index, res_x(ID_VZ,:));
-% legend('VZ', 'EKF.VZ')
+figure
+plot(index, LogField(:,gps_x_col), index, res_x(ID_X,:), 'LineWidth', 1.5);
+legend('X', 'EKF.X')
+figure
+plot(index, LogField(:,gps_y_col), index, res_x(ID_Y,:), 'LineWidth', 1.5);
+legend('Y', 'EKF.Y')
+figure 
+plot(index, LogField(:,baro_z_col), index, res_x(ID_Z,:), 'LineWidth', 1.5);
+legend('Z', 'EKF.Z')
+figure
+plot(index, LogField(:,gps_vx_col), index, res_x(ID_VX,:), 'LineWidth', 1.5);
+legend('VX', 'EKF.VX')
+figure
+plot(index, LogField(:,gps_vy_col), index, res_x(ID_VY,:), 'LineWidth', 1.5);
+legend('VY', 'EKF.VY')
+figure
+plot(index, LogField(:,baro_vz_col), index, res_x(ID_VZ,:), 'LineWidth', 1.5);
+legend('VZ', 'EKF.VZ')
