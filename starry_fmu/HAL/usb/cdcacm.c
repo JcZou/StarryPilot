@@ -50,6 +50,12 @@ extern void usbd_is_connected(int connect);
 static uint16_t cdc_data_tx(void)
 { 
 	data_sent =1;
+
+	/* invoke callback */
+	if (usb_device.tx_complete != RT_NULL)
+	{
+		usb_device.tx_complete(&usb_device, RT_NULL);
+	}
 	
 	return USBD_OK;
 }
