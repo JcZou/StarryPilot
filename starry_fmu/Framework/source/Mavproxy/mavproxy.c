@@ -48,7 +48,6 @@ static MAV_TempMsg_Queue _temp_msg_queue;
 
 static char thread_mavlink_rx_stack[2048];
 struct rt_thread thread_mavlink_rx_handle;
-static struct rt_mutex mav_send_lock;
 
 MCN_DEFINE(HIL_STATE_Q, sizeof(mavlink_hil_state_quaternion_t));
 MCN_DEFINE(HIL_SENSOR, sizeof(mavlink_hil_sensor_t));
@@ -71,12 +70,7 @@ extern int mavproxy_console_proc(int count);
 
 uint8_t mavlink_msg_transfer(uint8_t chan, uint8_t* msg_buff, uint16_t len)
 {
-	uint8_t res;
-	rt_mutex_take(&mav_send_lock, RT_WAITING_FOREVER);
-	res = mavlink_lowlevel_write(msg_buff, len);
-	rt_mutex_release(&mav_send_lock);
-
-	return res;
+	return mavlink_lowlevel_write(msg_buff, len);
 }
 
 rt_err_t device_mavproxy_init(void)
@@ -488,8 +482,6 @@ void mavproxy_entry(void *parameter)
 
 	/* create event */
 	res = rt_event_init(&event_mavproxy, "mavproxy", RT_IPC_FLAG_FIFO);
-
-	rt_mutex_init(&mav_send_lock, "mav_send", RT_IPC_FLAG_FIFO);
 
 	res = rt_thread_init(&thread_mavlink_rx_handle,
 						   "mavproxy_rx",
