@@ -213,7 +213,7 @@ void mavproxy_lowlevel_init(void)
 	if(!_mavlink_console_dev)
 		Console.e(TAG, "mavlink console device not found\n");
 
-	if (!_mavlink_dev && !usb_is_connected) {
+	if (!_mavlink_dev) {
 		_mavlink_dev = rt_device_find(UART_MAVLINK_DEV_NAME);
 		if(_mavlink_dev == NULL) {
 			Console.e(TAG, "err not find %s device\n", UART_MAVLINK_DEV_NAME);

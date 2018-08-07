@@ -290,17 +290,18 @@ static void dma_uart_tx_config(struct rt_serial_device *serial, rt_uint8_t *buf,
     DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
     DMA_Init(uart->dma.tx_stream, &DMA_InitStructure);
 
-    DMA_ClearFlag(uart->dma.tx_stream, uart->dma.tx_flag);
-    DMA_ITConfig(uart->dma.tx_stream, DMA_IT_TC, ENABLE);
-    USART_DMACmd(uart->uart_device, USART_DMAReq_Tx, ENABLE);
-    DMA_Cmd(uart->dma.tx_stream, ENABLE);
-
     /* tx dma interrupt config */
     NVIC_InitStructure.NVIC_IRQChannel = uart->dma.tx_irq_ch;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
+
+    DMA_ClearFlag(uart->dma.tx_stream, uart->dma.tx_flag);
+    DMA_ITConfig(uart->dma.tx_stream, DMA_IT_TC, ENABLE);
+    USART_DMACmd(uart->uart_device, USART_DMAReq_Tx, ENABLE);
+    DMA_Cmd(uart->dma.tx_stream, ENABLE);
+
 }
 
 /**
