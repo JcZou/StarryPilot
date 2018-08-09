@@ -70,7 +70,8 @@ uint32_t _lidar_recv_stamp = 0;
 static uint32_t _lidar_time = 0;
 static float _baro_last_alt = 0.0f;
 static uint32_t _baro_last_time = 0;
-static BaroPosition _baro_pos = {0.0f, 0.0f, 0};
+static BaroPosition _baro_pos = {0.0f, 0.0f, 0.0f};
+static GPS_Driv_Vel _gps_driv_vel;
 
 MCN_DEFINE(SENSOR_GYR, 12);	
 MCN_DEFINE(SENSOR_ACC, 12);
@@ -591,9 +592,17 @@ int gps_get_position(Vector3f_t* gps_pos, struct vehicle_gps_position_s gps_repo
 
 int gps_get_velocity(Vector3f_t* gps_vel, struct vehicle_gps_position_s gps_report)
 {
+#ifdef USE_GPS_VEL
 	gps_vel->x = gps_report.vel_n_m_s;
 	gps_vel->y = gps_report.vel_e_m_s;
 	gps_vel->z = gps_report.vel_d_m_s;
+#else
+	OS_ENTER_CRITICAL;
+	gps_vel->x = _gps_driv_vel.velocity.x;
+	gps_vel->y = _gps_driv_vel.velocity.y;
+	gps_vel->z = _gps_driv_vel.velocity.z;
+	OS_EXIT_CRITICAL;
+#endif
 	
 	return 0;
 }
@@ -729,6 +738,9 @@ rt_err_t device_sensor_init(void)
 	// publish init gps status
 	mcn_publish(MCN_ID(GPS_STATUS), &_gps_status);
 	
+	_gps_driv_vel.velocity.x = _gps_driv_vel.velocity.y = _gps_driv_vel.velocity.z = 0.0f;
+	_gps_driv_vel.last_pos.x = _gps_driv_vel.last_pos.y = _gps_driv_vel.last_pos.z = 0.0f;
+	
 	return res;
 }
 
@@ -789,6 +801,20 @@ void sensor_collect(void)
 		
 		struct vehicle_gps_position_s gps_pos_t;
 		mcn_copy(MCN_ID(GPS_POSITION), gps_node_t, &gps_pos_t);
+		
+		HOME_Pos home = pos_home_get();
+		if(home.gps_coordinate_set == true){
+			Vector3f_t pos;
+			gps_get_position(&pos, gps_pos_t);
+			
+			_gps_driv_vel.velocity.x = (pos.x - _gps_driv_vel.last_pos.x) / 0.1f;	// the gps update interval is 100ms
+			_gps_driv_vel.velocity.y = (pos.y - _gps_driv_vel.last_pos.y) / 0.1f;
+			_gps_driv_vel.velocity.z = (pos.z - _gps_driv_vel.last_pos.z) / 0.1f;
+			
+			_gps_driv_vel.last_pos.x = pos.x;
+			_gps_driv_vel.last_pos.y = pos.y;
+			_gps_driv_vel.last_pos.z = pos.z;
+		}
 		
 		// check legality
 		if(_gps_status.status!=GPS_AVAILABLE && gps_pos_t.satellites_used>=6 && IN_RANGE(gps_pos_t.eph, 0.0f, 2.5f)){

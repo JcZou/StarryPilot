@@ -585,6 +585,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\KF\ekf.c</FilePath>
             </File>
+            <File>
+              <FileName>mavproxy_rtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\Mavproxy\mavproxy_rtt.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
