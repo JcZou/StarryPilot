@@ -155,10 +155,20 @@ static rt_err_t stm32_control(struct rt_serial_device *serial, int cmd, void *ar
     switch (cmd)
     {
     case RT_DEVICE_CTRL_CLR_INT:
-        /* disable rx irq */
-        UART_DISABLE_IRQ(uart->irq);
-        /* disable interrupt */
-        USART_ITConfig(uart->uart_device, USART_IT_RXNE, DISABLE);
+        if (ctrl_arg == RT_DEVICE_FLAG_INT_RX)
+        {
+            /* disable rx irq */
+            UART_DISABLE_IRQ(uart->irq);
+            /* disable interrupt */
+            USART_ITConfig(uart->uart_device, USART_IT_RXNE, DISABLE);
+        }
+        else if (ctrl_arg == RT_DEVICE_FLAG_DMA_RX)
+        {
+            DMA_ITConfig(uart->dma.rx_stream, DMA_IT_TC, DISABLE);
+            DMA_ClearFlag(uart->dma.rx_stream, uart->dma.rx_flag);
+            USART_DMACmd(uart->uart_device, USART_DMAReq_Rx, DISABLE);
+            DMA_Cmd(uart->dma.rx_stream, DISABLE);
+        }
         break;
     case RT_DEVICE_CTRL_SET_INT:
         /* enable rx irq */
