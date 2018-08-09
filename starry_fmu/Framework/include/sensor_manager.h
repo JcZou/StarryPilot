@@ -102,6 +102,11 @@ typedef struct
 	uint8_t fix_cnt;
 }GPS_Status;
 
+typedef struct
+{
+	Vector3f_t velocity;
+	Vector3f_t last_pos;
+}GPS_Driv_Vel;
 
 rt_err_t device_sensor_init(void);
 void sensor_manager_init(void);
