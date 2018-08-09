@@ -33,7 +33,7 @@ q_az = .1;
 q_gx_bias = .0005;
 q_gy_bias = .0005;
 q_gz_bias = .0005;
-q_az_bias = .001;
+q_az_bias = .0025;
 % observe covariance
 r_x = .04;
 r_y = .04;
@@ -58,7 +58,7 @@ for i = 1 : N
     U(3) = LogField(i,gyr_z_col);
     U(4) = LogField(i,acc_x_col);
     U(5) = LogField(i,acc_y_col);
-    U(6) = LogField(i,acc_z_col);
+    U(6) = LogField(i,acc_z_col)+0.3;
     
     q0 = X(ID_Q0);
     q1 = X(ID_Q1);
@@ -135,9 +135,9 @@ for i = 1 : N
     G(5,4)  = 2 * (q1 * q2 + q0 * q3);
     G(5,5)  = q0 * q0 - q1 * q1 + q2 * q2 - q3 * q3;
     G(5,6)  = 2 * (q2 * q3 - q0 * q1);
-    G(6,5)  = 2 * (q1 * q3 - q0 * q2);
-    G(6,6)  = 2 * (q2 * q3 + q0 * q1);
-    G(6,7)  = q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3;
+	G(6,4)  = 2 * (q1 * q3 - q0 * q2);
+    G(6,5)  = 2 * (q2 * q3 + q0 * q1);
+    G(6,6)  = q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3;
     % d(qdot)/d(gyr)
     G(7,1)  = -q1 / 2;
     G(7,2)  = -q2 / 2;

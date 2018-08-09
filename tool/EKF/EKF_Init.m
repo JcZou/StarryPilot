@@ -13,10 +13,10 @@ NUM_Z = length(Z);
 NUM_W = 10;
 F = zeros(NUM_X, NUM_X);
 H = zeros(NUM_Z, NUM_X);
+G = zeros(NUM_X, NUM_W);
 P = zeros(NUM_X, NUM_X);
 Q = zeros(NUM_W, NUM_W);
 R = zeros(NUM_Z, NUM_Z);
-G = zeros(NUM_X, NUM_W);
 I = eye(NUM_X, NUM_X);
 % init Q
 Q(1,1) = q_gx^2;
