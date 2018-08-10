@@ -46,9 +46,11 @@ The project is developed on Pixhawk (autopilot hardware). To download firmware i
 - Congratulation, now the download is finished!
 
 # Compile Environment
-The compile environment is based on Keil MDK5.
+- IDE: The compile environment is based on Keil MDK5.
 
 ![](docs/images/mdk5.png)
+
+- GNU GCC: For more instructions, please refer to [*README.md*](https://github.com/JcZou/StarryPilot/blob/master/starry_fmu/Project/stm32f40x/README.md)
 
 # Developer List
 - *JcZou*: jiachi.zou@gmail.com, zoujiachi666@163.com 
