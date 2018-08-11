@@ -15,6 +15,7 @@
 #include "protocol.h"
 #include "led.h"
 #include "lidar_lite.h"
+#include "sbus.h"
 
 int main(void)
 {
@@ -25,6 +26,7 @@ int main(void)
 	usart_init();
 	time_init();
 	ppm_capture_init();
+	sbus_init();
 	led_init();
 	lidar_lite_init();
 	
@@ -41,6 +43,8 @@ int main(void)
 		}
 		
 		if(sync_finish()){
+			send_sbus_value();
+
 			if(ppm_ready()){
 				ppm_clear_ready();
 				send_ppm_value();
