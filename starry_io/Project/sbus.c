@@ -530,7 +530,7 @@ uint8_t send_sbus_value(void)
 
 	bool sbus_updated = sbus_input(rc_values, &rc_count, &sbus_failsafe, &sbus_frame_drop,
 					STARRYIO_RC_INPUT_CHANNELS);
-	if (sbus_updated) {
+	if (sbus_updated && !sbus_failsafe && !sbus_frame_drop) {
 		for (i = 0; i < 8; i++) {
 			sbus_val[i] = (uint32_t)rc_values[i];
 		}
