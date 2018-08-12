@@ -19,7 +19,11 @@
 //static rt_device_t debug_dev;
 struct rt_semaphore starryio_dbg_rx_sem;
 struct rt_semaphore starryio_rx_pack_sem;
+struct rt_semaphore starryio_tx_pack_sem;
 static rt_device_t serial_dev;
+#define MSEC_TO_TICKS(ms) ((ms) * RT_TICK_PER_SECOND / 1000)
+#define STARRYIO_DTX_TIMEOUT MSEC_TO_TICKS(30)
+
 //static ringbuffer* rb;
 static char* TAG = "STARRYIO Manager";
 
@@ -27,13 +31,23 @@ uint8_t ppm_send_freq = 20;	/* sending frequemcy of ppm signal, HZ */
 
 MCN_DECLARE(RC_STATUS);
 
+rt_err_t starryio_serial_tx_done(rt_device_t dev, void * buffer)
+{
+	rt_sem_release(&starryio_tx_pack_sem);
+}
+
 static rt_err_t send_char(uint8_t c)
 {
 	rt_size_t bytes;
 	
 	bytes = rt_device_write(serial_dev, 0, (const void *)&c, 1);
 	if(bytes != 1)
-		return RT_ERROR;
+		return -RT_ERROR;
+
+	if (rt_sem_take(&starryio_tx_pack_sem, STARRYIO_DTX_TIMEOUT) != RT_EOK) {
+		Console.print("starryio tx timeout\n");
+		return -RT_EIO;
+	}
 	
 	return RT_EOK;
 }
@@ -44,7 +58,12 @@ static rt_err_t send(uint8_t* buff, uint32_t size)
 	
 	bytes = rt_device_write(serial_dev, 0, (const void *)buff, size);
 	if(bytes != size)
-		return RT_ERROR;
+		return -RT_ERROR;
+
+	if (rt_sem_take(&starryio_tx_pack_sem, STARRYIO_DTX_TIMEOUT) != RT_EOK) {
+		Console.print("starryio tx timeout\n");
+		return -RT_EIO;
+	}
 	
 	return RT_EOK;
 }
@@ -146,9 +165,11 @@ void starryio_entry(void *parameter)
     }
 	
 	rt_sem_init(&starryio_rx_pack_sem, "rxpack", 0, 0);
+	rt_sem_init(&starryio_tx_pack_sem, "txpack", 0, RT_IPC_FLAG_FIFO);
 	
 	rt_device_set_rx_indicate(serial_dev, starryio_serial_rx_ind);
-	rt_device_open(serial_dev, RT_DEVICE_OFLAG_RDWR | RT_DEVICE_FLAG_INT_RX);
+	rt_device_set_tx_complete(serial_dev, starryio_serial_tx_done);
+	rt_device_open(serial_dev, RT_DEVICE_OFLAG_RDWR | RT_DEVICE_FLAG_DMA_RX | RT_DEVICE_FLAG_DMA_TX);
 	
 	int mcn_res;
 	mcn_res = mcn_advertise(MCN_ID(RC_STATUS));
