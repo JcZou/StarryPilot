@@ -160,6 +160,71 @@ param_list_t param_list = { \
 
 static char* TAG = "PARAM";
 
+void param_traverse(void (*param_ops)(param_info_t* param))
+{
+	param_info_t* p;
+	param_group_info* gp = (param_group_info*)&param_list;
+	if (!param_ops)
+		return;
+	for(int j = 0 ; j < sizeof(param_list)/sizeof(param_group_info) ; j++) {
+		p = gp->content;
+		for(int i = 0 ; i < gp->param_num ; i++) {
+				param_ops(p);
+			p++;
+		}
+		gp++;
+	}
+}
+
+param_info_t* param_get_by_name(char* param_name)
+{
+	param_info_t* p;
+	param_group_info* gp = (param_group_info*)&param_list;
+	for(int j = 0 ; j < sizeof(param_list)/sizeof(param_group_info) ; j++) {
+		p = gp->content;
+		for(int i= 0 ; i < gp->param_num ; i++) {
+			if(strcmp(param_name, p->name) == 0)
+				return p;
+			p++;
+		}
+		gp++;
+	}
+	
+	return NULL;
+}
+
+uint32_t param_get_info_count(void)
+{
+	uint32_t count = 0;
+	param_info_t* p;
+	param_group_info* gp = (param_group_info*)&param_list;
+	for(int j = 0 ; j < sizeof(param_list)/sizeof(param_group_info) ; j++) {
+		count += gp->param_num;
+		gp++;
+	}
+	
+	return count;
+}
+
+uint32_t param_get_info_index(char* param_name)
+{
+	uint32_t index = 0;
+	param_info_t* p;
+	param_group_info* gp = (param_group_info*)&param_list;
+	for(int j = 0 ; j < sizeof(param_list)/sizeof(param_group_info) ; j++) {
+		p = gp->content;
+		for(int i= 0 ; i < gp->param_num ; i++) {
+			if(strcmp(param_name, p->name) == 0)
+				return index;
+			p++;
+			index++;
+		}
+		gp++;
+	}
+	
+	return index;
+}
+
 void param_show_group_list(void)
 {
 	param_group_info* gp = (param_group_info*)&param_list;

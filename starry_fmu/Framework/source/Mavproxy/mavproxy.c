@@ -22,9 +22,11 @@
 #include "sensor_manager.h"
 #include "gps.h"
 #include "statistic.h"
+#include "param.h"
 #include "shell.h"
 
 #define EVENT_MAVPROXY_UPDATE		(1<<0)
+#define EVENT_MAVPROXY_SEND_ALL_PARAM		(1<<1)
 
 #define MAV_SERIAL_BUFFER_SIZE		128
 
@@ -67,6 +69,7 @@ extern uint8_t mavlink_lowlevel_write(uint8_t* buff, uint16_t len);
 extern int mavlink_lowlevel_read(uint8_t* buff, uint16_t len);
 extern void mavproxy_lowlevel_init(void);
 extern int mavproxy_console_proc(int count);
+uint8_t mavproxy_temp_msg_push(mavlink_message_t *msg);
 
 uint8_t mavlink_msg_transfer(uint8_t chan, uint8_t* msg_buff, uint16_t len)
 {
@@ -197,6 +200,38 @@ void mavproxy_msg_gps_raw_int_pack(mavlink_message_t *msg_t)
 	mavlink_msg_gps_raw_int_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &gps_raw_int);
 }
 
+void mavproxy_msg_param_pack(mavlink_message_t *msg_t, param_info_t *param)
+{
+	mavlink_param_value_t param_value;
+	uint16_t len = strlen(param->name);
+	
+	param_value.param_count = param_get_info_count();
+	param_value.param_index = param_get_info_index(param->name);
+	memset(param_value.param_id, 0, 16);
+	memcpy(param_value.param_id, param->name, len < 16 ? len : 16);
+	switch (param->type) {
+		case PARAM_TYPE_FLOAT:
+			param_value.param_type = MAVLINK_TYPE_FLOAT;
+			param_value.param_value = param->val.f;
+			break;
+		case PARAM_TYPE_INT32:
+			param_value.param_type = MAVLINK_TYPE_INT32_T;
+			memcpy(&(param_value.param_value), &(param->val.i), sizeof(param->val.i));
+			break;
+		case PARAM_TYPE_UINT32:
+			param_value.param_type = MAVLINK_TYPE_UINT32_T;
+			memcpy(&(param_value.param_value), &(param->val.u), sizeof(param->val.u));
+			break;
+		default:
+			param_value.param_type = MAVLINK_TYPE_FLOAT;
+			param_value.param_value = param->val.f;
+			break;
+	}
+	
+	mavlink_msg_param_value_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &param_value);
+}
+
+
 //uint8_t mavlink_send_msg_rc_channels_raw(uint32_t channel[8])
 //{
 //	mavlink_message_t msg;
@@ -236,6 +271,11 @@ static void timer_mavproxy_update(void* parameter)
 	rt_event_send(&event_mavproxy, EVENT_MAVPROXY_UPDATE);
 }
 
+static void mavproxy_send_all_param(void)
+{
+	rt_event_send(&event_mavproxy, EVENT_MAVPROXY_SEND_ALL_PARAM);
+}
+
 void mavproxy_rx_entry(void *param)
 {
 	mavlink_message_t msg;
@@ -252,6 +292,30 @@ void mavproxy_rx_entry(void *param)
 			//Console.print("mav msg:%d\n", msg.msgid);
 			/* decode mavlink package */
 			switch(msg.msgid){
+				case MAVLINK_MSG_ID_HEARTBEAT:
+					break;
+				case MAVLINK_MSG_ID_PARAM_REQUEST_READ:
+				{
+					if(mavlink_system.sysid == mavlink_msg_param_request_read_get_target_system(&msg)) {
+						param_info_t *param = NULL;
+						mavlink_message_t msg;
+						mavlink_param_request_read_t request_read;
+						mavlink_msg_param_request_read_decode(&msg, &request_read);
+						param = param_get_by_name((char*)request_read.param_id);
+						if (param) {
+							mavproxy_msg_param_pack(&msg, param);
+							mavproxy_temp_msg_push(&msg);
+						}
+					}
+					break;
+				}
+				case MAVLINK_MSG_ID_PARAM_REQUEST_LIST:
+				{
+					if(mavlink_system.sysid == mavlink_msg_param_request_list_get_target_system(&msg)) {
+						mavproxy_send_all_param();
+					}
+					break;
+				}
 				case MAVLINK_MSG_ID_SERIAL_CONTROL:
 				{
 					mavlink_serial_control_t serial_control;
@@ -265,6 +329,7 @@ void mavproxy_rx_entry(void *param)
 					}
 
 					mavproxy_console_proc(serial_control.count);
+					break;
 				}
 				case MAVLINK_MSG_ID_HIL_SENSOR:
 				{
@@ -358,7 +423,7 @@ uint8_t mavproxy_period_msg_register(uint8_t msgid, uint16_t period_ms, void (* 
 	}
 }
 
-uint8_t mavproxy_temp_msg_push(mavlink_message_t msg)
+uint8_t mavproxy_temp_msg_push(mavlink_message_t *msg)
 {
 	if(_mav_disable)
 		return 0;
@@ -368,7 +433,7 @@ uint8_t mavproxy_temp_msg_push(mavlink_message_t msg)
 		return 0;
 	}
 	
-	_temp_msg_queue.queue[_temp_msg_queue.head] = msg;
+	_temp_msg_queue.queue[_temp_msg_queue.head] = *msg;
 	_temp_msg_queue.head = (_temp_msg_queue.head+1) % MAX_TEMP_MSG_QUEUE_SIZE;
 	
 	//printf("temp push msg\n");
@@ -387,6 +452,26 @@ uint8_t mavproxy_send_out_msg(mavlink_message_t msg)
 	len = mavlink_msg_to_send_buffer(mav_tx_buff2, &msg);
 	
 	return mavlink_msg_transfer(0, mav_tx_buff2, len);
+}
+
+static void param_send_all(param_info_t* param)
+{
+	uint16_t len;
+	mavlink_message_t msg;
+	/* Console.print("param send:%s\n", param->name); */
+
+	mavproxy_msg_param_pack(&msg, param);
+
+	len = mavlink_msg_to_send_buffer(mav_tx_buff, &msg);
+	mavlink_msg_transfer(0, mav_tx_buff, len);
+}
+
+uint8_t mavproxy_try_send_param_msg(void)
+{
+
+	param_traverse(param_send_all);
+
+	return 1;
 }
 
 uint8_t mavproxy_try_send_temp_msg(void)
@@ -475,7 +560,7 @@ void mavproxy_entry(void *parameter)
 {
 	rt_err_t res;
 	rt_uint32_t recv_set = 0;
-	rt_uint32_t wait_set = EVENT_MAVPROXY_UPDATE;
+	rt_uint32_t wait_set = EVENT_MAVPROXY_UPDATE | EVENT_MAVPROXY_SEND_ALL_PARAM;
 
 	mavproxy_lowlevel_init();
 	_mav_serial_rb = ringbuffer_static_create(_mav_serial_buffer, MAV_SERIAL_BUFFER_SIZE);
@@ -532,10 +617,15 @@ void mavproxy_entry(void *parameter)
 
 		if(res == RT_EOK)
 		{
-			// try to send out temporary msg first
-			mavproxy_try_send_temp_msg();
-			// try to send out periodical msg
-			mavproxy_try_send_period_msg();
+			if (recv_set & EVENT_MAVPROXY_SEND_ALL_PARAM) {
+				mavproxy_try_send_param_msg();
+			}
+			if (recv_set & EVENT_MAVPROXY_UPDATE) {
+				// try to send out temporary msg first
+				mavproxy_try_send_temp_msg();
+				// try to send out periodical msg
+				mavproxy_try_send_period_msg();
+			}
 		}
 		else
 		{

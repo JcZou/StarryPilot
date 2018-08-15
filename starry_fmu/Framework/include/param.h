@@ -248,5 +248,9 @@ const PARAM_Def * get_param(void);
 void param_release(void);
 
 param_info_t* param_get(char* group_name, char* param_name);
+param_info_t* param_get_by_name(char* param_name);
+void param_traverse(void (*param_ops)(param_info_t* param));
+uint32_t param_get_info_count(void);
+uint32_t param_get_info_index(char* param_name);
 
 #endif
