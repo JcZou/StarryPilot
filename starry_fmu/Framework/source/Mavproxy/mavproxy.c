@@ -298,7 +298,6 @@ void mavproxy_rx_entry(void *param)
 				{
 					if(mavlink_system.sysid == mavlink_msg_param_request_read_get_target_system(&msg)) {
 						param_info_t *param = NULL;
-						mavlink_message_t msg;
 						mavlink_param_request_read_t request_read;
 						mavlink_msg_param_request_read_decode(&msg, &request_read);
 						param = param_get_by_name((char*)request_read.param_id);
@@ -313,6 +312,23 @@ void mavproxy_rx_entry(void *param)
 				{
 					if(mavlink_system.sysid == mavlink_msg_param_request_list_get_target_system(&msg)) {
 						mavproxy_send_all_param();
+					}
+					break;
+				}
+				case MAVLINK_MSG_ID_PARAM_SET:
+				{
+					if(mavlink_system.sysid == mavlink_msg_param_set_get_target_system(&msg)) {
+						param_info_t* param = NULL;
+						mavlink_param_set_t param_set;
+						mavlink_msg_param_set_decode(&msg, &param_set);
+
+						param = param_get_by_name((char*)param_set.param_id);
+						if (param) {
+							param_set_by_info(param, param_set.param_value);
+							/* return param to ground station */
+							mavproxy_msg_param_pack(&msg, param);
+							mavproxy_temp_msg_push(&msg);
+						}
 					}
 					break;
 				}

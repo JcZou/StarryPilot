@@ -160,6 +160,8 @@ param_list_t param_list = { \
 
 static char* TAG = "PARAM";
 
+void param_store(void);
+
 void param_traverse(void (*param_ops)(param_info_t* param))
 {
 	param_info_t* p;
@@ -224,6 +226,29 @@ uint32_t param_get_info_index(char* param_name)
 	
 	return index;
 }
+
+int param_set_by_info(param_info_t* param, float val)
+{
+	switch (param->type) {
+		case PARAM_TYPE_FLOAT:
+			param->val.f = val;
+			break;
+		case PARAM_TYPE_INT32:
+			memcpy(&(param->val.i), &val, sizeof(param->val.i));
+			break;
+		case PARAM_TYPE_UINT32:
+			memcpy(&(param->val.u), &val, sizeof(param->val.u));
+			break;
+		default:
+			param->val.f = val;
+			break;
+	}
+
+	param_store();
+
+	return 0;
+}
+
 
 void param_show_group_list(void)
 {

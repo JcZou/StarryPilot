@@ -252,5 +252,6 @@ param_info_t* param_get_by_name(char* param_name);
 void param_traverse(void (*param_ops)(param_info_t* param));
 uint32_t param_get_info_count(void);
 uint32_t param_get_info_index(char* param_name);
+int param_set_by_info(param_info_t* param, float val);
 
 #endif
