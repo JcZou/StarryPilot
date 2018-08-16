@@ -590,6 +590,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\Mavproxy\mavproxy_rtt.c</FilePath>
             </File>
+            <File>
+              <FileName>state_est.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\StateEstimator\state_est.c</FilePath>
+            </File>
+            <File>
+              <FileName>fast_loop.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\Copter\fast_loop.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

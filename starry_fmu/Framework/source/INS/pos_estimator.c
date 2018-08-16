@@ -125,9 +125,42 @@ HOME_Pos pos_home_get(void)
 	return _home_pos;
 }
 
+void pos_get_home(HOME_Pos* home_pos)
+{
+	mcn_copy_from_hub(MCN_ID(HOME_POS), home_pos);
+}
+
+void pos_try_sethome(void)
+{
+	GPS_Status gps_status;
+	
+	mcn_copy_from_hub(MCN_ID(GPS_STATUS), &gps_status);
+	
+	if(mcn_poll(alt_node_t) && _home_pos.baro_altitude_set==false){
+		
+		// TODO: check legality of altitude
+		BaroPosition baro_pos;
+		mcn_copy(MCN_ID(BARO_POSITION), alt_node_t, &baro_pos);
+		
+		pos_home_set(BARO_ALT, &baro_pos.altitude);
+		Console.print("alt home set to:%f\n", baro_pos.altitude);
+	}
+	if(mcn_poll(gps_node_t) && _home_pos.gps_coordinate_set==false){
+		
+		// check if gps is available
+		if(gps_status.status == GPS_AVAILABLE){
+			
+			struct vehicle_gps_position_s gps_pos = gps_get_report();
+			double gps_coordinate[2] = {(double)gps_pos.lat*1e-7, (double)gps_pos.lon*1e-7};
+			
+			pos_home_set(GPS_COORDINATE, gps_coordinate);
+			Console.print("gps home set to:%f %f\n", gps_coordinate[0], gps_coordinate[1]);
+		}
+	}
+}
+
 void pos_est_update(float dT)
 {
-	const float* acc;
 	float accE[3];
 	GPS_Status gps_status;
 	
@@ -155,7 +188,8 @@ void pos_est_update(float dT)
 		}
 	}
 	
-	acc = accfilter_current();
+	float acc[3];
+	sensor_get_acc(acc);
 	/* transfer acceleration from body frame to navigation frame */
 	quaternion_rotateVector(attitude_est_get_quaternion(), acc, accE);	
 	/* remove gravity */

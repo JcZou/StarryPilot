@@ -152,8 +152,12 @@ int gps_get_position(Vector3f_t* gps_pos, struct vehicle_gps_position_s gps_repo
 int gps_get_velocity(Vector3f_t* gps_vel, struct vehicle_gps_position_s gps_report);
 void gps_calc_geometry_distance(Vector3f_t* dis, double lat1, double lon1, double lat2, double lon2);
 void gps_calc_geometry_distance2(Vector3f_t* dis, double ref_lat, double ref_lon, double lat, double lon);
+void gps_get_status(GPS_Status* gps_sta);
 
 /* common api */
 void sensor_collect(void);
+void sensor_get_gyr(float gyr[3]);
+void sensor_get_acc(float acc[3]);
+void sensor_get_mag(float mag[3]);
 
 #endif

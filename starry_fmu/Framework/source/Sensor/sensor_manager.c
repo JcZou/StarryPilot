@@ -607,6 +607,27 @@ int gps_get_velocity(Vector3f_t* gps_vel, struct vehicle_gps_position_s gps_repo
 	return 0;
 }
 
+void gps_get_status(GPS_Status* gps_sta)
+{
+	mcn_copy_from_hub(MCN_ID(GPS_STATUS), gps_sta);
+}
+
+/************************** Public API ***************************/
+void sensor_get_gyr(float gyr[3])
+{
+	mcn_copy_from_hub(MCN_ID(SENSOR_FILTER_GYR), gyr);
+}
+
+void sensor_get_acc(float acc[3])
+{
+	mcn_copy_from_hub(MCN_ID(SENSOR_FILTER_ACC), acc);
+}
+
+void sensor_get_mag(float mag[3])
+{
+	mcn_copy_from_hub(MCN_ID(SENSOR_FILTER_MAG), mag);
+}
+
 /**************************	INIT FUNC **************************/
 rt_err_t device_sensor_init(void)
 {

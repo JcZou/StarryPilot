@@ -42,7 +42,7 @@ MCN_DECLARE(BARO_POSITION);
 MCN_DECLARE(GPS_POSITION);
 MCN_DECLARE(GPS_STATUS);
 
-int hil_collect_data(void)
+int hil_sensor_collect(void)
 {
 	static uint32_t last_time = 0;
 	if(_hil_op == HIL_SENSOR_LEVEL){

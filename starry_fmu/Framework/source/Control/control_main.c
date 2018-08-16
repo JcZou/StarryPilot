@@ -336,7 +336,8 @@ void _ctrl_att_with_baseThrottle(float baseThrottle, float dT)
 {
 	float out[3];
 	float err[3];
-	const float *gyr_t = gyrfilter_current();
+	float gyr_t[3];
+	sensor_get_gyr(gyr_t);
 	
 	/* only control attitude when throttle is bigger than threshold */
 	if(baseThrottle > 0.05f){
@@ -424,9 +425,10 @@ uint8_t ctrl_set_home(void)
 /*****************************ADRC*********************************/
 void ctrl_att_adrc_update(void)
 {
-	const float *gyr_t = gyrfilter_current();
+	float gyr[3];
+	sensor_get_gyr(gyr);
 	
-	adrc_att_observer_update(gyr_t, ctrl_get_basethrottle());
+	adrc_att_observer_update(gyr, ctrl_get_basethrottle());
 }
 
 /******************************************************************/

@@ -18,12 +18,8 @@
 #include <rtdevice.h>
 #include <rthw.h>
 
-#define COPTER_THREAD_PRIORITY			3
-
-#define SENSOR_THREAD_PRIORITY			5
-#define ATTITUDE_THREAD_PRIORITY		6
-#define POS_THREAD_PRIORITY				7
-#define CONTROL_THREAD_PRIORITY			8
+#define FASTLOOP_THREAD_PRIORITY		3
+#define COPTER_THREAD_PRIORITY			4
 #define STARRYIO_THREAD_PRIORITY		9
 #define FINSH_THREAD_PRIORITY			10
 #define LOGGER_THREAD_PRIORITY			11
@@ -35,7 +31,7 @@
 #define Deg2Rad(x)			((x)*0.0174533f)
 //#define Rad2Deg(x)			((x)*180.0f/PI)
 //#define Deg2Rad(x)			((x)*PI/180.0f)
-#define GRAVITY_MSS 		9.80665f
+#define GRAVITY_MSS 		9.81f
 
 //extern const float PI;
 #ifndef PI

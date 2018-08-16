@@ -15,6 +15,7 @@ src += Glob('source/Filter/*.c')
 src += Glob('source/Global/*.c')
 src += Glob('source/HIL/*.c')
 src += Glob('source/INS/*.c')
+src += Glob('source/StateEstimator/*.c')
 # src += Split("""
 # source/INS/AHRS.c
 # source/INS/att_estimator.c

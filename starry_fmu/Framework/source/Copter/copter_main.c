@@ -18,6 +18,7 @@
 #include "hil_interface.h"
 #include "param.h"
 #include "gps.h"
+#include "state_est.h"
 
 #define EVENT_COPTER_FAST_LOOP		(1<<0)
 
@@ -32,16 +33,9 @@ void copter_main_loop(uint32_t att_est_period, uint32_t pos_est_period, uint32_t
 	static uint32_t ahrs_time = 0;
 	static uint32_t pos_est_time = 0;
 	static uint32_t ctrl_time = 0;
+	static uint32_t state_est_time = 0;
 	
 	uint32_t now = time_nowMs();
-	
-#ifdef HIL_SIMULATION
-	hil_collect_data();
-#else
-	sensor_collect();
-#endif
-	
-	ctrl_att_adrc_update();
 	
 	if(TIME_GAP(ahrs_time, now) >= att_est_period){
 		ahrs_time = now;
@@ -52,6 +46,11 @@ void copter_main_loop(uint32_t att_est_period, uint32_t pos_est_period, uint32_t
 		pos_est_time = now;
 		pos_est_update(0.001f*pos_est_period);
 	}
+	
+//	if(TIME_GAP(state_est_time, now) >= 4){
+//		state_est_time = now;
+//		state_est_update();
+//	}
 
 	if(TIME_GAP(ctrl_time, now) >= control_period){
 		ctrl_time = now;
@@ -125,6 +124,8 @@ void copter_entry(void *parameter)
 					1,
 					RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);
 	rt_timer_start(&timer_copter);
+	
+	state_est_init(0.004f);
 
 	while(1)
 	{

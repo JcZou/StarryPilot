@@ -76,7 +76,11 @@ void pos_est_init(float dT);
 void pos_est_reset(void);
 void pos_est_update(float dT);
 HOME_Pos pos_home_get(void);
+void pos_get_home(HOME_Pos* home_pos);
 void pos_home_set(HOME_Item item, void* data);
 Position_Info get_pos_info(void);
+void pos_try_sethome(void);
+
+void save_alt_info(float alt, float relative_alt, float vz, float az, float az_bias);
 	
 #endif

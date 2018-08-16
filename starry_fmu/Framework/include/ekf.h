@@ -3,6 +3,24 @@
 
 #include <arm_math.h>
 #include "global.h"
+#include "ap_math.h"
+
+#define STATE_X			0
+#define STATE_Y			1
+#define STATE_Z			2
+#define STATE_VX		3
+#define STATE_VY		4
+#define STATE_VZ		5
+#define STATE_Q0		6
+#define STATE_Q1		7
+#define STATE_Q2		8
+#define STATE_Q3		9
+#define STATE_GX_BIAS	10
+#define STATE_GY_BIAS	11
+#define STATE_GZ_BIAS	12
+#define STATE_AZ_BIAS	13
+
+#define MAT_GET_ELEMENT(mat, row, col)			mat.pData[row*mat.numCols+col]
 
 typedef struct
 {
@@ -11,26 +29,41 @@ typedef struct
 	arm_matrix_instance_f32 Z;		// observation vector
 	
 	arm_matrix_instance_f32 F;		
-	arm_matrix_instance_f32 B;
 	arm_matrix_instance_f32 H;
+	arm_matrix_instance_f32 G;
 	arm_matrix_instance_f32 P;	
 	arm_matrix_instance_f32 Q;	
 	arm_matrix_instance_f32 R;
-	arm_matrix_instance_f32 y;
+	
+	arm_matrix_instance_f32 Y;
 	arm_matrix_instance_f32 S;
 	arm_matrix_instance_f32 K;		// kalman gain
-	float dT;	// update interval
-	/* control flag */
-	bool identity_h;
-//	/* temporary matrix */
-//	Mat M_nn_1, M_nn_2, M_nn_3, M_nn_4;
-//	Mat M_n1_1, M_n1_2;
-//	Mat I; // identity matrix
+	
+	arm_matrix_instance_f32 IFT;
+	arm_matrix_instance_f32 IFTT;
+	arm_matrix_instance_f32 IFTP;
+	arm_matrix_instance_f32 IFTPIFTT;
+	arm_matrix_instance_f32 GQ;
+	arm_matrix_instance_f32 GT;
+	arm_matrix_instance_f32 GQGT;
+	
+	arm_matrix_instance_f32 HT;
+	arm_matrix_instance_f32 PHT;
+	arm_matrix_instance_f32 HPHT;
+	arm_matrix_instance_f32 INV_S;
+	arm_matrix_instance_f32 KY;
+	arm_matrix_instance_f32 KH;
+	arm_matrix_instance_f32 KHP;
+	
+	Vector3f_t magetic_field;
+	
+	float32_t dT;	// time interval
 }EKF_Def;
 
-//void EKF_Create(EKF_Def* kf_t, int x_dim, int u_dim);
-//void EKF_Init(EKF_Def* kf_t, float *F_val, float *B_val, float *H_val, float *P_val, float *Q_val, float *R_val, float *x_val, bool identity_h, float dt);
-//void EKF_Predict(EKF_Def* kf_t);
-//void EKF_Update(EKF_Def* kf_t);
+uint8_t EKF14_Init(EKF_Def* ekf_t, float32_t dT);
+void EKF14_Reset(EKF_Def* ekf_t);
+uint8_t EKF14_Prediction(EKF_Def* ekf_t);
+uint8_t EKF14_Correct(EKF_Def* ekf_t);
+float32_t EKF14_Get_State(const EKF_Def* ekf_t, uint8_t state);
 
 #endif

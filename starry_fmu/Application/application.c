@@ -33,6 +33,7 @@
 #include "copter_main.h"
 #include "file_manager.h"
 #include "logger.h"
+#include "fast_loop.h"
 
 #ifdef RT_USING_LWIP
 #include <lwip/sys.h>
@@ -48,6 +49,9 @@
 #include "sdio.h"
 
 static rt_thread_t tid0;
+
+static char thread_fastloop_stack[2048];
+struct rt_thread thread_fastloop_handle;
 
 static char thread_mavlink_stack[2048];
 struct rt_thread thread_mavlink_handle;
@@ -108,6 +112,15 @@ void rt_init_thread_entry(void* parameter)
 #endif
 	
 	/* create thread */
+	res = rt_thread_init(&thread_fastloop_handle,
+						   "fastloop",
+						   fastloop_entry,
+						   RT_NULL,
+						   &thread_fastloop_stack[0],
+						   sizeof(thread_fastloop_stack),FASTLOOP_THREAD_PRIORITY,1);
+	if (res == RT_EOK)
+		rt_thread_startup(&thread_fastloop_handle);
+	
 	res = rt_thread_init(&thread_copter_handle,
 						   "copter",
 						   copter_entry,

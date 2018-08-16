@@ -39,9 +39,10 @@ McnNode_t _home_node_t;
 
 void attitude_est_run(float dT)
 {	
-	const float* gyr_t = gyrfilter_current();
-	const float* acc_t = accfilter_current();
-	const float* mag_t = magfilter_current();
+	float gyr_t[3], acc_t[3], mag_t[3];
+	sensor_get_gyr(gyr_t);
+	sensor_get_acc(acc_t);
+	sensor_get_mag(mag_t);
 	
 #if   defined ( AHRS_USE_DEFAULT ) 
 	AHRS_update(&drone_attitude, gyr_t, acc_t, mag_t, dT);
@@ -96,6 +97,7 @@ void attitude_est_reset(void)
 	float acc[3];
 	float mag[3];
 	
+	//TODO: check if acc and mag are available
 	mcn_copy_from_hub(MCN_ID(SENSOR_ACC), acc);
 	mcn_copy_from_hub(MCN_ID(SENSOR_MAG), mag);
 	
