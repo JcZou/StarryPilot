@@ -1,6 +1,6 @@
 clear all
 %% read log file
-logfile = 'EKF2.LOG';
+logfile = 'EKF3.LOG';
 readlog;
 
 %% init parameter
@@ -34,6 +34,7 @@ q_gx_bias = .0005;
 q_gy_bias = .0005;
 q_gz_bias = .0005;
 q_az_bias = .0025;
+% q_az_bias = .01;
 % observe covariance
 r_x = .04;
 r_y = .04;
@@ -58,7 +59,7 @@ for i = 1 : N
     U(3) = LogField(i,gyr_z_col);
     U(4) = LogField(i,acc_x_col);
     U(5) = LogField(i,acc_y_col);
-    U(6) = LogField(i,acc_z_col)+0.3;
+    U(6) = LogField(i,acc_z_col);
     
     q0 = X(ID_Q0);
     q1 = X(ID_Q1);
@@ -189,6 +190,10 @@ for i = 1 : N
     q1 = X(ID_Q1);
     q2 = X(ID_Q2);
     q3 = X(ID_Q3);
+    ax = U(4);
+    ay = U(5);
+    az = U(6);
+    
     % normalize acc and mag
     acc_norm = sqrt(ax^2+ay^2+az^2);
     ax = ax/acc_norm;
@@ -199,12 +204,15 @@ for i = 1 : N
     my = my/mag_norm;
     mz = mz/mag_norm;
 	% calculate jocobbians of h(x)
+    % d(X)/d(X)
 	H(1,1) = 1;
 	H(2,2) = 1;
 	H(3,3) = 1;
+    % d(V)/d(V)
 	H(4,4) = 1;
 	H(5,5) = 1;
 	H(6,6) = 1;
+    % d(acc)/d(q)
     H(7,7) = 2 * (q0 * ax - q3 * ay + q2 * az);
     H(7,8) = 2 * (q1 * ax + q2 * ay + q3 * az);
     H(7,9) = 2 * (-q2 * ax + q1 * ay + q0 * az);
@@ -217,6 +225,7 @@ for i = 1 : N
     H(9,8) = 2 * (q3 * ax + q0 * ay - q1 * az);
     H(9,9) = 2 * (-q0 * ax + q3 * ay - q2 * az);
     H(9,10) = 2 * (q1 * ax + q2 * ay + q3 * az);
+    % d(mag)/d(q)
     H(10,7) = 2 * (q0 * mx - q3 * my + q2 * mz);
     H(10,8) = 2 * (q1 * mx + q2 * my + q3 * mz);
     H(10,9) = 2 * (-q2 * mx + q1 * my + q0 * mz);
@@ -225,6 +234,7 @@ for i = 1 : N
     H(11,8) = 2 * (q2 * mx - q1 * my - q0 * mz);
     H(11,9) = 2 * (q1 * mx + q2 * my + q3 * mz);
     H(11,10) = 2 * (q0 * mx - q3 * my + q2 * mz);
+    
 
     % rotate acc and mag from body frame to navigation frame
     accN = [(q0^2+q1^2-q2^2-q3^2)*ax+2*(q1*q2-q0*q3)*ay+2*(q1*q3+q0*q2)*az;...

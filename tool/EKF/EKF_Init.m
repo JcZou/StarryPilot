@@ -1,9 +1,12 @@
 % X = [x, y, z, vx, vy, vz, q0, q1, q2, q3, gx_bias, gy_bias, gz_bias, az_bias]
-X = [0; 0; 0; 0; 0; 0; 1; 0; 0; 0; 0; 0; 0; 0;];
+X = [0; 0; 0; 0; 0; 0; 1; 0; 0; 0; 0; 0; 0; 0];
+X = single(X);
 % U = [gx, gy, gz, ax, ay, az]
 U = [0; 0; 0; 0; 0; 0];
+U = single(U);
 % Z = [x, y, z, vx, vy, vz, ax, ay, az, mx, my]
 Z = [0; 0; 0; 0; 0; 0; 0; 0; -1; 1; 0];
+Z = single(Z);
 % observer delay in ms
 Delay = [120; 120; 10; 120; 120; 20; 10; 10; 10; 10; 0; 0; 0; 0;];
 HistIndex = Delay/double(LogHeader.log_perid);
@@ -18,6 +21,14 @@ P = zeros(NUM_X, NUM_X);
 Q = zeros(NUM_W, NUM_W);
 R = zeros(NUM_Z, NUM_Z);
 I = eye(NUM_X, NUM_X);
+% change to single type
+F = single(F);
+H = single(H);
+G = single(G);
+P = single(P);
+Q = single(Q);
+R = single(R);
+I = single(I);
 % init Q
 Q(1,1) = q_gx^2;
 Q(2,2) = q_gy^2;
