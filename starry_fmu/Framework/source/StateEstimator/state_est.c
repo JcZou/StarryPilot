@@ -37,6 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gps.h"
 
 static EKF_Def ekf_14;
+static quaternion att_q;
 
 MCN_DECLARE(ATT_QUATERNION);
 MCN_DECLARE(ATT_EULER);
@@ -111,7 +112,6 @@ uint8_t state_est_update(void)
 	EKF14_Prediction(&ekf_14);
 	EKF14_Correct(&ekf_14);
 	
-	quaternion att_q;
 	state_est_get_quaternion(&att_q);
 	mcn_publish(MCN_ID(ATT_QUATERNION), &att_q);
 	

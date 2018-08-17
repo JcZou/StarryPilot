@@ -39,6 +39,7 @@
 
 #include "finsh.h"
 #include "shell.h"
+#include "file_manager.h"
 
 #ifdef FINSH_USING_MSH
 #include "msh.h"

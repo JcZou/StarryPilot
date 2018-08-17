@@ -34,36 +34,36 @@
 #define r_mx			0.0012
 #define r_my			0.0012
 
-float32_t  X_Data[NUM_X];
-float32_t  U_Data[NUM_U];
-float32_t  Z_Data[NUM_Z];
+static float32_t  X_Data[NUM_X];
+static float32_t  U_Data[NUM_U];
+static float32_t  Z_Data[NUM_Z];
 
-float32_t  F_Data[NUM_X*NUM_X];
-float32_t  H_Data[NUM_Z*NUM_X];
-float32_t  G_Data[NUM_X*NUM_W];
-float32_t  P_Data[NUM_X*NUM_X];
-float32_t  Q_Data[NUM_W*NUM_W];
-float32_t  R_Data[NUM_Z*NUM_Z];
+static float32_t  F_Data[NUM_X*NUM_X];
+static float32_t  H_Data[NUM_Z*NUM_X];
+static float32_t  G_Data[NUM_X*NUM_W];
+static float32_t  P_Data[NUM_X*NUM_X];
+static float32_t  Q_Data[NUM_W*NUM_W];
+static float32_t  R_Data[NUM_Z*NUM_Z];
 
-float32_t  Y_Data[NUM_Z];
-float32_t  S_Data[NUM_Z*NUM_Z];
-float32_t  K_Data[NUM_X*NUM_Z];
+static float32_t  Y_Data[NUM_Z];
+static float32_t  S_Data[NUM_Z*NUM_Z];
+static float32_t  K_Data[NUM_X*NUM_Z];
 
-float32_t IFT_Data[NUM_X*NUM_X];
-float32_t IFTT_Data[NUM_X*NUM_X];
-float32_t IFTP_Data[NUM_X*NUM_X];
-float32_t IFTPIFTT_Data[NUM_X*NUM_X];
-float32_t GQ_Data[NUM_X*NUM_W];
-float32_t GT_Data[NUM_W*NUM_X];
-float32_t GQGT_Data[NUM_X*NUM_X];
+static float32_t IFT_Data[NUM_X*NUM_X];
+static float32_t IFTT_Data[NUM_X*NUM_X];
+static float32_t IFTP_Data[NUM_X*NUM_X];
+static float32_t IFTPIFTT_Data[NUM_X*NUM_X];
+static float32_t GQ_Data[NUM_X*NUM_W];
+static float32_t GT_Data[NUM_W*NUM_X];
+static float32_t GQGT_Data[NUM_X*NUM_X];
 
-float32_t HT_Data[NUM_X*NUM_Z];
-float32_t PHT_Data[NUM_X*NUM_Z];
-float32_t HPHT_Data[NUM_Z*NUM_Z];
-float32_t INV_S_Data[NUM_Z*NUM_Z];
-float32_t KY_Data[NUM_X];
-float32_t KH_Data[NUM_X*NUM_X];
-float32_t KHP_Data[NUM_X*NUM_X];
+static float32_t HT_Data[NUM_X*NUM_Z];
+static float32_t PHT_Data[NUM_X*NUM_Z];
+static float32_t HPHT_Data[NUM_Z*NUM_Z];
+static float32_t INV_S_Data[NUM_Z*NUM_Z];
+static float32_t KY_Data[NUM_X];
+static float32_t KH_Data[NUM_X*NUM_X];
+static float32_t KHP_Data[NUM_X*NUM_X];
 
 
 void mat_fill_f32(arm_matrix_instance_f32* mat, float32_t val)
