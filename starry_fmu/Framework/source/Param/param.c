@@ -249,6 +249,25 @@ int param_set_by_info(param_info_t* param, float val)
 	return 0;
 }
 
+int param_get_by_info(param_info_t* param, float *val)
+{
+	switch (param->type) {
+		case PARAM_TYPE_FLOAT:
+			*val = param->val.f;
+			break;
+		case PARAM_TYPE_INT32:
+			memcpy(&val, &(param->val.i), sizeof(param->val.i));
+			break;
+		case PARAM_TYPE_UINT32:
+			memcpy(&val, &(param->val.u), sizeof(param->val.u));
+			break;
+		default:
+			*val = param->val.f;
+			break;
+	}
+
+	return 0;
+}
 
 void param_show_group_list(void)
 {
