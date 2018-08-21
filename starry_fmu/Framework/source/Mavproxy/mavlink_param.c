@@ -288,16 +288,16 @@ void mavlink_param_init(void)
 	mav_param[CAL_MAG0_XOFF].param = param_get_by_name("MAG_X_OFFSET");
 	mav_param[CAL_MAG0_YOFF].param = param_get_by_name("MAG_Y_OFFSET");
 	mav_param[CAL_MAG0_ZOFF].param = param_get_by_name("MAG_Z_OFFSET");
-	mav_param[CAL_MAG0_XSCALE].param = param_get_by_name("MAG_TRANS_MAT_0_0");
-	mav_param[CAL_MAG0_YSCALE].param = param_get_by_name("MAG_TRANS_MAT_1_1");
-	mav_param[CAL_MAG0_ZSCALE].param = param_get_by_name("MAG_TRANS_MAT_2_2");
+	mav_param[CAL_MAG0_XSCALE].param = param_get_by_name("MAG_TRANS_MAT00");
+	mav_param[CAL_MAG0_YSCALE].param = param_get_by_name("MAG_TRANS_MAT11");
+	mav_param[CAL_MAG0_ZSCALE].param = param_get_by_name("MAG_TRANS_MAT22");
 
 	mav_param[CAL_ACC0_XOFF].param = param_get_by_name("ACC_X_OFFSET");
 	mav_param[CAL_ACC0_YOFF].param = param_get_by_name("ACC_Y_OFFSET");
 	mav_param[CAL_ACC0_ZOFF].param = param_get_by_name("ACC_Z_OFFSET");
-	mav_param[CAL_ACC0_XSCALE].param = param_get_by_name("ACC_TRANS_MAT_0_0");
-	mav_param[CAL_ACC0_YSCALE].param = param_get_by_name("ACC_TRANS_MAT_1_1");
-	mav_param[CAL_ACC0_ZSCALE].param = param_get_by_name("ACC_TRANS_MAT_2_2");
+	mav_param[CAL_ACC0_XSCALE].param = param_get_by_name("ACC_TRANS_MAT00");
+	mav_param[CAL_ACC0_YSCALE].param = param_get_by_name("ACC_TRANS_MAT11");
+	mav_param[CAL_ACC0_ZSCALE].param = param_get_by_name("ACC_TRANS_MAT22");
 
 	mav_param[MC_ROLLRATE_P].param = param_get_by_name("ATT_ROLL_RATE_P");
 	mav_param[MC_ROLLRATE_I].param = param_get_by_name("ATT_ROLL_RATE_I");
@@ -431,6 +431,38 @@ int mavlink_param_set_value(const char *name, float value)
 	}
 
 	return -1;
+}
+
+int mavlink_param_set_value_by_index(uint32_t index, float value)
+{
+	int i = 0;
+	param_info_t* param = NULL;
+	param_t *mav_param = &mavlink_param;
+	if (index >= MAV_PARAM_NUM) {
+		return -1;
+	}
+	mav_param += index;
+	if (mav_param->param) {
+		param_set_by_info(mav_param->param, value);
+		switch (mav_param->param->type) {
+			case PARAM_TYPE_FLOAT:
+				mav_param->value = mav_param->param->val.f;
+				break;
+			case PARAM_TYPE_INT32:
+				memcpy(&(mav_param->value), &(mav_param->param->val.i), sizeof(mav_param->param->val.i));
+				break;
+			case PARAM_TYPE_UINT32:
+				memcpy(&(mav_param->value), &(mav_param->param->val.u), sizeof(mav_param->param->val.u));
+				break;
+			default:
+				mav_param->value = mav_param->param->val.f;
+				break;
+		}
+	} else {
+		mav_param->value = value;
+	}
+
+	return 0;
 }
 
 uint32_t mavlink_param_get_info_count(void)

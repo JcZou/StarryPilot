@@ -23,6 +23,8 @@
 #include "gps.h"
 #include "statistic.h"
 #include "mavlink_param.h"
+#include "mavlink_status.h"
+#include "calibration.h"
 #include "shell.h"
 
 #define EVENT_MAVPROXY_UPDATE		(1<<0)
@@ -329,6 +331,97 @@ int mavlink_send_single_param(const char *name, mavlink_message_t *msg)
 	return 0;
 }
 
+void mavproxy_send_statustext_msg(mav_status_type status, mavlink_message_t *msg)
+{
+	mavlink_statustext_t statustext;
+	memset(statustext.text, 0, 50);
+	statustext.severity = mavlink_get_status_content(status).severity;
+	memcpy(statustext.text, mavlink_get_status_content(status).string, strlen(mavlink_get_status_content(status).string));
+	mavlink_msg_statustext_encode(mavlink_system.sysid, mavlink_system.compid, msg, &statustext);
+	mavproxy_temp_msg_push(msg);
+}
+
+void mavlink_send_status(mav_status_type status)
+{
+	mavlink_message_t msg;
+
+	mavproxy_send_statustext_msg(status, &msg);
+}
+
+void mavlink_send_calibration_progress_msg(uint8_t progress)
+{
+	switch(progress)
+	{
+		case 0:
+			mavlink_send_status(CAL_PROGRESS_0);
+			break;
+		case 1:
+			mavlink_send_status(CAL_PROGRESS_10);
+			break;
+		case 2:
+			mavlink_send_status(CAL_PROGRESS_20);
+			break;
+		case 3:
+			mavlink_send_status(CAL_PROGRESS_30);
+			break;
+		case 4:
+			mavlink_send_status(CAL_PROGRESS_40);
+			break;  
+		case 5:
+			mavlink_send_status(CAL_PROGRESS_50);
+			break;
+		case 6:
+			mavlink_send_status(CAL_PROGRESS_60);
+			break;
+		case 7:
+			mavlink_send_status(CAL_PROGRESS_70);
+			break;
+		case 8:
+			mavlink_send_status(CAL_PROGRESS_80);
+			break;
+		case 9:
+			mavlink_send_status(CAL_PROGRESS_90);
+			break;
+		default:
+			break;
+	}
+}
+
+
+static void mavlink_send_command_ack(mavlink_command_ack_t *command_ack, mavlink_message_t *msg)
+{
+	mavlink_msg_command_ack_encode(mavlink_system.sysid, mavlink_system.compid, msg, command_ack);
+	mavproxy_temp_msg_push(msg);
+}
+
+static void mavproxy_proc_command(mavlink_command_long_t *command, mavlink_message_t *msg)
+{
+	switch(command->command) {
+		case MAV_CMD_PREFLIGHT_CALIBRATION:
+		{
+			mavlink_command_ack_t command_ack;
+			
+			if(command->param1 == 1) {          //calibration gyr
+				mavproxy_send_statustext_msg(CAL_START_GYRO, msg);
+				gyr_mavlink_calibration_start();
+			} else if(command->param2 == 1) {    //calibration mag
+				//mavproxy_send_statustext_msg(CAL_START_MAG, msg);
+			} else if(command->param5 == 1) {    //calibration acc
+				//mavproxy_send_statustext_msg(CAL_START_ACC, msg);
+			} else if(command->param5 == 2) {    //calibration level
+				//mavproxy_send_statustext_msg(CAL_START_LEVEL, msg);
+			}
+
+			command_ack.command = MAV_CMD_PREFLIGHT_CALIBRATION;
+			command_ack.result  = MAV_CMD_ACK_OK | MAV_CMD_ACK_ENUM_END;
+			mavlink_send_command_ack(&command_ack, msg);
+			break;
+		}
+		default:
+			break;
+	}
+}
+
 static void timer_mavproxy_update(void* parameter)
 {
 	rt_event_send(&event_mavproxy, EVENT_MAVPROXY_UPDATE);
@@ -382,6 +475,16 @@ void mavproxy_rx_entry(void *param)
 
 						mavlink_param_set_value(param_set.param_id, param_set.param_value);
 						mavlink_send_single_param(param_set.param_id, &msg);
+					}
+					break;
+				}
+				case MAVLINK_MSG_ID_COMMAND_LONG:
+				{
+					if(mavlink_system.sysid == mavlink_msg_command_long_get_target_system(&msg)) {
+						mavlink_command_long_t command;
+						mavlink_msg_command_long_decode(&msg, &command);
+
+						mavproxy_proc_command(&command, &msg);
 					}
 					break;
 				}
