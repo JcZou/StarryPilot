@@ -14,6 +14,7 @@
 
 #pragma anon_unions
 #include "../../Library/mavlink/v1.0/common/mavlink.h"
+#include "mavlink_status.h"
 
 #define MAX_PERIOD_MSG_QUEUE_SIZE	20
 #define MAX_TEMP_MSG_QUEUE_SIZE		5
@@ -48,4 +49,6 @@ void mavproxy_rx_entry(void *param);
 void mavproxy_entry(void *parameter);
 uint8_t mavproxy_msg_serial_control_send(uint8_t *data, uint8_t count);
 uint16_t mavproxy_msg_serial_control_read(uint8_t *data, uint16_t size);
+void mavlink_send_status(mav_status_type status);
+void mavlink_send_calibration_progress_msg(uint8_t progress);
 

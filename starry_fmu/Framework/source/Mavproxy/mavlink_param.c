@@ -433,6 +433,38 @@ int mavlink_param_set_value(const char *name, float value)
 	return -1;
 }
 
+int mavlink_param_set_value_by_index(uint32_t index, float value)
+{
+	int i = 0;
+	param_info_t* param = NULL;
+	param_t *mav_param = &mavlink_param;
+	if (index >= MAV_PARAM_NUM) {
+		return -1;
+	}
+	mav_param += index;
+	if (mav_param->param) {
+		param_set_by_info(mav_param->param, value);
+		switch (mav_param->param->type) {
+			case PARAM_TYPE_FLOAT:
+				mav_param->value = mav_param->param->val.f;
+				break;
+			case PARAM_TYPE_INT32:
+				memcpy(&(mav_param->value), &(mav_param->param->val.i), sizeof(mav_param->param->val.i));
+				break;
+			case PARAM_TYPE_UINT32:
+				memcpy(&(mav_param->value), &(mav_param->param->val.u), sizeof(mav_param->param->val.u));
+				break;
+			default:
+				mav_param->value = mav_param->param->val.f;
+				break;
+		}
+	} else {
+		mav_param->value = value;
+	}
+
+	return 0;
+}
+
 uint32_t mavlink_param_get_info_count(void)
 {
 	return MAV_PARAM_NUM;

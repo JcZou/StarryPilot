@@ -30,6 +30,7 @@
 #include "control_main.h"
 #include "att_estimator.h"
 #include "pos_estimator.h"
+#include "calibration.h"
 
 #define ADDR_CMD_CONVERT_D1			0x48	/* write to this address to start pressure conversion */
 #define ADDR_CMD_CONVERT_D2			0x58	/* write to this address to start temperature conversion */
@@ -768,7 +769,9 @@ rt_err_t device_sensor_init(void)
 void sensor_collect(void)
 {
 	float gyr[3], acc[3], mag[3];
-	
+
+	gyr_mavlink_calibration();
+
 	if(sensor_gyr_get_calibrated_data(gyr) == RT_EOK){
 		gyrfilter_input(gyr);
 		mcn_publish(MCN_ID(SENSOR_GYR), gyr);

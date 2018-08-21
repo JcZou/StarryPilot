@@ -606,6 +606,7 @@ void mavlink_param_init(void);
 param_t *mavlink_param_get_by_name(const char *name);
 param_t *mavlink_param_get_by_info(param_info_t *param);
 int mavlink_param_set_value(const char *name, float value);
+int mavlink_param_set_value_by_index(uint32_t index, float value);
 uint32_t mavlink_param_get_info_count(void);
 uint32_t mavlink_param_get_info_index(param_t *param);
 param_t * mavlink_param_get_info_by_index(uint32_t index);

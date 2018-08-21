@@ -14,6 +14,8 @@
 #include <rtdevice.h>
 #include "shell.h"
 
+#define GYR_CALIBRATE_COUNT 5000
+
 #define ACC_STANDARD_VALUE		9.8f
 #define MAG_STANDARD_VALUE		1.0f
 
@@ -32,6 +34,9 @@
 //void Reset_Cali(void);
 //void cali_input_mag_data(uint16_t p_num);
 //#endif
+
+void gyr_mavlink_calibration(void);
+void gyr_mavlink_calibration_start(void);
 
 int calibrate_acc_run(struct finsh_shell *shell);
 int calibrate_mag_run(struct finsh_shell *shell);
