@@ -54,7 +54,7 @@ void alt_controller_reset(void)
 	p_controller_init(
 		&vel_controller, 
 		1,		//limit_err_flag
-		PARAM_GET_INT32(ALT_CONTROLLER, FEEDFORWARD_ENABLE),	//feed_forward_flag
+		PARAM_GET_INT32(ALT_CONTROLLER, FEEDFORWARD_EN),	//feed_forward_flag
 		0.01,	//dt
 		PARAM_GET_FLOAT(ALT_CONTROLLER, VEL_ERR_MIN),	//min_err
 		PARAM_GET_FLOAT(ALT_CONTROLLER, VEL_ERR_MAX),	//max_err
@@ -80,8 +80,8 @@ void alt_controller_reset(void)
 		PARAM_GET_FLOAT(ALT_CONTROLLER, ACC_OUTPUT_MIN),	//min_output
 		PARAM_GET_FLOAT(ALT_CONTROLLER, ACC_OUTPUT_MAX) );	//max_output
 	//pid_controller_set_lpf(&acc_controller, 30, 0.004f);
-	if(PARAM_GET_INT32(ALT_CONTROLLER, ACC_ERR_LPF_ENABLE))
-		pid_controller_set_err_lpf(&acc_controller, PARAM_GET_FLOAT(ALT_CONTROLLER, ACC_ERR_LPF_CUTOFF_FREQ), 100);
+	if(PARAM_GET_INT32(ALT_CONTROLLER, ACC_ERR_LPF_EN))
+		pid_controller_set_err_lpf(&acc_controller, PARAM_GET_FLOAT(ALT_CONTROLLER, ACC_ERR_LPF_FREQ), 100);
 	pid_controller_set_bias(&acc_controller, 500);	//set hover throttle
 	/* init the integrate to minimal value */
 	acc_controller._integrate = PARAM_GET_FLOAT(ALT_CONTROLLER, ACC_I_MIN);
