@@ -82,7 +82,7 @@ void AHRS_reset(quaternion * q, const float acc[3],const float mag[3])
 	
 	/* yaw modification */
 	/* first rotate mag by q1 */
-	quaternion_rotateVector(q1, mag, from);
+	quaternion_rotateVector(&q1, mag, from);
 	from[2] = 0;
 	to[0] = 1;
 	to[1] = to[2] = 0;
@@ -105,8 +105,8 @@ void AHRS_update(quaternion * q, const float gyr[3], const float acc[3], const f
 	
 	/* transfer acc and mag from body frame to nav frame */
 	float acc_N[3], mag_N[3];
-	quaternion_rotateVector(*q, accU, acc_N);
-	quaternion_rotateVector(*q, magU, mag_N);
+	quaternion_rotateVector(q, accU, acc_N);
+	quaternion_rotateVector(q, magU, mag_N);
 	
 	/* correct magnetic declination */
 	if(mcn_poll(_home_node_t)){
@@ -118,7 +118,7 @@ void AHRS_update(quaternion * q, const float gyr[3], const float acc[3], const f
 		quaternion qr;
 		
 		quaternion_create(&qr, Deg2Rad(home.mag_decl), axis);
-		quaternion_rotateVector(qr, mag_axis, mag_const);
+		quaternion_rotateVector(&qr, mag_axis, mag_const);
 	}
 		
 	/* we only need x and y value for mag to calculate error of yaw */
@@ -439,7 +439,7 @@ void AHRS_gyr_acc_fusion(quaternion * q, const float gyr[3], const float acc[3],
 	
 	/* transfer acc and mag from body frame to nav frame */
 	float acc_N[3];
-	quaternion_rotateVector(*q, accU, acc_N);
+	quaternion_rotateVector(q, accU, acc_N);
 
 	/* cross product to calculate diffirence */
 	Vector3_CrossProduct(acc_cross, acc_N, acc_const);
@@ -474,7 +474,7 @@ void AHRS_mag_fusion(quaternion * q, const float mag[3], float dT)
 	
 	/* transfer acc and mag from body frame to nav frame */
 	float mag_N[3];
-	quaternion_rotateVector(*q, magU, mag_N);
+	quaternion_rotateVector(q, magU, mag_N);
 	
 	/* we only need x and y value for mag to calculate error of yaw */
 	mag_N[2] = 0.0f;

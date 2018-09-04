@@ -20,7 +20,7 @@
 #define STATE_GZ_BIAS	12
 #define STATE_AZ_BIAS	13
 
-#define MAT_GET_ELEMENT(mat, row, col)			mat.pData[row*mat.numCols+col]
+#define MAT_ELEMENT(mat, row, col)			mat.pData[row*mat.numCols+col]
 
 typedef struct
 {

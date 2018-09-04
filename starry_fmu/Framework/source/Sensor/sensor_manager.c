@@ -73,6 +73,9 @@ static uint32_t _baro_last_time = 0;
 static BaroPosition _baro_pos = {0.0f, 0.0f, 0.0f};
 static GPS_Driv_Vel _gps_driv_vel;
 
+MCN_DEFINE(SENSOR_MEASURE_GYR, 12);	
+MCN_DEFINE(SENSOR_MEASURE_ACC, 12);
+MCN_DEFINE(SENSOR_MEASURE_MAG, 12);
 MCN_DEFINE(SENSOR_GYR, 12);	
 MCN_DEFINE(SENSOR_ACC, 12);
 MCN_DEFINE(SENSOR_MAG, 12);
@@ -124,6 +127,9 @@ rt_err_t sensor_acc_get_calibrated_data(float acc[3])
 	rt_err_t res;
 	
 	res = sensor_acc_measure(acc_f);
+	
+	// publish non-calibrated data for calibration					 
+	mcn_publish(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
 
 	float ofs[3] = {PARAM_GET_FLOAT(CALIBRATION, ACC_X_OFFSET), 
 					PARAM_GET_FLOAT(CALIBRATION, ACC_Y_OFFSET), 
@@ -184,6 +190,9 @@ rt_err_t sensor_mag_get_calibrated_data(float mag[3])
 	rt_err_t res;
 	
 	res = sensor_mag_measure(mag_f);
+	
+	// publish non-calibrated data for calibration					 
+	mcn_publish(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
 
 #ifdef USE_EXTERNAL_MAG_DEV	
 	float ofs[3] = {0.16833, 0.051961, -0.030025};
@@ -270,6 +279,9 @@ rt_err_t sensor_gyr_get_calibrated_data(float gyr[3])
 						 PARAM_GET_FLOAT(CALIBRATION, GYR_Z_GAIN)};
 	
 	res = sensor_gyr_measure(gyr_dps);
+						 
+	// publish non-calibrated data for calibration					 
+	mcn_publish(MCN_ID(SENSOR_MEASURE_GYR), gyr_dps);
 	
 	for(uint8_t i=0 ; i<3 ; i++)
 	{
@@ -498,7 +510,7 @@ float lidar_lite_get_dis(void)
 //	float cos_tilt = fabs(Vector3_DotProduct(zn, zb));
 //	float cor_dis = distance * cos_theta;
 	Euler e;
-	quaternion_toEuler(att, &e);
+	quaternion_toEuler(&att, &e);
 	float cos_tilt = arm_cos_f32(e.roll)*arm_cos_f32(e.pitch);
 	float cor_dis = distance * cos_tilt;
 	
@@ -704,6 +716,18 @@ rt_err_t device_sensor_init(void)
 	
 	/* advertise sensor data */
 	int mcn_res;
+	mcn_res = mcn_advertise(MCN_ID(SENSOR_MEASURE_GYR));
+	if(mcn_res != 0){
+		Console.e(TAG, "err:%d, SENSOR_MEASURE_GYR advertise fail!\n", mcn_res);
+	}
+	mcn_res = mcn_advertise(MCN_ID(SENSOR_MEASURE_ACC));
+	if(mcn_res != 0){
+		Console.e(TAG, "err:%d, SENSOR_MEASURE_ACC advertise fail!\n", mcn_res);
+	}
+	mcn_res = mcn_advertise(MCN_ID(SENSOR_MEASURE_MAG));
+	if(mcn_res != 0){
+		Console.e(TAG, "err:%d, SENSOR_MEASURE_MAG advertise fail!\n", mcn_res);
+	}
 	mcn_res = mcn_advertise(MCN_ID(SENSOR_GYR));
 	if(mcn_res != 0){
 		Console.e(TAG, "err:%d, sensor_gyr advertise fail!\n", mcn_res);

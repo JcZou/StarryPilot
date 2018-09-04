@@ -115,28 +115,28 @@ uint8_t EKF14_Init(EKF_Def* ekf_t, float32_t dT)
 	arm_mat_init_f32(&ekf_t->S, NUM_Z, NUM_Z, S_Data);
 	arm_mat_init_f32(&ekf_t->K, NUM_X, NUM_Z, K_Data);
 	
-	MAT_GET_ELEMENT(ekf_t->Q, 0, 0) = q_gx*q_gx;
-	MAT_GET_ELEMENT(ekf_t->Q, 1, 1) = q_gy*q_gy;
-	MAT_GET_ELEMENT(ekf_t->Q, 2, 2) = q_gz*q_gz;
-	MAT_GET_ELEMENT(ekf_t->Q, 3, 3) = q_ax*q_ax;
-	MAT_GET_ELEMENT(ekf_t->Q, 4, 4) = q_ay*q_ay;
-	MAT_GET_ELEMENT(ekf_t->Q, 5, 5) = q_az*q_az;
-	MAT_GET_ELEMENT(ekf_t->Q, 6, 6) = q_gx_bias*q_gx_bias;
-	MAT_GET_ELEMENT(ekf_t->Q, 7, 7) = q_gy_bias*q_gy_bias;
-	MAT_GET_ELEMENT(ekf_t->Q, 8, 8) = q_gz_bias*q_gz_bias;
-	MAT_GET_ELEMENT(ekf_t->Q, 9, 9) = q_az_bias*q_az_bias;
+	MAT_ELEMENT(ekf_t->Q, 0, 0) = q_gx*q_gx;
+	MAT_ELEMENT(ekf_t->Q, 1, 1) = q_gy*q_gy;
+	MAT_ELEMENT(ekf_t->Q, 2, 2) = q_gz*q_gz;
+	MAT_ELEMENT(ekf_t->Q, 3, 3) = q_ax*q_ax;
+	MAT_ELEMENT(ekf_t->Q, 4, 4) = q_ay*q_ay;
+	MAT_ELEMENT(ekf_t->Q, 5, 5) = q_az*q_az;
+	MAT_ELEMENT(ekf_t->Q, 6, 6) = q_gx_bias*q_gx_bias;
+	MAT_ELEMENT(ekf_t->Q, 7, 7) = q_gy_bias*q_gy_bias;
+	MAT_ELEMENT(ekf_t->Q, 8, 8) = q_gz_bias*q_gz_bias;
+	MAT_ELEMENT(ekf_t->Q, 9, 9) = q_az_bias*q_az_bias;
 	
-	MAT_GET_ELEMENT(ekf_t->R, 0, 0) = r_x*r_x;
-	MAT_GET_ELEMENT(ekf_t->R, 1, 1) = r_y*r_y;
-	MAT_GET_ELEMENT(ekf_t->R, 2, 2) = r_z*r_z;
-	MAT_GET_ELEMENT(ekf_t->R, 3, 3) = r_vx*r_vx;
-	MAT_GET_ELEMENT(ekf_t->R, 4, 4) = r_vy*r_vy;
-	MAT_GET_ELEMENT(ekf_t->R, 5, 5) = r_vz*r_vz;
-	MAT_GET_ELEMENT(ekf_t->R, 6, 6) = r_ax*r_ax;
-	MAT_GET_ELEMENT(ekf_t->R, 7, 7) = r_ay*r_ay;
-	MAT_GET_ELEMENT(ekf_t->R, 8, 8) = r_az*r_az;
-	MAT_GET_ELEMENT(ekf_t->R, 9, 9) = r_mx*r_mx;
-	MAT_GET_ELEMENT(ekf_t->R, 10, 10) = r_my*r_my;
+	MAT_ELEMENT(ekf_t->R, 0, 0) = r_x*r_x;
+	MAT_ELEMENT(ekf_t->R, 1, 1) = r_y*r_y;
+	MAT_ELEMENT(ekf_t->R, 2, 2) = r_z*r_z;
+	MAT_ELEMENT(ekf_t->R, 3, 3) = r_vx*r_vx;
+	MAT_ELEMENT(ekf_t->R, 4, 4) = r_vy*r_vy;
+	MAT_ELEMENT(ekf_t->R, 5, 5) = r_vz*r_vz;
+	MAT_ELEMENT(ekf_t->R, 6, 6) = r_ax*r_ax;
+	MAT_ELEMENT(ekf_t->R, 7, 7) = r_ay*r_ay;
+	MAT_ELEMENT(ekf_t->R, 8, 8) = r_az*r_az;
+	MAT_ELEMENT(ekf_t->R, 9, 9) = r_mx*r_mx;
+	MAT_ELEMENT(ekf_t->R, 10, 10) = r_my*r_my;
 	
 	arm_mat_init_f32(&ekf_t->IFT, NUM_X, NUM_X, IFT_Data);
 	arm_mat_init_f32(&ekf_t->IFTT, NUM_X, NUM_X, IFTT_Data);
@@ -162,138 +162,138 @@ uint8_t EKF14_Init(EKF_Def* ekf_t, float32_t dT)
 void EKF14_Reset(EKF_Def* ekf_t)
 {
 	mat_fill_f32(&ekf_t->P, 0.0f);
-	MAT_GET_ELEMENT(ekf_t->P, 0, 0) = 1.0f;
-	MAT_GET_ELEMENT(ekf_t->P, 1, 1) = 1.0f;
-	MAT_GET_ELEMENT(ekf_t->P, 2, 2) = 1.0f;
-	MAT_GET_ELEMENT(ekf_t->P, 3, 3) = 0.2f;
-	MAT_GET_ELEMENT(ekf_t->P, 4, 4) = 0.2f;
-	MAT_GET_ELEMENT(ekf_t->P, 5, 5) = 0.2f;
-	MAT_GET_ELEMENT(ekf_t->P, 6, 6) = 1e-5;
-	MAT_GET_ELEMENT(ekf_t->P, 7, 7) = 1e-5;
-	MAT_GET_ELEMENT(ekf_t->P, 8, 8) = 1e-5;
-	MAT_GET_ELEMENT(ekf_t->P, 9, 9) = 1e-5;
-	MAT_GET_ELEMENT(ekf_t->P, 10, 10) = 1e-9;
-	MAT_GET_ELEMENT(ekf_t->P, 11, 11) = 1e-9;
-	MAT_GET_ELEMENT(ekf_t->P, 12, 12) = 1e-9;
-	MAT_GET_ELEMENT(ekf_t->P, 13, 13) = 1e-8;
+	MAT_ELEMENT(ekf_t->P, 0, 0) = 1.0f;
+	MAT_ELEMENT(ekf_t->P, 1, 1) = 1.0f;
+	MAT_ELEMENT(ekf_t->P, 2, 2) = 1.0f;
+	MAT_ELEMENT(ekf_t->P, 3, 3) = 0.2f;
+	MAT_ELEMENT(ekf_t->P, 4, 4) = 0.2f;
+	MAT_ELEMENT(ekf_t->P, 5, 5) = 0.2f;
+	MAT_ELEMENT(ekf_t->P, 6, 6) = 1e-5;
+	MAT_ELEMENT(ekf_t->P, 7, 7) = 1e-5;
+	MAT_ELEMENT(ekf_t->P, 8, 8) = 1e-5;
+	MAT_ELEMENT(ekf_t->P, 9, 9) = 1e-5;
+	MAT_ELEMENT(ekf_t->P, 10, 10) = 1e-9;
+	MAT_ELEMENT(ekf_t->P, 11, 11) = 1e-9;
+	MAT_ELEMENT(ekf_t->P, 12, 12) = 1e-9;
+	MAT_ELEMENT(ekf_t->P, 13, 13) = 1e-8;
 	
 	//TOOD, fill reset value
-	MAT_GET_ELEMENT(ekf_t->X, STATE_X, 0) = 0.0f;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_Y, 0) = 0.0f;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_Z, 0) = 0.0f;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_VX, 0) = 0.0f;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_VY, 0) = 0.0f;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_VZ, 0) = 0.0f;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_Q0, 0) = 1.0f;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_Q1, 0) = 0.0f;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_Q2, 0) = 0.0f;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_Q3, 0) = 0.0f;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_GX_BIAS, 0) = 0.0f;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_GY_BIAS, 0) = 0.0f;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_GZ_BIAS, 0) = 0.0f;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_AZ_BIAS, 0) = 0.0f;
+	MAT_ELEMENT(ekf_t->X, STATE_X, 0) = 0.0f;
+	MAT_ELEMENT(ekf_t->X, STATE_Y, 0) = 0.0f;
+	MAT_ELEMENT(ekf_t->X, STATE_Z, 0) = 0.0f;
+	MAT_ELEMENT(ekf_t->X, STATE_VX, 0) = 0.0f;
+	MAT_ELEMENT(ekf_t->X, STATE_VY, 0) = 0.0f;
+	MAT_ELEMENT(ekf_t->X, STATE_VZ, 0) = 0.0f;
+	MAT_ELEMENT(ekf_t->X, STATE_Q0, 0) = 1.0f;
+	MAT_ELEMENT(ekf_t->X, STATE_Q1, 0) = 0.0f;
+	MAT_ELEMENT(ekf_t->X, STATE_Q2, 0) = 0.0f;
+	MAT_ELEMENT(ekf_t->X, STATE_Q3, 0) = 0.0f;
+	MAT_ELEMENT(ekf_t->X, STATE_GX_BIAS, 0) = 0.0f;
+	MAT_ELEMENT(ekf_t->X, STATE_GY_BIAS, 0) = 0.0f;
+	MAT_ELEMENT(ekf_t->X, STATE_GZ_BIAS, 0) = 0.0f;
+	MAT_ELEMENT(ekf_t->X, STATE_AZ_BIAS, 0) = 0.0f;
 }
 
 uint8_t EKF14_Prediction(EKF_Def* ekf_t)
 {
-	float32_t q0 = MAT_GET_ELEMENT(ekf_t->X, STATE_Q0, 0);
-	float32_t q1 = MAT_GET_ELEMENT(ekf_t->X, STATE_Q1, 0);
-	float32_t q2 = MAT_GET_ELEMENT(ekf_t->X, STATE_Q2, 0);
-	float32_t q3 = MAT_GET_ELEMENT(ekf_t->X, STATE_Q3, 0);
-	float32_t gx = MAT_GET_ELEMENT(ekf_t->U, 0, 0) - MAT_GET_ELEMENT(ekf_t->X, STATE_GX_BIAS, 0);
-	float32_t gy = MAT_GET_ELEMENT(ekf_t->U, 1, 0) - MAT_GET_ELEMENT(ekf_t->X, STATE_GY_BIAS, 0);
-	float32_t gz = MAT_GET_ELEMENT(ekf_t->U, 2, 0) - MAT_GET_ELEMENT(ekf_t->X, STATE_GZ_BIAS, 0);
-	float32_t ax = MAT_GET_ELEMENT(ekf_t->U, 3, 0);
-	float32_t ay = MAT_GET_ELEMENT(ekf_t->U, 4, 0);
-	float32_t az = MAT_GET_ELEMENT(ekf_t->U, 5, 0) - MAT_GET_ELEMENT(ekf_t->X, STATE_AZ_BIAS, 0);
+	float32_t q0 = MAT_ELEMENT(ekf_t->X, STATE_Q0, 0);
+	float32_t q1 = MAT_ELEMENT(ekf_t->X, STATE_Q1, 0);
+	float32_t q2 = MAT_ELEMENT(ekf_t->X, STATE_Q2, 0);
+	float32_t q3 = MAT_ELEMENT(ekf_t->X, STATE_Q3, 0);
+	float32_t gx = MAT_ELEMENT(ekf_t->U, 0, 0) - MAT_ELEMENT(ekf_t->X, STATE_GX_BIAS, 0);
+	float32_t gy = MAT_ELEMENT(ekf_t->U, 1, 0) - MAT_ELEMENT(ekf_t->X, STATE_GY_BIAS, 0);
+	float32_t gz = MAT_ELEMENT(ekf_t->U, 2, 0) - MAT_ELEMENT(ekf_t->X, STATE_GZ_BIAS, 0);
+	float32_t ax = MAT_ELEMENT(ekf_t->U, 3, 0);
+	float32_t ay = MAT_ELEMENT(ekf_t->U, 4, 0);
+	float32_t az = MAT_ELEMENT(ekf_t->U, 5, 0) - MAT_ELEMENT(ekf_t->X, STATE_AZ_BIAS, 0);
 	
 	/* calculate jocobbians of f(x,u) */
 	// d(Xdot)/d(V)
-	MAT_GET_ELEMENT(ekf_t->F, 0, 3) = 1.0f;
-	MAT_GET_ELEMENT(ekf_t->F, 1, 4) = 1.0f;
-	MAT_GET_ELEMENT(ekf_t->F, 2, 5) = 1.0f;
+	MAT_ELEMENT(ekf_t->F, 0, 3) = 1.0f;
+	MAT_ELEMENT(ekf_t->F, 1, 4) = 1.0f;
+	MAT_ELEMENT(ekf_t->F, 2, 5) = 1.0f;
 	// d(Vdoot)/d(q)
-	MAT_GET_ELEMENT(ekf_t->F, 3, 6) = 2.0f * (q0 * ax - q3 * ay + q2 * az);
-    MAT_GET_ELEMENT(ekf_t->F, 3, 7) = 2.0f * (q1 * ax + q2 * ay + q3 * az);
-    MAT_GET_ELEMENT(ekf_t->F, 3, 8) = 2.0f * (-q2 * ax + q1 * ay + q0 * az);
-    MAT_GET_ELEMENT(ekf_t->F, 3, 9) = 2.0f * (-q3 * ax - q0 * ay + q1 * az);
-    MAT_GET_ELEMENT(ekf_t->F, 4, 6) = 2.0f * (q3 * ax + q0 * ay - q1 * az);
-    MAT_GET_ELEMENT(ekf_t->F, 4, 7) = 2.0f * (q2 * ax - q1 * ay - q0 * az);
-    MAT_GET_ELEMENT(ekf_t->F, 4, 8) = 2.0f * (q1 * ax + q2 * ay + q3 * az);
-    MAT_GET_ELEMENT(ekf_t->F, 4, 9) = 2.0f * (q0 * ax - q3 * ay + q2 * az);
-    MAT_GET_ELEMENT(ekf_t->F, 5, 6) = 2.0f * (-q2 * ax + q1 * ay + q0 * az);
-    MAT_GET_ELEMENT(ekf_t->F, 5, 7) = 2.0f * (q3 * ax + q0 * ay - q1 * az);
-    MAT_GET_ELEMENT(ekf_t->F, 5, 8) = 2.0f * (-q0 * ax + q3 * ay - q2 * az);
-    MAT_GET_ELEMENT(ekf_t->F, 5, 9) = 2.0f * (q1 * ax + q2 * ay + q3 * az);
+	MAT_ELEMENT(ekf_t->F, 3, 6) = 2.0f * (q0 * ax - q3 * ay + q2 * az);
+    MAT_ELEMENT(ekf_t->F, 3, 7) = 2.0f * (q1 * ax + q2 * ay + q3 * az);
+    MAT_ELEMENT(ekf_t->F, 3, 8) = 2.0f * (-q2 * ax + q1 * ay + q0 * az);
+    MAT_ELEMENT(ekf_t->F, 3, 9) = 2.0f * (-q3 * ax - q0 * ay + q1 * az);
+    MAT_ELEMENT(ekf_t->F, 4, 6) = 2.0f * (q3 * ax + q0 * ay - q1 * az);
+    MAT_ELEMENT(ekf_t->F, 4, 7) = 2.0f * (q2 * ax - q1 * ay - q0 * az);
+    MAT_ELEMENT(ekf_t->F, 4, 8) = 2.0f * (q1 * ax + q2 * ay + q3 * az);
+    MAT_ELEMENT(ekf_t->F, 4, 9) = 2.0f * (q0 * ax - q3 * ay + q2 * az);
+    MAT_ELEMENT(ekf_t->F, 5, 6) = 2.0f * (-q2 * ax + q1 * ay + q0 * az);
+    MAT_ELEMENT(ekf_t->F, 5, 7) = 2.0f * (q3 * ax + q0 * ay - q1 * az);
+    MAT_ELEMENT(ekf_t->F, 5, 8) = 2.0f * (-q0 * ax + q3 * ay - q2 * az);
+    MAT_ELEMENT(ekf_t->F, 5, 9) = 2.0f * (q1 * ax + q2 * ay + q3 * az);
 	// d(Vdot)/d(acc_bias)
-    MAT_GET_ELEMENT(ekf_t->F, 3, 13) =  -2.0f * (q1 * q3 + q0 * q2);
-	MAT_GET_ELEMENT(ekf_t->F, 4, 13) =  2.0f * (-q2 * q3 + q0 * q1);
-	MAT_GET_ELEMENT(ekf_t->F, 5, 13) =  -q0 * q0 + q1 * q1 + q2 * q2 - q3 * q3;
+    MAT_ELEMENT(ekf_t->F, 3, 13) =  -2.0f * (q1 * q3 + q0 * q2);
+	MAT_ELEMENT(ekf_t->F, 4, 13) =  2.0f * (-q2 * q3 + q0 * q1);
+	MAT_ELEMENT(ekf_t->F, 5, 13) =  -q0 * q0 + q1 * q1 + q2 * q2 - q3 * q3;
 	// d(qdot)/d(q)
-	MAT_GET_ELEMENT(ekf_t->F, 6, 6)  = 0.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 6, 7)  = -gx / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 6, 8)  = -gy / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 6, 9)  = -gz / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 7, 6)  = gx / 2.0f;
-	MAT_GET_ELEMENT(ekf_t->F, 7, 7)  = 0.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 7, 8)  = gz / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 7, 9)  = -gy / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 8, 6)  = gy / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 8, 7)  = -gz / 2.0f;
-	MAT_GET_ELEMENT(ekf_t->F, 8, 8)  = 0.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 8, 9)  = gx / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 9, 6)  = gz / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 9, 7)  = gy / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 9, 8)  = -gx / 2.0f;
-	MAT_GET_ELEMENT(ekf_t->F, 9, 9)  = 0.0f;
+	MAT_ELEMENT(ekf_t->F, 6, 6)  = 0.0f;
+    MAT_ELEMENT(ekf_t->F, 6, 7)  = -gx / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 6, 8)  = -gy / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 6, 9)  = -gz / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 7, 6)  = gx / 2.0f;
+	MAT_ELEMENT(ekf_t->F, 7, 7)  = 0.0f;
+    MAT_ELEMENT(ekf_t->F, 7, 8)  = gz / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 7, 9)  = -gy / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 8, 6)  = gy / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 8, 7)  = -gz / 2.0f;
+	MAT_ELEMENT(ekf_t->F, 8, 8)  = 0.0f;
+    MAT_ELEMENT(ekf_t->F, 8, 9)  = gx / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 9, 6)  = gz / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 9, 7)  = gy / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 9, 8)  = -gx / 2.0f;
+	MAT_ELEMENT(ekf_t->F, 9, 9)  = 0.0f;
 	// d(qdot)/d(gyr_bias)
-    MAT_GET_ELEMENT(ekf_t->F, 6, 10) = q1 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 6, 11) = q2 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 6, 12) = q3 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 7, 10) = -q0 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 7, 11) = q3 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 7, 12) = -q2 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 6, 10) = -q3 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 6, 11) = -q0 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 6, 12) = q1 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 9, 10) = q2 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 9, 11) = -q1 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->F, 9, 12) = -q0 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 6, 10) = q1 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 6, 11) = q2 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 6, 12) = q3 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 7, 10) = -q0 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 7, 11) = q3 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 7, 12) = -q2 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 6, 10) = -q3 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 6, 11) = -q0 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 6, 12) = q1 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 9, 10) = q2 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 9, 11) = -q1 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 9, 12) = -q0 / 2.0f;
 	
 	// d(Vdot)/d(acc)
-    MAT_GET_ELEMENT(ekf_t->G, 3, 3)  = q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3;
-    MAT_GET_ELEMENT(ekf_t->G, 3, 4)  = 2.0f * (q1 * q2 - q0 * q3);
-    MAT_GET_ELEMENT(ekf_t->G, 3, 5)  = 2.0f * (q1 * q3 + q0 * q2);
-    MAT_GET_ELEMENT(ekf_t->G, 4, 3)  = 2.0f * (q1 * q2 + q0 * q3);
-    MAT_GET_ELEMENT(ekf_t->G, 4, 4)  = q0 * q0 - q1 * q1 + q2 * q2 - q3 * q3;
-    MAT_GET_ELEMENT(ekf_t->G, 4, 5)  = 2.0f * (q2 * q3 - q0 * q1);
-    MAT_GET_ELEMENT(ekf_t->G, 5, 3)  = 2.0f * (q1 * q3 - q0 * q2);
-    MAT_GET_ELEMENT(ekf_t->G, 5, 4)  = 2.0f * (q2 * q3 + q0 * q1);
-    MAT_GET_ELEMENT(ekf_t->G, 5, 5)  = q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3;
+    MAT_ELEMENT(ekf_t->G, 3, 3)  = q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3;
+    MAT_ELEMENT(ekf_t->G, 3, 4)  = 2.0f * (q1 * q2 - q0 * q3);
+    MAT_ELEMENT(ekf_t->G, 3, 5)  = 2.0f * (q1 * q3 + q0 * q2);
+    MAT_ELEMENT(ekf_t->G, 4, 3)  = 2.0f * (q1 * q2 + q0 * q3);
+    MAT_ELEMENT(ekf_t->G, 4, 4)  = q0 * q0 - q1 * q1 + q2 * q2 - q3 * q3;
+    MAT_ELEMENT(ekf_t->G, 4, 5)  = 2.0f * (q2 * q3 - q0 * q1);
+    MAT_ELEMENT(ekf_t->G, 5, 3)  = 2.0f * (q1 * q3 - q0 * q2);
+    MAT_ELEMENT(ekf_t->G, 5, 4)  = 2.0f * (q2 * q3 + q0 * q1);
+    MAT_ELEMENT(ekf_t->G, 5, 5)  = q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3;
 	// d(qdot)/d(gyr)
-    MAT_GET_ELEMENT(ekf_t->G, 6, 0)  = -q1 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->G, 6, 1)  = -q2 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->G, 6, 2)  = -q3 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->G, 7, 0)  = q0 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->G, 7, 1)  = -q3 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->G, 7, 2)  = q2 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->G, 8, 0)  = q3 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->G, 8, 1)  = q0 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->G, 8, 2)  = -q1 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->G, 9, 0)  = -q2 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->G, 9, 1)  = q1 / 2.0f;
-    MAT_GET_ELEMENT(ekf_t->G, 9, 2)  = q0 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 6, 0)  = -q1 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 6, 1)  = -q2 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 6, 2)  = -q3 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 7, 0)  = q0 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 7, 1)  = -q3 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 7, 2)  = q2 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 8, 0)  = q3 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 8, 1)  = q0 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 8, 2)  = -q1 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 9, 0)  = -q2 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 9, 1)  = q1 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 9, 2)  = q0 / 2.0f;
     // d(bias)/d(bias)
-	MAT_GET_ELEMENT(ekf_t->G, 10, 6) = 1.0f;
-	MAT_GET_ELEMENT(ekf_t->G, 11, 7) = 1.0f;
-	MAT_GET_ELEMENT(ekf_t->G, 12, 8) = 1.0f;
-    MAT_GET_ELEMENT(ekf_t->G, 13, 9) = 1.0f;
+	MAT_ELEMENT(ekf_t->G, 10, 6) = 1.0f;
+	MAT_ELEMENT(ekf_t->G, 11, 7) = 1.0f;
+	MAT_ELEMENT(ekf_t->G, 12, 8) = 1.0f;
+    MAT_ELEMENT(ekf_t->G, 13, 9) = 1.0f;
 	
 	/* X(k|k-1) = f(X(k-1|k-1), U(k-1)) */
 	float32_t dotX[NUM_X];
-	dotX[STATE_X]	= MAT_GET_ELEMENT(ekf_t->X, STATE_VX, 0);
-	dotX[STATE_Y]	= MAT_GET_ELEMENT(ekf_t->X, STATE_VY, 0);
-	dotX[STATE_Z]	= MAT_GET_ELEMENT(ekf_t->X, STATE_VZ, 0);
+	dotX[STATE_X]	= MAT_ELEMENT(ekf_t->X, STATE_VX, 0);
+	dotX[STATE_Y]	= MAT_ELEMENT(ekf_t->X, STATE_VY, 0);
+	dotX[STATE_Z]	= MAT_ELEMENT(ekf_t->X, STATE_VZ, 0);
 	dotX[STATE_VX]	= (q0*q0+q1*q1-q2*q2-q3*q3)*ax+2.0f*(q1*q2-q0*q3)*ay+2.0f*(q1*q3+q0*q2)*az;
 	dotX[STATE_VY]	= 2.0f*(q1*q2+q0*q3)*ax+(q0*q0-q1*q1+q2*q2-q3*q3)*ay+2.0f*(q2*q3-q0*q1)*az;
 	dotX[STATE_VZ]	= 2.0f*(q1*q3-q0*q2)*ax+2.0f*(q2*q3+q0*q1)*ay+(q0*q0-q1*q1-q2*q2+q3*q3)*az + GRAVITY_MSS;
@@ -304,26 +304,26 @@ uint8_t EKF14_Prediction(EKF_Def* ekf_t)
 	dotX[STATE_GX_BIAS] = dotX[STATE_GY_BIAS] = dotX[STATE_GZ_BIAS] = dotX[STATE_AZ_BIAS] = 0.0f;
 	
 	for(uint8_t n = 0 ; n < NUM_X ; n++){
-		MAT_GET_ELEMENT(ekf_t->X, n, 0) += ekf_t->dT * dotX[n];
+		MAT_ELEMENT(ekf_t->X, n, 0) += ekf_t->dT * dotX[n];
 	}
 	
 	// normalize quaternion
-	q0 = MAT_GET_ELEMENT(ekf_t->X, STATE_Q0, 0);
-	q1 = MAT_GET_ELEMENT(ekf_t->X, STATE_Q1, 0);
-	q2 = MAT_GET_ELEMENT(ekf_t->X, STATE_Q2, 0);
-	q3 = MAT_GET_ELEMENT(ekf_t->X, STATE_Q3, 0);
+	q0 = MAT_ELEMENT(ekf_t->X, STATE_Q0, 0);
+	q1 = MAT_ELEMENT(ekf_t->X, STATE_Q1, 0);
+	q2 = MAT_ELEMENT(ekf_t->X, STATE_Q2, 0);
+	q3 = MAT_ELEMENT(ekf_t->X, STATE_Q3, 0);
 	float32_t inv_norm = 1.0f/sqrtf(q0*q0+q1*q1+q2*q2+q3*q3);
-	MAT_GET_ELEMENT(ekf_t->X, STATE_Q0, 0) *= inv_norm;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_Q1, 0) *= inv_norm;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_Q2, 0) *= inv_norm;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_Q3, 0) *= inv_norm;
+	MAT_ELEMENT(ekf_t->X, STATE_Q0, 0) *= inv_norm;
+	MAT_ELEMENT(ekf_t->X, STATE_Q1, 0) *= inv_norm;
+	MAT_ELEMENT(ekf_t->X, STATE_Q2, 0) *= inv_norm;
+	MAT_ELEMENT(ekf_t->X, STATE_Q3, 0) *= inv_norm;
 	
 	arm_status res = ARM_MATH_SUCCESS;
 	
 	/* P(k|k-1) = (I+F(k)*T)*P(k-1|k-1)*(I+F(k)*T)' + T^2*G*Q(k)*G' */
 	res |= arm_mat_scale_f32(&ekf_t->F, ekf_t->dT, &ekf_t->IFT);
 	for(uint8_t n = 0 ; n < NUM_X ; n++){
-		MAT_GET_ELEMENT(ekf_t->IFT, n, n) += 1.0f;
+		MAT_ELEMENT(ekf_t->IFT, n, n) += 1.0f;
 	}
 	res |= arm_mat_trans_f32(&ekf_t->IFT, &ekf_t->IFTT);
 	res |= arm_mat_mult_f32(&ekf_t->IFT, &ekf_t->P, &ekf_t->IFTP);
@@ -345,15 +345,15 @@ uint8_t EKF14_Prediction(EKF_Def* ekf_t)
 
 uint8_t EKF14_Correct(EKF_Def* ekf_t)
 {
-	float32_t q0 = MAT_GET_ELEMENT(ekf_t->X, STATE_Q0, 0);
-	float32_t q1 = MAT_GET_ELEMENT(ekf_t->X, STATE_Q1, 0);
-	float32_t q2 = MAT_GET_ELEMENT(ekf_t->X, STATE_Q2, 0);
-	float32_t q3 = MAT_GET_ELEMENT(ekf_t->X, STATE_Q3, 0);
+	float32_t q0 = MAT_ELEMENT(ekf_t->X, STATE_Q0, 0);
+	float32_t q1 = MAT_ELEMENT(ekf_t->X, STATE_Q1, 0);
+	float32_t q2 = MAT_ELEMENT(ekf_t->X, STATE_Q2, 0);
+	float32_t q3 = MAT_ELEMENT(ekf_t->X, STATE_Q3, 0);
 	
 	//TODO: remove acc bias?
-	float32_t ax = MAT_GET_ELEMENT(ekf_t->U, 3, 0);
-	float32_t ay = MAT_GET_ELEMENT(ekf_t->U, 4, 0);
-	float32_t az = MAT_GET_ELEMENT(ekf_t->U, 5, 0);
+	float32_t ax = MAT_ELEMENT(ekf_t->U, 3, 0);
+	float32_t ay = MAT_ELEMENT(ekf_t->U, 4, 0);
+	float32_t az = MAT_ELEMENT(ekf_t->U, 5, 0);
 	
 	float32_t mag[3];
 	sensor_get_mag(mag);
@@ -374,35 +374,35 @@ uint8_t EKF14_Correct(EKF_Def* ekf_t)
 	
 	/* calculate jocobbians of h(x) */
 	// d(X)/d(X)
-	MAT_GET_ELEMENT(ekf_t->H, 0, 0) = 1.0f;
-	MAT_GET_ELEMENT(ekf_t->H, 1, 1) = 1.0f;
-	MAT_GET_ELEMENT(ekf_t->H, 2, 2) = 1.0f;
+	MAT_ELEMENT(ekf_t->H, 0, 0) = 1.0f;
+	MAT_ELEMENT(ekf_t->H, 1, 1) = 1.0f;
+	MAT_ELEMENT(ekf_t->H, 2, 2) = 1.0f;
     // d(V)/d(V)
-	MAT_GET_ELEMENT(ekf_t->H, 3, 3) = 1.0f;
-	MAT_GET_ELEMENT(ekf_t->H, 4, 4) = 1.0f;
-	MAT_GET_ELEMENT(ekf_t->H, 5, 5) = 1.0f;
+	MAT_ELEMENT(ekf_t->H, 3, 3) = 1.0f;
+	MAT_ELEMENT(ekf_t->H, 4, 4) = 1.0f;
+	MAT_ELEMENT(ekf_t->H, 5, 5) = 1.0f;
 	// d(acc)/d(q)
-    MAT_GET_ELEMENT(ekf_t->H, 6, 6) = 2.0f * (q0 * ax - q3 * ay + q2 * az);
-    MAT_GET_ELEMENT(ekf_t->H, 6, 7) = 2.0f * (q1 * ax + q2 * ay + q3 * az);
-    MAT_GET_ELEMENT(ekf_t->H, 6, 8) = 2.0f * (-q2 * ax + q1 * ay + q0 * az);
-    MAT_GET_ELEMENT(ekf_t->H, 6, 9) = 2.0f * (-q3 * ax - q0 * ay + q1 * az);
-    MAT_GET_ELEMENT(ekf_t->H, 7, 6) = 2.0f * (q3 * ax + q0 * ay - q1 * az);
-    MAT_GET_ELEMENT(ekf_t->H, 7, 7) = 2.0f * (q2 * ax - q1 * ay - q0 * az);
-    MAT_GET_ELEMENT(ekf_t->H, 7, 8) = 2.0f * (q1 * ax + q2 * ay + q3 * az);
-    MAT_GET_ELEMENT(ekf_t->H, 7, 9) = 2.0f * (q0 * ax - q3 * ay + q2 * az);
-    MAT_GET_ELEMENT(ekf_t->H, 8, 6) = 2.0f * (-q2 * ax + q1 * ay + q0 * az);
-    MAT_GET_ELEMENT(ekf_t->H, 8, 7) = 2.0f * (q3 * ax + q0 * ay - q1 * az);
-    MAT_GET_ELEMENT(ekf_t->H, 8, 8) = 2.0f * (-q0 * ax + q3 * ay - q2 * az);
-    MAT_GET_ELEMENT(ekf_t->H, 8, 9) = 2.0f * (q1 * ax + q2 * ay + q3 * az);
+    MAT_ELEMENT(ekf_t->H, 6, 6) = 2.0f * (q0 * ax - q3 * ay + q2 * az);
+    MAT_ELEMENT(ekf_t->H, 6, 7) = 2.0f * (q1 * ax + q2 * ay + q3 * az);
+    MAT_ELEMENT(ekf_t->H, 6, 8) = 2.0f * (-q2 * ax + q1 * ay + q0 * az);
+    MAT_ELEMENT(ekf_t->H, 6, 9) = 2.0f * (-q3 * ax - q0 * ay + q1 * az);
+    MAT_ELEMENT(ekf_t->H, 7, 6) = 2.0f * (q3 * ax + q0 * ay - q1 * az);
+    MAT_ELEMENT(ekf_t->H, 7, 7) = 2.0f * (q2 * ax - q1 * ay - q0 * az);
+    MAT_ELEMENT(ekf_t->H, 7, 8) = 2.0f * (q1 * ax + q2 * ay + q3 * az);
+    MAT_ELEMENT(ekf_t->H, 7, 9) = 2.0f * (q0 * ax - q3 * ay + q2 * az);
+    MAT_ELEMENT(ekf_t->H, 8, 6) = 2.0f * (-q2 * ax + q1 * ay + q0 * az);
+    MAT_ELEMENT(ekf_t->H, 8, 7) = 2.0f * (q3 * ax + q0 * ay - q1 * az);
+    MAT_ELEMENT(ekf_t->H, 8, 8) = 2.0f * (-q0 * ax + q3 * ay - q2 * az);
+    MAT_ELEMENT(ekf_t->H, 8, 9) = 2.0f * (q1 * ax + q2 * ay + q3 * az);
 	// d(mag)/d(q)
-    MAT_GET_ELEMENT(ekf_t->H, 9, 6) = 2.0f * (q0 * mx - q3 * my + q2 * mz);
-    MAT_GET_ELEMENT(ekf_t->H, 9, 7) = 2.0f * (q1 * mx + q2 * my + q3 * mz);
-    MAT_GET_ELEMENT(ekf_t->H, 9, 8) = 2.0f * (-q2 * mx + q1 * my + q0 * mz);
-    MAT_GET_ELEMENT(ekf_t->H, 9, 9) = 2.0f * (-q3 * mx - q0 * my + q1 * mz);
-    MAT_GET_ELEMENT(ekf_t->H, 10, 6) = 2.0f * (q3 * mx + q0 * my - q1 * mz);
-    MAT_GET_ELEMENT(ekf_t->H, 10, 7) = 2.0f * (q2 * mx - q1 * my - q0 * mz);
-    MAT_GET_ELEMENT(ekf_t->H, 10, 8) = 2.0f * (q1 * mx + q2 * my + q3 * mz);
-    MAT_GET_ELEMENT(ekf_t->H, 10, 9) = 2.0f * (q0 * mx - q3 * my + q2 * mz);
+    MAT_ELEMENT(ekf_t->H, 9, 6) = 2.0f * (q0 * mx - q3 * my + q2 * mz);
+    MAT_ELEMENT(ekf_t->H, 9, 7) = 2.0f * (q1 * mx + q2 * my + q3 * mz);
+    MAT_ELEMENT(ekf_t->H, 9, 8) = 2.0f * (-q2 * mx + q1 * my + q0 * mz);
+    MAT_ELEMENT(ekf_t->H, 9, 9) = 2.0f * (-q3 * mx - q0 * my + q1 * mz);
+    MAT_ELEMENT(ekf_t->H, 10, 6) = 2.0f * (q3 * mx + q0 * my - q1 * mz);
+    MAT_ELEMENT(ekf_t->H, 10, 7) = 2.0f * (q2 * mx - q1 * my - q0 * mz);
+    MAT_ELEMENT(ekf_t->H, 10, 8) = 2.0f * (q1 * mx + q2 * my + q3 * mz);
+    MAT_ELEMENT(ekf_t->H, 10, 9) = 2.0f * (q0 * mx - q3 * my + q2 * mz);
 	
 	// rotate acc and mag from body frame to navigation frame
 	float32_t accN[3], magN[2];
@@ -419,12 +419,12 @@ uint8_t EKF14_Correct(EKF_Def* ekf_t)
 	
 	/* Y(k) = Z(k) - h(X(k|k-1)) */
 	float32_t hx[NUM_Z] = 
-		{ MAT_GET_ELEMENT(ekf_t->X, STATE_X, 0), MAT_GET_ELEMENT(ekf_t->X, STATE_Y, 0), MAT_GET_ELEMENT(ekf_t->X, STATE_Z, 0),
-		  MAT_GET_ELEMENT(ekf_t->X, STATE_VX, 0), MAT_GET_ELEMENT(ekf_t->X, STATE_VY, 0), MAT_GET_ELEMENT(ekf_t->X, STATE_VZ, 0),
+		{ MAT_ELEMENT(ekf_t->X, STATE_X, 0), MAT_ELEMENT(ekf_t->X, STATE_Y, 0), MAT_ELEMENT(ekf_t->X, STATE_Z, 0),
+		  MAT_ELEMENT(ekf_t->X, STATE_VX, 0), MAT_ELEMENT(ekf_t->X, STATE_VY, 0), MAT_ELEMENT(ekf_t->X, STATE_VZ, 0),
 		  accN[0], accN[1], accN[2], magN[0], magN[1] };
 		
 	for(uint8_t n = 0 ; n < NUM_Z ; n++){
-		MAT_GET_ELEMENT(ekf_t->Y, n, 0) = MAT_GET_ELEMENT(ekf_t->Z, n, 0) - hx[n];
+		MAT_ELEMENT(ekf_t->Y, n, 0) = MAT_ELEMENT(ekf_t->Z, n, 0) - hx[n];
 	}
 	
 	arm_status res = ARM_MATH_SUCCESS;
@@ -444,15 +444,15 @@ uint8_t EKF14_Correct(EKF_Def* ekf_t)
 	res |= arm_mat_add_f32(&ekf_t->X, &ekf_t->KY, &ekf_t->X);
 	
 	// normalize quaternion
-	q0 = MAT_GET_ELEMENT(ekf_t->X, STATE_Q0, 0);
-	q1 = MAT_GET_ELEMENT(ekf_t->X, STATE_Q1, 0);
-	q2 = MAT_GET_ELEMENT(ekf_t->X, STATE_Q2, 0);
-	q3 = MAT_GET_ELEMENT(ekf_t->X, STATE_Q3, 0);
+	q0 = MAT_ELEMENT(ekf_t->X, STATE_Q0, 0);
+	q1 = MAT_ELEMENT(ekf_t->X, STATE_Q1, 0);
+	q2 = MAT_ELEMENT(ekf_t->X, STATE_Q2, 0);
+	q3 = MAT_ELEMENT(ekf_t->X, STATE_Q3, 0);
 	inv_norm = 1.0f/sqrtf(q0*q0+q1*q1+q2*q2+q3*q3);
-	MAT_GET_ELEMENT(ekf_t->X, STATE_Q0, 0) *= inv_norm;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_Q1, 0) *= inv_norm;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_Q2, 0) *= inv_norm;
-	MAT_GET_ELEMENT(ekf_t->X, STATE_Q3, 0) *= inv_norm;
+	MAT_ELEMENT(ekf_t->X, STATE_Q0, 0) *= inv_norm;
+	MAT_ELEMENT(ekf_t->X, STATE_Q1, 0) *= inv_norm;
+	MAT_ELEMENT(ekf_t->X, STATE_Q2, 0) *= inv_norm;
+	MAT_ELEMENT(ekf_t->X, STATE_Q3, 0) *= inv_norm;
 	
 	/* P(k|k) = P(k|k-1) - K(k)*H(k)*P(k|k-1); */
 	res |= arm_mat_mult_f32(&ekf_t->K, &ekf_t->H, &ekf_t->KH);
@@ -468,5 +468,5 @@ uint8_t EKF14_Correct(EKF_Def* ekf_t)
 
 float32_t EKF14_Get_State(const EKF_Def* ekf_t, uint8_t state)
 {
-	return MAT_GET_ELEMENT(ekf_t->X, state, 0);
+	return MAT_ELEMENT(ekf_t->X, state, 0);
 }

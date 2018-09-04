@@ -44,7 +44,7 @@ struct mcn_hub
 	uint32_t link_num;
 };
 
-#define MCN_ID(_name)				&__mcn_##_name
+#define MCN_ID(_name)				(&__mcn_##_name)
 
 #define MCN_DECLARE(_name) 			extern McnHub __mcn_##_name
 	

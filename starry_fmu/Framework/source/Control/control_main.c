@@ -441,7 +441,7 @@ void calculate_target_attitude(float dT)
 		
 	/* current attitude */
 	Euler ec;
-	quaternion_toEuler(qc, &ec);
+	quaternion_toEuler(&qc, &ec);
 
 	/* calculate target attitude according to rc value */
 	_att_et = _calc_target_euler(1, dT);

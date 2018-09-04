@@ -16,6 +16,7 @@ typedef struct
 {
 	uint32_t size;
 	uint32_t head;
+	uint32_t cnt;
 	float *data;
 }FIFO;
 

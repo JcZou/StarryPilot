@@ -191,7 +191,8 @@ void pos_est_update(float dT)
 	float acc[3];
 	sensor_get_acc(acc);
 	/* transfer acceleration from body frame to navigation frame */
-	quaternion_rotateVector(attitude_est_get_quaternion(), acc, accE);	
+	quaternion q = attitude_est_get_quaternion();
+	quaternion_rotateVector(&q, acc, accE);	
 	/* remove gravity */
 	accE[2] += 9.8f;
 	

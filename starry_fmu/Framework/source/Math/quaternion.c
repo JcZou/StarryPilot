@@ -40,20 +40,20 @@ void quaternion_mult(quaternion * result,const quaternion left,const quaternion 
 }
 
 // transfer from body frame to navigation frame ,v_n = C * v_b
-void quaternion_rotateVector(const quaternion rotation,const float from[3],float to[3])
+void quaternion_rotateVector(const quaternion *rotation,const float from[3],float to[3])
 {
-    float x2  = rotation.x * 2.0f;
-    float y2  = rotation.y * 2.0f;
-    float z2  = rotation.z * 2.0f;
-    float wx2 = rotation.w * x2;
-    float wy2 = rotation.w * y2;
-    float wz2 = rotation.w * z2;
-    float xx2 = rotation.x * x2;
-    float yy2 = rotation.y * y2;
-    float zz2 = rotation.z * z2;
-    float xy2 = rotation.x * y2;
-    float yz2 = rotation.y * z2;
-    float xz2 = rotation.z * x2;
+    float x2  = rotation->x * 2.0f;
+    float y2  = rotation->y * 2.0f;
+    float z2  = rotation->z * 2.0f;
+    float wx2 = rotation->w * x2;
+    float wy2 = rotation->w * y2;
+    float wz2 = rotation->w * z2;
+    float xx2 = rotation->x * x2;
+    float yy2 = rotation->y * y2;
+    float zz2 = rotation->z * z2;
+    float xy2 = rotation->x * y2;
+    float yz2 = rotation->y * z2;
+    float xz2 = rotation->z * x2;
     //
     to[0] = from[0]*(1.0f - yy2 - zz2) + from[1]*(xy2 - wz2)     + from[2]*(xz2 + wy2);
     to[1] = from[0]*(xy2 + wz2)     + from[1]*(1.0f- xx2 - zz2) + from[2]*(yz2 - wx2);
@@ -139,24 +139,24 @@ void quaternion_fromTwoVectorRotation(quaternion * result,const float from[3],co
 }
 
 //euler[3]: roll pitch yaw	unit:rad
-void quaternion_toEuler(const quaternion q, Euler *e)
+void quaternion_toEuler(const quaternion *q, Euler *e)
 {
-	double ysqr = q.y * q.y;
+	double ysqr = q->y * q->y;
 
 	// roll (x-axis rotation)
-	double t0 = +2.0f * (q.w * q.x + q.y * q.z);
-	double t1 = +1.0f - 2.0f * (q.x * q.x + ysqr);
+	double t0 = +2.0f * (q->w * q->x + q->y * q->z);
+	double t1 = +1.0f - 2.0f * (q->x * q->x + ysqr);
 	e->roll = atan2f(t0, t1);
 
 	// pitch (y-axis rotation)
-	double t2 = +2.0f * (q.w * q.y - q.z * q.x);
+	double t2 = +2.0f * (q->w * q->y - q->z * q->x);
 	t2 = t2 > 1.0f ? 1.0f : t2;
 	t2 = t2 < -1.0f ? -1.0f : t2;
 	e->pitch = asinf(t2);
 
 	// yaw (z-axis rotation)
-	double t3 = +2.0f * (q.w * q.z + q.x *q.y);
-	double t4 = +1.0f - 2.0f * (ysqr + q.z * q.z);  
+	double t3 = +2.0f * (q->w * q->z + q->x *q->y);
+	double t4 = +1.0f - 2.0f * (ysqr + q->z * q->z);  
 	e->yaw = atan2f(t3, t4);
 }
 

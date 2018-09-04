@@ -64,6 +64,11 @@ int mcn_publish(McnHub* hub, const void* data)
 		return -1;
 	}
 	
+	if(hub->pdata == NULL){
+		// hub is not advertised yet
+		return -1;
+	}
+	
 	MCN_ENTER_CRITICAL;
 	/* copy data to hub */
 	memcpy(hub->pdata, data, hub->obj_size);
@@ -113,6 +118,19 @@ int mcn_copy_from_hub(McnHub* hub, void* buffer)
 	MCN_ENTER_CRITICAL;
 	memcpy(buffer, hub->pdata, hub->obj_size);
 	MCN_EXIT_CRITICAL;
+	
+	return 0;
+}
+
+int handle_uMCN_cmd(int argc, char** argv)
+{
+	if(argc > 1){
+		if(strcmp("echo", argv[1]) == 0){
+			if(argc > 2){
+
+			}
+		}
+	}
 	
 	return 0;
 }

@@ -19,6 +19,7 @@ uint8_t fifo_create(FIFO *fifo, uint16_t size)
 	}
 	fifo->size = size;
 	fifo->head = 0;
+	fifo->cnt = 0;
 	for(int i = 0 ; i < size ; i++){
 		fifo->data[i] = 0.0f;
 	}
@@ -31,6 +32,7 @@ void fifo_flush(FIFO *fifo)
 	if(fifo == NULL)
 		return;
 	fifo->head = 0;
+	fifo->cnt = 0;
 	for(int i = 0 ; i < fifo->size ; i++){
 		fifo->data[i] = 0.0f;
 	}
@@ -40,6 +42,8 @@ void fifo_push(FIFO *fifo, float val)
 {
 	fifo->head = (fifo->head+1) % fifo->size;
 	fifo->data[fifo->head] = val;
+	if(fifo->cnt < fifo->size)
+		fifo->cnt++;
 }
 
 float fifo_pop(FIFO *fifo)

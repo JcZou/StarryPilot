@@ -20,14 +20,16 @@
 #ifndef __LIGHT_MATRIX__
 #define __LIGHT_MATRIX__
 
+#define LIGHT_MATRIX_TYPE		float
+
 typedef struct  {
 	int row, col;
-	float **element;
+	LIGHT_MATRIX_TYPE **element;
 }Mat;
 
 Mat* MatCreate(Mat* mat, int row, int col);
 void MatDelete(Mat* mat);
-Mat* MatSetVal(Mat* mat, float* val);
+Mat* MatSetVal(Mat* mat, LIGHT_MATRIX_TYPE* val);
 void MatDump(const Mat* mat);
 
 Mat* MatZeros(Mat* mat);
@@ -37,10 +39,12 @@ Mat* MatAdd(Mat* src1, Mat* src2, Mat* dst);
 Mat* MatSub(Mat* src1, Mat* src2, Mat* dst);
 Mat* MatMul(Mat* src1, Mat* src2, Mat* dst);
 Mat* MatTrans(Mat* src, Mat* dst);
-float MatDet(Mat* mat);
+LIGHT_MATRIX_TYPE MatDet(Mat* mat);
 Mat* MatAdj(Mat* src, Mat* dst);
 Mat* MatInv(Mat* src, Mat* dst);
 
+void MatEig(Mat *mat, LIGHT_MATRIX_TYPE *eig_val, Mat *eig_vec, LIGHT_MATRIX_TYPE eps, int njt);
+	
 void MatCopy(Mat* src, Mat* dst);
 
 #endif

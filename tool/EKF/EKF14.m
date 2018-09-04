@@ -1,6 +1,6 @@
 clear all
 %% read log file
-logfile = 'EKF3.LOG';
+logfile = 'EKF2.LOG';
 readlog;
 
 %% init parameter
@@ -33,18 +33,18 @@ q_az = .1;
 q_gx_bias = .0005;
 q_gy_bias = .0005;
 q_gz_bias = .0005;
-q_az_bias = .0025;
+q_az_bias = .005;
 % q_az_bias = .01;
 % observe covariance
-r_x = .04;
-r_y = .04;
-r_z = .01;
+r_x = .02;
+r_y = .02;
+r_z = .04;
 r_vx = .035;
 r_vy = .035;
-r_vz = .03;
-r_ax = .0013;
-r_ay = .0013;
-r_az = .0013;
+r_vz = .08;
+r_ax = .001;
+r_ay = .0015;
+r_az = .0015;
 r_mx = .0012;
 r_my = .0012;
 r_mz = .0012;
@@ -209,31 +209,31 @@ for i = 1 : N
 	H(2,2) = 1;
 	H(3,3) = 1;
     % d(V)/d(V)
-	H(4,4) = 1;
-	H(5,5) = 1;
-	H(6,6) = 1;
+% 	H(4,4) = 1;
+% 	H(5,5) = 1;
+% 	H(6,6) = 1;
     % d(acc)/d(q)
-    H(7,7) = 2 * (q0 * ax - q3 * ay + q2 * az);
-    H(7,8) = 2 * (q1 * ax + q2 * ay + q3 * az);
-    H(7,9) = 2 * (-q2 * ax + q1 * ay + q0 * az);
-    H(7,10) = 2 * (-q3 * ax - q0 * ay + q1 * az);
-    H(8,7) = 2 * (q3 * ax + q0 * ay - q1 * az);
-    H(8,8) = 2 * (q2 * ax - q1 * ay - q0 * az);
-    H(8,9) = 2 * (q1 * ax + q2 * ay + q3 * az);
-    H(8,10) = 2 * (q0 * ax - q3 * ay + q2 * az);
-    H(9,7) = 2 * (-q2 * ax + q1 * ay + q0 * az);
-    H(9,8) = 2 * (q3 * ax + q0 * ay - q1 * az);
-    H(9,9) = 2 * (-q0 * ax + q3 * ay - q2 * az);
-    H(9,10) = 2 * (q1 * ax + q2 * ay + q3 * az);
+    H(4,7) = 2 * (q0 * ax - q3 * ay + q2 * az);
+    H(4,8) = 2 * (q1 * ax + q2 * ay + q3 * az);
+    H(4,9) = 2 * (-q2 * ax + q1 * ay + q0 * az);
+    H(4,10) = 2 * (-q3 * ax - q0 * ay + q1 * az);
+    H(5,7) = 2 * (q3 * ax + q0 * ay - q1 * az);
+    H(5,8) = 2 * (q2 * ax - q1 * ay - q0 * az);
+    H(5,9) = 2 * (q1 * ax + q2 * ay + q3 * az);
+    H(5,10) = 2 * (q0 * ax - q3 * ay + q2 * az);
+    H(6,7) = 2 * (-q2 * ax + q1 * ay + q0 * az);
+    H(6,8) = 2 * (q3 * ax + q0 * ay - q1 * az);
+    H(6,9) = 2 * (-q0 * ax + q3 * ay - q2 * az);
+    H(6,10) = 2 * (q1 * ax + q2 * ay + q3 * az);
     % d(mag)/d(q)
-    H(10,7) = 2 * (q0 * mx - q3 * my + q2 * mz);
-    H(10,8) = 2 * (q1 * mx + q2 * my + q3 * mz);
-    H(10,9) = 2 * (-q2 * mx + q1 * my + q0 * mz);
-    H(10,10) = 2 * (-q3 * mx - q0 * my + q1 * mz);
-    H(11,7) = 2 * (q3 * mx + q0 * my - q1 * mz);
-    H(11,8) = 2 * (q2 * mx - q1 * my - q0 * mz);
-    H(11,9) = 2 * (q1 * mx + q2 * my + q3 * mz);
-    H(11,10) = 2 * (q0 * mx - q3 * my + q2 * mz);
+    H(7,7) = 2 * (q0 * mx - q3 * my + q2 * mz);
+    H(7,8) = 2 * (q1 * mx + q2 * my + q3 * mz);
+    H(7,9) = 2 * (-q2 * mx + q1 * my + q0 * mz);
+    H(7,10) = 2 * (-q3 * mx - q0 * my + q1 * mz);
+    H(8,7) = 2 * (q3 * mx + q0 * my - q1 * mz);
+    H(8,8) = 2 * (q2 * mx - q1 * my - q0 * mz);
+    H(8,9) = 2 * (q1 * mx + q2 * my + q3 * mz);
+    H(8,10) = 2 * (q0 * mx - q3 * my + q2 * mz);
     
 
     % rotate acc and mag from body frame to navigation frame
@@ -247,7 +247,7 @@ for i = 1 : N
     magN = magN/norm(magN);
 	
 	% Y(k) = Z(k) - h(X(k|k-1))
-	y = [X(ID_X); X(ID_Y); X(ID_Z); X(ID_VX); X(ID_VY); X(ID_VZ);...
+	y = [X(ID_X); X(ID_Y); X(ID_Z);...
 		accN(1); accN(2); accN(3); magN(1); magN(2)];
     
     GPS_VX = 0;
@@ -264,14 +264,14 @@ for i = 1 : N
 	Z(1) = LogField(i,gps_x_col);
     Z(2) = LogField(i,gps_y_col);
     Z(3) = LogField(i,baro_z_col);
-    Z(4) = LogField(i,gps_vx_col);
-    Z(5) = LogField(i,gps_vy_col);
-    Z(6) = LogField(i,baro_vz_col);
-    Z(7) = accConst(1);
-    Z(8) = accConst(2);
-    Z(9) = accConst(3);
-    Z(10) = magConst(1);
-    Z(11) = magConst(2);
+%     Z(4) = LogField(i,gps_vx_col);
+%     Z(5) = LogField(i,gps_vy_col);
+%     Z(6) = LogField(i,baro_vz_col);
+    Z(4) = accConst(1);
+    Z(5) = accConst(2);
+    Z(6) = accConst(3);
+    Z(7) = magConst(1);
+    Z(8) = magConst(2);
     
     Y = Z - y;
 

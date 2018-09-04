@@ -27,17 +27,20 @@
 #include "shell.h"
 #include "delay.h"
 #include "declination.h"
+#include "light_matrix.h"
 
 MCN_DECLARE(SENSOR_BARO);
 MCN_DECLARE(SENSOR_GYR);
+
+int calibrate_mag_run(struct finsh_shell *shell);
 
 extern FIL my_fp;
 extern int start;
 int handle_test_shell_cmd(int argc, char** argv)
 {
-	Console.print("am mag dec:%f %f\n", compass_get_declination(52.3702, 4.8952), compass_get_declination(-52.3702, -4.8952));
-	Console.print("sh mag dec:%f\n", compass_get_declination(31.2304, 121.4737));
-	Console.print("roma mag dec:%f\n", compass_get_declination(41.9028, 12.4964));
+//	Console.print("am mag dec:%f %f\n", compass_get_declination(52.3702, 4.8952), compass_get_declination(-52.3702, -4.8952));
+//	Console.print("sh mag dec:%f\n", compass_get_declination(31.2304, 121.4737));
+//	Console.print("roma mag dec:%f\n", compass_get_declination(41.9028, 12.4964));
 //	if(argc > 1){
 //		float bth = atof(argv[1]);
 //		if(bth > 0){
@@ -99,6 +102,28 @@ int handle_test_shell_cmd(int argc, char** argv)
 //			Console.print("test stop\n");
 //		}
 //	}
+
+	calibrate_mag_run(NULL);
+	
+//	Mat A;
+//	MatCreate(&A, 5, 5);
+//	LIGHT_MATRIX_TYPE val[25] = {
+//		10, 1, 2, 3, 4,
+//		1, 9, -1, 2, -3,
+//		2, -1, 7, 3, -5,
+//		3, 2, 3, 12, -1,
+//		4, -3, -5, -1, 15
+//	};
+//	MatSetVal(&A, val);
+//	MatDump(&A);
+//	
+//	LIGHT_MATRIX_TYPE eig_val[5];
+//	Mat eig_vec;
+//	MatCreate(&eig_vec, 5, 5);
+//	MatEig(&A, eig_val, &eig_vec, 1e-6, 100);
+//	
+//	Console.print("eig val: %lf %lf\n %lf %lf %lf\n\n", eig_val[0],eig_val[1],eig_val[2],eig_val[3],eig_val[4]);
+//	MatDump(&eig_vec);
 	
 	return 0;
 }

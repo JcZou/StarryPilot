@@ -5,10 +5,11 @@ X = single(X);
 U = [0; 0; 0; 0; 0; 0];
 U = single(U);
 % Z = [x, y, z, vx, vy, vz, ax, ay, az, mx, my]
-Z = [0; 0; 0; 0; 0; 0; 0; 0; -1; 1; 0];
+Z = [0; 0; 0; 0; 0; -1; 1; 0];
 Z = single(Z);
 % observer delay in ms
-Delay = [120; 120; 10; 120; 120; 20; 10; 10; 10; 10; 0; 0; 0; 0;];
+% Delay = [120; 120; 50; 120; 120; 50; 10; 10; 10; 10; 0; 0; 0; 0];
+Delay = zeros(14,1);
 HistIndex = Delay/double(LogHeader.log_perid);
 
 NUM_X = length(X);
@@ -44,14 +45,14 @@ Q(10,10) = q_az_bias^2;
 R(1,1) = r_x^2;
 R(2,2) = r_y^2;
 R(3,3) = r_z^2;
-R(4,4) = r_vx^2;
-R(5,5) = r_vy^2;
-R(6,6) = r_vz^2;
-R(7,7) = r_ax^2;
-R(8,8) = r_ay^2;
-R(9,9) = r_az^2;
-R(10,10) = r_mx^2;
-R(11,11) = r_my^2;
+% R(4,4) = r_vx^2;
+% R(5,5) = r_vy^2;
+% R(6,6) = r_vz^2;
+R(4,4) = r_ax^2;
+R(5,5) = r_ay^2;
+R(6,6) = r_az^2;
+R(7,7) = r_mx^2;
+R(8,8) = r_my^2;
 % init P
 P(1,1) = 1;
 P(2,2) = 1;

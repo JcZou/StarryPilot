@@ -107,6 +107,7 @@ void copter_entry(void *parameter)
 	filter_init();
 	attitude_est_init();
 	control_init();
+	state_est_init(0.004f);
 #ifdef HIL_SIMULATION
 	hil_interface_init(HIL_SENSOR_LEVEL);
 	Console.print("HIL Mode...\n");
@@ -124,8 +125,6 @@ void copter_entry(void *parameter)
 					1,
 					RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);
 	rt_timer_start(&timer_copter);
-	
-	state_est_init(0.004f);
 
 	while(1)
 	{

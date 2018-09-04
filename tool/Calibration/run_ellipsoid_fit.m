@@ -47,6 +47,7 @@ z = Data(:,3);
 
 %% do the fitting
 refr = 1; % reference radius
+
 [ center, radii, evecs, v] = my_ellipsoid_fit( [ x y z ] );
 g_mat = zeros(3, 3);
 g_mat(1,1) = 1/radii(1)*refr;
