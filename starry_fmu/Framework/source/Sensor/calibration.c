@@ -20,6 +20,7 @@
 #include "calibration.h"
 #include "light_matrix.h"
 #include "uMCN.h"
+#include "mavproxy.h"
 
 MCN_DECLARE(SENSOR_MEASURE_GYR);
 MCN_DECLARE(SENSOR_MEASURE_ACC);
@@ -100,15 +101,6 @@ void gyr_mavlink_calibration_start(void)
 {
 	gyr_calibrate_flag = true;
 }
-	
-//#ifdef CALI_METHOD_1
-
-double m_matrix[MATRIX_SIZE][MATRIX_SIZE+1];
-int m = MATRIX_SIZE;	
-int n = MATRIX_SIZE+1;
-double m_result[MATRIX_SIZE];	
-
-void DispMatrix(void);
 
 void cali_obj_init(Cali_Obj *obj)
 {

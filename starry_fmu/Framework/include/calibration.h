@@ -15,6 +15,8 @@
 #include "shell.h"
 #include "light_matrix.h"
 
+#define GYR_CALIBRATE_COUNT 5000
+
 typedef struct
 {
 	double V[9];
