@@ -120,16 +120,16 @@ quaternion attitude_est_get_quaternion(void)
 
 Euler attitude_est_get_euler(void)
 {
-	quaternion att;
+	//quaternion att;
 	Euler e;
 	
-	OS_ENTER_CRITICAL;
-	att = drone_attitude;
-	OS_EXIT_CRITICAL;
+//	OS_ENTER_CRITICAL;
+//	att = drone_attitude;
+//	OS_EXIT_CRITICAL;
+//	
+//	quaternion_toEuler(&att, &e);
 	
-	quaternion_toEuler(&att, &e);
-	
-	//mcn_copy_from_hub(MCN_ID(ATT_EULER), &e);
+	mcn_copy_from_hub(MCN_ID(ATT_EULER), &e);
 	
     return e;
 }
