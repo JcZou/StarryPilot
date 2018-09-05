@@ -600,6 +600,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\Copter\fast_loop.c</FilePath>
             </File>
+            <File>
+              <FileName>mavlink_status.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\Mavproxy\mavlink_status.c</FilePath>
+            </File>
+            <File>
+              <FileName>mavlink_param.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\Mavproxy\mavlink_param.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

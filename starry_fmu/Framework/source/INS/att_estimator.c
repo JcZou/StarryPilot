@@ -55,7 +55,8 @@ void attitude_est_run(float dT)
 #endif
 	
 	mcn_publish(MCN_ID(ATT_QUATERNION), &drone_attitude);
-	Euler euler = attitude_est_get_euler();
+	Euler euler;
+	quaternion_toEuler(&drone_attitude, &euler);
 	mcn_publish(MCN_ID(ATT_EULER), &euler);
 }
 
@@ -119,16 +120,16 @@ quaternion attitude_est_get_quaternion(void)
 
 Euler attitude_est_get_euler(void)
 {
-	//quaternion att;
+	quaternion att;
 	Euler e;
 	
-//	OS_ENTER_CRITICAL;
-//	att = drone_attitude;
-//	OS_EXIT_CRITICAL;
-//	
-//	quaternion_toEuler(&att, &e);
+	OS_ENTER_CRITICAL;
+	att = drone_attitude;
+	OS_EXIT_CRITICAL;
 	
-	mcn_copy_from_hub(MCN_ID(ATT_EULER), &e);
+	quaternion_toEuler(&att, &e);
+	
+	//mcn_copy_from_hub(MCN_ID(ATT_EULER), &e);
 	
     return e;
 }

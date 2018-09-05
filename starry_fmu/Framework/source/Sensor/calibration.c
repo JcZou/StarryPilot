@@ -21,6 +21,9 @@
 #include "light_matrix.h"
 #include "uMCN.h"
 #include "mavproxy.h"
+#include "mavlink_param.h"
+
+static bool gyr_calibrate_flag;
 
 MCN_DECLARE(SENSOR_MEASURE_GYR);
 MCN_DECLARE(SENSOR_MEASURE_ACC);

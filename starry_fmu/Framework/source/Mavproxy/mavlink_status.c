@@ -13,7 +13,7 @@
 #include "mavproxy.h"
 #include "mavlink_status.h"
 
-const mav_status_t mav_status[MAV_NOTICE_NUM] =
+static const mav_status_t mav_status[MAV_NOTICE_NUM] =
 {
 	{
 		.severity = MAV_SEVERITY_INFO,

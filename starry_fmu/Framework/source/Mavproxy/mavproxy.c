@@ -46,7 +46,7 @@ static char *TAG = "MAV_Proxy";
 static struct rt_timer timer_mavproxy;
 static struct rt_event event_mavproxy;
 
-mavlink_status_t mav_status;
+static mavlink_status_t mav_status;
 static MAV_PeriodMsg_Queue _period_msg_queue;
 static MAV_TempMsg_Queue _temp_msg_queue;
 
