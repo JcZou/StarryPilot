@@ -27,6 +27,8 @@ typedef struct
 	Mat	  EigVec;
 	Mat	  RotM;
 }Cali_Obj;
+void gyr_mavlink_calibration(void);
+void gyr_mavlink_calibration_start(void);
 
 int calibrate_acc_run(struct finsh_shell *shell);
 int calibrate_mag_run(struct finsh_shell *shell);

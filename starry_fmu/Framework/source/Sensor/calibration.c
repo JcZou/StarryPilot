@@ -24,7 +24,6 @@
 MCN_DECLARE(SENSOR_MEASURE_GYR);
 MCN_DECLARE(SENSOR_MEASURE_ACC);
 MCN_DECLARE(SENSOR_MEASURE_MAG);
-
 rt_err_t calibrate_gyr(uint16_t p_num)
 {
 	float gyr_data_p[3];
@@ -51,6 +50,65 @@ rt_err_t calibrate_gyr(uint16_t p_num)
 	
 	return RT_EOK;
 }
+
+void gyr_mavlink_calibration(void)
+{
+	float gyr_data_p[3];
+	static float sum_gyr[3] = {0.0f,0.0f,0.0f};
+	float offset_gyr[3];
+	static uint16_t count = 0;
+	int ret = 0;
+
+	if (!gyr_calibrate_flag) {
+		return;
+	}
+
+	sensor_gyr_measure(gyr_data_p);
+	sum_gyr[0] += gyr_data_p[0];
+	sum_gyr[1] += gyr_data_p[1];
+	sum_gyr[2] += gyr_data_p[2];
+	count++;
+
+	if (!(count % 20) || (count == GYR_CALIBRATE_COUNT)) {
+		mavlink_send_calibration_progress_msg(((float)count / GYR_CALIBRATE_COUNT) * 10);
+	}
+
+	if (count == GYR_CALIBRATE_COUNT) {
+		offset_gyr[0] = -sum_gyr[0]/count;
+		offset_gyr[1] = -sum_gyr[1]/count;
+		offset_gyr[2] = -sum_gyr[2]/count;
+		sum_gyr[0] = 0.0f;
+		sum_gyr[1] = 0.0f;
+		sum_gyr[2] = 0.0f;
+
+		ret = mavlink_param_set_value_by_index(CAL_GYRO0_XOFF, offset_gyr[0]);
+		ret |= mavlink_param_set_value_by_index(CAL_GYRO0_YOFF, offset_gyr[1]);
+		ret |= mavlink_param_set_value_by_index(CAL_GYRO0_ZOFF, offset_gyr[2]);
+
+		if (!ret) {
+			mavlink_send_status(CAL_DONE);
+		} else {
+			mavlink_send_status(CAL_FAILED);
+		}
+
+		count = 0;
+		gyr_calibrate_flag = false;
+	}
+}
+
+void gyr_mavlink_calibration_start(void)
+{
+	gyr_calibrate_flag = true;
+}
+	
+//#ifdef CALI_METHOD_1
+
+double m_matrix[MATRIX_SIZE][MATRIX_SIZE+1];
+int m = MATRIX_SIZE;	
+int n = MATRIX_SIZE+1;
+double m_result[MATRIX_SIZE];	
+
+void DispMatrix(void);
 
 void cali_obj_init(Cali_Obj *obj)
 {

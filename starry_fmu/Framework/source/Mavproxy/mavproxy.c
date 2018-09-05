@@ -22,7 +22,9 @@
 #include "sensor_manager.h"
 #include "gps.h"
 #include "statistic.h"
-#include "param.h"
+#include "mavlink_param.h"
+#include "mavlink_status.h"
+#include "calibration.h"
 #include "shell.h"
 
 #define EVENT_MAVPROXY_UPDATE		(1<<0)
@@ -205,8 +207,8 @@ void mavproxy_msg_param_pack(mavlink_message_t *msg_t, param_info_t *param)
 	mavlink_param_value_t param_value;
 	uint16_t len = strlen(param->name);
 	
-	param_value.param_count = param_get_info_count();
-	param_value.param_index = param_get_info_index(param->name);
+	param_value.param_count = mavlink_param_get_info_count() + param_get_info_count();
+	param_value.param_index = mavlink_param_get_info_count() + param_get_info_index(param->name);
 	memset(param_value.param_id, 0, 16);
 	memcpy(param_value.param_id, param->name, len < 16 ? len : 16);
 	switch (param->type) {
@@ -231,6 +233,41 @@ void mavproxy_msg_param_pack(mavlink_message_t *msg_t, param_info_t *param)
 	mavlink_msg_param_value_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &param_value);
 }
 
+void mavproxy_msg_mavlink_param_pack(mavlink_message_t *msg_t, param_t *param)
+{
+	mavlink_param_value_t param_value;
+	uint16_t len = strlen(param->name);
+	
+	param_value.param_count = mavlink_param_get_info_count() + param_get_info_count();
+	param_value.param_index = mavlink_param_get_info_index(param);
+	memset(param_value.param_id, 0, 16);
+	memcpy(param_value.param_id, param->name, len < 16 ? len : 16);
+	if (param->param) {
+		switch (param->param->type) {
+			case PARAM_TYPE_FLOAT:
+				param_value.param_type = MAVLINK_TYPE_FLOAT;
+				param_value.param_value = param->value;
+				break;
+			case PARAM_TYPE_INT32:
+				param_value.param_type = MAVLINK_TYPE_INT32_T;
+				memcpy(&(param_value.param_value), &(param->value), sizeof(param->value));
+				break;
+			case PARAM_TYPE_UINT32:
+				param_value.param_type = MAVLINK_TYPE_UINT32_T;
+				memcpy(&(param_value.param_value), &(param->value), sizeof(param->value));
+				break;
+			default:
+				param_value.param_type = MAVLINK_TYPE_FLOAT;
+				param_value.param_value = param->value;
+				break;
+		}
+	}else {
+		param_value.param_type = MAVLINK_TYPE_FLOAT;
+		param_value.param_value = param->value;
+	}
+	
+	mavlink_msg_param_value_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &param_value);
+}
 
 //uint8_t mavlink_send_msg_rc_channels_raw(uint32_t channel[8])
 //{
@@ -266,6 +303,125 @@ uint8_t mavlink_send_hil_actuator_control(float control[16], int motor_num)
 	return mavlink_msg_transfer(0, mav_tx_buff, len);
 }
 
+int mavlink_send_single_param(const char *name, mavlink_message_t *msg)
+{
+	param_info_t *param = NULL;
+	param_t *mav_param = NULL;
+	mav_param = mavlink_param_get_by_name(name);
+	if (mav_param) {
+		mavproxy_msg_mavlink_param_pack(msg, mav_param);
+		mavproxy_temp_msg_push(msg);
+		if (mav_param->param) {
+			mavproxy_msg_param_pack(msg, mav_param->param);
+			mavproxy_temp_msg_push(msg);
+		}
+	} else {
+		param = param_get_by_name(name);
+		if (param) {
+			mavproxy_msg_param_pack(msg, param);
+			mavproxy_temp_msg_push(msg);
+			mav_param = mavlink_param_get_by_info(param);
+			if (mav_param) {
+				mavproxy_msg_mavlink_param_pack(msg, mav_param);
+				mavproxy_temp_msg_push(msg);
+			}
+		}
+	}
+
+	return 0;
+}
+
+void mavproxy_send_statustext_msg(mav_status_type status, mavlink_message_t *msg)
+{
+	mavlink_statustext_t statustext;
+	memset(statustext.text, 0, 50);
+	statustext.severity = mavlink_get_status_content(status).severity;
+	memcpy(statustext.text, mavlink_get_status_content(status).string, strlen(mavlink_get_status_content(status).string));
+	mavlink_msg_statustext_encode(mavlink_system.sysid, mavlink_system.compid, msg, &statustext);
+	mavproxy_temp_msg_push(msg);
+}
+
+void mavlink_send_status(mav_status_type status)
+{
+	mavlink_message_t msg;
+
+	mavproxy_send_statustext_msg(status, &msg);
+}
+
+void mavlink_send_calibration_progress_msg(uint8_t progress)
+{
+	switch(progress)
+	{
+		case 0:
+			mavlink_send_status(CAL_PROGRESS_0);
+			break;
+		case 1:
+			mavlink_send_status(CAL_PROGRESS_10);
+			break;
+		case 2:
+			mavlink_send_status(CAL_PROGRESS_20);
+			break;
+		case 3:
+			mavlink_send_status(CAL_PROGRESS_30);
+			break;
+		case 4:
+			mavlink_send_status(CAL_PROGRESS_40);
+			break;  
+		case 5:
+			mavlink_send_status(CAL_PROGRESS_50);
+			break;
+		case 6:
+			mavlink_send_status(CAL_PROGRESS_60);
+			break;
+		case 7:
+			mavlink_send_status(CAL_PROGRESS_70);
+			break;
+		case 8:
+			mavlink_send_status(CAL_PROGRESS_80);
+			break;
+		case 9:
+			mavlink_send_status(CAL_PROGRESS_90);
+			break;
+		default:
+			break;
+	}
+}
+
+
+static void mavlink_send_command_ack(mavlink_command_ack_t *command_ack, mavlink_message_t *msg)
+{
+	mavlink_msg_command_ack_encode(mavlink_system.sysid, mavlink_system.compid, msg, command_ack);
+	mavproxy_temp_msg_push(msg);
+}
+
+static void mavproxy_proc_command(mavlink_command_long_t *command, mavlink_message_t *msg)
+{
+	switch(command->command) {
+		case MAV_CMD_PREFLIGHT_CALIBRATION:
+		{
+			mavlink_command_ack_t command_ack;
+			
+			if(command->param1 == 1) {          //calibration gyr
+				mavproxy_send_statustext_msg(CAL_START_GYRO, msg);
+				gyr_mavlink_calibration_start();
+			} else if(command->param2 == 1) {    //calibration mag
+				//mavproxy_send_statustext_msg(CAL_START_MAG, msg);
+			} else if(command->param5 == 1) {    //calibration acc
+				//mavproxy_send_statustext_msg(CAL_START_ACC, msg);
+			} else if(command->param5 == 2) {    //calibration level
+				//mavproxy_send_statustext_msg(CAL_START_LEVEL, msg);
+			}
+
+			command_ack.command = MAV_CMD_PREFLIGHT_CALIBRATION;
+			command_ack.result  = MAV_CMD_ACK_OK | MAV_CMD_ACK_ENUM_END;
+			mavlink_send_command_ack(&command_ack, msg);
+			break;
+		}
+		default:
+			break;
+	}
+}
+
 static void timer_mavproxy_update(void* parameter)
 {
 	rt_event_send(&event_mavproxy, EVENT_MAVPROXY_UPDATE);
@@ -297,14 +453,9 @@ void mavproxy_rx_entry(void *param)
 				case MAVLINK_MSG_ID_PARAM_REQUEST_READ:
 				{
 					if(mavlink_system.sysid == mavlink_msg_param_request_read_get_target_system(&msg)) {
-						param_info_t *param = NULL;
 						mavlink_param_request_read_t request_read;
 						mavlink_msg_param_request_read_decode(&msg, &request_read);
-						param = param_get_by_name((char*)request_read.param_id);
-						if (param) {
-							mavproxy_msg_param_pack(&msg, param);
-							mavproxy_temp_msg_push(&msg);
-						}
+						mavlink_send_single_param(request_read.param_id, &msg);
 					}
 					break;
 				}
@@ -322,13 +473,18 @@ void mavproxy_rx_entry(void *param)
 						mavlink_param_set_t param_set;
 						mavlink_msg_param_set_decode(&msg, &param_set);
 
-						param = param_get_by_name((char*)param_set.param_id);
-						if (param) {
-							param_set_by_info(param, param_set.param_value);
-							/* return param to ground station */
-							mavproxy_msg_param_pack(&msg, param);
-							mavproxy_temp_msg_push(&msg);
-						}
+						mavlink_param_set_value(param_set.param_id, param_set.param_value);
+						mavlink_send_single_param(param_set.param_id, &msg);
+					}
+					break;
+				}
+				case MAVLINK_MSG_ID_COMMAND_LONG:
+				{
+					if(mavlink_system.sysid == mavlink_msg_command_long_get_target_system(&msg)) {
+						mavlink_command_long_t command;
+						mavlink_msg_command_long_decode(&msg, &command);
+
+						mavproxy_proc_command(&command, &msg);
 					}
 					break;
 				}
@@ -482,9 +638,28 @@ static void param_send_all(param_info_t* param)
 	mavlink_msg_transfer(0, mav_tx_buff, len);
 }
 
+static void mavlink_param_send_all(void)
+{
+	uint16_t len;
+	param_t *param;
+	mavlink_message_t msg;
+	/* Console.print("param send:%s\n", param->name); */
+
+	for (uint32_t cnt = 0; cnt < mavlink_param_get_info_count(); cnt++) {
+		param = mavlink_param_get_info_by_index(cnt);
+		if (!param) {
+			break;
+		}
+		mavproxy_msg_mavlink_param_pack(&msg, param);
+
+		len = mavlink_msg_to_send_buffer(mav_tx_buff, &msg);
+		mavlink_msg_transfer(0, mav_tx_buff, len);
+	}
+}
+
 uint8_t mavproxy_try_send_param_msg(void)
 {
-
+	mavlink_param_send_all();
 	param_traverse(param_send_all);
 
 	return 1;
@@ -578,6 +753,7 @@ void mavproxy_entry(void *parameter)
 	rt_uint32_t recv_set = 0;
 	rt_uint32_t wait_set = EVENT_MAVPROXY_UPDATE | EVENT_MAVPROXY_SEND_ALL_PARAM;
 
+	mavlink_param_init();
 	mavproxy_lowlevel_init();
 	_mav_serial_rb = ringbuffer_static_create(_mav_serial_buffer, MAV_SERIAL_BUFFER_SIZE);
 

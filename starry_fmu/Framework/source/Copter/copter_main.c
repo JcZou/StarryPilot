@@ -95,9 +95,9 @@ void copter_entry(void *parameter)
 	rt_uint32_t wait_set = EVENT_COPTER_FAST_LOOP;
 	
 #ifdef HIL_SIMULATION
-	_att_est_period = PARAM_GET_UINT32(HIL_SIM, HIL_ATT_EST_PERIOD);
-	_pos_est_period = PARAM_GET_UINT32(HIL_SIM, HIL_POS_EST_PERIOD);
-	_control_period = PARAM_GET_UINT32(HIL_SIM, HIL_CONTROL_PERIOD);
+	_att_est_period = PARAM_GET_UINT32(HIL_SIM, HIL_ATT_EST_PRD);
+	_pos_est_period = PARAM_GET_UINT32(HIL_SIM, HIL_POS_EST_PRD);
+	_control_period = PARAM_GET_UINT32(HIL_SIM, HIL_CONTROL_PRD);
 #else
 	_att_est_period = AHRS_PERIOD;
 	_pos_est_period = POS_EST_PERIOD;

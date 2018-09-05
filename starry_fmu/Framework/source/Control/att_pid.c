@@ -65,13 +65,13 @@ uint8_t att_pid_update(const float input[3],float output[3], const float gyr_rad
 							PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_PITCH_RATE_D),
 							PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_YAW_RATE_D)};
 	
-	float att_output_limit[3] = {	PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_ROLL_OUTPUT_LIMIT),
-									PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_PITCH_OUTPUT_LIMIT),
-									PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_YAW_OUTPUT_LIMIT)};
+	float att_output_limit[3] = {	PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_ROLLOUT_LIM),
+									PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_PITCHOUT_LIM),
+									PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_YAWOUT_LIM)};
 	
-	float att_rate_i_limit[3] = {	PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_ROLL_RATE_I_LIMIT),
-									PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_PITCH_RATE_I_LIMIT),
-									PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_YAW_RATE_I_LIMIT)};
+	float att_rate_i_limit[3] = {	PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_ROLLR_I_LIM),
+									PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_PITCHR_I_LIM),
+									PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_YAWR_I_LIM)};
 					
     /* outter ring controls angle */
     float rates_sp[3] = {0};
@@ -128,9 +128,9 @@ uint8_t att_yaw_pid_control(const float input, float* output, float gyr_rad, flo
 	
 	float att_rate_d = PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_YAW_RATE_D);
 	
-	float att_output_limit = PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_YAW_OUTPUT_LIMIT);
+	float att_output_limit = PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_YAWOUT_LIM);
 	
-	float att_rate_i_limit = PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_YAW_RATE_I_LIMIT);
+	float att_rate_i_limit = PARAM_GET_FLOAT(ATT_CONTROLLER, ATT_YAWR_I_LIM);
 					
     /* outter ring controls angle */
 	float rates_sp = input * att_p;
