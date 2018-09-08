@@ -457,7 +457,6 @@ void MatEig(Mat *mat, LIGHT_MATRIX_TYPE *eig_val, Mat *eig_vec, LIGHT_MATRIX_TYP
         }  
   
         if(dbMax < eps){
-			printf("eps is fit %d\n", nCount);
             break;    
 		}
   

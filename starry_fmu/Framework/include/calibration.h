@@ -32,8 +32,8 @@ typedef struct
 void gyr_mavlink_calibration(void);
 void gyr_mavlink_calibration_start(void);
 
-int calibrate_acc_run(struct finsh_shell *shell);
-int calibrate_mag_run(struct finsh_shell *shell);
-void calibrate_gyr_run(struct finsh_shell *shell);
+int calibrate_acc_run(void);
+int calibrate_mag_run(void);
+int calibrate_gyr_run(void);
 
 #endif

@@ -37,7 +37,9 @@ y = y(:);
 z = z(:);
 
 %% read data from file
-fid = fopen('mag.dat');    % change the file name to your test file
+fid = fopen('acc.dat');    % change the file name to your test file
+refr = 1; % reference radius
+
 Data = fscanf(fid, '%f %f %f', [3 inf]);
 Data = Data';
 fclose(fid);
@@ -46,8 +48,6 @@ y = Data(:,2);
 z = Data(:,3);
 
 %% do the fitting
-refr = 1; % reference radius
-
 [ center, radii, evecs, v] = my_ellipsoid_fit( [ x y z ] );
 g_mat = zeros(3, 3);
 g_mat(1,1) = 1/radii(1)*refr;
