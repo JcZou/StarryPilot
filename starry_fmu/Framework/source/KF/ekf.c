@@ -3,6 +3,7 @@
 #include "ekf.h"
 #include "sensor_manager.h"
 #include "console.h"
+#include "AHRS.h"
 
 #define NUM_X	14
 #define NUM_U	6
@@ -177,6 +178,17 @@ void EKF14_Reset(EKF_Def* ekf_t)
 	MAT_ELEMENT(ekf_t->P, 12, 12) = 1e-9;
 	MAT_ELEMENT(ekf_t->P, 13, 13) = 1e-8;
 	
+#ifdef HIL_SIMULATION
+	float acc[3] = {0.0, 0.0, -9.8};
+	float mag[3] = {1.0, 0.0, 0.0};
+#else
+	float acc[3], mag[3];
+	sensor_acc_get_calibrated_data(acc);
+	sensor_mag_get_calibrated_data(mag);
+#endif
+	quaternion att_q;
+	AHRS_reset(&att_q, acc, mag);
+	
 	//TOOD, fill reset value
 	MAT_ELEMENT(ekf_t->X, STATE_X, 0) = 0.0f;
 	MAT_ELEMENT(ekf_t->X, STATE_Y, 0) = 0.0f;
@@ -184,10 +196,10 @@ void EKF14_Reset(EKF_Def* ekf_t)
 	MAT_ELEMENT(ekf_t->X, STATE_VX, 0) = 0.0f;
 	MAT_ELEMENT(ekf_t->X, STATE_VY, 0) = 0.0f;
 	MAT_ELEMENT(ekf_t->X, STATE_VZ, 0) = 0.0f;
-	MAT_ELEMENT(ekf_t->X, STATE_Q0, 0) = 1.0f;
-	MAT_ELEMENT(ekf_t->X, STATE_Q1, 0) = 0.0f;
-	MAT_ELEMENT(ekf_t->X, STATE_Q2, 0) = 0.0f;
-	MAT_ELEMENT(ekf_t->X, STATE_Q3, 0) = 0.0f;
+	MAT_ELEMENT(ekf_t->X, STATE_Q0, 0) = att_q.w;
+	MAT_ELEMENT(ekf_t->X, STATE_Q1, 0) = att_q.x;
+	MAT_ELEMENT(ekf_t->X, STATE_Q2, 0) = att_q.y;
+	MAT_ELEMENT(ekf_t->X, STATE_Q3, 0) = att_q.z;
 	MAT_ELEMENT(ekf_t->X, STATE_GX_BIAS, 0) = 0.0f;
 	MAT_ELEMENT(ekf_t->X, STATE_GY_BIAS, 0) = 0.0f;
 	MAT_ELEMENT(ekf_t->X, STATE_GZ_BIAS, 0) = 0.0f;

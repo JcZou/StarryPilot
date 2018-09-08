@@ -63,6 +63,8 @@ MCN_DECLARE(ATT_EULER);
 MCN_DECLARE(BARO_POSITION);
 MCN_DECLARE(ALT_INFO);
 
+static char *TAG = "State_EST";
+
 void state_est_get_quaternion(quaternion* q)
 {
 	q->w = MAT_ELEMENT(ekf_14.X, STATE_Q0, 0);
@@ -101,6 +103,15 @@ uint8_t state_est_init(float dT)
 	for(uint8_t i = 0 ; i < 14 ; i++){
 		fifo_create(&_hist_x[i], hist_offset[i]+1);
 		fifo_flush(&_hist_x[i]);
+	}
+	
+	int mcn_res = mcn_advertise(MCN_ID(ATT_QUATERNION));
+	if(mcn_res != 0){
+		Console.e(TAG, "err:%d, ATT_QUATERNION advertise fail!\n", mcn_res);
+	}
+	mcn_res = mcn_advertise(MCN_ID(ATT_EULER));
+	if(mcn_res != 0){
+		Console.e(TAG, "err:%d, ATT_EULER advertise fail!\n", mcn_res);
 	}
 	
 	return 0;
@@ -196,18 +207,17 @@ uint8_t state_est_update(void)
 	}
 	
 	state_est_get_quaternion(&_est_att_q);
+	mcn_publish(MCN_ID(ATT_QUATERNION), &_est_att_q);
 //	_est_att_q.w = MAT_ELEMENT(ekf_14.X, STATE_Q0, 0);
 //	_est_att_q.x = MAT_ELEMENT(ekf_14.X, STATE_Q1, 0);
 //	_est_att_q.y = MAT_ELEMENT(ekf_14.X, STATE_Q2, 0);
 //	_est_att_q.z = MAT_ELEMENT(ekf_14.X, STATE_Q3, 0);
 	
 	quaternion_toEuler(&_est_att_q, &_est_att_e);
+	mcn_publish(MCN_ID(ATT_EULER), &_est_att_e);
 	
 //	static uint32_t time = 0;
 //	Console.print_eachtime(&time, 300, "q:%f %f %f %f\n", _est_att_q.w, _est_att_q.x, _est_att_q.y, _est_att_q.z);
-	
-	mcn_publish(MCN_ID(ATT_QUATERNION), &_est_att_q);
-	mcn_publish(MCN_ID(ATT_EULER), &_est_att_e);
 	
 	Vector3f_t ned_pos, ned_vel;
 	state_est_get_position(&ned_pos);

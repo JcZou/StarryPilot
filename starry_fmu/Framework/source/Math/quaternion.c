@@ -6,9 +6,6 @@
  * 2016-07-01     zoujiachi    first version.
  */
  
-//#include <rthw.h>
-//#include <rtdevice.h>
-//#include <rtthread.h>
 #include <math.h>
 #include "quaternion.h"
 #include "ap_math.h"
@@ -23,24 +20,24 @@ void quaternion_normalize(quaternion * q)
     q->z *= norm_r;
 }
 
-void quaternion_add(quaternion * result,const quaternion left,const quaternion right)
+void quaternion_add(quaternion *result,const quaternion *left,const quaternion *right)
 {
-	result->w = left.w + right.w;
-	result->x = left.x + right.x;
-	result->y = left.y + right.y;
-	result->z = left.z + right.z;
+	result->w = left->w + right->w;
+	result->x = left->x + right->x;
+	result->y = left->y + right->y;
+	result->z = left->z + right->z;
 }
 
-void quaternion_mult(quaternion * result,const quaternion left,const quaternion right)
+void quaternion_mult(quaternion *result,const quaternion *left,const quaternion *right)
 {
-    result->w = left.w * right.w - left.x * right.x - left.y * right.y - left.z * right.z;
-    result->x = left.x * right.w + left.w * right.x + left.y * right.z - left.z * right.y;
-    result->y = left.y * right.w + left.w * right.y + left.z * right.x - left.x * right.z;
-    result->z = left.z * right.w + left.w * right.z + left.x * right.y - left.y * right.x;
+    result->w = left->w * right->w - left->x * right->x - left->y * right->y - left->z * right->z;
+    result->x = left->x * right->w + left->w * right->x + left->y * right->z - left->z * right->y;
+    result->y = left->y * right->w + left->w * right->y + left->z * right->x - left->x * right->z;
+    result->z = left->z * right->w + left->w * right->z + left->x * right->y - left->y * right->x;
 }
 
 // transfer from body frame to navigation frame ,v_n = C * v_b
-void quaternion_rotateVector(const quaternion *rotation,const float from[3],float to[3])
+void quaternion_rotateVector(const quaternion *rotation, const float from[3], float to[3])
 {
     float x2  = rotation->x * 2.0f;
     float y2  = rotation->y * 2.0f;
@@ -61,32 +58,32 @@ void quaternion_rotateVector(const quaternion *rotation,const float from[3],floa
 }
 
 // transfer from navigation frame to body frame ,v_b = C^T * v_n
-void quaternion_inv_rotateVector(const quaternion rotation,const float from[3],float to[3])
+void quaternion_inv_rotateVector(const quaternion *rotation, const float from[3],float to[3])
 {
-	float x2  = rotation.x * 2.0f;
-    float y2  = rotation.y * 2.0f;
-    float z2  = rotation.z * 2.0f;
-    float wx2 = rotation.w * x2;
-    float wy2 = rotation.w * y2;
-    float wz2 = rotation.w * z2;
-    float xx2 = rotation.x * x2;
-    float yy2 = rotation.y * y2;
-    float zz2 = rotation.z * z2;
-    float xy2 = rotation.x * y2;
-    float yz2 = rotation.y * z2;
-    float xz2 = rotation.z * x2;
+	float x2  = rotation->x * 2.0f;
+    float y2  = rotation->y * 2.0f;
+    float z2  = rotation->z * 2.0f;
+    float wx2 = rotation->w * x2;
+    float wy2 = rotation->w * y2;
+    float wz2 = rotation->w * z2;
+    float xx2 = rotation->x * x2;
+    float yy2 = rotation->y * y2;
+    float zz2 = rotation->z * z2;
+    float xy2 = rotation->x * y2;
+    float yz2 = rotation->y * z2;
+    float xz2 = rotation->z * x2;
 	//
 	to[0] = from[0]*(1.0f - yy2 - zz2) + from[1]*(xy2 + wz2)     + from[2]*(xz2 - wy2);
 	to[1] = from[0]*(xy2 - wz2)     + from[1]*(1.0f - xx2 - zz2) + from[2]*(yz2 + wx2);
     to[2] = from[0]*(xz2 + wy2)     + from[1]*(yz2 - wx2)     + from[2]*(1.0f - xx2 - yy2);
 }
 
-void quaternion_conjugate(quaternion q, quaternion* res)
+void quaternion_conjugate(const quaternion *q, quaternion *res)
 {
-	res->w = q.w;
-	res->x = -q.x;
-	res->y = -q.y;
-	res->z = -q.z;
+	res->w = q->w;
+	res->x = -q->x;
+	res->y = -q->y;
+	res->z = -q->z;
 }
 
 void quaternion_create(quaternion * q, float theta, float axis[3])
@@ -105,13 +102,13 @@ void quaternion_create(quaternion * q, float theta, float axis[3])
 }
 
 // calculate quaternion rotate from q1 to q2
-void quaternion_fromTwoQuaternionRotation(quaternion * q,const quaternion q1, const quaternion q2)
+void quaternion_fromTwoQuaternionRotation(quaternion *q,const quaternion *q1, const quaternion *q2)
 {
 	quaternion cj_q;
 	
 	quaternion_conjugate(q1, &cj_q);
 	quaternion_normalize(&cj_q);
-	quaternion_mult(q, q2, cj_q);
+	quaternion_mult(q, q2, &cj_q);
 }
 
 // calculate quaternion rotate from vector1 to vector2

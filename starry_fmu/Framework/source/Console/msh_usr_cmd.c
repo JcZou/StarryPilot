@@ -31,7 +31,7 @@ int handle_help_shell_cmd(int argc, char** argv)
 		if( strcmp(argv[1], "sys") == 0 ){
 			Console.print("Show system status.\n");
 		}
-		if( strcmp(argv[1], "cali") == 0 ){
+		if( strcmp(argv[1], "calib") == 0 ){
 			Console.print("Calibrate sensors.\n");
 			Console.print("Usage: cali <sensor>\n");
 			Console.print("\n");
@@ -212,37 +212,14 @@ int cmd_sys(int argc, char** argv)
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_sys, __cmd_sys, system status);
 
-int cmd_cali(int argc, char** argv)
+int handle_calib_shell_cmd(int argc, char** argv);
+int cmd_calib(int argc, char** argv)
 {
-	struct finsh_shell* shell = finsh_get_shell();
-
-	if(argc != 2)
-	{
-		rt_kprintf("invalid param\r\n");
-		return 1;
-	}
-	
-	if(strcmp(argv[1] , "acc") == 0)
-	{
-
-	}
-	else if(strcmp(argv[1] , "mag") == 0)
-	{
-
-	}
-	else if(strcmp(argv[1] , "gyr") == 0)
-	{
-		calibrate_gyr_run(shell);
-	}
-	else
-	{
-		rt_kprintf("invalid param\r\n");
-		return 1;
-	}
+	return handle_calib_shell_cmd(argc, argv);
 	
 	return 0;
 }
-FINSH_FUNCTION_EXPORT_ALIAS(cmd_cali, __cmd_cali, calibrate the acc and mag sensor.);
+FINSH_FUNCTION_EXPORT_ALIAS(cmd_calib, __cmd_calib, calibrate the acc and mag sensor.);
 
 int cmd_uploader(int argc, char** argv)
 {

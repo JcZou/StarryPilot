@@ -21,6 +21,10 @@
 #include "control_main.h"
 #include "uMCN.h"
 
+#define AHRS_USE_DEFAULT
+//#define AHRS_USE_MAHONY
+//#define AHRS_USE_MARG
+
 
 #define ATT_EST_INTERVAL			4
 
@@ -33,7 +37,7 @@ MCN_DEFINE(ATT_QUATERNION, sizeof(quaternion));
 
 static char *TAG = "Att_Est";
 
-static quaternion drone_attitude;
+static quaternion _att_q;
 
 McnNode_t _home_node_t;
 
@@ -45,18 +49,18 @@ void attitude_est_run(float dT)
 	sensor_get_mag(mag_t);
 	
 #if   defined ( AHRS_USE_DEFAULT ) 
-	AHRS_update(&drone_attitude, gyr_t, acc_t, mag_t, dT);
+	AHRS_update(&_att_q, gyr_t, acc_t, mag_t, dT);
 #elif defined ( AHRS_USE_MARG )
-	MARG_AHRS_Update(&drone_attitude, gyr_t[0], gyr_t[1], gyr_t[2], -acc_t[0], -acc_t[1], -acc_t[2], mag_t[0], mag_t[1], mag_t[2], dT);
+	MARG_AHRS_Update(&_att_q, gyr_t[0], gyr_t[1], gyr_t[2], -acc_t[0], -acc_t[1], -acc_t[2], mag_t[0], mag_t[1], mag_t[2], dT);
 #elif defined ( AHRS_USE_MAHONY )
-	MahonyAHRS_update(&drone_attitude, gyr_t, acc_t, mag_t, dT);
+	MahonyAHRS_update(&_att_q, gyr_t, acc_t, mag_t, dT);
 #else
 	#error Please select AHRS method.
 #endif
 	
-	mcn_publish(MCN_ID(ATT_QUATERNION), &drone_attitude);
+	mcn_publish(MCN_ID(ATT_QUATERNION), &_att_q);
 	Euler euler;
-	quaternion_toEuler(&drone_attitude, &euler);
+	quaternion_toEuler(&_att_q, &euler);
 	mcn_publish(MCN_ID(ATT_EULER), &euler);
 }
 
@@ -71,7 +75,7 @@ rt_err_t attitude_est_init(void)
 	sensor_acc_get_calibrated_data(acc);
 	sensor_mag_get_calibrated_data(mag);
 #endif
-	AHRS_reset(&drone_attitude, acc, mag);
+	AHRS_reset(&_att_q, acc, mag);
 	
 	
 	int mcn_res = mcn_advertise(MCN_ID(ATT_QUATERNION));
@@ -102,7 +106,7 @@ void attitude_est_reset(void)
 	mcn_copy_from_hub(MCN_ID(SENSOR_ACC), acc);
 	mcn_copy_from_hub(MCN_ID(SENSOR_MAG), mag);
 	
-	AHRS_reset(&drone_attitude, acc, mag);
+	AHRS_reset(&_att_q, acc, mag);
 }
 
 quaternion attitude_est_get_quaternion(void)
@@ -112,7 +116,7 @@ quaternion attitude_est_get_quaternion(void)
 	mcn_copy_from_hub(MCN_ID(ATT_QUATERNION), &att);
 	
 //	OS_ENTER_CRITICAL;
-//	att = drone_attitude;
+//	att = _att_q;
 //	OS_EXIT_CRITICAL;
 	
     return att;
@@ -124,7 +128,7 @@ Euler attitude_est_get_euler(void)
 	Euler e;
 	
 //	OS_ENTER_CRITICAL;
-//	att = drone_attitude;
+//	att = _att_q;
 //	OS_EXIT_CRITICAL;
 //	
 //	quaternion_toEuler(&att, &e);

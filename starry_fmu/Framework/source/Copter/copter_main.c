@@ -36,7 +36,13 @@ void copter_main_loop(uint32_t att_est_period, uint32_t pos_est_period, uint32_t
 	static uint32_t state_est_time = 0;
 	
 	uint32_t now = time_nowMs();
-	
+
+#ifdef AHRS_USE_EKF	
+	if(TIME_GAP(state_est_time, now) >= 4){
+		state_est_time = now;
+		state_est_update();
+	}
+#else	
 	if(TIME_GAP(ahrs_time, now) >= att_est_period){
 		ahrs_time = now;
 		attitude_est_run(0.001f*att_est_period);
@@ -46,12 +52,7 @@ void copter_main_loop(uint32_t att_est_period, uint32_t pos_est_period, uint32_t
 		pos_est_time = now;
 		pos_est_update(0.001f*pos_est_period);
 	}
-	
-//	if(TIME_GAP(state_est_time, now) >= 4){
-//		state_est_time = now;
-//		state_est_update();
-//	}
-
+#endif
 	if(TIME_GAP(ctrl_time, now) >= control_period){
 		ctrl_time = now;
 		control_vehicle(0.001f*control_period);

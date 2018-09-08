@@ -90,7 +90,7 @@ void AHRS_reset(quaternion * q, const float acc[3],const float mag[3])
 	quaternion_fromTwoVectorRotation(&q2, from, to);
 	
 	/* combine two rotations to get current attitude */
-	quaternion_mult(q, q2, q1);
+	quaternion_mult(q, &q2, &q1);
 	quaternion_normalize(q);
 	
 	gyr_bias[0] = 0.0f;
@@ -138,7 +138,7 @@ void AHRS_update(quaternion * q, const float gyr[3], const float acc[3], const f
 	err_N[2] = acc_cross[2] + mag_cross[2];
 	
 	/* transfer error from navigation frame to body frame */
-	quaternion_inv_rotateVector(*q, err_N, err_B);
+	quaternion_inv_rotateVector(q, err_N, err_B);
 	
 	/* integrate error to estimate gyr bias */
 	gyr_bias[0] += err_B[0]*FACTOR_I*dT;  
@@ -452,7 +452,7 @@ void AHRS_gyr_acc_fusion(quaternion * q, const float gyr[3], const float acc[3],
 	err_N[2] = 0.0f;
 	
 	/* transfer error from navigation frame to body frame */
-	quaternion_inv_rotateVector(*q, err_N, err_B);
+	quaternion_inv_rotateVector(q, err_N, err_B);
 	
 	errX_Int += err_B[0]*FACTOR_I*dT;  
 	errY_Int += err_B[1]*FACTOR_I*dT;  
@@ -491,7 +491,7 @@ void AHRS_mag_fusion(quaternion * q, const float mag[3], float dT)
 	err_N[2] = mag_cross[2];
 	
 	/* transfer error from navigation frame to body frame */
-	quaternion_inv_rotateVector(*q, err_N, err_B);
+	quaternion_inv_rotateVector(q, err_N, err_B);
 	
 	/* do not let intergrate so fast */
 	errX_Int += err_B[0]*FACTOR_I*dT;  

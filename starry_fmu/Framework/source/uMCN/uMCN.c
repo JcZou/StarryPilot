@@ -17,6 +17,11 @@ int mcn_advertise(McnHub* hub)
 {
 	int res = 0;
 	
+	if(hub->pdata != NULL){
+		// already advertised
+		return 0;
+	}
+	
 	MCN_ENTER_CRITICAL;
 	hub->pdata = MCN_MALLOC(hub->obj_size);
 	if(hub->pdata == NULL){
