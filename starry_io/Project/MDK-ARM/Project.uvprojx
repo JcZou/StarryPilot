@@ -419,6 +419,11 @@
               <FileType>1</FileType>
               <FilePath>..\lidar_lite.c</FilePath>
             </File>
+            <File>
+              <FileName>sbus.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\sbus.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
