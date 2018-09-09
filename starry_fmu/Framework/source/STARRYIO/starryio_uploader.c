@@ -234,7 +234,7 @@ static rt_err_t program_fs(char* file_name)
 	prog_cnt = fp.fsize/PROG_MULTI_MAX;
 	prog_offset = fp.fsize%PROG_MULTI_MAX;
 	
-	file_buf = (uint8_t*)rt_malloc(fp.fsize);
+	file_buf = (uint8_t*)rt_malloc(PROG_MULTI_MAX);
 	
 	if(file_buf == NULL){
 		Console.print("malloc fail\r\n");
@@ -242,24 +242,26 @@ static rt_err_t program_fs(char* file_name)
 	}
 	
 	UINT br; 
-	res = f_read(&fp, file_buf, fp.fsize, &br);
-	if(br != fp.fsize){
-		Console.print("read fail err. size:%d br:%d\n", fp.fsize, br);
-		rt_free(file_buf);
-		return RT_ERROR;
-	}
 	
 	Console.print("erase...\r\n");
 	ret = erase();
 	Console.print("program...\r\n");
 	
 	for (uint32_t i = 0 ; i < prog_cnt ; i++) {
+
+		res = f_read(&fp, file_buf, PROG_MULTI_MAX, &br);
+		if(br != PROG_MULTI_MAX){
+			Console.print("read fail err. size:%d br:%d\n", PROG_MULTI_MAX, br);
+			rt_free(file_buf);
+			return RT_ERROR;
+		}
+	
 		/* calculate crc32 sum */
-		sum = crc32part((uint8_t *)&file_buf[i*PROG_MULTI_MAX], PROG_MULTI_MAX, sum);
+		sum = crc32part((uint8_t *)file_buf, PROG_MULTI_MAX, sum);
 		
 		send_char(PROTO_PROG_MULTI);
 		send_char(PROG_MULTI_MAX);
-		send(&file_buf[i*PROG_MULTI_MAX], PROG_MULTI_MAX);
+		send(file_buf, PROG_MULTI_MAX);
 		send_char(PROTO_EOC);
 
 		ret = get_sync(1000);
@@ -271,12 +273,19 @@ static rt_err_t program_fs(char* file_name)
 	}
 	
 	if (prog_offset) {
+		res = f_read(&fp, file_buf, prog_offset, &br);
+		if(br != prog_offset){
+			Console.print("read fail err. size:%d br:%d\n", prog_offset, br);
+			rt_free(file_buf);
+			return RT_ERROR;
+		}
+		
 		/* calculate crc32 sum */
-		sum = crc32part((uint8_t *)&file_buf[prog_cnt*PROG_MULTI_MAX], prog_offset, sum);
+		sum = crc32part((uint8_t *)file_buf, prog_offset, sum);
 		
 		send_char(PROTO_PROG_MULTI);
 		send_char(prog_offset);
-		send(&file_buf[prog_cnt*PROG_MULTI_MAX], prog_offset);
+		send(file_buf, prog_offset);
 		send_char(PROTO_EOC);
 
 		ret = get_sync(1000);
