@@ -686,13 +686,13 @@ struct finsh_shell* finsh_get_shell(void)
 
 char shell_wait_ch(void)
 {
-	char ch;
+	char ch[RT_SERIAL_RB_BUFSZ];
 	
 	if (rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER) != RT_EOK) return -1;
 	
-	rt_device_read(shell->device, 0, &ch, 1);
+	rt_device_read(shell->device, 0, &ch, RT_SERIAL_RB_BUFSZ);
 	
-	return ch;
+	return ch[0];
 }
 
 int shell_is_end(void)

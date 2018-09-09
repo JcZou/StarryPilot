@@ -310,26 +310,10 @@ int calibrate_acc_run(void)
 	char ch;
 	cali_obj_init(&obj);
 	
-	Console.print("Towards to front...{Y/N}\n");
+	Console.print("towards Z-axis to DOWN side, and keep it static...{Y/N}\n");
 	ch = shell_wait_ch();
 	if(ch == 'Y' || ch == 'y'){
-		Console.print("Start to collect acceleration data, please keep the board static...\n");
-		
-		float acc_f[3];
-		for(int i = 0 ; i < 100 ; i ++){
-			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
-			cali_least_squre_update(&obj, acc_f);
-			Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
-			rt_thread_delay(20);
-		}
-	}else{
-		goto finish;
-	}
-	
-	Console.print("Towards to back...{Y/N}\n");
-	ch = shell_wait_ch();
-	if(ch == 'Y' || ch == 'y'){
-		Console.print("Start to collect acceleration data, please keep the board static...\n");
+		Console.print("reading data...\n");
 		
 		float acc_f[3];
 		for(int i = 0 ; i < 100 ; i ++){
@@ -342,10 +326,10 @@ int calibrate_acc_run(void)
 		goto finish;
 	}
 	
-	Console.print("Towards to left...{Y/N}\n");
+	Console.print("towards Z-axis to UP side, and keep it static...{Y/N}\n");
 	ch = shell_wait_ch();
 	if(ch == 'Y' || ch == 'y'){
-		Console.print("Start to collect acceleration data, please keep the board static...\n");
+		Console.print("reading data...\n");
 		
 		float acc_f[3];
 		for(int i = 0 ; i < 100 ; i ++){
@@ -358,10 +342,10 @@ int calibrate_acc_run(void)
 		goto finish;
 	}
 	
-	Console.print("Towards to right...{Y/N}\n");
+	Console.print("towards X-axis to DOWN side, and keep it static...{Y/N}\n");
 	ch = shell_wait_ch();
 	if(ch == 'Y' || ch == 'y'){
-		Console.print("Start to collect acceleration data, please keep the board static...\n");
+		Console.print("reading data...\n");
 		
 		float acc_f[3];
 		for(int i = 0 ; i < 100 ; i ++){
@@ -374,10 +358,10 @@ int calibrate_acc_run(void)
 		goto finish;
 	}
 	
-	Console.print("Towards to up...{Y/N}\n");
+	Console.print("towards X-axis to UP side, and keep it static...{Y/N}\n");
 	ch = shell_wait_ch();
 	if(ch == 'Y' || ch == 'y'){
-		Console.print("Start to collect acceleration data, please keep the board static...\n");
+		Console.print("reading data...\n");
 		
 		float acc_f[3];
 		for(int i = 0 ; i < 100 ; i ++){
@@ -390,10 +374,26 @@ int calibrate_acc_run(void)
 		goto finish;
 	}
 	
-	Console.print("Towards to down...{Y/N}\n");
+	Console.print("towards Y-axis to DOWN side, and keep it static...{Y/N}\n");
 	ch = shell_wait_ch();
 	if(ch == 'Y' || ch == 'y'){
-		Console.print("Start to collect acceleration data, please keep the board static...\n");
+		Console.print("reading data...\n");
+		
+		float acc_f[3];
+		for(int i = 0 ; i < 100 ; i ++){
+			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+			cali_least_squre_update(&obj, acc_f);
+			//Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
+			rt_thread_delay(20);
+		}
+	}else{
+		goto finish;
+	}
+	
+	Console.print("towards Y-axis to UP side, and keep it static...{Y/N}\n");
+	ch = shell_wait_ch();
+	if(ch == 'Y' || ch == 'y'){
+		Console.print("reading data...\n");
 		
 		float acc_f[3];
 		for(int i = 0 ; i < 100 ; i ++){
@@ -435,7 +435,6 @@ int calibrate_acc_run(void)
 		PARAM_SET_UINT32(CALIBRATION, ACC_CALIB, 1);
 		
 		param_store();
-		Console.print("save success\n");
 	}
 	
 finish:
@@ -453,40 +452,43 @@ int calibrate_mag_run(void)
 	
 	float mag_f[3];
 	
-	Console.print("Rotate with x-axis...(Y/N)\n");
+	Console.print("towards Z-axis to DOWN side, and rotate with it...(Y/N)\n");
 	ch = shell_wait_ch();
 	if(ch == 'Y' || ch == 'y'){
-		for(int i = 0 ; i < 300 ; i ++){
+		Console.print("reading data...\n");
+		for(int i = 0 ; i < 200 ; i ++){
 			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
 			cali_least_squre_update(&obj, mag_f);
 			//Console.print("%lf %lf %lf\n", mag_f[0], mag_f[1], mag_f[2]);
-			rt_thread_delay(100);
+			rt_thread_delay(50);
 		}	
 	}else{
 		goto finish;
 	}
 	
-	Console.print("Rotate with y-axis...(Y/N)\n");
+	Console.print("towards X-axis to DOWN side, and rotate with it...(Y/N)\n");
 	ch = shell_wait_ch();
 	if(ch == 'Y' || ch == 'y'){
-		for(int i = 0 ; i < 300 ; i ++){
+		Console.print("reading data...\n");
+		for(int i = 0 ; i < 200 ; i ++){
 			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
 			cali_least_squre_update(&obj, mag_f);
 			//Console.print("%lf %lf %lf\n", mag_f[0], mag_f[1], mag_f[2]);
-			rt_thread_delay(100);
+			rt_thread_delay(50);
 		}	
 	}else{
 		goto finish;
 	}
 	
-	Console.print("Rotate with z-axis...(Y/N)\n");
+	Console.print("towards Y-axis to DOWN side, and rotate with it...(Y/N)\n");
 	ch = shell_wait_ch();
 	if(ch == 'Y' || ch == 'y'){
-		for(int i = 0 ; i < 300 ; i ++){
+		Console.print("reading data...\n");
+		for(int i = 0 ; i < 200 ; i ++){
 			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
 			cali_least_squre_update(&obj, mag_f);
 			//Console.print("%lf %lf %lf\n", mag_f[0], mag_f[1], mag_f[2]);
-			rt_thread_delay(100);
+			rt_thread_delay(50);
 		}	
 	}else{
 		goto finish;
@@ -522,7 +524,6 @@ int calibrate_mag_run(void)
 		PARAM_SET_UINT32(CALIBRATION, MAG_CALIB, 1);
 		
 		param_store();
-		Console.print("save success\n");
 	}
 	
 finish:
@@ -542,7 +543,7 @@ int calibrate_gyr_run(void)
 	Console.print("keep the board static...(Y/N)\n");
 	ch = shell_wait_ch();
 	if(ch == 'Y' || ch == 'y'){
-		Console.print("reading gyr data...\n");
+		Console.print("reading data...\n");
 		for(uint32_t i = 0 ; i < p_num ; i++)
 		{
 			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_GYR), gyr_f);
@@ -570,7 +571,6 @@ int calibrate_gyr_run(void)
 		PARAM_SET_UINT32(CALIBRATION, GYR_CALIB, 1);
 		
 		param_store();
-		Console.print("save success\n");
 	}
 	return 0;
 }
