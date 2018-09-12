@@ -1,6 +1,6 @@
 clear all
 %% read log file
-logfile = 'EKF2.LOG';
+logfile = 'AA.LOG';
 readlog;
 
 %% init parameter
@@ -24,16 +24,19 @@ ID_AZ_BIAS = 14;
 
 %% EKF filter
 % estimate covariance
-q_gx = .01;
-q_gy = .01;
-q_gz = .01;
+q_gx = .0025;
+q_gy = .0025;
+q_gz = .0025;
 q_ax = .1;
 q_ay = .1;
 q_az = .1;
 q_gx_bias = .0005;
 q_gy_bias = .0005;
 q_gz_bias = .0005;
-q_az_bias = .005;
+% q_gx_bias = .001;
+% q_gy_bias = .001;
+% q_gz_bias = .001;
+q_az_bias = .0025;
 % q_az_bias = .01;
 % observe covariance
 r_x = .02;
@@ -301,6 +304,16 @@ end
 index = 1:N;
 
 figure
+plot(index, bias(1,:));
+legend('gx bias')
+figure
+plot(index, bias(2,:));
+legend('gy bias')
+figure
+plot(index, bias(3,:));
+legend('gz bias')
+
+figure
 grid on;
 plot(index, LogField(:,roll_col), index, roll, 'LineWidth', 1.5);
 legend('Roll', 'EKF.Roll')
@@ -310,21 +323,21 @@ legend('Pitch', 'EKF.Pitch')
 figure
 plot(index, LogField(:,yaw_col), index, yaw, 'LineWidth', 1.5);
 legend('Yaw', 'EKF.Yaw')
-figure
-plot(index, LogField(:,gps_x_col), index, res_x(ID_X,:), 'LineWidth', 1.5);
-legend('X', 'EKF.X')
-figure
-plot(index, LogField(:,gps_y_col), index, res_x(ID_Y,:), 'LineWidth', 1.5);
-legend('Y', 'EKF.Y')
-figure 
-plot(index, LogField(:,baro_z_col), index, res_x(ID_Z,:), 'LineWidth', 1.5);
-legend('Z', 'EKF.Z')
-figure
-plot(index, LogField(:,gps_vx_col), index, res_x(ID_VX,:), 'LineWidth', 1.5);
-legend('VX', 'EKF.VX')
-figure
-plot(index, LogField(:,gps_vy_col), index, res_x(ID_VY,:), 'LineWidth', 1.5);
-legend('VY', 'EKF.VY')
-figure
-plot(index, LogField(:,baro_vz_col), index, res_x(ID_VZ,:), 'LineWidth', 1.5);
-legend('VZ', 'EKF.VZ')
+% figure
+% plot(index, LogField(:,gps_x_col), index, res_x(ID_X,:), 'LineWidth', 1.5);
+% legend('X', 'EKF.X')
+% figure
+% plot(index, LogField(:,gps_y_col), index, res_x(ID_Y,:), 'LineWidth', 1.5);
+% legend('Y', 'EKF.Y')
+% figure 
+% plot(index, LogField(:,baro_z_col), index, res_x(ID_Z,:), 'LineWidth', 1.5);
+% legend('Z', 'EKF.Z')
+% figure
+% plot(index, LogField(:,gps_vx_col), index, res_x(ID_VX,:), 'LineWidth', 1.5);
+% legend('VX', 'EKF.VX')
+% figure
+% plot(index, LogField(:,gps_vy_col), index, res_x(ID_VY,:), 'LineWidth', 1.5);
+% legend('VY', 'EKF.VY')
+% figure
+% plot(index, LogField(:,baro_vz_col), index, res_x(ID_VZ,:), 'LineWidth', 1.5);
+% legend('VZ', 'EKF.VZ')

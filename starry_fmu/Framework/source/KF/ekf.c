@@ -12,9 +12,9 @@
 
 
 // estimate covariance
-#define q_gx			0.01
-#define q_gy			0.01
-#define q_gz			0.01
+#define q_gx			0.0025
+#define q_gy			0.0025
+#define q_gz			0.0025
 #define q_ax			0.1
 #define q_ay			0.1
 #define q_az			0.1
@@ -23,15 +23,15 @@
 #define q_gz_bias		0.0005
 #define q_az_bias		0.0025
 // observe covariance
-#define r_x				0.04
-#define r_y				0.04
-#define r_z				0.01
+#define r_x				0.02
+#define r_y				0.02
+#define r_z				0.04
 #define r_vx			0.035
 #define r_vy			0.035
-#define r_vz 			0.03
-#define r_ax			0.0013
-#define r_ay			0.0013
-#define r_az			0.0013
+#define r_vz 			0.08
+#define r_ax			0.0015
+#define r_ay			0.0015
+#define r_az			0.0015
 #define r_mx			0.0012
 #define r_my			0.0012
 
@@ -265,9 +265,9 @@ uint8_t EKF14_Prediction(EKF_Def* ekf_t)
     MAT_ELEMENT(ekf_t->F, 7, 10) = -q0 / 2.0f;
     MAT_ELEMENT(ekf_t->F, 7, 11) = q3 / 2.0f;
     MAT_ELEMENT(ekf_t->F, 7, 12) = -q2 / 2.0f;
-    MAT_ELEMENT(ekf_t->F, 6, 10) = -q3 / 2.0f;
-    MAT_ELEMENT(ekf_t->F, 6, 11) = -q0 / 2.0f;
-    MAT_ELEMENT(ekf_t->F, 6, 12) = q1 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 8, 10) = -q3 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 8, 11) = -q0 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 8, 12) = q1 / 2.0f;
     MAT_ELEMENT(ekf_t->F, 9, 10) = q2 / 2.0f;
     MAT_ELEMENT(ekf_t->F, 9, 11) = -q1 / 2.0f;
     MAT_ELEMENT(ekf_t->F, 9, 12) = -q0 / 2.0f;

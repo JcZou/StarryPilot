@@ -38,7 +38,7 @@ z = z(:);
 
 %% read data from file
 fid = fopen('acc.dat');    % change the file name to your test file
-refr = 1; % reference radius
+refr = 9.8; % reference radius
 
 Data = fscanf(fid, '%f %f %f', [3 inf]);
 Data = Data';

@@ -108,18 +108,18 @@ void AHRS_update(quaternion * q, const float gyr[3], const float acc[3], const f
 	quaternion_rotateVector(q, accU, acc_N);
 	quaternion_rotateVector(q, magU, mag_N);
 	
-	/* correct magnetic declination */
-	if(mcn_poll(_home_node_t)){
-		HOME_Pos home;
-		mcn_copy(MCN_ID(HOME_POS), _home_node_t, &home);
-		
-		float axis[3] = {0,0,-1};
-		float mag_axis[3] = {1,0,0};
-		quaternion qr;
-		
-		quaternion_create(&qr, Deg2Rad(home.mag_decl), axis);
-		quaternion_rotateVector(&qr, mag_axis, mag_const);
-	}
+//	/* correct magnetic declination */
+//	if(mcn_poll(_home_node_t)){
+//		HOME_Pos home;
+//		mcn_copy(MCN_ID(HOME_POS), _home_node_t, &home);
+//		
+//		float axis[3] = {0,0,-1};
+//		float mag_axis[3] = {1,0,0};
+//		quaternion qr;
+//		
+//		quaternion_create(&qr, Deg2Rad(home.mag_decl), axis);
+//		quaternion_rotateVector(&qr, mag_axis, mag_const);
+//	}
 		
 	/* we only need x and y value for mag to calculate error of yaw */
 	mag_N[2] = 0.0f;
@@ -149,6 +149,9 @@ void AHRS_update(quaternion * q, const float gyr[3], const float acc[3], const f
 	delta[0] = gyr[0] + FACTOR_P*err_B[0] + gyr_bias[0];  
 	delta[1] = gyr[1] + FACTOR_P*err_B[1] + gyr_bias[1];  
 	delta[2] = gyr[2] + FACTOR_P*err_B[2] + gyr_bias[2];
+	
+	//static uint32_t time = 0;
+	//Console.print_eachtime(&time, 300, "mag:%f %f err:%f\n", magU[0], magU[1], err_B[2]);
 
 	/* first order runge-kutta to create quaternion */
 	Runge_Kutta_1st(q, *q, delta, dT);
