@@ -1,6 +1,6 @@
 clear all
 %% read log file
-logfile = 'AA.LOG';
+logfile = 'EKF2.LOG';
 readlog;
 
 %% init parameter

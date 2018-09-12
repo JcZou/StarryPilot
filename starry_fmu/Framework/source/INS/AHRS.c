@@ -150,9 +150,6 @@ void AHRS_update(quaternion * q, const float gyr[3], const float acc[3], const f
 	delta[1] = gyr[1] + FACTOR_P*err_B[1] + gyr_bias[1];  
 	delta[2] = gyr[2] + FACTOR_P*err_B[2] + gyr_bias[2];
 	
-	//static uint32_t time = 0;
-	//Console.print_eachtime(&time, 300, "mag:%f %f err:%f\n", magU[0], magU[1], err_B[2]);
-
 	/* first order runge-kutta to create quaternion */
 	Runge_Kutta_1st(q, *q, delta, dT);
 	quaternion_normalize(q);

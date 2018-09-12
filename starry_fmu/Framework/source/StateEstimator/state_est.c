@@ -126,11 +126,12 @@ uint8_t state_est_reset(void)
 
 uint8_t state_est_update(void)
 {
-	float acc[3], gyr[3];
+	float acc[3], gyr[3], mag[3];
 	
 	pos_try_sethome();
 	
 	sensor_get_acc(acc);
+	sensor_get_mag(mag);
 	sensor_get_gyr(gyr);
 	
 	Vector3f_t pos = {0,0,0};
@@ -162,18 +163,21 @@ uint8_t state_est_update(void)
 	MAT_ELEMENT(ekf_14.U, 3, 0) = acc[0];
 	MAT_ELEMENT(ekf_14.U, 4, 0) = acc[1];
 	MAT_ELEMENT(ekf_14.U, 5, 0) = acc[2];
+	MAT_ELEMENT(ekf_14.U, 6, 0) = mag[0];
+	MAT_ELEMENT(ekf_14.U, 7, 0) = mag[1];
+	MAT_ELEMENT(ekf_14.U, 8, 0) = mag[2];
 	
 	MAT_ELEMENT(ekf_14.Z, 0, 0) = pos.x;
 	MAT_ELEMENT(ekf_14.Z, 1, 0) = pos.y;
 	MAT_ELEMENT(ekf_14.Z, 2, 0) = pos.z;
-	MAT_ELEMENT(ekf_14.Z, 3, 0) = vel.x;
-	MAT_ELEMENT(ekf_14.Z, 4, 0) = vel.y;
-	MAT_ELEMENT(ekf_14.Z, 5, 0) = vel.z;
-	MAT_ELEMENT(ekf_14.Z, 6, 0) = 0.0f;		// acc constant: [0, 0, -1]
+//	MAT_ELEMENT(ekf_14.Z, 3, 0) = vel.x;
+//	MAT_ELEMENT(ekf_14.Z, 4, 0) = vel.y;
+//	MAT_ELEMENT(ekf_14.Z, 5, 0) = vel.z;
+	MAT_ELEMENT(ekf_14.Z, 3, 0) = 0.0f;		// acc constant: [0, 0, -1]
+	MAT_ELEMENT(ekf_14.Z, 4, 0) = 0.0f;
+	MAT_ELEMENT(ekf_14.Z, 5, 0) = -1.0f;
+	MAT_ELEMENT(ekf_14.Z, 6, 0) = 1.0f;		// mag constant: [1, 0]
 	MAT_ELEMENT(ekf_14.Z, 7, 0) = 0.0f;
-	MAT_ELEMENT(ekf_14.Z, 8, 0) = -1.0f;
-	MAT_ELEMENT(ekf_14.Z, 9, 0) = 1.0f;		// mag constant: [1, 0]
-	MAT_ELEMENT(ekf_14.Z, 10, 0) = 0.0f;
 	
 	EKF14_Prediction(&ekf_14);
 	
@@ -216,8 +220,8 @@ uint8_t state_est_update(void)
 	quaternion_toEuler(&_est_att_q, &_est_att_e);
 	mcn_publish(MCN_ID(ATT_EULER), &_est_att_e);
 	
-//	static uint32_t time = 0;
-//	Console.print_eachtime(&time, 300, "q:%f %f %f %f\n", _est_att_q.w, _est_att_q.x, _est_att_q.y, _est_att_q.z);
+	//static uint32_t time = 0;
+	//Console.print_eachtime(&time, 300, "q:%f %f %f %f\n", _est_att_q.w, _est_att_q.x, _est_att_q.y, _est_att_q.z);
 	
 	Vector3f_t ned_pos, ned_vel;
 	state_est_get_position(&ned_pos);
