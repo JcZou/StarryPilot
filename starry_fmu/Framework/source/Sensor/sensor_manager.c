@@ -715,6 +715,7 @@ rt_err_t device_sensor_init(void)
 	rt_device_open(lidar_device_t , RT_DEVICE_OFLAG_RDWR);
 #endif
 	
+	float null_data[3] = {0, 0, 0};
 	/* advertise sensor data */
 	int mcn_res;
 	mcn_res = mcn_advertise(MCN_ID(SENSOR_MEASURE_GYR));
@@ -745,14 +746,17 @@ rt_err_t device_sensor_init(void)
 	if(mcn_res != 0){
 		Console.e(TAG, "err:%d, sensor_filter_gyr advertise fail!\n", mcn_res);
 	}
+	mcn_publish(MCN_ID(SENSOR_FILTER_GYR), &null_data);
 	mcn_res = mcn_advertise(MCN_ID(SENSOR_FILTER_ACC));
 	if(mcn_res != 0){
 		Console.e(TAG, "err:%d, sensor_filter_acc advertise fail!\n", mcn_res);
 	}
+	mcn_publish(MCN_ID(SENSOR_FILTER_ACC), &null_data);
 	mcn_res = mcn_advertise(MCN_ID(SENSOR_FILTER_MAG));
 	if(mcn_res != 0){
 		Console.e(TAG, "err:%d, sensor_filter_mag advertise fail!\n", mcn_res);
 	}
+	mcn_publish(MCN_ID(SENSOR_FILTER_MAG), &null_data);
 	mcn_res = mcn_advertise(MCN_ID(SENSOR_BARO));
 	if(mcn_res != 0){
 		Console.e(TAG, "err:%d, sensor_baro advertise fail!\n", mcn_res);

@@ -29,8 +29,6 @@
 
 #define Rad2Deg(x)			((x)*57.2957795f)
 #define Deg2Rad(x)			((x)*0.0174533f)
-//#define Rad2Deg(x)			((x)*180.0f/PI)
-//#define Deg2Rad(x)			((x)*PI/180.0f)
 #define GRAVITY_MSS 		9.81f
 
 //extern const float PI;

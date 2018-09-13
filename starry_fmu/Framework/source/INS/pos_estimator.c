@@ -342,6 +342,12 @@ void pos_est_init(float dT)
 	if(mcn_res != 0){
 		Console.e(TAG, "HOME_POS advertise err:%d\n", mcn_res);
 	}
+	HOME_Pos hp;
+	hp.baro_altitude_set = 0;
+	hp.gps_coordinate_set = 0;
+	hp.lidar_altitude_set = 0;
+	// publish to init HOME_Pos
+	mcn_publish(MCN_ID(HOME_POS), &hp);
 	
 	alt_node_t = mcn_subscribe(MCN_ID(BARO_POSITION), NULL);
 	if(alt_node_t == NULL)

@@ -42,6 +42,7 @@ struct mcn_hub
 	McnNode_t link_head;
 	McnNode_t link_tail;
 	uint32_t link_num;
+	uint8_t published;	// publish flag
 };
 
 #define MCN_ID(_name)				(&__mcn_##_name)
@@ -55,7 +56,8 @@ struct mcn_hub
 		.pdata = NULL,                      \
 		.link_head = NULL,	                \
 		.link_tail = NULL,	                \
-		.link_num = 0						\
+		.link_num = 0,						\
+		.published = 0						\
 	}
 	
 int mcn_advertise(McnHub* hub);

@@ -83,6 +83,7 @@ int mcn_publish(McnHub* hub, const void* data)
 		node->renewal = 1;
 		node = node->next;
 	}
+	hub->published = 1;
 	MCN_EXIT_CRITICAL;
 	
 	/* invoke callback func */
@@ -110,6 +111,16 @@ bool mcn_poll(McnNode_t node_t)
 
 int mcn_copy(McnHub* hub, McnNode_t node_t, void* buffer)
 {
+	if(hub->pdata == NULL){
+		// not advertised yet
+		Console.e(TAG, "uMCN, copy from null hub:%s\n", hub->obj_name);
+		return 1;
+	}
+	if(!hub->published){
+		// copy before published
+		return 2;
+	}
+	
 	MCN_ENTER_CRITICAL;
 	memcpy(buffer, hub->pdata, hub->obj_size);
 	node_t->renewal = 0;
@@ -120,6 +131,16 @@ int mcn_copy(McnHub* hub, McnNode_t node_t, void* buffer)
 
 int mcn_copy_from_hub(McnHub* hub, void* buffer)
 {
+	if(hub->pdata == NULL){
+		// not advertised yet
+		Console.e(TAG, "uMCN, copy from null hub:%s\n", hub->obj_name);
+		return 1;
+	}
+	if(!hub->published){
+		// copy before published
+		return 2;
+	}
+	
 	MCN_ENTER_CRITICAL;
 	memcpy(buffer, hub->pdata, hub->obj_size);
 	MCN_EXIT_CRITICAL;
