@@ -20,7 +20,7 @@
 #define STATE_GZ_BIAS	12
 #define STATE_AZ_BIAS	13
 
-#define MAT_ELEMENT(mat, row, col)			mat.pData[row*mat.numCols+col]
+#define MAT_ELEMENT(mat, row, col)			(mat.pData[row*mat.numCols+col])
 
 typedef struct
 {
@@ -64,6 +64,7 @@ uint8_t EKF14_Init(EKF_Def* ekf_t, float32_t dT);
 void EKF14_Reset(EKF_Def* ekf_t);
 uint8_t EKF14_Prediction(EKF_Def* ekf_t);
 uint8_t EKF14_Correct(EKF_Def* ekf_t);
+uint8_t EKF14_SerialCorrect(EKF_Def* ekf_t, uint32_t enable_bitmask);
 float32_t EKF14_Get_State(const EKF_Def* ekf_t, uint8_t state);
 
 #endif

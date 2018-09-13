@@ -53,6 +53,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define EKF_STATE_GZ_BIAS_DELAY		0
 #define EKF_STATE_AZ_BIAS_DELAY		0
 
+#define Equal(x, y)					( fabs(x-y) < 1e-7 )
+
 static EKF_Def ekf_14;
 static quaternion _est_att_q;
 static Euler _est_att_e;
@@ -127,6 +129,7 @@ uint8_t state_est_reset(void)
 uint8_t state_est_update(void)
 {
 	float acc[3], gyr[3], mag[3];
+	uint32_t enable = 0xFFFF;
 	
 	pos_try_sethome();
 	
@@ -134,8 +137,16 @@ uint8_t state_est_update(void)
 	sensor_get_mag(mag);
 	sensor_get_gyr(gyr);
 	
+	if(acc[0] == 0.0f && acc[1] == 0.0f && acc[2] == 0.0f){
+		enable &= 0xC7;
+	}
+	if(mag[0] == 0.0f && mag[1] == 0.0f && mag[2] == 0.0f){
+		enable &= 0x3F;
+	}
+	
 	Vector3f_t pos = {0,0,0};
 	Vector3f_t vel = {0,0,0};
+
 	struct vehicle_gps_position_s gps_report = gps_get_report();
 
 	GPS_Status gps_status;
@@ -147,6 +158,8 @@ uint8_t state_est_update(void)
 	if(gps_status.status == GPS_AVAILABLE && home_pos.gps_coordinate_set){
 		gps_get_position(&pos, gps_report);
 		gps_get_velocity(&vel, gps_report);
+	}else{
+		enable &= 0xFC;
 	}
 	
 	BaroPosition baro_pos;
@@ -155,6 +168,8 @@ uint8_t state_est_update(void)
 	if(home_pos.baro_altitude_set){
 		pos.z = baro_pos.altitude - home_pos.alt;
 		vel.z = baro_pos.velocity;
+	}else{
+		enable &= 0xFB;
 	}
 	
 	MAT_ELEMENT(ekf_14.U, 0, 0) = gyr[0];
@@ -203,7 +218,8 @@ uint8_t state_est_update(void)
 		MAT_ELEMENT(ekf_14.X, n, 0) = hist_val;
 	}
 	
-	EKF14_Correct(&ekf_14);
+	//EKF14_Correct(&ekf_14);
+	EKF14_SerialCorrect(&ekf_14, enable);
 	
 	// add delta state back
 	for(uint8_t n = 0 ; n < 14 ; n++){
@@ -220,8 +236,8 @@ uint8_t state_est_update(void)
 	quaternion_toEuler(&_est_att_q, &_est_att_e);
 	mcn_publish(MCN_ID(ATT_EULER), &_est_att_e);
 	
-	//static uint32_t time = 0;
-	//Console.print_eachtime(&time, 300, "q:%f %f %f %f\n", _est_att_q.w, _est_att_q.x, _est_att_q.y, _est_att_q.z);
+	//static uint32_t time2 = 0;
+	//Console.print_eachtime(&time2, 300, "q:%f %f %f %f\n", _est_att_q.w, _est_att_q.x, _est_att_q.y, _est_att_q.z);
 	
 	Vector3f_t ned_pos, ned_vel;
 	state_est_get_position(&ned_pos);
