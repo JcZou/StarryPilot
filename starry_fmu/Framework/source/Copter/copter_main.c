@@ -25,6 +25,7 @@
 static struct rt_timer timer_copter;
 static struct rt_event event_copter;
 uint32_t _att_est_period, _pos_est_period, _control_period;
+uint32_t _ekf_est_period;
 
 static char* TAG = "Copter_Main";
 
@@ -104,11 +105,12 @@ void copter_entry(void *parameter)
 	_pos_est_period = POS_EST_PERIOD;
 	_control_period = CONTROL_PERIOD;
 #endif	
+	_ekf_est_period = EKF_PERIOD;
 	
 	filter_init();
 	attitude_est_init();
 	control_init();
-	state_est_init(0.004f);
+	state_est_init(1e-3*_ekf_est_period);
 #ifdef HIL_SIMULATION
 	hil_interface_init(HIL_SENSOR_LEVEL);
 	Console.print("HIL Mode...\n");

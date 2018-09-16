@@ -48,12 +48,12 @@ static KF_Def pos_kf[3];
 static FIFO _hist_x[3][2];
 static float _acc_bias[3] = {0,0,0};
 
-static Position_Info pos_info;
-static AltInfo _altInfo;
+static Altitude_Info _altInfo;
 
 static char *TAG = "POS";
 
-MCN_DEFINE(ALT_INFO, sizeof(AltInfo));
+MCN_DEFINE(ALT_INFO, sizeof(Altitude_Info));
+MCN_DEFINE(POS_INFO, sizeof(Position_Info));
 MCN_DEFINE(POS_KF, sizeof(POS_KF_Log));
 MCN_DEFINE(HOME_POS, sizeof(HOME_Pos));
 
@@ -82,17 +82,6 @@ void save_alt_info(float alt, float relative_alt, float vz, float az, float az_b
 	_altInfo.vz = vz;
 	_altInfo.az = az;
 	_altInfo.az_bias = az_bias;
-}
-
-Position_Info get_pos_info(void)
-{
-	Position_Info temp_info;
-	
-	OS_ENTER_CRITICAL;
-	temp_info = pos_info; 
-	OS_EXIT_CRITICAL;
-	
-	return temp_info;
 }
 
 void pos_home_set(HOME_Item item, void* data)
@@ -333,6 +322,10 @@ void pos_est_init(float dT)
 	int mcn_res = mcn_advertise(MCN_ID(ALT_INFO));
 	if(mcn_res != 0){
 		Console.e(TAG, "ALT_INFO advertise err:%d\n", mcn_res);
+	}
+	mcn_res = mcn_advertise(MCN_ID(POS_INFO));
+	if(mcn_res != 0){
+		Console.e(TAG, "POS_INFO advertise err:%d\n", mcn_res);
 	}
 	mcn_res = mcn_advertise(MCN_ID(POS_KF));
 	if(mcn_res != 0){

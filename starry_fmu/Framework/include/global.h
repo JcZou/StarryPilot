@@ -45,7 +45,7 @@
 #define OS_FREE(ptr)			rt_free(ptr)
 
 /* global configuration */
-//#define AHRS_USE_EKF
+#define AHRS_USE_EKF
 
 typedef int bool;
 #define true	1

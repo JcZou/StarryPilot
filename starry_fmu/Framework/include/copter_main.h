@@ -16,6 +16,7 @@
 //#define CONTROL_PERIOD		2
 //#define POS_EST_PERIOD		10
 #define AHRS_PERIOD			2
+#define EKF_PERIOD			4
 #define CONTROL_PERIOD		4
 #define POS_EST_PERIOD		10
 

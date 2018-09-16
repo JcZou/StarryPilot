@@ -90,7 +90,7 @@ int mcn_publish(McnHub* hub, const void* data)
 	node = hub->link_head;
 	while(node != NULL){
 		if(node->cb != NULL){
-			node->cb(NULL);
+			node->cb(hub->pdata);
 		}
 		node = node->next;
 	}

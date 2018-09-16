@@ -9,6 +9,7 @@
 *.pdb
 *.idb
 *.ilk
+*.px4
 build
 Debug
 documentation/html

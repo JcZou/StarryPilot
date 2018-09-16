@@ -984,12 +984,15 @@ rt_err_t gps_init(rt_device_t dev)
 	rt_device_open(serial_device, RT_DEVICE_OFLAG_RDWR | RT_DEVICE_FLAG_INT_RX);
 	
 	for(uint8_t i = 0 ; i<CONFIGURE_RETRY_MAX ; i++){
-		if(_configure_by_ubx() == 0)
+		if(_configure_by_ubx() == 0){
+			// gps configuration success
 			return RT_EOK;
+		}
 	}
 	
+	// gps configuration fail
 	//return RT_ERROR;
-	//TODO:
+//	//TODO:
 	return RT_EOK;
 }
 

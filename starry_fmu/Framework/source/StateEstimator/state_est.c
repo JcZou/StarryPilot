@@ -37,23 +37,39 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gps.h"
 #include "fifo.h"
 
-#define EKF_MAX_DELAY_OFFFSET		20
-#define EKF_STATE_X_DELAY			100
-#define EKF_STATE_Y_DELAY			100
-#define EKF_STATE_Z_DELAY			100
-#define EKF_STATE_VX_DELAY			100
-#define EKF_STATE_VY_DELAY			100
-#define EKF_STATE_VZ_DELAY			100
-#define EKF_STATE_Q0_DELAY			4
-#define EKF_STATE_Q1_DELAY			4
-#define EKF_STATE_Q2_DELAY			4
-#define EKF_STATE_Q3_DELAY			4
-#define EKF_STATE_GX_BIAS_DELAY		0
-#define EKF_STATE_GY_BIAS_DELAY		0
-#define EKF_STATE_GZ_BIAS_DELAY		0
-#define EKF_STATE_AZ_BIAS_DELAY		0
-
-#define Equal(x, y)					( fabs(x-y) < 1e-7 )
+#ifndef HIL_SIMULATION
+	#define EKF_MAX_DELAY_OFFFSET		20
+	#define EKF_STATE_X_DELAY			100
+	#define EKF_STATE_Y_DELAY			100
+	#define EKF_STATE_Z_DELAY			100
+	#define EKF_STATE_VX_DELAY			100
+	#define EKF_STATE_VY_DELAY			100
+	#define EKF_STATE_VZ_DELAY			100
+	#define EKF_STATE_Q0_DELAY			4
+	#define EKF_STATE_Q1_DELAY			4
+	#define EKF_STATE_Q2_DELAY			4
+	#define EKF_STATE_Q3_DELAY			4
+	#define EKF_STATE_GX_BIAS_DELAY		0
+	#define EKF_STATE_GY_BIAS_DELAY		0
+	#define EKF_STATE_GZ_BIAS_DELAY		0
+	#define EKF_STATE_AZ_BIAS_DELAY		0
+#else
+	#define EKF_MAX_DELAY_OFFFSET		20
+	#define EKF_STATE_X_DELAY			0
+	#define EKF_STATE_Y_DELAY			0
+	#define EKF_STATE_Z_DELAY			0
+	#define EKF_STATE_VX_DELAY			0
+	#define EKF_STATE_VY_DELAY			0
+	#define EKF_STATE_VZ_DELAY			0
+	#define EKF_STATE_Q0_DELAY			0
+	#define EKF_STATE_Q1_DELAY			0
+	#define EKF_STATE_Q2_DELAY			0
+	#define EKF_STATE_Q3_DELAY			0
+	#define EKF_STATE_GX_BIAS_DELAY		0
+	#define EKF_STATE_GY_BIAS_DELAY		0
+	#define EKF_STATE_GZ_BIAS_DELAY		0
+	#define EKF_STATE_AZ_BIAS_DELAY		0
+#endif
 
 static EKF_Def ekf_14;
 static quaternion _est_att_q;
@@ -64,6 +80,7 @@ MCN_DECLARE(ATT_QUATERNION);
 MCN_DECLARE(ATT_EULER);
 MCN_DECLARE(BARO_POSITION);
 MCN_DECLARE(ALT_INFO);
+MCN_DECLARE(POS_INFO);
 
 static char *TAG = "State_EST";
 
@@ -93,7 +110,7 @@ uint8_t state_est_init(float dT)
 {
 	EKF14_Init(&ekf_14, dT);
 	
-	uint32_t interval = 4; // 4ms
+	uint32_t interval = dT*1e3;
 	uint32_t hist_offset[14] = {
 		EKF_STATE_X_DELAY/interval, EKF_STATE_Y_DELAY/interval, EKF_STATE_Z_DELAY/interval,
 		EKF_STATE_VX_DELAY/interval, EKF_STATE_VY_DELAY/interval, EKF_STATE_VZ_DELAY/interval,
@@ -185,9 +202,6 @@ uint8_t state_est_update(void)
 	MAT_ELEMENT(ekf_14.Z, 0, 0) = pos.x;
 	MAT_ELEMENT(ekf_14.Z, 1, 0) = pos.y;
 	MAT_ELEMENT(ekf_14.Z, 2, 0) = pos.z;
-//	MAT_ELEMENT(ekf_14.Z, 3, 0) = vel.x;
-//	MAT_ELEMENT(ekf_14.Z, 4, 0) = vel.y;
-//	MAT_ELEMENT(ekf_14.Z, 5, 0) = vel.z;
 	MAT_ELEMENT(ekf_14.Z, 3, 0) = 0.0f;		// acc constant: [0, 0, -1]
 	MAT_ELEMENT(ekf_14.Z, 4, 0) = 0.0f;
 	MAT_ELEMENT(ekf_14.Z, 5, 0) = -1.0f;
@@ -228,17 +242,10 @@ uint8_t state_est_update(void)
 	
 	state_est_get_quaternion(&_est_att_q);
 	mcn_publish(MCN_ID(ATT_QUATERNION), &_est_att_q);
-//	_est_att_q.w = MAT_ELEMENT(ekf_14.X, STATE_Q0, 0);
-//	_est_att_q.x = MAT_ELEMENT(ekf_14.X, STATE_Q1, 0);
-//	_est_att_q.y = MAT_ELEMENT(ekf_14.X, STATE_Q2, 0);
-//	_est_att_q.z = MAT_ELEMENT(ekf_14.X, STATE_Q3, 0);
-	
+
 	quaternion_toEuler(&_est_att_q, &_est_att_e);
 	mcn_publish(MCN_ID(ATT_EULER), &_est_att_e);
-	
-	//static uint32_t time2 = 0;
-	//Console.print_eachtime(&time2, 300, "q:%f %f %f %f\n", _est_att_q.w, _est_att_q.x, _est_att_q.y, _est_att_q.z);
-	
+
 	Vector3f_t ned_pos, ned_vel;
 	state_est_get_position(&ned_pos);
 	state_est_get_velocity(&ned_vel);
@@ -247,15 +254,26 @@ uint8_t state_est_update(void)
 	/* transfer acceleration from body frame to navigation frame */
 	quaternion_rotateVector(&_est_att_q, acc, accE);	
 	/* remove gravity */
-	accE[2] += 9.8f;
+	accE[2] += GRAVITY_MSS;
 	
-	AltInfo alt_info;
+	Altitude_Info alt_info;
 	alt_info.alt = -(ned_pos.z+home_pos.alt);
 	alt_info.relative_alt = -ned_pos.z;
 	alt_info.vz = -ned_vel.z;
 	alt_info.az = -accE[2];
 	alt_info.az_bias = -EKF14_Get_State(&ekf_14, STATE_AZ_BIAS);
 	mcn_publish(MCN_ID(ALT_INFO), &alt_info);
+	
+	Position_Info pos_info;
+	pos_info.x = ned_pos.x;
+	pos_info.y = ned_pos.y;
+	pos_info.vx = ned_vel.x;
+	pos_info.vy = ned_vel.y;
+	pos_info.ax = accE[0];
+	pos_info.ay = accE[1];
+	pos_info.ax_bias = 0.0f;	// TODO, no estimation bias for ax and ay
+	pos_info.ay_bias = 0.0f;
+	mcn_publish(MCN_ID(POS_INFO), &pos_info);
 
 	return 0;
 }

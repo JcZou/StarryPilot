@@ -73,6 +73,7 @@ static float _baro_last_alt = 0.0f;
 static uint32_t _baro_last_time = 0;
 static BaroPosition _baro_pos = {0.0f, 0.0f, 0.0f};
 static GPS_Driv_Vel _gps_driv_vel;
+static bool _gps_connected = false;
 
 MCN_DEFINE(SENSOR_MEASURE_GYR, 12);	
 MCN_DEFINE(SENSOR_MEASURE_ACC, 12);
@@ -701,7 +702,8 @@ rt_err_t device_sensor_init(void)
 		Console.e(TAG, "can't find gps device\r\n");
 		return RT_EEMPTY;
 	}
-	rt_device_open(gps_device_t , RT_DEVICE_OFLAG_RDWR);
+	rt_err_t gps_open_res = rt_device_open(gps_device_t , RT_DEVICE_OFLAG_RDWR);
+	_gps_connected = gps_open_res == RT_EOK ? true : false;
 
 #ifdef USE_LIDAR_I2C	
 	/* init lidar lite device */

@@ -612,7 +612,7 @@ void control_altitude(float dT)
 	float base_throttle;
 
 	if(mcn_poll(alt_node_t)){
-		AltInfo alt_info;
+		Altitude_Info alt_info;
 		mcn_copy(MCN_ID(ALT_INFO), alt_node_t, &alt_info);
 		
 		float raw_th = rc_get_chanval(CHAN_THROTTLE);
