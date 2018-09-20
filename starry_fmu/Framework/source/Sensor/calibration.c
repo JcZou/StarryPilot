@@ -2,7 +2,7 @@
 * File      : calibration.c
 *
 * 最小二乘法椭球拟合校正算法
-*
+*/
 /*****************************************************************************
 Copyright (c) 2018, StarryPilot Development Team. All rights reserved.
 
@@ -52,6 +52,53 @@ static bool gyr_calibrate_flag;
 MCN_DECLARE(SENSOR_MEASURE_GYR);
 MCN_DECLARE(SENSOR_MEASURE_ACC);
 MCN_DECLARE(SENSOR_MEASURE_MAG);
+
+#define MS_TO_TICKS(ms) (ms * RT_TICK_PER_SECOND / 1000)
+
+typedef struct {
+	bool jitter;
+	float last_gyr[3];
+	uint16_t count;
+	uint16_t jitter_counter;
+} copter_jitter_t;
+
+copter_jitter_t jitter = {0};
+
+#define ACC_MAX_THRESHOLD 9.3f
+#define ACC_MIN_THRESHOLD 0.6f
+
+typedef enum {
+	ACC_POS_FRONT,
+	ACC_POS_BACK,
+	ACC_POS_LEFT,
+	ACC_POS_RIGHT,
+	ACC_POS_UP,
+	ACC_POS_DOWN,
+} acc_position;
+
+typedef struct {
+	int acc_calibrate_flag;
+	union {
+		struct {
+			unsigned int front_flag:1;
+			unsigned int back_flag:1;
+			unsigned int left_flag:1;
+			unsigned int right_flag:1;
+			unsigned int up_flag:1;
+			unsigned int down_flag:1;
+			unsigned int step:3;
+			unsigned int obj_flag:1;
+		} bit;
+		unsigned int val;
+	} pos;
+	int sample_cnt;
+	int sample_flag;
+	int detect_cnt;
+	acc_position cur_pos;
+	Cali_Obj obj;
+} acc_t;
+
+static acc_t acc = {0};
 
 void gyr_mavlink_calibration(void)
 {
@@ -299,6 +346,259 @@ void cali_solve(Cali_Obj *obj, double radius)
 	MatDelete(&InvEigVec);
 	MatDelete(&tmp);
 }
+
+static void copter_jitter_check(void)
+{
+	float gyr_data_p[3];
+	float offset_gyr[3];
+	int ret = 0;
+
+	if (jitter.count < 20) {
+		jitter.count++;
+		sensor_gyr_measure(gyr_data_p);
+		offset_gyr[0] = gyr_data_p[0] - jitter.last_gyr[0];
+		offset_gyr[1] = gyr_data_p[1] - jitter.last_gyr[1];
+		offset_gyr[2] = gyr_data_p[2] - jitter.last_gyr[2];
+		jitter.last_gyr[0] = gyr_data_p[0];
+		jitter.last_gyr[1] = gyr_data_p[1];
+		jitter.last_gyr[2] = gyr_data_p[2];
+
+		if (fabsf(offset_gyr[0]) > 0.8 || fabsf(offset_gyr[1]) > 0.8 || fabsf(offset_gyr[2]) > 0.8) {
+			jitter.jitter_counter++;
+		}
+	} else {
+		if (jitter.jitter_counter > 10) {
+			jitter.jitter = true;
+		} else {
+			jitter.jitter = false;
+		}
+
+		jitter.count = 0;
+		jitter.jitter_counter = 0;
+	}
+}
+
+static void acc_position_detect(void)
+{
+	float acc_f[3];
+	sensor_acc_measure(acc_f);
+
+	if ((fabsf(acc_f[0]) > ACC_MAX_THRESHOLD) && 
+		(fabsf(acc_f[1]) < ACC_MIN_THRESHOLD) && 
+		(fabsf(acc_f[2]) < ACC_MIN_THRESHOLD)) {
+		if (acc_f[0] < 0) {
+			acc.cur_pos = ACC_POS_FRONT;
+		} else {
+			acc.cur_pos = ACC_POS_BACK;
+		}
+	}
+
+	if ((fabsf(acc_f[0]) < ACC_MIN_THRESHOLD) && 
+		(fabsf(acc_f[1]) > ACC_MAX_THRESHOLD) && 
+		(fabsf(acc_f[2]) < ACC_MIN_THRESHOLD)) {
+		if (acc_f[1] < 0) {
+			acc.cur_pos = ACC_POS_RIGHT;
+		} else {
+			acc.cur_pos = ACC_POS_LEFT;
+		}
+	}
+
+	if ((fabsf(acc_f[0]) < ACC_MIN_THRESHOLD) && 
+		(fabsf(acc_f[1]) < ACC_MIN_THRESHOLD) && 
+		(fabsf(acc_f[2]) > ACC_MAX_THRESHOLD)) {
+		if (acc_f[2] > 0) {
+			acc.cur_pos = ACC_POS_UP;
+		} else {
+			acc.cur_pos = ACC_POS_DOWN;
+		}
+	}
+}
+
+void acc_mavlink_calibration(void)
+{
+	float acc_f[3];
+
+	if (!acc.acc_calibrate_flag) {
+		return;
+	}
+
+	if (!acc.pos.bit.obj_flag) {
+		cali_obj_init(&(acc.obj));
+		acc.pos.bit.obj_flag = 1;
+	}
+
+	copter_jitter_check();
+	acc_position_detect();
+
+	if ((acc.cur_pos == ACC_POS_FRONT) && !acc.pos.bit.front_flag) {
+		if (!jitter.jitter) {
+			acc.detect_cnt++;
+		} else {
+			acc.detect_cnt = 0;
+		}
+		if (acc.detect_cnt > ACC_POS_DETECT_COUNT) {
+			acc.sample_flag = 1;
+			acc.pos.bit.front_flag = 1;
+			acc.sample_cnt = 0;
+			acc.pos.bit.step++;
+			mavlink_send_status(CAL_FRONT_DETECTED);
+		}
+	}
+
+	if ((acc.cur_pos == ACC_POS_BACK) && !acc.pos.bit.back_flag) {
+		if (!jitter.jitter) {
+			acc.detect_cnt++;
+		} else {
+			acc.detect_cnt = 0;
+		}
+		if (acc.detect_cnt > ACC_POS_DETECT_COUNT) {
+			acc.sample_flag = 1;
+			acc.pos.bit.back_flag = 1;
+			acc.sample_cnt = 0;
+			acc.pos.bit.step++;
+			mavlink_send_status(CAL_BACK_DETECTED);
+		}
+	}
+
+	if ((acc.cur_pos == ACC_POS_LEFT) && !acc.pos.bit.left_flag) {
+		if (!jitter.jitter) {
+			acc.detect_cnt++;
+		} else {
+			acc.detect_cnt = 0;
+		}
+		if (acc.detect_cnt > ACC_POS_DETECT_COUNT) {
+			acc.sample_flag = 1;
+			acc.pos.bit.left_flag = 1;
+			acc.sample_cnt = 0;
+			acc.pos.bit.step++;
+			mavlink_send_status(CAL_LEFT_DETECTED);
+		}
+	}
+
+	if ((acc.cur_pos == ACC_POS_RIGHT) && !acc.pos.bit.right_flag) {
+		if (!jitter.jitter) {
+			acc.detect_cnt++;
+		} else {
+			acc.detect_cnt = 0;
+		}
+		if (acc.detect_cnt > ACC_POS_DETECT_COUNT) {
+			acc.sample_flag = 1;
+			acc.pos.bit.right_flag = 1;
+			acc.sample_cnt = 0;
+			acc.pos.bit.step++;
+			mavlink_send_status(CAL_RIGHT_DETECTED);
+		}
+	}
+
+	if ((acc.cur_pos == ACC_POS_UP) && !acc.pos.bit.up_flag) {
+		if (!jitter.jitter) {
+			acc.detect_cnt++;
+		} else {
+			acc.detect_cnt = 0;
+		}
+		if (acc.detect_cnt > ACC_POS_DETECT_COUNT) {
+			acc.sample_flag = 1;
+			acc.pos.bit.up_flag = 1;
+			acc.sample_cnt = 0;
+			acc.pos.bit.step++;
+			mavlink_send_status(CAL_UP_DETECTED);
+		}
+	}
+
+	if ((acc.cur_pos == ACC_POS_DOWN) && !acc.pos.bit.down_flag) {
+		if (!jitter.jitter) {
+			acc.detect_cnt++;
+		} else {
+			acc.detect_cnt = 0;
+		}
+		if (acc.detect_cnt > ACC_POS_DETECT_COUNT) {
+			acc.sample_flag = 1;
+			acc.pos.bit.down_flag = 1;
+			acc.sample_cnt = 0;
+			acc.pos.bit.step++;
+			mavlink_send_status(CAL_DOWN_DETECTED);
+		}
+	}
+
+	if (acc.sample_flag) {
+		if (acc.sample_cnt < ACC_SAMPLE_COUNT) {
+			sensor_acc_measure(acc_f);
+			cali_least_squre_update(&(acc.obj), acc_f);
+			acc.sample_cnt++;
+		} else if (acc.sample_cnt == ACC_SAMPLE_COUNT) {
+			acc.detect_cnt = 0;
+			acc.sample_cnt++;
+			acc.sample_flag = 0;
+			switch (acc.cur_pos)
+			{
+				case ACC_POS_FRONT:
+					mavlink_send_status(CAL_FRONT_DONE);
+					break;
+				case ACC_POS_BACK:
+					mavlink_send_status(CAL_BACK_DONE);
+					break;
+				case ACC_POS_LEFT:
+					mavlink_send_status(CAL_LEFT_DONE);
+					break;
+				case ACC_POS_RIGHT:
+					mavlink_send_status(CAL_RIGHT_DONE);
+					break;
+				case ACC_POS_UP:
+					mavlink_send_status(CAL_UP_DONE);
+					break;
+				case ACC_POS_DOWN:
+					mavlink_send_status(CAL_DOWN_DONE);
+					break;
+				default:
+					break;
+			}
+			mavlink_send_calibration_progress_msg(((float)acc.pos.bit.step / 6) * 10);
+		}
+	}
+
+	if ((acc.pos.bit.step == 6) && (acc.sample_cnt > ACC_SAMPLE_COUNT)) {
+		cali_solve(&(acc.obj), GRAVITY_MSS);
+		Console.print("Center:%f %f %f\n", acc.obj.OFS[0],acc.obj.OFS[1],acc.obj.OFS[2]);
+		Console.print("Radius:%f %f %f\n", acc.obj.GAIN[0],acc.obj.GAIN[1],acc.obj.GAIN[2]);
+		Console.print("Rotation Matrix:\n");
+		for(int row = 0 ; row < acc.obj.RotM.row ; row++) {
+			for(int col = 0 ; col < acc.obj.RotM.col ; col++) {
+				Console.print("%.4f\t", acc.obj.RotM.element[row][col]);
+			}
+			Console.print("\n");
+		}
+
+		PARAM_SET_FLOAT(CALIBRATION, ACC_X_OFFSET, acc.obj.OFS[0]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_Y_OFFSET, acc.obj.OFS[1]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_Z_OFFSET, acc.obj.OFS[2]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT00, acc.obj.RotM.element[0][0]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT01, acc.obj.RotM.element[0][1]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT02, acc.obj.RotM.element[0][2]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT10, acc.obj.RotM.element[1][0]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT11, acc.obj.RotM.element[1][1]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT12, acc.obj.RotM.element[1][2]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT20, acc.obj.RotM.element[2][0]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT21, acc.obj.RotM.element[2][1]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT22, acc.obj.RotM.element[2][2]);
+		PARAM_SET_UINT32(CALIBRATION, ACC_CALIB, 1);
+		
+		param_store();
+
+		mavlink_send_status(CAL_DONE);
+		cali_obj_delete(&(acc.obj));
+		acc.pos.bit.obj_flag = 0;
+		acc.acc_calibrate_flag = false;
+		acc.pos.val = 0;
+		acc.sample_cnt = 0;
+		
+	}
+}
+
+void acc_mavlink_calibration_start(void)
+{
+	acc.acc_calibrate_flag = true;
+}
+
 
 /**************************** Calibrate method 2 End ************************************/
 
@@ -594,3 +894,14 @@ int handle_calib_shell_cmd(int argc, char** argv)
 	
 	return res;
 }
+
+void rt_cali_thread_entry(void* parameter)
+{
+
+	while (1) {
+		gyr_mavlink_calibration();
+		acc_mavlink_calibration();
+		rt_thread_sleep(MS_TO_TICKS(CALI_THREAD_SLEEP_MS));
+	}
+}
+

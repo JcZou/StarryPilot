@@ -34,6 +34,7 @@
 #include "file_manager.h"
 #include "logger.h"
 #include "fast_loop.h"
+#include "calibration.h"
 
 #ifdef RT_USING_LWIP
 #include <lwip/sys.h>
@@ -67,6 +68,9 @@ struct rt_thread thread_logger_handle;
 
 static char thread_led_stack[512];
 struct rt_thread thread_led_handle;
+
+static char thread_cali_stack[4096];
+struct rt_thread thread_cali_handle;
 
 FATFS FatFs;
 
@@ -165,7 +169,16 @@ void rt_init_thread_entry(void* parameter)
 						   sizeof(thread_led_stack),LED_THREAD_PRIORITY,1);
 	if (res == RT_EOK)
 		rt_thread_startup(&thread_led_handle);
-	
+
+	res = rt_thread_init(&thread_cali_handle,
+						   "cali",
+						   rt_cali_thread_entry,
+						   RT_NULL,
+						   &thread_cali_stack[0],
+						   sizeof(thread_cali_stack),CALI_THREAD_PRIORITY,2);
+	if (res == RT_EOK)
+		rt_thread_startup(&thread_cali_handle);
+
 	/* delete itself */
 	rt_thread_delete(tid0);
 }
