@@ -599,6 +599,52 @@ void acc_mavlink_calibration_start(void)
 	acc.acc_calibrate_flag = true;
 }
 
+typedef struct {
+	uint64_t last_time;
+	bool mag_calibrate_flag;
+	float rotation_angle;
+} mag_t;
+
+static mag_t mag = {0};
+
+void mag_mavlink_calibration(void)
+{
+	float mag_f[3];
+	float gyr_f[3];
+	float delta_t;
+	uint64_t now;
+	
+	if (!mag.mag_calibrate_flag) {
+		return;
+	}
+
+	sensor_gyr_measure(gyr_f);
+	now = time_nowUs();
+	delta_t = (now - mag.last_time) * 1e-6;
+	mag.last_time = now;
+
+	acc_position_detect();
+
+	if ((acc.cur_pos == ACC_POS_UP) || (acc.cur_pos == ACC_POS_DOWN)) {
+		mag.rotation_angle += gyr_f[2] * delta_t;
+		mavlink_send_status(CAL_UP_DETECTED);
+	}
+
+	if ((acc.cur_pos == ACC_POS_LEFT) || (acc.cur_pos == ACC_POS_RIGHT)) {
+		mag.rotation_angle += gyr_f[1] * delta_t;
+		mavlink_send_status(CAL_LEFT_DETECTED);
+	}
+
+	if ((acc.cur_pos == ACC_POS_FRONT) || (acc.cur_pos == ACC_POS_BACK)) {
+		mag.rotation_angle += gyr_f[0] * delta_t;
+		mavlink_send_status(CAL_FRONT_DETECTED);
+	}
+}
+
+void mag_mavlink_calibration_start(void)
+{
+	mag.mag_calibrate_flag = true;
+}
 
 /**************************** Calibrate method 2 End ************************************/
 
