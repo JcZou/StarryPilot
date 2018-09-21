@@ -36,6 +36,8 @@ void gyr_mavlink_calibration(void);
 void gyr_mavlink_calibration_start(void);
 void acc_mavlink_calibration(void);
 void acc_mavlink_calibration_start(void);
+void mag_mavlink_calibration(void);
+void mag_mavlink_calibration_start(void);
 
 int calibrate_acc_run(void);
 int calibrate_mag_run(void);

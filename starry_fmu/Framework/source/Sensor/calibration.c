@@ -100,6 +100,24 @@ typedef struct {
 
 static acc_t acc = {0};
 
+typedef struct {
+	uint32_t last_time;
+	bool mag_calibrate_flag;
+	float rotation_angle;
+	union {
+		struct {
+			unsigned int down_flag:1;
+			unsigned int front_flag:1;
+			unsigned int obj_flag:1;
+			unsigned int step:3;
+		} bit;
+		unsigned int val;
+	} stat;
+	Cali_Obj obj;
+} mag_t;
+
+static mag_t mag = {0};
+
 void gyr_mavlink_calibration(void)
 {
 	float gyr_data_p[3];
@@ -135,6 +153,7 @@ void gyr_mavlink_calibration(void)
 		ret |= mavlink_param_set_value_by_index(CAL_GYRO0_ZOFF, offset_gyr[2]);
 
 		if (!ret) {
+			PARAM_SET_UINT32(CALIBRATION, GYR_CALIB, 1);
 			mavlink_send_status(CAL_DONE);
 		} else {
 			mavlink_send_status(CAL_FAILED);
@@ -599,46 +618,123 @@ void acc_mavlink_calibration_start(void)
 	acc.acc_calibrate_flag = true;
 }
 
-typedef struct {
-	uint64_t last_time;
-	bool mag_calibrate_flag;
-	float rotation_angle;
-} mag_t;
-
-static mag_t mag = {0};
-
 void mag_mavlink_calibration(void)
 {
 	float mag_f[3];
 	float gyr_f[3];
 	float delta_t;
-	uint64_t now;
+	uint32_t now;
 	
 	if (!mag.mag_calibrate_flag) {
 		return;
 	}
 
 	sensor_gyr_measure(gyr_f);
-	now = time_nowUs();
-	delta_t = (now - mag.last_time) * 1e-6;
+	now = time_nowMs();
+	delta_t = (now - mag.last_time) * 1e-3;
 	mag.last_time = now;
 
 	acc_position_detect();
 
-	if ((acc.cur_pos == ACC_POS_UP) || (acc.cur_pos == ACC_POS_DOWN)) {
-		mag.rotation_angle += gyr_f[2] * delta_t;
-		mavlink_send_status(CAL_UP_DETECTED);
-	}
+	switch (mag.stat.bit.step)
+	{
+		case 0:
+		{
+			if (!mag.stat.bit.obj_flag) {
+				cali_obj_init(&(mag.obj));
+				mag.stat.bit.obj_flag = 1;
+			}
+			if ((acc.cur_pos == ACC_POS_UP) || (acc.cur_pos == ACC_POS_DOWN)) {
+				mag.stat.bit.step = 1;
+			}
+			break;
+		}
+		case 1:
+		{
+			mag.rotation_angle += gyr_f[2] * delta_t;
+			if (!mag.stat.bit.down_flag) {
+				mavlink_send_status(CAL_DOWN_DETECTED);
+				mag.stat.bit.down_flag = 1;
+			}
+			sensor_mag_measure(mag_f);
+			cali_least_squre_update(&(mag.obj), mag_f);
+			mavlink_send_calibration_progress_msg(fabsf(mag.rotation_angle) / (2*PI/5));
 
-	if ((acc.cur_pos == ACC_POS_LEFT) || (acc.cur_pos == ACC_POS_RIGHT)) {
-		mag.rotation_angle += gyr_f[1] * delta_t;
-		mavlink_send_status(CAL_LEFT_DETECTED);
-	}
+			if (fabsf(mag.rotation_angle) > (2*PI)) {
+				mag.stat.bit.step = 2;
+				mag.rotation_angle = 0;
+				mavlink_send_status(CAL_DOWN_DONE);
+			}
+			break;
+		}
 
-	if ((acc.cur_pos == ACC_POS_FRONT) || (acc.cur_pos == ACC_POS_BACK)) {
-		mag.rotation_angle += gyr_f[0] * delta_t;
-		mavlink_send_status(CAL_FRONT_DETECTED);
+		case 2:
+		{
+			if ((acc.cur_pos == ACC_POS_FRONT) || (acc.cur_pos == ACC_POS_BACK)) {
+				mag.stat.bit.step = 3;
+				if (!mag.stat.bit.front_flag) {
+					mavlink_send_status(CAL_FRONT_DETECTED);
+					mag.stat.bit.front_flag = 1;
+				}
+			}
+			break;
+		}
+
+		case 3:
+		{
+			mag.rotation_angle += gyr_f[0] * delta_t;
+
+			sensor_mag_measure(mag_f);
+			cali_least_squre_update(&(mag.obj), mag_f);
+			mavlink_send_calibration_progress_msg(fabsf(mag.rotation_angle + 2*PI) / (2*PI/5));
+			if (fabsf(mag.rotation_angle) > (2*PI)) {
+				mag.stat.bit.step = 4;
+				mag.rotation_angle = 0;
+				mavlink_send_status(CAL_FRONT_DONE);
+			}
+			break;
+		}
+
+		case 4:
+		{
+			cali_solve(&(mag.obj), 1);
+		
+			Console.print("Center:%f %f %f\n", mag.obj.OFS[0],mag.obj.OFS[1],mag.obj.OFS[2]);
+			Console.print("Radius:%f %f %f\n", mag.obj.GAIN[0],mag.obj.GAIN[1],mag.obj.GAIN[2]);
+			Console.print("Rotation Matrix:\n");
+			for(int row = 0 ; row < mag.obj.RotM.row ; row++) {
+				for(int col = 0 ; col < mag.obj.RotM.col ; col++) {
+					Console.print("%.4f\t", mag.obj.RotM.element[row][col]);
+				}
+				Console.print("\n");
+			}
+			
+			PARAM_SET_FLOAT(CALIBRATION, MAG_X_OFFSET, mag.obj.OFS[0]);
+			PARAM_SET_FLOAT(CALIBRATION, MAG_Y_OFFSET, mag.obj.OFS[1]);
+			PARAM_SET_FLOAT(CALIBRATION, MAG_Z_OFFSET, mag.obj.OFS[2]);
+			PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT00, mag.obj.RotM.element[0][0]);
+			PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT01, mag.obj.RotM.element[0][1]);
+			PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT02, mag.obj.RotM.element[0][2]);
+			PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT10, mag.obj.RotM.element[1][0]);
+			PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT11, mag.obj.RotM.element[1][1]);
+			PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT12, mag.obj.RotM.element[1][2]);
+			PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT20, mag.obj.RotM.element[2][0]);
+			PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT21, mag.obj.RotM.element[2][1]);
+			PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT22, mag.obj.RotM.element[2][2]);
+			PARAM_SET_UINT32(CALIBRATION, MAG_CALIB, 1);
+			
+			param_store();
+			mavlink_send_status(CAL_DONE);
+			cali_obj_delete(&(mag.obj));
+			mag.stat.bit.obj_flag = 0;
+			mag.mag_calibrate_flag = false;
+			mag.stat.val = 0;
+			break;
+		}
+		default:
+			break;
 	}
+	
 }
 
 void mag_mavlink_calibration_start(void)
@@ -947,6 +1043,7 @@ void rt_cali_thread_entry(void* parameter)
 	while (1) {
 		gyr_mavlink_calibration();
 		acc_mavlink_calibration();
+		mag_mavlink_calibration();
 		rt_thread_sleep(MS_TO_TICKS(CALI_THREAD_SLEEP_MS));
 	}
 }
