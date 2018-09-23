@@ -360,6 +360,228 @@ uint8_t EKF14_Prediction(EKF_Def* ekf_t)
 	return res==ARM_MATH_SUCCESS ? 1 : 0;
 }
 
+uint8_t EKF14_SerialPrediction(EKF_Def* ekf_t, uint32_t enable_bitmask)
+{
+	float32_t q0 = MAT_ELEMENT(ekf_t->X, STATE_Q0, 0);
+	float32_t q1 = MAT_ELEMENT(ekf_t->X, STATE_Q1, 0);
+	float32_t q2 = MAT_ELEMENT(ekf_t->X, STATE_Q2, 0);
+	float32_t q3 = MAT_ELEMENT(ekf_t->X, STATE_Q3, 0);
+	float32_t gx = MAT_ELEMENT(ekf_t->U, 0, 0) - MAT_ELEMENT(ekf_t->X, STATE_GX_BIAS, 0);
+	float32_t gy = MAT_ELEMENT(ekf_t->U, 1, 0) - MAT_ELEMENT(ekf_t->X, STATE_GY_BIAS, 0);
+	float32_t gz = MAT_ELEMENT(ekf_t->U, 2, 0) - MAT_ELEMENT(ekf_t->X, STATE_GZ_BIAS, 0);
+	float32_t ax = MAT_ELEMENT(ekf_t->U, 3, 0);
+	float32_t ay = MAT_ELEMENT(ekf_t->U, 4, 0);
+	float32_t az = MAT_ELEMENT(ekf_t->U, 5, 0) - MAT_ELEMENT(ekf_t->X, STATE_AZ_BIAS, 0);
+	
+	/* calculate jocobbians of f(x,u) */
+	if( (enable_bitmask & 0x03) == 0x03 ){
+		// d(Xdot)/d(V)
+		MAT_ELEMENT(ekf_t->F, 0, 3) = 1.0f;
+		MAT_ELEMENT(ekf_t->F, 1, 4) = 1.0f;
+		// d(Vdoot)/d(q)
+		MAT_ELEMENT(ekf_t->F, 3, 6) = 2.0f * (q0 * ax - q3 * ay + q2 * az);
+		MAT_ELEMENT(ekf_t->F, 3, 7) = 2.0f * (q1 * ax + q2 * ay + q3 * az);
+		MAT_ELEMENT(ekf_t->F, 3, 8) = 2.0f * (-q2 * ax + q1 * ay + q0 * az);
+		MAT_ELEMENT(ekf_t->F, 3, 9) = 2.0f * (-q3 * ax - q0 * ay + q1 * az);
+		MAT_ELEMENT(ekf_t->F, 4, 6) = 2.0f * (q3 * ax + q0 * ay - q1 * az);
+		MAT_ELEMENT(ekf_t->F, 4, 7) = 2.0f * (q2 * ax - q1 * ay - q0 * az);
+		MAT_ELEMENT(ekf_t->F, 4, 8) = 2.0f * (q1 * ax + q2 * ay + q3 * az);
+		MAT_ELEMENT(ekf_t->F, 4, 9) = 2.0f * (q0 * ax - q3 * ay + q2 * az);
+		// d(Vdot)/d(acc_bias)
+		MAT_ELEMENT(ekf_t->F, 3, 13) =  -2.0f * (q1 * q3 + q0 * q2);
+		MAT_ELEMENT(ekf_t->F, 4, 13) =  2.0f * (-q2 * q3 + q0 * q1);
+	}else{
+		// d(Xdot)/d(V)
+		MAT_ELEMENT(ekf_t->F, 0, 3) = 0.0f;
+		MAT_ELEMENT(ekf_t->F, 1, 4) = 0.0f;
+		// d(Vdoot)/d(q)
+		MAT_ELEMENT(ekf_t->F, 3, 6) = 0.0f;
+		MAT_ELEMENT(ekf_t->F, 3, 7) = 0.0f;
+		MAT_ELEMENT(ekf_t->F, 3, 8) = 0.0f;
+		MAT_ELEMENT(ekf_t->F, 3, 9) = 0.0f;
+		MAT_ELEMENT(ekf_t->F, 4, 6) = 0.0f;
+		MAT_ELEMENT(ekf_t->F, 4, 7) = 0.0f;
+		MAT_ELEMENT(ekf_t->F, 4, 8) = 0.0f;
+		MAT_ELEMENT(ekf_t->F, 4, 9) = 0.0f;
+		// d(Vdot)/d(acc_bias)
+		MAT_ELEMENT(ekf_t->F, 3, 13) =  0.0f;
+		MAT_ELEMENT(ekf_t->F, 4, 13) =  0.0f;
+	}
+	if( (enable_bitmask & 0x04) == 0x04 ){
+		// d(Xdot)/d(V)
+		MAT_ELEMENT(ekf_t->F, 2, 5) = 1.0f;
+		// d(Vdoot)/d(q)
+		MAT_ELEMENT(ekf_t->F, 5, 6) = 2.0f * (-q2 * ax + q1 * ay + q0 * az);
+		MAT_ELEMENT(ekf_t->F, 5, 7) = 2.0f * (q3 * ax + q0 * ay - q1 * az);
+		MAT_ELEMENT(ekf_t->F, 5, 8) = 2.0f * (-q0 * ax + q3 * ay - q2 * az);
+		MAT_ELEMENT(ekf_t->F, 5, 9) = 2.0f * (q1 * ax + q2 * ay + q3 * az);
+		// d(Vdot)/d(acc_bias)
+		MAT_ELEMENT(ekf_t->F, 5, 13) =  -q0 * q0 + q1 * q1 + q2 * q2 - q3 * q3;
+	}else{
+		// d(Xdot)/d(V)
+		MAT_ELEMENT(ekf_t->F, 2, 5) = 0.0f;
+		// d(Vdoot)/d(q)
+		MAT_ELEMENT(ekf_t->F, 5, 6) = 0.0f;
+		MAT_ELEMENT(ekf_t->F, 5, 7) = 0.0f;
+		MAT_ELEMENT(ekf_t->F, 5, 8) = 0.0f;
+		MAT_ELEMENT(ekf_t->F, 5, 9) = 0.0f;
+		// d(Vdot)/d(acc_bias)
+		MAT_ELEMENT(ekf_t->F, 5, 13) =  0.0f;
+	}
+
+	// d(qdot)/d(q)
+	MAT_ELEMENT(ekf_t->F, 6, 6)  = 0.0f;
+    MAT_ELEMENT(ekf_t->F, 6, 7)  = -gx / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 6, 8)  = -gy / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 6, 9)  = -gz / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 7, 6)  = gx / 2.0f;
+	MAT_ELEMENT(ekf_t->F, 7, 7)  = 0.0f;
+    MAT_ELEMENT(ekf_t->F, 7, 8)  = gz / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 7, 9)  = -gy / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 8, 6)  = gy / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 8, 7)  = -gz / 2.0f;
+	MAT_ELEMENT(ekf_t->F, 8, 8)  = 0.0f;
+    MAT_ELEMENT(ekf_t->F, 8, 9)  = gx / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 9, 6)  = gz / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 9, 7)  = gy / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 9, 8)  = -gx / 2.0f;
+	MAT_ELEMENT(ekf_t->F, 9, 9)  = 0.0f;
+	// d(qdot)/d(gyr_bias)
+    MAT_ELEMENT(ekf_t->F, 6, 10) = q1 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 6, 11) = q2 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 6, 12) = q3 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 7, 10) = -q0 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 7, 11) = q3 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 7, 12) = -q2 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 8, 10) = -q3 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 8, 11) = -q0 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 8, 12) = q1 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 9, 10) = q2 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 9, 11) = -q1 / 2.0f;
+    MAT_ELEMENT(ekf_t->F, 9, 12) = -q0 / 2.0f;
+	
+	// d(Vdot)/d(acc)
+	if( (enable_bitmask & 0x03) == 0x03 ){
+		MAT_ELEMENT(ekf_t->G, 3, 3)  = q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3;
+		MAT_ELEMENT(ekf_t->G, 3, 4)  = 2.0f * (q1 * q2 - q0 * q3);
+		MAT_ELEMENT(ekf_t->G, 3, 5)  = 2.0f * (q1 * q3 + q0 * q2);
+		MAT_ELEMENT(ekf_t->G, 4, 3)  = 2.0f * (q1 * q2 + q0 * q3);
+		MAT_ELEMENT(ekf_t->G, 4, 4)  = q0 * q0 - q1 * q1 + q2 * q2 - q3 * q3;
+		MAT_ELEMENT(ekf_t->G, 4, 5)  = 2.0f * (q2 * q3 - q0 * q1);
+	}else{
+		MAT_ELEMENT(ekf_t->G, 3, 3)  = 0.0f;
+		MAT_ELEMENT(ekf_t->G, 3, 4)  = 0.0f;
+		MAT_ELEMENT(ekf_t->G, 3, 5)  = 0.0f;
+		MAT_ELEMENT(ekf_t->G, 4, 3)  = 0.0f;
+		MAT_ELEMENT(ekf_t->G, 4, 4)  = 0.0f;
+		MAT_ELEMENT(ekf_t->G, 4, 5)  = 0.0f;
+	}
+	if( (enable_bitmask & 0x04) == 0x04 ){
+		MAT_ELEMENT(ekf_t->G, 5, 3)  = 2.0f * (q1 * q3 - q0 * q2);
+		MAT_ELEMENT(ekf_t->G, 5, 4)  = 2.0f * (q2 * q3 + q0 * q1);
+		MAT_ELEMENT(ekf_t->G, 5, 5)  = q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3;
+	}else{
+		MAT_ELEMENT(ekf_t->G, 5, 3)  = 0.0f;
+		MAT_ELEMENT(ekf_t->G, 5, 4)  = 0.0f;
+		MAT_ELEMENT(ekf_t->G, 5, 5)  = 0.0f;
+	}
+	// d(qdot)/d(gyr)
+    MAT_ELEMENT(ekf_t->G, 6, 0)  = -q1 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 6, 1)  = -q2 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 6, 2)  = -q3 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 7, 0)  = q0 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 7, 1)  = -q3 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 7, 2)  = q2 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 8, 0)  = q3 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 8, 1)  = q0 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 8, 2)  = -q1 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 9, 0)  = -q2 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 9, 1)  = q1 / 2.0f;
+    MAT_ELEMENT(ekf_t->G, 9, 2)  = q0 / 2.0f;
+    // d(bias)/d(bias)
+	MAT_ELEMENT(ekf_t->G, 10, 6) = 1.0f;
+	MAT_ELEMENT(ekf_t->G, 11, 7) = 1.0f;
+	MAT_ELEMENT(ekf_t->G, 12, 8) = 1.0f;
+    MAT_ELEMENT(ekf_t->G, 13, 9) = 1.0f;
+	
+	/* X(k|k-1) = f(X(k-1|k-1), U(k-1)) */
+	float32_t dotX[NUM_X];
+	if( (enable_bitmask & 0x03) == 0x03 ){
+		dotX[STATE_X]	= MAT_ELEMENT(ekf_t->X, STATE_VX, 0);
+		dotX[STATE_Y]	= MAT_ELEMENT(ekf_t->X, STATE_VY, 0);
+		dotX[STATE_VX]	= (q0*q0+q1*q1-q2*q2-q3*q3)*ax+2.0f*(q1*q2-q0*q3)*ay+2.0f*(q1*q3+q0*q2)*az;
+		dotX[STATE_VY]	= 2.0f*(q1*q2+q0*q3)*ax+(q0*q0-q1*q1+q2*q2-q3*q3)*ay+2.0f*(q2*q3-q0*q1)*az;
+	}else{
+		dotX[STATE_X]	= 0.0f;
+		dotX[STATE_Y]	= 0.0f;
+		dotX[STATE_VX]	= 0.0f;
+		dotX[STATE_VY]	= 0.0f;
+	}
+	if( (enable_bitmask & 0x04) == 0x04 ){
+		dotX[STATE_Z]	= MAT_ELEMENT(ekf_t->X, STATE_VZ, 0);
+		dotX[STATE_VZ]	= 2.0f*(q1*q3-q0*q2)*ax+2.0f*(q2*q3+q0*q1)*ay+(q0*q0-q1*q1-q2*q2+q3*q3)*az + GRAVITY_MSS;
+	}else{
+		dotX[STATE_Z]	= 0.0f;
+		dotX[STATE_VZ]	= 0.0f;
+	}
+	dotX[STATE_Q0]	= (-q1*gx-q2*gy-q3*gz)*0.5f;
+	dotX[STATE_Q1]	= (q0*gx-q3*gy+q2*gz)*0.5f;
+	dotX[STATE_Q2]	= (q3*gx+q0*gy-q1*gz)*0.5f;
+	dotX[STATE_Q3]	= (-q2*gx+q1*gy+q0*gz)*0.5f;
+	dotX[STATE_GX_BIAS] = dotX[STATE_GY_BIAS] = dotX[STATE_GZ_BIAS] = dotX[STATE_AZ_BIAS] = 0.0f;
+	
+	if(ax == 0.0f && ay == 0.0f && az == 0.0f){
+		// accel is not available, do not let vz to increase
+		dotX[STATE_VZ] = 0.0f;
+	}
+
+//	// for test
+//	MAT_ELEMENT(ekf_t->Q, 3, 3) = MAT_ELEMENT(ekf_t->Q, 4, 4) = 0;
+//	dotX[STATE_X] = 0;
+//	dotX[STATE_Y] = 0;
+//	dotX[STATE_VX] = 0;
+//	dotX[STATE_VY] = 0;
+	
+	for(uint8_t n = 0 ; n < NUM_X ; n++){
+		MAT_ELEMENT(ekf_t->X, n, 0) += ekf_t->dT * dotX[n];
+	}
+	
+	// normalize quaternion
+	q0 = MAT_ELEMENT(ekf_t->X, STATE_Q0, 0);
+	q1 = MAT_ELEMENT(ekf_t->X, STATE_Q1, 0);
+	q2 = MAT_ELEMENT(ekf_t->X, STATE_Q2, 0);
+	q3 = MAT_ELEMENT(ekf_t->X, STATE_Q3, 0);
+	float32_t inv_norm = 1.0f/sqrtf(q0*q0+q1*q1+q2*q2+q3*q3);
+	MAT_ELEMENT(ekf_t->X, STATE_Q0, 0) *= inv_norm;
+	MAT_ELEMENT(ekf_t->X, STATE_Q1, 0) *= inv_norm;
+	MAT_ELEMENT(ekf_t->X, STATE_Q2, 0) *= inv_norm;
+	MAT_ELEMENT(ekf_t->X, STATE_Q3, 0) *= inv_norm;
+	
+	arm_status res = ARM_MATH_SUCCESS;
+	
+	/* P(k|k-1) = (I+F(k)*T)*P(k-1|k-1)*(I+F(k)*T)' + T^2*G*Q(k)*G' */
+	res |= arm_mat_scale_f32(&ekf_t->F, ekf_t->dT, &ekf_t->IFT);
+	for(uint8_t n = 0 ; n < NUM_X ; n++){
+		MAT_ELEMENT(ekf_t->IFT, n, n) += 1.0f;
+	}
+	res |= arm_mat_trans_f32(&ekf_t->IFT, &ekf_t->IFTT);
+	res |= arm_mat_mult_f32(&ekf_t->IFT, &ekf_t->P, &ekf_t->IFTP);
+	res |= arm_mat_mult_f32(&ekf_t->IFTP, &ekf_t->IFTT, &ekf_t->IFTPIFTT);
+	
+	res |= arm_mat_mult_f32(&ekf_t->G, &ekf_t->Q, &ekf_t->GQ);
+	res |= arm_mat_trans_f32(&ekf_t->G, &ekf_t->GT);
+	res |= arm_mat_mult_f32(&ekf_t->GQ, &ekf_t->GT, &ekf_t->GQGT);
+	res |= arm_mat_scale_f32(&ekf_t->GQGT, ekf_t->dT*ekf_t->dT, &ekf_t->GQGT);
+	
+	res |= arm_mat_add_f32(&ekf_t->IFTPIFTT, &ekf_t->GQGT, &ekf_t->P);
+	
+//	if(res != ARM_MATH_SUCCESS){
+//		Console.print("predict err:%d\n", res);
+//	}
+	
+	return res==ARM_MATH_SUCCESS ? 1 : 0;
+}
+
 uint8_t EKF14_Correct(EKF_Def* ekf_t)
 {
 	float32_t q0 = MAT_ELEMENT(ekf_t->X, STATE_Q0, 0);
@@ -472,6 +694,10 @@ uint8_t EKF14_Correct(EKF_Def* ekf_t)
 	res |= arm_mat_mult_f32(&ekf_t->K, &ekf_t->H, &ekf_t->KH);
 	res |= arm_mat_mult_f32(&ekf_t->KH, &ekf_t->P, &ekf_t->KHP);
 	res |= arm_mat_sub_f32(&ekf_t->P, &ekf_t->KHP, &ekf_t->P);
+	
+	//static uint32_t time = 0;
+	//Console.print_eachtime(&time, 300, "new P:%f %f %f\n", MAT_ELEMENT(ekf_t->P, 0, 0), MAT_ELEMENT(ekf_t->P, 3, 3), MAT_ELEMENT(ekf_t->P, 6, 6));
+	
 	
 //	if(res != ARM_MATH_SUCCESS){
 //		Console.print("correct err:%d\n", res);
@@ -614,6 +840,9 @@ uint8_t EKF14_SerialCorrect(EKF_Def* ekf_t, uint32_t enable_bitmask)
 		MAT_ELEMENT(ekf_t->X, STATE_Q2, 0) *= inv_norm;
 		MAT_ELEMENT(ekf_t->X, STATE_Q3, 0) *= inv_norm;
 	}
+	
+	//static uint32_t time = 0;
+	//Console.print_eachtime(&time, 300, "new P:%f %f %f enable:%x\n", MAT_ELEMENT(ekf_t->P, 0, 0), MAT_ELEMENT(ekf_t->P, 3, 3), MAT_ELEMENT(ekf_t->P, 6, 6),enable_bitmask);
 	
 	return 1;
 }

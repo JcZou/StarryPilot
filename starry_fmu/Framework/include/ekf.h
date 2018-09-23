@@ -63,6 +63,7 @@ typedef struct
 uint8_t EKF14_Init(EKF_Def* ekf_t, float32_t dT);
 void EKF14_Reset(EKF_Def* ekf_t);
 uint8_t EKF14_Prediction(EKF_Def* ekf_t);
+uint8_t EKF14_SerialPrediction(EKF_Def* ekf_t, uint32_t enable_bitmask);
 uint8_t EKF14_Correct(EKF_Def* ekf_t);
 uint8_t EKF14_SerialCorrect(EKF_Def* ekf_t, uint32_t enable_bitmask);
 float32_t EKF14_Get_State(const EKF_Def* ekf_t, uint8_t state);

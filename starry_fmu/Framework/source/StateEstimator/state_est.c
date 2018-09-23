@@ -210,6 +210,8 @@ uint8_t state_est_update(void)
 	
 	EKF14_Prediction(&ekf_14);
 	
+	//EKF14_SerialPrediction(&ekf_14, 0xFFFF);
+	
 	// store history state
 	for(uint8_t n = 0 ; n < 14 ; n++){
 		fifo_push(&_hist_x[n], MAT_ELEMENT(ekf_14.X, n, 0)); 
@@ -232,8 +234,8 @@ uint8_t state_est_update(void)
 		MAT_ELEMENT(ekf_14.X, n, 0) = hist_val;
 	}
 	
-	//EKF14_Correct(&ekf_14);
-	EKF14_SerialCorrect(&ekf_14, enable);
+	EKF14_Correct(&ekf_14);
+//	EKF14_SerialCorrect(&ekf_14, enable);
 	
 	// add delta state back
 	for(uint8_t n = 0 ; n < 14 ; n++){
