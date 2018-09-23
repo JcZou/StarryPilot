@@ -26,6 +26,7 @@
 #define MAVLINK_RX_THREAD_PRIORITY		11
 #define MAVLINK_THREAD_PRIORITY			12
 #define LED_THREAD_PRIORITY				13
+#define CALI_THREAD_PRIORITY			13
 
 #define Rad2Deg(x)			((x)*57.2957795f)
 #define Deg2Rad(x)			((x)*0.0174533f)

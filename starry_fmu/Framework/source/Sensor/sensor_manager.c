@@ -800,8 +800,6 @@ void sensor_collect(void)
 {
 	float gyr[3], acc[3], mag[3];
 
-	gyr_mavlink_calibration();
-
 	if(sensor_gyr_get_calibrated_data(gyr) == RT_EOK){
 		gyrfilter_input(gyr);
 		mcn_publish(MCN_ID(SENSOR_GYR), gyr);

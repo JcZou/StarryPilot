@@ -3,6 +3,7 @@
 *.dblite
 *.elf
 *.bin
+*.px4
 *.hex
 *.axf
 *.exe
@@ -22,3 +23,5 @@ documentation/html
 *.a
 *.i
 *.d
+*.uvguix*
+*.uvoptx

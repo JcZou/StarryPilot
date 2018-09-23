@@ -436,9 +436,11 @@ static void mavproxy_proc_command(mavlink_command_long_t *command, mavlink_messa
 				mavproxy_send_statustext_msg(CAL_START_GYRO, msg);
 				gyr_mavlink_calibration_start();
 			} else if(command->param2 == 1) {    //calibration mag
-				//mavproxy_send_statustext_msg(CAL_START_MAG, msg);
+				mavproxy_send_statustext_msg(CAL_START_MAG, msg);
+				mag_mavlink_calibration_start();
 			} else if(command->param5 == 1) {    //calibration acc
-				//mavproxy_send_statustext_msg(CAL_START_ACC, msg);
+				mavproxy_send_statustext_msg(CAL_START_ACC, msg);
+				acc_mavlink_calibration_start();
 			} else if(command->param5 == 2) {    //calibration level
 				//mavproxy_send_statustext_msg(CAL_START_LEVEL, msg);
 			}
