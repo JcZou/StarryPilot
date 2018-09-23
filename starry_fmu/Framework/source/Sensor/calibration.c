@@ -400,7 +400,8 @@ static void copter_jitter_check(void)
 static void acc_position_detect(void)
 {
 	float acc_f[3];
-	sensor_acc_measure(acc_f);
+	//sensor_acc_measure(acc_f);
+	mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
 
 	if ((fabsf(acc_f[0]) > ACC_MAX_THRESHOLD) && 
 		(fabsf(acc_f[1]) < ACC_MIN_THRESHOLD) && 
@@ -541,7 +542,8 @@ void acc_mavlink_calibration(void)
 
 	if (acc.sample_flag) {
 		if (acc.sample_cnt < ACC_SAMPLE_COUNT) {
-			sensor_acc_measure(acc_f);
+			//sensor_acc_measure(acc_f);
+			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
 			cali_least_squre_update(&(acc.obj), acc_f);
 			acc.sample_cnt++;
 		} else if (acc.sample_cnt == ACC_SAMPLE_COUNT) {
@@ -629,7 +631,8 @@ void mag_mavlink_calibration(void)
 		return;
 	}
 
-	sensor_gyr_measure(gyr_f);
+	//sensor_gyr_measure(gyr_f);
+	mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_GYR), gyr_f);
 	now = time_nowMs();
 	delta_t = (now - mag.last_time) * 1e-3;
 	mag.last_time = now;
@@ -656,7 +659,8 @@ void mag_mavlink_calibration(void)
 				mavlink_send_status(CAL_DOWN_DETECTED);
 				mag.stat.bit.down_flag = 1;
 			}
-			sensor_mag_measure(mag_f);
+			//sensor_mag_measure(mag_f);
+			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
 			cali_least_squre_update(&(mag.obj), mag_f);
 			mavlink_send_calibration_progress_msg(fabsf(mag.rotation_angle) / (2*PI/5));
 
@@ -684,7 +688,8 @@ void mag_mavlink_calibration(void)
 		{
 			mag.rotation_angle += gyr_f[0] * delta_t;
 
-			sensor_mag_measure(mag_f);
+			//sensor_mag_measure(mag_f);
+			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
 			cali_least_squre_update(&(mag.obj), mag_f);
 			mavlink_send_calibration_progress_msg(fabsf(mag.rotation_angle + 2*PI) / (2*PI/5));
 			if (fabsf(mag.rotation_angle) > (2*PI)) {
@@ -743,6 +748,68 @@ void mag_mavlink_calibration_start(void)
 }
 
 /**************************** Calibrate method 2 End ************************************/
+
+int calibrate_acc_custome_run(uint32_t N)
+{
+	Console.print("Start to calibrate acc\n");
+	
+	Cali_Obj obj;
+	char ch;
+	cali_obj_init(&obj);
+	
+	for(int n = 0 ; n < N ; n++){
+		Console.print("For %d point...{Y/N}\n", n+1);
+		ch = shell_wait_ch();
+		if(ch == 'Y' || ch == 'y'){
+			Console.print("reading data...\n");
+			
+			float acc_f[3];
+			for(int i = 0 ; i < 100 ; i ++){
+				mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+				cali_least_squre_update(&obj, acc_f);
+				//Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
+				rt_thread_delay(20);
+			}
+		}else{
+			goto finish;
+		}
+	}
+
+	cali_solve(&obj, GRAVITY_MSS);
+	Console.print("Center:%f %f %f\n", obj.OFS[0],obj.OFS[1],obj.OFS[2]);
+	Console.print("Radius:%f %f %f\n", obj.GAIN[0],obj.GAIN[1],obj.GAIN[2]);
+	Console.print("Rotation Matrix:\n");
+	for(int row = 0 ; row < obj.RotM.row ; row++){
+		for(int col = 0 ; col < obj.RotM.col ; col++){
+			Console.print("%.4f\t", obj.RotM.element[row][col]);
+		}
+		Console.print("\n");
+	}
+	
+	Console.print("store to parameter? (Y/N)\n");
+	ch = shell_wait_ch();
+	if(ch == 'Y' || ch == 'y'){
+		PARAM_SET_FLOAT(CALIBRATION, ACC_X_OFFSET, obj.OFS[0]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_Y_OFFSET, obj.OFS[1]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_Z_OFFSET, obj.OFS[2]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT00, obj.RotM.element[0][0]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT01, obj.RotM.element[0][1]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT02, obj.RotM.element[0][2]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT10, obj.RotM.element[1][0]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT11, obj.RotM.element[1][1]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT12, obj.RotM.element[1][2]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT20, obj.RotM.element[2][0]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT21, obj.RotM.element[2][1]);
+		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT22, obj.RotM.element[2][2]);
+		PARAM_SET_UINT32(CALIBRATION, ACC_CALIB, 1);
+		
+		param_store();
+	}
+	
+finish:
+	cali_obj_delete(&obj);
+	return 0;
+}
 
 int calibrate_acc_run(void)
 {
@@ -875,6 +942,68 @@ int calibrate_acc_run(void)
 		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT21, obj.RotM.element[2][1]);
 		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT22, obj.RotM.element[2][2]);
 		PARAM_SET_UINT32(CALIBRATION, ACC_CALIB, 1);
+		
+		param_store();
+	}
+	
+finish:
+	cali_obj_delete(&obj);
+	return 0;
+}
+
+int calibrate_mag_custom_run(uint32_t sec_time)
+{
+	char ch;
+	Cali_Obj obj;
+	cali_obj_init(&obj);
+	
+	float mag_f[3];
+	
+	Console.print("Start to calibrate mag\n");
+	
+	Console.print("Rotate the compass with 8 figure...(Y/N)\n");
+	ch = shell_wait_ch();
+	if(ch == 'Y' || ch == 'y'){
+		Console.print("reading data...\n");
+		for(int i = 0 ; i < sec_time*1000/50 ; i ++){
+			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
+			cali_least_squre_update(&obj, mag_f);
+			//Console.print("%lf %lf %lf\n", mag_f[0], mag_f[1], mag_f[2]);
+			rt_thread_delay(50);
+		}	
+	}else{
+		goto finish;
+	}
+	
+	// solve
+	cali_solve(&obj, 1);
+	
+	Console.print("Center:%f %f %f\n", obj.OFS[0],obj.OFS[1],obj.OFS[2]);
+	Console.print("Radius:%f %f %f\n", obj.GAIN[0],obj.GAIN[1],obj.GAIN[2]);
+	Console.print("Rotation Matrix:\n");
+	for(int row = 0 ; row < obj.RotM.row ; row++){
+		for(int col = 0 ; col < obj.RotM.col ; col++){
+			Console.print("%.4f\t", obj.RotM.element[row][col]);
+		}
+		Console.print("\n");
+	}
+	
+	Console.print("store to parameter? (Y/N)\n");
+	ch = shell_wait_ch();
+	if(ch == 'Y' || ch == 'y'){
+		PARAM_SET_FLOAT(CALIBRATION, MAG_X_OFFSET, obj.OFS[0]);
+		PARAM_SET_FLOAT(CALIBRATION, MAG_Y_OFFSET, obj.OFS[1]);
+		PARAM_SET_FLOAT(CALIBRATION, MAG_Z_OFFSET, obj.OFS[2]);
+		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT00, obj.RotM.element[0][0]);
+		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT01, obj.RotM.element[0][1]);
+		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT02, obj.RotM.element[0][2]);
+		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT10, obj.RotM.element[1][0]);
+		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT11, obj.RotM.element[1][1]);
+		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT12, obj.RotM.element[1][2]);
+		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT20, obj.RotM.element[2][0]);
+		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT21, obj.RotM.element[2][1]);
+		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT22, obj.RotM.element[2][2]);
+		PARAM_SET_UINT32(CALIBRATION, MAG_CALIB, 1);
 		
 		param_store();
 	}
@@ -1026,11 +1155,13 @@ int handle_calib_shell_cmd(int argc, char** argv)
 		}
 		
 		if(strcmp("acc", argv[1]) == 0){
-			res = calibrate_acc_run();
+			//res = calibrate_acc_run();
+			calibrate_acc_custome_run(14);
 		}
 		
 		if(strcmp("mag", argv[1]) == 0){
-			res = calibrate_mag_run();
+			//res = calibrate_mag_run();
+			calibrate_mag_custom_run(20);
 		}
 	}
 	

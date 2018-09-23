@@ -3,6 +3,7 @@
 *.dblite
 *.elf
 *.bin
+*.px4
 *.hex
 *.axf
 *.exe

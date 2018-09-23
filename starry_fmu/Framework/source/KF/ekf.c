@@ -19,9 +19,13 @@
 #define q_ax			0.1
 #define q_ay			0.1
 #define q_az			0.1
-#define q_gx_bias		0.0005
-#define q_gy_bias		0.0005
-#define q_gz_bias		0.0005
+//#define q_gx_bias		0.0005
+//#define q_gy_bias		0.0005
+//#define q_gz_bias		0.0005
+//#define q_az_bias		0.0025
+#define q_gx_bias		0.002
+#define q_gy_bias		0.002
+#define q_gz_bias		0.002
 #define q_az_bias		0.0025
 // observe covariance
 #define r_x				0.02
@@ -35,8 +39,8 @@
 #define r_ax			0.15
 #define r_ay			0.15
 #define r_az			0.15
-#define r_mx			0.12
-#define r_my			0.12
+#define r_mx			0.1
+#define r_my			0.1
 
 static float32_t  X_Data[NUM_X];
 static float32_t  U_Data[NUM_U];
@@ -218,6 +222,12 @@ uint8_t EKF14_Prediction(EKF_Def* ekf_t)
 	float32_t ax = MAT_ELEMENT(ekf_t->U, 3, 0);
 	float32_t ay = MAT_ELEMENT(ekf_t->U, 4, 0);
 	float32_t az = MAT_ELEMENT(ekf_t->U, 5, 0) - MAT_ELEMENT(ekf_t->X, STATE_AZ_BIAS, 0);
+//	float32_t gx = MAT_ELEMENT(ekf_t->U, 0, 0);
+//	float32_t gy = MAT_ELEMENT(ekf_t->U, 1, 0);
+//	float32_t gz = MAT_ELEMENT(ekf_t->U, 2, 0);
+//	float32_t ax = MAT_ELEMENT(ekf_t->U, 3, 0);
+//	float32_t ay = MAT_ELEMENT(ekf_t->U, 4, 0);
+//	float32_t az = MAT_ELEMENT(ekf_t->U, 5, 0);
 	
 	/* calculate jocobbians of f(x,u) */
 	// d(Xdot)/d(V)
