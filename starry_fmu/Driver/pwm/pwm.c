@@ -18,9 +18,9 @@
 
 static int pwm_freq;
 #if MOTOR_NUM == 4
-static float TIM_duty_cycle[4] = {0.05, 0.05, 0.05, 0.05};
+static float TIM_duty_cycle[4] = {0.00, 0.00, 0.00, 0.00};
 #elif MOTOR_NUM == 6
-static float TIM_duty_cycle[6] = {0.05, 0.05, 0.05, 0.05, 0.05, 0.05};
+static float TIM_duty_cycle[6] = {0.00, 0.00, 0.00, 0.00, 0.00, 0.00};
 #endif
 
 void pwm_gpio_init(void)

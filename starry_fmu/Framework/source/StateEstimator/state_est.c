@@ -37,40 +37,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gps.h"
 #include "fifo.h"
 
-#ifndef HIL_SIMULATION
-	#define EKF_MAX_DELAY_OFFFSET		20
-	#define EKF_STATE_X_DELAY			100
-	#define EKF_STATE_Y_DELAY			100
-	#define EKF_STATE_Z_DELAY			100
-	#define EKF_STATE_VX_DELAY			100
-	#define EKF_STATE_VY_DELAY			100
-	#define EKF_STATE_VZ_DELAY			100
-	#define EKF_STATE_Q0_DELAY			4
-	#define EKF_STATE_Q1_DELAY			4
-	#define EKF_STATE_Q2_DELAY			4
-	#define EKF_STATE_Q3_DELAY			4
-	#define EKF_STATE_GX_BIAS_DELAY		0
-	#define EKF_STATE_GY_BIAS_DELAY		0
-	#define EKF_STATE_GZ_BIAS_DELAY		0
-	#define EKF_STATE_AZ_BIAS_DELAY		0
-#else
-	#define EKF_MAX_DELAY_OFFFSET		20
-	#define EKF_STATE_X_DELAY			0
-	#define EKF_STATE_Y_DELAY			0
-	#define EKF_STATE_Z_DELAY			0
-	#define EKF_STATE_VX_DELAY			0
-	#define EKF_STATE_VY_DELAY			0
-	#define EKF_STATE_VZ_DELAY			0
-	#define EKF_STATE_Q0_DELAY			0
-	#define EKF_STATE_Q1_DELAY			0
-	#define EKF_STATE_Q2_DELAY			0
-	#define EKF_STATE_Q3_DELAY			0
-	#define EKF_STATE_GX_BIAS_DELAY		0
-	#define EKF_STATE_GY_BIAS_DELAY		0
-	#define EKF_STATE_GZ_BIAS_DELAY		0
-	#define EKF_STATE_AZ_BIAS_DELAY		0
-#endif
-
+#define EKF_MAX_DELAY_OFFFSET		20
+#define EKF_STATE_X_DELAY			100
+#define EKF_STATE_Y_DELAY			100
+#define EKF_STATE_Z_DELAY			100
+#define EKF_STATE_VX_DELAY			100
+#define EKF_STATE_VY_DELAY			100
+#define EKF_STATE_VZ_DELAY			100
+#define EKF_STATE_Q0_DELAY			4
+#define EKF_STATE_Q1_DELAY			4
+#define EKF_STATE_Q2_DELAY			4
+#define EKF_STATE_Q3_DELAY			4
+#define EKF_STATE_GX_BIAS_DELAY		0
+#define EKF_STATE_GY_BIAS_DELAY		0
+#define EKF_STATE_GZ_BIAS_DELAY		0
+#define EKF_STATE_AZ_BIAS_DELAY		0
+	
 static EKF_Def ekf_14;
 static quaternion _est_att_q;
 static Euler _est_att_e;
@@ -81,6 +63,9 @@ MCN_DECLARE(ATT_EULER);
 MCN_DECLARE(BARO_POSITION);
 MCN_DECLARE(ALT_INFO);
 MCN_DECLARE(POS_INFO);
+MCN_DECLARE(SENSOR_FILTER_ACC);
+MCN_DECLARE(SENSOR_FILTER_MAG);
+MCN_DECLARE(SENSOR_FILTER_GYR);
 
 static char *TAG = "State_EST";
 
@@ -150,9 +135,12 @@ uint8_t state_est_update(void)
 	
 	pos_try_sethome();
 	
-	sensor_get_acc(acc);
-	sensor_get_mag(mag);
-	sensor_get_gyr(gyr);
+	//sensor_get_acc(acc);
+	mcn_copy_from_hub(MCN_ID(SENSOR_FILTER_ACC), acc);
+	//sensor_get_mag(mag);
+	mcn_copy_from_hub(MCN_ID(SENSOR_FILTER_MAG), mag);
+	//sensor_get_gyr(gyr);
+	mcn_copy_from_hub(MCN_ID(SENSOR_FILTER_GYR), gyr);
 	
 	if(acc[0] == 0.0f && acc[1] == 0.0f && acc[2] == 0.0f){
 		enable &= 0xC7;
@@ -199,8 +187,11 @@ uint8_t state_est_update(void)
 	MAT_ELEMENT(ekf_14.U, 7, 0) = mag[1];
 	MAT_ELEMENT(ekf_14.U, 8, 0) = mag[2];
 	
-	MAT_ELEMENT(ekf_14.Z, 0, 0) = pos.x;
-	MAT_ELEMENT(ekf_14.Z, 1, 0) = pos.y;
+	// MAT_ELEMENT(ekf_14.Z, 0, 0) = pos.x;
+	// MAT_ELEMENT(ekf_14.Z, 1, 0) = pos.y;
+	// MAT_ELEMENT(ekf_14.Z, 2, 0) = pos.z;
+	MAT_ELEMENT(ekf_14.Z, 0, 0) = 0.0f;
+	MAT_ELEMENT(ekf_14.Z, 1, 0) = 0.0f;
 	MAT_ELEMENT(ekf_14.Z, 2, 0) = pos.z;
 	MAT_ELEMENT(ekf_14.Z, 3, 0) = 0.0f;		// acc constant: [0, 0, -1]
 	MAT_ELEMENT(ekf_14.Z, 4, 0) = 0.0f;
@@ -208,39 +199,46 @@ uint8_t state_est_update(void)
 	MAT_ELEMENT(ekf_14.Z, 6, 0) = 1.0f;		// mag constant: [1, 0]
 	MAT_ELEMENT(ekf_14.Z, 7, 0) = 0.0f;
 	
-	EKF14_Prediction(&ekf_14);
+	//EKF14_Prediction(&ekf_14);
 	
-	//EKF14_SerialPrediction(&ekf_14, 0xFFFF);
+	EKF14_SerialPrediction(&ekf_14, 0xFFFF);
 	
 	// store history state
-	for(uint8_t n = 0 ; n < 14 ; n++){
-		fifo_push(&_hist_x[n], MAT_ELEMENT(ekf_14.X, n, 0)); 
-	}
+	// for(uint8_t n = 0 ; n < 14 ; n++){
+	// 	fifo_push(&_hist_x[n], MAT_ELEMENT(ekf_14.X, n, 0)); 
+	// }
 	
 	// calculate delta state
-	float delta_x[14];
-	for(uint8_t n = 0 ; n < 14 ; n++){
-		// read history state
-		float hist_val;
-		if(_hist_x[n].cnt == _hist_x[n].size){ // read history data only fifo is full
-			hist_val = fifo_pop(&_hist_x[n]);
-		}else{
-			hist_val = MAT_ELEMENT(ekf_14.X, n, 0);
-		}
-		
-		delta_x[n] = MAT_ELEMENT(ekf_14.X, n, 0) - hist_val;
-		
-		// set current state to history value
-		MAT_ELEMENT(ekf_14.X, n, 0) = hist_val;
-	}
+//	float delta_x[14];
+//	for(uint8_t n = 0 ; n < 14 ; n++){
+//		// read history state
+//		float hist_val;
+//		if(_hist_x[n].cnt == _hist_x[n].size){ // read history data only fifo is full
+//			hist_val = fifo_pop(&_hist_x[n]);
+//		}else{
+//			hist_val = MAT_ELEMENT(ekf_14.X, n, 0);
+//		}
+//		
+//		delta_x[n] = MAT_ELEMENT(ekf_14.X, n, 0) - hist_val;
+//		
+//		// set current state to history value
+//		MAT_ELEMENT(ekf_14.X, n, 0) = hist_val;
+//	}
 	
-	EKF14_Correct(&ekf_14);
+	if((acc[0] == 0.0f && acc[1] == 0.0f && acc[2] == 0.0f) || (mag[0] == 0.0f && mag[1] == 0.0f && mag[2] == 0.0f)){
+		//EKF14_SerialCorrect(&ekf_14, enable);
+		state_est_reset();
+	}
+	else{
+		//EKF14_SerialCorrect(&ekf_14, enable);
+		EKF14_Correct(&ekf_14);
+	}
 //	EKF14_SerialCorrect(&ekf_14, enable);
 	
 	// add delta state back
-	for(uint8_t n = 0 ; n < 14 ; n++){
-		MAT_ELEMENT(ekf_14.X, n, 0) += delta_x[n];
-	}
+//	for(uint8_t n = 0 ; n < 14 ; n++){
+//		MAT_ELEMENT(ekf_14.X, n, 0) += delta_x[n];
+//	}
 	
 	state_est_get_quaternion(&_est_att_q);
 	mcn_publish(MCN_ID(ATT_QUATERNION), &_est_att_q);

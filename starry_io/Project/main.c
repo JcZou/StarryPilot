@@ -28,7 +28,7 @@ int main(void)
 	ppm_capture_init();
 	sbus_init();
 	led_init();
-	lidar_lite_init();
+	//lidar_lite_init();
 	
 	led_on(LED_BLUE);
 	led_on(LED_RED);
@@ -50,10 +50,10 @@ int main(void)
 				send_ppm_value();
 			}
 			
-			if(lidar_lite_ready()){
-				lidar_lite_clear_ready();
-				send_lidar_distance();
-			}
+//			if(lidar_lite_ready()){
+//				lidar_lite_clear_ready();
+//				send_lidar_distance();
+//			}
 
 			now = time_nowMs();
 			if( now - time_led > 1000 ){

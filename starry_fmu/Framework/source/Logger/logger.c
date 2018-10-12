@@ -48,6 +48,8 @@ MCN_DECLARE(MOTOR_THROTTLE);
 MCN_DECLARE(ADRC);
 MCN_DECLARE(BARO_POSITION);
 MCN_DECLARE(POS_KF);
+MCN_DECLARE(ALT_INFO);
+MCN_DECLARE(POS_INFO);
 
 LOG_ElementInfoDef element_info_list[] =
 {
@@ -58,6 +60,12 @@ LOG_ElementInfoDef element_info_list[] =
 	LOG_ELEMENT_INFO_FLOAT(ROLL),
 	LOG_ELEMENT_INFO_FLOAT(PITCH),
 	LOG_ELEMENT_INFO_FLOAT(YAW),
+	LOG_ELEMENT_INFO_FLOAT(X),
+	LOG_ELEMENT_INFO_FLOAT(Y),
+	LOG_ELEMENT_INFO_FLOAT(Z),
+	LOG_ELEMENT_INFO_FLOAT(VX),
+	LOG_ELEMENT_INFO_FLOAT(VY),
+	LOG_ELEMENT_INFO_FLOAT(VZ),
 	LOG_ELEMENT_INFO_FLOAT(GYR_X),
 	LOG_ELEMENT_INFO_FLOAT(GYR_Y),
 	LOG_ELEMENT_INFO_FLOAT(GYR_Z),
@@ -97,21 +105,21 @@ LOG_ElementInfoDef element_info_list[] =
 	LOG_ELEMENT_INFO_FLOAT(GPS_HDOP),
 	LOG_ELEMENT_INFO_FLOAT(BARO_ALT),
 	LOG_ELEMENT_INFO_FLOAT(BARO_VEL),
-	LOG_ELEMENT_INFO_FLOAT(KF_U_X),
-	LOG_ELEMENT_INFO_FLOAT(KF_U_Y),
-	LOG_ELEMENT_INFO_FLOAT(KF_U_Z),
-	LOG_ELEMENT_INFO_FLOAT(KF_X),
-	LOG_ELEMENT_INFO_FLOAT(KF_Y),
-	LOG_ELEMENT_INFO_FLOAT(KF_Z),
-	LOG_ELEMENT_INFO_FLOAT(KF_VX),
-	LOG_ELEMENT_INFO_FLOAT(KF_VY),
-	LOG_ELEMENT_INFO_FLOAT(KF_VZ),
-	LOG_ELEMENT_INFO_FLOAT(KF_Z_X),
-	LOG_ELEMENT_INFO_FLOAT(KF_Z_Y),
-	LOG_ELEMENT_INFO_FLOAT(KF_Z_Z),
-	LOG_ELEMENT_INFO_FLOAT(KF_Z_VX),
-	LOG_ELEMENT_INFO_FLOAT(KF_Z_VY),
-	LOG_ELEMENT_INFO_FLOAT(KF_Z_VZ),
+//	LOG_ELEMENT_INFO_FLOAT(KF_U_X),
+//	LOG_ELEMENT_INFO_FLOAT(KF_U_Y),
+//	LOG_ELEMENT_INFO_FLOAT(KF_U_Z),
+//	LOG_ELEMENT_INFO_FLOAT(KF_X),
+//	LOG_ELEMENT_INFO_FLOAT(KF_Y),
+//	LOG_ELEMENT_INFO_FLOAT(KF_Z),
+//	LOG_ELEMENT_INFO_FLOAT(KF_VX),
+//	LOG_ELEMENT_INFO_FLOAT(KF_VY),
+//	LOG_ELEMENT_INFO_FLOAT(KF_VZ),
+//	LOG_ELEMENT_INFO_FLOAT(KF_Z_X),
+//	LOG_ELEMENT_INFO_FLOAT(KF_Z_Y),
+//	LOG_ELEMENT_INFO_FLOAT(KF_Z_Z),
+//	LOG_ELEMENT_INFO_FLOAT(KF_Z_VX),
+//	LOG_ELEMENT_INFO_FLOAT(KF_Z_VY),
+//	LOG_ELEMENT_INFO_FLOAT(KF_Z_VZ),
 };
 
 uint8_t logger_create_header(uint32_t log_period)
@@ -223,6 +231,8 @@ uint8_t logger_record(void)
 	ADRC_Log adrc_log;
 	BaroPosition baro_pos;
 	POS_KF_Log pos_kf_log;
+	Altitude_Info alt_info;
+	Position_Info pos_info;
 	
 	mcn_copy_from_hub(MCN_ID(ATT_QUATERNION), &quat);
 	mcn_copy_from_hub(MCN_ID(ATT_EULER), &euler);
@@ -236,6 +246,8 @@ uint8_t logger_record(void)
 	mcn_copy_from_hub(MCN_ID(ADRC), &adrc_log);
 	mcn_copy_from_hub(MCN_ID(BARO_POSITION), &baro_pos);
 	mcn_copy_from_hub(MCN_ID(POS_KF), &pos_kf_log);
+	mcn_copy_from_hub(MCN_ID(ALT_INFO), &alt_info);
+	mcn_copy_from_hub(MCN_ID(POS_INFO), &pos_info);
 	struct vehicle_gps_position_s gps_report = gps_get_report();
 	Vector3f_t pos, vel;
 	gps_get_position(&pos, gps_report);
@@ -248,6 +260,12 @@ uint8_t logger_record(void)
 	LOG_SET_ELEMENT(_logger_info, ROLL, Rad2Deg(euler.roll));
 	LOG_SET_ELEMENT(_logger_info, PITCH, Rad2Deg(euler.pitch));
 	LOG_SET_ELEMENT(_logger_info, YAW, Rad2Deg(euler.yaw));
+	LOG_SET_ELEMENT(_logger_info, X, pos_info.x);
+	LOG_SET_ELEMENT(_logger_info, Y, pos_info.y);
+	LOG_SET_ELEMENT(_logger_info, Z, alt_info.alt);
+	LOG_SET_ELEMENT(_logger_info, VX, pos_info.vx);
+	LOG_SET_ELEMENT(_logger_info, VY, pos_info.vy);
+	LOG_SET_ELEMENT(_logger_info, VZ, alt_info.vz);
 	LOG_SET_ELEMENT(_logger_info, GYR_X, gyr[0]);
 	LOG_SET_ELEMENT(_logger_info, GYR_Y, gyr[1]);
 	LOG_SET_ELEMENT(_logger_info, GYR_Z, gyr[2]);
@@ -287,21 +305,21 @@ uint8_t logger_record(void)
 	LOG_SET_ELEMENT(_logger_info, GPS_HDOP, gps_report.hdop);
 	LOG_SET_ELEMENT(_logger_info, BARO_ALT, baro_pos.altitude);
 	LOG_SET_ELEMENT(_logger_info, BARO_VEL, baro_pos.velocity);
-	LOG_SET_ELEMENT(_logger_info, KF_U_X, pos_kf_log.u_x);
-	LOG_SET_ELEMENT(_logger_info, KF_U_Y, pos_kf_log.u_y);
-	LOG_SET_ELEMENT(_logger_info, KF_U_Z, pos_kf_log.u_z);
-	LOG_SET_ELEMENT(_logger_info, KF_X, pos_kf_log.est_x);
-	LOG_SET_ELEMENT(_logger_info, KF_Y, pos_kf_log.est_y);
-	LOG_SET_ELEMENT(_logger_info, KF_Z, pos_kf_log.est_z);
-	LOG_SET_ELEMENT(_logger_info, KF_VX, pos_kf_log.est_vx);
-	LOG_SET_ELEMENT(_logger_info, KF_VY, pos_kf_log.est_vy);
-	LOG_SET_ELEMENT(_logger_info, KF_VZ, pos_kf_log.est_vz);
-	LOG_SET_ELEMENT(_logger_info, KF_Z_X, pos_kf_log.obs_x);
-	LOG_SET_ELEMENT(_logger_info, KF_Z_Y, pos_kf_log.obs_y);
-	LOG_SET_ELEMENT(_logger_info, KF_Z_Z, pos_kf_log.obs_z);
-	LOG_SET_ELEMENT(_logger_info, KF_Z_VX, pos_kf_log.obs_vx);
-	LOG_SET_ELEMENT(_logger_info, KF_Z_VY, pos_kf_log.obs_vy);
-	LOG_SET_ELEMENT(_logger_info, KF_Z_VZ, pos_kf_log.obs_vz);
+//	LOG_SET_ELEMENT(_logger_info, KF_U_X, pos_kf_log.u_x);
+//	LOG_SET_ELEMENT(_logger_info, KF_U_Y, pos_kf_log.u_y);
+//	LOG_SET_ELEMENT(_logger_info, KF_U_Z, pos_kf_log.u_z);
+//	LOG_SET_ELEMENT(_logger_info, KF_X, pos_kf_log.est_x);
+//	LOG_SET_ELEMENT(_logger_info, KF_Y, pos_kf_log.est_y);
+//	LOG_SET_ELEMENT(_logger_info, KF_Z, pos_kf_log.est_z);
+//	LOG_SET_ELEMENT(_logger_info, KF_VX, pos_kf_log.est_vx);
+//	LOG_SET_ELEMENT(_logger_info, KF_VY, pos_kf_log.est_vy);
+//	LOG_SET_ELEMENT(_logger_info, KF_VZ, pos_kf_log.est_vz);
+//	LOG_SET_ELEMENT(_logger_info, KF_Z_X, pos_kf_log.obs_x);
+//	LOG_SET_ELEMENT(_logger_info, KF_Z_Y, pos_kf_log.obs_y);
+//	LOG_SET_ELEMENT(_logger_info, KF_Z_Z, pos_kf_log.obs_z);
+//	LOG_SET_ELEMENT(_logger_info, KF_Z_VX, pos_kf_log.obs_vx);
+//	LOG_SET_ELEMENT(_logger_info, KF_Z_VY, pos_kf_log.obs_vy);
+//	LOG_SET_ELEMENT(_logger_info, KF_Z_VZ, pos_kf_log.obs_vz);
 	
 	UINT bw;
 	f_write(&logger_fp, &_logger_info.log_field, sizeof(_logger_info.log_field), &bw);

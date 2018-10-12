@@ -72,6 +72,7 @@ void accfilter_input(const float val[3])
 #else
 		//g_acc[i] = butter3_filter_process(val[i], _butter3_acc[i]);
 		g_acc[i] = butter2_filter_process(&_butter_acc[i], val[i]);
+		//g_acc[i] = val[i];
 #endif
 		//g_acc[i] = butter2_filter_process(&_butter_acc[i], val[i]);
 		//g_acc[i] = butter3_filter_process(val[i], _butter3_acc[i]);
@@ -134,6 +135,7 @@ void gyrfilter_input(const float val[3])
 #else
 		//g_gyr[i] = butter3_filter_process(val[i], _butter3_gyr[i]);
 		g_gyr[i] = butter2_filter_process(&_butter_gyr[i], val[i]);
+		//g_gyr[i] = val[i];
 #endif
 		//g_gyr[i] = butter2_filter_process(&_butter_gyr[i], val[i]);
 		//g_gyr[i] = butter3_filter_process(val[i], _butter3_gyr[i]);
@@ -180,10 +182,11 @@ void magfilter_input(const float val[3])
     for(int i=0;i<3;i++){
 #ifdef HIL_SIMULATION
 		// do not filter for HIL simulation
-		//g_mag[i] = val[i];
-		g_mag[i] = butter2_filter_process(&_butter_mag[i], val[i]);
+		g_mag[i] = val[i];
+		//g_mag[i] = butter2_filter_process(&_butter_mag[i], val[i]);
 #else
 		g_mag[i] = butter2_filter_process(&_butter_mag[i], val[i]);
+		//g_mag[i] = val[i];
 #endif
         //g_mag[i] = val[i];
 		//g_mag[i] = butter2_filter_process(&_butter_mag[i], val[i]);
