@@ -23,5 +23,5 @@ documentation/html
 *.a
 *.i
 *.d
-*.uvguix*
-*.uvoptx
+*uvoptx*
+*uvguix*

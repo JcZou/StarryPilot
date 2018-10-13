@@ -166,7 +166,7 @@ static const struct sbus_bit_pick sbus_decoder[SBUS_INPUT_CHANNELS][3] = {
 bool sbus_decode(uint64_t frame_time, uint8_t *frame, uint16_t *values, uint16_t *num_values,
 	    bool *sbus_failsafe, bool *sbus_frame_drop, uint16_t max_values)
 {
-	unsigned i;
+	//unsigned i;
 	/* check frame boundary markers to avoid out-of-sync cases */
 	if ((frame[0] != SBUS_START_SYMBOL)) {
 		sbus_frame_drops++;

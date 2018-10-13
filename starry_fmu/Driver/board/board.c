@@ -21,6 +21,7 @@
 #include "usart.h"
 #include "gpio.h"
 #include "pwm.h"
+#include "pwm_io.h"
 #include "delay.h"
 //#include <spi.h>
 #include "stm32f4_spi.h"
@@ -291,6 +292,7 @@ void rt_hw_board_init()
     stm32_hw_pin_init();
 	stm32_hw_spi_init();
 	stm32_pwm_init();
+	pwm_io_init();
     
 //#ifdef RT_USING_CONSOLE
 //    rt_console_set_device(CONSOLE_DEVICE);

@@ -16,6 +16,7 @@
 #include "console.h"
 #include "delay.h"
 #include "sensor_manager.h"
+#include "pwm_io.h"
 
 static uint8_t pack_buff[MAX_PACKAGE_SIZE];
 static uint8_t pack_usr_buff[MAX_PACKAGE_SIZE];
@@ -335,36 +336,33 @@ void handle_package(const Package_Def package)
 		}break;
 		case CMD_LIDAR_DIS:
 		{
-			//static uint32_t time = 0;
-			//float dis = *((float*)package.usr_data);
-			// TODO: if use O3, add function with input dis will cause hard fault here
-			//lidar_lite_store(*((float*)package.usr_data));
-			
-//			float dis = *((float*)package.usr_data);
-//			if(dis > 40.0f)
-//				break;
 			OS_ENTER_CRITICAL;
 			_lidar_dis = *((float*)package.usr_data);
 			_lidar_recv_stamp = time_nowMs();
 			OS_EXIT_CRITICAL;
-			
-//			//10ms, 10Hz cutoff frequency
-//			float _lidar_alpha = 0.2391f;
-//			static float _lidar_lpf = 0.0f;
-//			//low pass filetr
-//			_lidar_lpf = _lidar_lpf + (_lidar_dis - _lidar_lpf) * _lidar_alpha;
-//			_lidar_dis = _lidar_lpf;
-			
-			//Console.print("%.2f\n", _lidar_dis);
 		}break;
 		case CMD_DEBUG:
 		{
-			//Console.print("edge:%d bit:%d\n", ((uint8_t*)package.usr_data)[0],((uint8_t*)package.usr_data)[1]);
-			//static uint32_t time = 0;
-			//Console.print_eachtime(&time, 300, "dis:%.2f\n", *(float*)package.usr_data);
+			char *str = (char*)package.usr_data;
+			str[package.len] = '\0';
+			Console.print("IO:%s", str);
+		}break;
+		case ACK_GET_PWM_CHANNEL:
+		{
+			float *pwm_dc = (float*)package.usr_data;
+			Console.print("pwm get channel\n");
+			for(uint8_t i = 0 ; i < MAX_PWM_IO_CHAN ; i++){
+				_remote_pwm_duty_cycle[i] = pwm_dc[i];
+			}
+
+			//rt_sem_release(_sem_pwm_chan_recv);
+		}break;
+		case ACK_CONFIG_PWM_CHANNEL:
+		{
+			//TODO
 		}break;
 		default :
-			Console.e(TAG, "unknow package\n");
+			Console.e(TAG, "unknow package:%d\n", package.cmd);
 	}
 }
 

@@ -449,15 +449,15 @@ void calculate_target_attitude(float dT)
 
 void ctrl_set_throttle(float* throttle, uint8_t throttle_num)
 {
-	if(throttle_num > MAX_THROTTLE_NUM){
-		Console.w(TAG, "throttle num:%d is larger than max throttle num:%d\n", throttle_num, MAX_THROTTLE_NUM);
-		return ;
-	}
+	// if(throttle_num > MAX_THROTTLE_NUM){
+	// 	Console.w(TAG, "throttle num:%d is larger than max throttle num:%d\n", throttle_num, MAX_THROTTLE_NUM);
+	// 	return ;
+	// }
 	
 	float throttle_switch = rc_get_chanval(CHAN_THROTTLE_SWITCH);
 	if(throttle_switch < 0.1f){
 		/* throttle is switch off */
-		for(int i = 0 ; i < MOTOR_NUM ; i++){
+		for(int i = 0 ; i < throttle_num ; i++){
 			_throttle_out[i] = 0.0f;
 		}
 	}
@@ -486,7 +486,7 @@ void ctrl_unlock_vehicle(void)
 	mcn_copy_from_hub(MCN_ID(ATT_EULER), &ec);
 	yaw_target = quaternion_getEuler(cur_att, 2);
 	
-	rt_device_control(motor_device_t, PWM_CMD_SWITCH, (void*)&on_off);
+	rt_device_control(motor_device_t, PWM_CMD_ENABLE, (void*)&on_off);
 	_vehicle_status = 1;
 	
 	/* set home position */
@@ -513,7 +513,7 @@ void ctrl_lock_vehicle(void)
 		_throttle_out[i] = 0.0f;
 	}
 	ctrl_set_throttle(_throttle_out, MOTOR_NUM);
-	rt_device_control(motor_device_t, PWM_CMD_SWITCH, (void*)&on_off);
+	rt_device_control(motor_device_t, PWM_CMD_ENABLE, (void*)&on_off);
 	_vehicle_status = 0;
 	alt_hold_mode = 0;
 }

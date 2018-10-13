@@ -16,6 +16,7 @@
 #include "led.h"
 #include "lidar_lite.h"
 #include "sbus.h"
+#include "pwm.h"
 
 int main(void)
 {
@@ -24,11 +25,16 @@ int main(void)
 	uint32_t now;
 	
 	usart_init();
+#ifdef USE_PWM_OUTPUT
+	pwm_init();
+#endif
 	time_init();
 	ppm_capture_init();
 	sbus_init();
 	led_init();
-	//lidar_lite_init();
+#ifdef USE_LIDAR
+	lidar_lite_init();
+#endif
 	
 	led_on(LED_BLUE);
 	led_on(LED_RED);
@@ -43,18 +49,19 @@ int main(void)
 		}
 		
 		if(sync_finish()){
+			
 			send_sbus_value();
 
 			if(ppm_ready()){
 				ppm_clear_ready();
 				send_ppm_value();
 			}
-			
-//			if(lidar_lite_ready()){
-//				lidar_lite_clear_ready();
-//				send_lidar_distance();
-//			}
-
+#ifdef USE_LIDAR			
+			if(lidar_lite_ready()){
+				lidar_lite_clear_ready();
+				send_lidar_distance();
+			}
+#endif
 			now = time_nowMs();
 			if( now - time_led > 1000 ){
 				led_toggle(LED_BLUE);

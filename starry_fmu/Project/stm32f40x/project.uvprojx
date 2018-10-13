@@ -800,6 +800,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\Driver\mpu6000\mpu6000.c</FilePath>
             </File>
+            <File>
+              <FileName>pwm_io.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Driver\pwm\pwm_io.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

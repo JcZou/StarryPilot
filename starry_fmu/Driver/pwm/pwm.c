@@ -17,11 +17,8 @@
 #define PWM_ARR(freq) 	(TIMER_FREQUENCY/freq) 		// CCR reload value, Timer frequency = 3M/60K = 50 Hz
 
 static int pwm_freq;
-#if MOTOR_NUM == 4
-static float TIM_duty_cycle[4] = {0.00, 0.00, 0.00, 0.00};
-#elif MOTOR_NUM == 6
-static float TIM_duty_cycle[6] = {0.00, 0.00, 0.00, 0.00, 0.00, 0.00};
-#endif
+static float _pwm_fmu_duty_cyc[MAX_PWM_FMU_CHAN] = {0.00, 0.00, 0.00, 0.00, 0.00, 0.00};
+static Motor_Chan_Info _fmu_chan_info = {MOTOR_DEV_AUX, MAX_PWM_FMU_CHAN};
 
 void pwm_gpio_init(void)
 {
@@ -47,7 +44,6 @@ void pwm_gpio_init(void)
 	GPIO_PinAFConfig(GPIOE, GPIO_PinSource13, GPIO_AF_TIM1);
 	GPIO_PinAFConfig(GPIOE, GPIO_PinSource14, GPIO_AF_TIM1); 
 	
-#if MOTOR_NUM == 6
 	/* TIM4 clock enable */
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
 
@@ -65,7 +61,6 @@ void pwm_gpio_init(void)
 	/* Connect TIM4 pins to AF */  
 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource13, GPIO_AF_TIM4);
 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource14, GPIO_AF_TIM4); 
-#endif
 }
 
 void pwm_timer_init(void)
@@ -113,11 +108,7 @@ void pwm_timer_init(void)
 	
 	TIM_ARRPreloadConfig(TIM1, ENABLE);
 	//TIM_Cmd(TIM1, ENABLE);
-	TIM_Cmd(TIM1, DISABLE);
-	/* TIM1 Main Output Enable, Need Enable later */
-	TIM_CtrlPWMOutputs(TIM1, DISABLE);
 	
-#if MOTOR_NUM == 6
 	/* TIM4CLK = 2 * PCLK1 */ 
     /* PCLK1 = HCLK / 4 */
 	PrescalerValue = (uint16_t) ((rcc_clocks.PCLK1_Frequency * 2 / TIMER_FREQUENCY) - 1);
@@ -133,16 +124,53 @@ void pwm_timer_init(void)
 
 	TIM_ARRPreloadConfig(TIM4, ENABLE);
 	//TIM_Cmd(TIM4, ENABLE);
-	TIM_Cmd(TIM4, DISABLE);
-#endif
+}
+
+void stm32_pwm_write(struct rt_device *device, uint8_t chan_id, float* duty_cyc)
+{
+	if(chan_id & MOTOR_CH1){
+		TIM_SetCompare4(TIM1, PWM_ARR(pwm_freq)*duty_cyc[0]);
+		_pwm_fmu_duty_cyc[0] = duty_cyc[0];
+	}
+	if(chan_id & MOTOR_CH2){
+		TIM_SetCompare3(TIM1, PWM_ARR(pwm_freq)*duty_cyc[1]);
+		_pwm_fmu_duty_cyc[1] = duty_cyc[1];
+	}
+	if(chan_id & MOTOR_CH3){
+		TIM_SetCompare2(TIM1, PWM_ARR(pwm_freq)*duty_cyc[2]);
+		_pwm_fmu_duty_cyc[2] = duty_cyc[2];
+	}
+	if(chan_id & MOTOR_CH4){
+		TIM_SetCompare1(TIM1, PWM_ARR(pwm_freq)*duty_cyc[3]);
+		_pwm_fmu_duty_cyc[3] = duty_cyc[3];
+	}
+	if(chan_id & MOTOR_CH5){
+		TIM_SetCompare2(TIM4, PWM_ARR(pwm_freq)*duty_cyc[4]);
+		_pwm_fmu_duty_cyc[4] = duty_cyc[4];
+	}
+	if(chan_id & MOTOR_CH6){
+		TIM_SetCompare3(TIM4, PWM_ARR(pwm_freq)*duty_cyc[5]);
+		_pwm_fmu_duty_cyc[5] = duty_cyc[5];
+	}
+}
+
+int stm32_pwm_read(struct rt_device *device, uint8_t chan_id, float* buffer)
+{
+	for(uint8_t i = 0 ; i < MAX_PWM_FMU_CHAN ; i++){
+		buffer[i] = _pwm_fmu_duty_cyc[i];
+	}
+
+	return 0;
 }
 
 void stm32_pwm_configure(rt_device_t dev, rt_uint8_t cmd, void *args)
 {
-	if(cmd == PWM_CMD_FREQ){
+	if(cmd == PWM_CMD_SET_FREQ){
 		pwm_freq = *((int*)args);
 		pwm_timer_init();
-	}else if(cmd == PWM_CMD_SWITCH){
+		// after changing frequency, the timer compare value should be re-configured
+		stm32_pwm_write(dev, MOTOR_CH_ALL, _pwm_fmu_duty_cyc);
+	}else if(cmd == PWM_CMD_ENABLE){
 		int on_off = *((int*)args);
 		if(on_off){
 			TIM_Cmd(TIM1, ENABLE);
@@ -155,62 +183,6 @@ void stm32_pwm_configure(rt_device_t dev, rt_uint8_t cmd, void *args)
 			TIM_Cmd(TIM4, DISABLE);
 		}
 	}
-}
-
-void stm32_pwm_write(struct rt_device *device, uint8_t chanel, float* duty_cyc)
-{
-	if(chanel & MOTOR_CH1){
-		TIM_SetCompare4(TIM1, PWM_ARR(pwm_freq)*duty_cyc[0]);
-		TIM_duty_cycle[0] = duty_cyc[0];
-	}
-	if(chanel & MOTOR_CH2){
-		TIM_SetCompare3(TIM1, PWM_ARR(pwm_freq)*duty_cyc[1]);
-		TIM_duty_cycle[1] = duty_cyc[1];
-	}
-	if(chanel & MOTOR_CH3){
-		TIM_SetCompare2(TIM1, PWM_ARR(pwm_freq)*duty_cyc[2]);
-		TIM_duty_cycle[2] = duty_cyc[2];
-	}
-	if(chanel & MOTOR_CH4){
-		TIM_SetCompare1(TIM1, PWM_ARR(pwm_freq)*duty_cyc[3]);
-		TIM_duty_cycle[3] = duty_cyc[3];
-	}
-#if MOTOR_NUM == 6
-	if(chanel & MOTOR_CH5){
-		TIM_SetCompare2(TIM4, PWM_ARR(pwm_freq)*duty_cyc[4]);
-		TIM_duty_cycle[4] = duty_cyc[4];
-	}
-	if(chanel & MOTOR_CH6){
-		TIM_SetCompare3(TIM4, PWM_ARR(pwm_freq)*duty_cyc[5]);
-		TIM_duty_cycle[5] = duty_cyc[5];
-	}
-#endif
-}
-
-int stm32_pwm_read(struct rt_device *device, uint8_t chanel, float* buffer)
-{
-	if(chanel & MOTOR_CH1){
-		buffer[0] = TIM_duty_cycle[0];
-	}
-	if(chanel & MOTOR_CH2){
-		buffer[1] = TIM_duty_cycle[1];
-	}
-	if(chanel & MOTOR_CH3){
-		buffer[2] = TIM_duty_cycle[2];
-	}
-	if(chanel & MOTOR_CH4){
-		buffer[3] = TIM_duty_cycle[3];
-	}
-#if MOTOR_NUM == 6
-	if(chanel & MOTOR_CH5){
-		buffer[4] = TIM_duty_cycle[4];
-	}
-	if(chanel & MOTOR_CH6){
-		buffer[5] = TIM_duty_cycle[5];
-	}
-#endif
-	
-	return 0;
 }
 
 const static struct rt_pwm_ops _stm32_pwm_ops =
@@ -226,8 +198,12 @@ int stm32_pwm_init(void)
 	
 	pwm_gpio_init();
 	pwm_timer_init();
+	/* TIM1 Main Output Enable, Need Enable later */
+	TIM_Cmd(TIM1, DISABLE);
+	TIM_CtrlPWMOutputs(TIM1, DISABLE);
+	TIM_Cmd(TIM4, DISABLE);
 	
-	rt_device_motor_register("motor", &_stm32_pwm_ops, RT_NULL);
+	rt_device_motor_register("motor_aux", &_stm32_pwm_ops, &_fmu_chan_info);
 	
 	return 0;
 }

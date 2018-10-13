@@ -11,6 +11,7 @@
 #include "protocol.h"
 #include "ppm_capture.h"
 #include "usart.h"
+#include "pwm.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -336,9 +337,31 @@ void handle_package(const Package_Def package)
 		}break;
 		case CMD_CONFIG_CHANNEL:
 		{
-			if( config_ppm_send_freq(*package.usr_data) )
+			if( config_ppm_send_freq(*package.usr_data) ){
 				send_package(ACK_CONFIG_CHANNEL, package.usr_data, 1);
+			}
 		}break;
+#ifdef USE_PWM_OUTPUT
+		case CMD_SET_PWM_CHANNEL:
+		{
+			PWM_CHAN_MSG pwm_msg = *((PWM_CHAN_MSG*)package.usr_data);
+			pwm_write(pwm_msg.duty_cyc, pwm_msg.chan_id);
+		}break;
+		case CMD_GET_PWM_CHANNEL:
+		{
+			float cur_dc[MAX_PWM_CHAN];
+
+			pwm_read(cur_dc, PWM_CHAN_ALL);
+			send_package(ACK_GET_PWM_CHANNEL, (uint8_t*)&cur_dc, sizeof(cur_dc));
+		}break;
+		case CMD_CONFIG_PWM_CHANNEL:
+		{
+			PWM_CONFIG_MSG pwm_conf_msg = *((PWM_CONFIG_MSG*)package.usr_data);
+			if(pwm_configure(pwm_conf_msg.cmd, &pwm_conf_msg.val) == 0){
+				send_package(ACK_CONFIG_PWM_CHANNEL, NULL, 0);
+			}
+		}break;
+#endif
 		default :
 			printf("unknow package\n");
 	}

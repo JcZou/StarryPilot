@@ -14,7 +14,7 @@
 #include "stm32f10x.h"
 
 #define		PACK_SIZE_EXCEPT_DATA		8
-#define		MAX_PACKAGE_SIZE			128
+#define		MAX_PACKAGE_SIZE			256
 
 //#define		PROTOCOL_SERVER
 #define		PROTOCOL_CLIENT
@@ -40,6 +40,9 @@ typedef enum
 	ACK_SYNC = 0x01,
 	CMD_REBOOT = 0x02,
 	CMD_CONFIG_CHANNEL = 0x03,
+	CMD_SET_PWM_CHANNEL = 0x04,
+	CMD_GET_PWM_CHANNEL = 0x05,
+	CMD_CONFIG_PWM_CHANNEL = 0x06,
 }SERVER_CMD_Def;
 
 typedef enum
@@ -50,6 +53,8 @@ typedef enum
 	CMD_CHANNEL_VAL = 0x04,
 	CMD_LIDAR_DIS = 0x05,
 	CMD_DEBUG = 0x06,
+	ACK_GET_PWM_CHANNEL = 0x07,
+	ACK_CONFIG_PWM_CHANNEL = 0x08,
 }CLIENT_CMD_Def;
 
 uint8_t make_package(uint8_t* data , char cmd , uint16_t len , Package_Def* package);
