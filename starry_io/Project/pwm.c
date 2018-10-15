@@ -123,49 +123,49 @@ uint8_t pwm_write(float* duty_cyc, uint8_t chan_id)
 	if(chan_id & PWM_CHAN_1){
 		TIM_SetCompare1(TIM2, PWM_ARR(_pwm_freq)*duty_cyc[0]);
 		_tim_duty_cycle[0] = duty_cyc[0];
-		debug("ch1:%f\n", _tim_duty_cycle[0]);
+		//debug("ch1:%f\n", _tim_duty_cycle[0]);
 	}
 
 	if(chan_id & PWM_CHAN_2){
 		TIM_SetCompare2(TIM2, PWM_ARR(_pwm_freq)*duty_cyc[1]);
 		_tim_duty_cycle[1] = duty_cyc[1];
-		debug("ch2:%f\n", _tim_duty_cycle[1]);
+		//debug("ch2:%f\n", _tim_duty_cycle[1]);
 	}
 	
 	if(chan_id & PWM_CHAN_3){
 		TIM_SetCompare3(TIM4, PWM_ARR(_pwm_freq)*duty_cyc[2]);
 		_tim_duty_cycle[2] = duty_cyc[2];
-		debug("ch3:%f\n", _tim_duty_cycle[2]);
+		//debug("ch3:%f\n", _tim_duty_cycle[2]);
 	}
 
 	if(chan_id & PWM_CHAN_4){
 		TIM_SetCompare4(TIM4, PWM_ARR(_pwm_freq)*duty_cyc[3]);
 		_tim_duty_cycle[3] = duty_cyc[3];
-		debug("ch4:%f\n", _tim_duty_cycle[3]);
+		//debug("ch4:%f\n", _tim_duty_cycle[3]);
 	}
 
 	if(chan_id & PWM_CHAN_5){
 		TIM_SetCompare1(TIM3, PWM_ARR(_pwm_freq)*duty_cyc[4]);
 		_tim_duty_cycle[4] = duty_cyc[4];
-		debug("ch5:%f\n", _tim_duty_cycle[4]);
+		//debug("ch5:%f\n", _tim_duty_cycle[4]);
 	}
 
 	if(chan_id & PWM_CHAN_6){
 		TIM_SetCompare2(TIM3, PWM_ARR(_pwm_freq)*duty_cyc[5]);
 		_tim_duty_cycle[5] = duty_cyc[5];
-		debug("ch6:%f\n", _tim_duty_cycle[5]);
+		//debug("ch6:%f\n", _tim_duty_cycle[5]);
 	}
 
 	if(chan_id & PWM_CHAN_7){
 		TIM_SetCompare3(TIM3, PWM_ARR(_pwm_freq)*duty_cyc[6]);
 		_tim_duty_cycle[6] = duty_cyc[6];
-		debug("ch7:%f\n", _tim_duty_cycle[6]);
+		//debug("ch7:%f\n", _tim_duty_cycle[6]);
 	}
 
 	if(chan_id & PWM_CHAN_8){
 		TIM_SetCompare4(TIM3, PWM_ARR(_pwm_freq)*duty_cyc[7]);
 		_tim_duty_cycle[7] = duty_cyc[7];
-		debug("ch8:%f\n", _tim_duty_cycle[7]);
+		//debug("ch8:%f\n", _tim_duty_cycle[7]);
 	}
 
 	return 0;
@@ -195,7 +195,7 @@ uint8_t pwm_configure(uint8_t cmd, void *args)
 		return 0;
 	}else if(cmd == PWM_CMD_ENABLE){
 		int enable = *((int*)args);
-		debug("pwm enable:%d ", enable);
+		//debug("pwm enable:%d ", enable);
 		if(enable){
 			TIM_Cmd(TIM2, ENABLE);
 			TIM_Cmd(TIM4, ENABLE);

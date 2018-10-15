@@ -7,9 +7,9 @@
 
 rt_sem_t _sem_pwm_chan_recv;
 static int _pwm_freq;
-static float _pwm_duty_cycle[MAX_PWM_IO_CHAN] = {0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00};
-float _remote_pwm_duty_cycle[MAX_PWM_IO_CHAN];
-static Motor_Chan_Info _io_chan_info = {MOTOR_DEV_MAIN, MAX_PWM_IO_CHAN};
+static float _pwm_duty_cycle[MAX_PWM_MAIN_CHAN] = {0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00};
+float _remote_pwm_duty_cycle[MAX_PWM_MAIN_CHAN];
+static Motor_Chan_Info _io_chan_info = {MOTOR_DEV_MAIN, MAX_PWM_MAIN_CHAN};
 
 void pwm_io_configure(rt_device_t dev, rt_uint8_t cmd, void *args)
 {
@@ -30,7 +30,7 @@ void pwm_io_write(struct rt_device *device, uint8_t chan_id, float* duty_cyc)
 {
     PWM_CHAN_MSG pwm_chan_msg;
 
-    for(uint8_t i = 0 ; i < MAX_PWM_IO_CHAN ; i++){
+    for(uint8_t i = 0 ; i < MAX_PWM_MAIN_CHAN ; i++){
         pwm_chan_msg.duty_cyc[i] = duty_cyc[i];
         _pwm_duty_cycle[i] = pwm_chan_msg.duty_cyc[i];
     }
@@ -46,7 +46,7 @@ int pwm_io_read(struct rt_device *device, uint8_t chan_id, float* buffer)
     //rt_err_t err = rt_sem_take(_sem_pwm_chan_recv, 100);
 	rt_thread_delay(1000);
     if(1){
-        for(uint8_t i = 0 ; i < MAX_PWM_IO_CHAN ; i++){
+        for(uint8_t i = 0 ; i < MAX_PWM_MAIN_CHAN ; i++){
             if(chan_id & (1<<i))
                 buffer[i] = _remote_pwm_duty_cycle[i];
         }

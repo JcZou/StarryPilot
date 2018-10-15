@@ -351,7 +351,7 @@ void handle_package(const Package_Def package)
 		{
 			float *pwm_dc = (float*)package.usr_data;
 			Console.print("pwm get channel\n");
-			for(uint8_t i = 0 ; i < MAX_PWM_IO_CHAN ; i++){
+			for(uint8_t i = 0 ; i < MAX_PWM_MAIN_CHAN ; i++){
 				_remote_pwm_duty_cycle[i] = pwm_dc[i];
 			}
 

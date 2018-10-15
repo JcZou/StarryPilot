@@ -17,8 +17,8 @@
 #define PWM_ARR(freq) 	(TIMER_FREQUENCY/freq) 		// CCR reload value, Timer frequency = 3M/60K = 50 Hz
 
 static int pwm_freq;
-static float _pwm_fmu_duty_cyc[MAX_PWM_FMU_CHAN] = {0.00, 0.00, 0.00, 0.00, 0.00, 0.00};
-static Motor_Chan_Info _fmu_chan_info = {MOTOR_DEV_AUX, MAX_PWM_FMU_CHAN};
+static float _pwm_fmu_duty_cyc[MAX_PWM_AUX_CHAN] = {0.00, 0.00, 0.00, 0.00, 0.00, 0.00};
+static Motor_Chan_Info _fmu_chan_info = {MOTOR_DEV_AUX, MAX_PWM_AUX_CHAN};
 
 void pwm_gpio_init(void)
 {
@@ -156,7 +156,7 @@ void stm32_pwm_write(struct rt_device *device, uint8_t chan_id, float* duty_cyc)
 
 int stm32_pwm_read(struct rt_device *device, uint8_t chan_id, float* buffer)
 {
-	for(uint8_t i = 0 ; i < MAX_PWM_FMU_CHAN ; i++){
+	for(uint8_t i = 0 ; i < MAX_PWM_AUX_CHAN ; i++){
 		buffer[i] = _pwm_fmu_duty_cyc[i];
 	}
 

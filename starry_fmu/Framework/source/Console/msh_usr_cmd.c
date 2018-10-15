@@ -18,6 +18,130 @@
 #include "msh.h"
 #include "console.h"
 
+typedef int (*shell_handle_func)(int, char**, int, sh_optv*);
+
+int shell_cmd_process(int argc, char** argv, shell_handle_func func)
+{
+	int res = 1;
+	int arg_c = 0;
+	int opt_c = 0;
+	char **arg_v = NULL;
+	sh_optv *opt_v = NULL;
+	
+	// pre-process to determine arguments and options count
+	for(int i = 0 ; i < argc ; i++){
+		if(argv[i][0] == '-'){
+			opt_c++;
+		}else{
+			arg_c++;
+		}
+	}
+
+	arg_v = (char**)rt_malloc(arg_c*sizeof(char*));
+	if(arg_v == NULL)
+		return 1;
+	if(opt_c){
+		opt_v = (sh_optv*)rt_malloc(opt_c*sizeof(sh_optv));
+		if(opt_v == NULL){
+			rt_free(arg_v);
+			return 1;
+		}
+	}
+
+	int arg_cnt = 0;
+	int opt_cnt = 0;
+	// process for arguments and options
+	for(int i = 0 ; i < argc ; i++){
+		if(argv[i][0] == '-'){
+			/* handle option */
+			int opt_len = strlen(argv[i]);
+			int val_len = 0;
+			int val_start;
+			// find option value
+			for(int n = 1 ; n < opt_len ; n++){
+				if(argv[i][n] == '='){
+					val_len = opt_len-n-1;
+					val_len = val_len > 0 ? val_len : 0;
+					opt_len = opt_len - val_len - 1;
+					opt_len = opt_len > 0 ? opt_len : 0;
+					val_start = n+1;
+				}
+			}
+			
+			opt_v[opt_cnt].opt = (char*)rt_malloc(opt_len+1); // 1byte for '\0'
+
+			if(opt_v[opt_cnt].opt == NULL){
+				Console.print("opt malloc err\n");
+				goto opt_release;
+			}
+			
+			memcpy(opt_v[opt_cnt].opt, argv[i], opt_len);
+			opt_v[opt_cnt].opt[opt_len] = '\0';
+			
+			if(val_len){
+				opt_v[opt_cnt].val = (char*)rt_malloc(val_len+1);
+				if(opt_v[opt_cnt].val == NULL){
+					Console.print("opt val malloc err\n");
+					goto opt_release;
+				}
+				memcpy(opt_v[opt_cnt].val, &argv[i][val_start], val_len);
+				opt_v[opt_cnt].val[val_len] = '\0';
+			}else{
+				opt_v[opt_cnt].val = NULL;
+			}
+			
+			//Console.print("opt:%s val:%s\n", opt_v[opt_cnt].opt, opt_v[opt_cnt].val);
+			
+			opt_cnt++;
+		}else{
+			/* handle argument */
+			int arg_len = strlen(argv[i]);
+			
+			arg_v[arg_cnt] = (char*)rt_malloc(arg_len+1);
+			if(arg_v[arg_cnt] == NULL){
+				Console.print("arg malloc err\n");
+				goto opt_release;
+			}
+			memcpy(arg_v[arg_cnt], argv[i], arg_len);
+			arg_v[arg_cnt][arg_len] = '\0';
+			
+			//Console.print("arg:%s\n", arg_v[arg_cnt]);
+			
+			arg_cnt++;
+		}
+	}
+	
+	// invoke handle function
+	if(func != NULL){
+		res = func(arg_c, arg_v, opt_c, opt_v);
+	}
+
+opt_release:	
+	// release memory
+	if(arg_v != NULL){
+		for(int i = 0 ; i < arg_c ; i++){
+			if(arg_v[i] != NULL){
+				rt_free(arg_v[i]);
+			}
+		}
+		rt_free(arg_v);
+	}
+	
+	if(opt_v != NULL){
+		for(int i = 0 ; i < opt_c ; i++){
+			if(opt_v[i].opt != NULL){
+				rt_free(opt_v[i].opt);
+			}
+			if(opt_v[i].val != NULL){
+				rt_free(opt_v[i].val);
+			}
+		}
+		rt_free(opt_v);
+	}
+	
+	return res;
+}
+
 int handle_help_shell_cmd(int argc, char** argv)
 {	
 	if(argc > 1){
@@ -243,10 +367,11 @@ int cmd_gps(int argc, char** argv)
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_gps, __cmd_gps, get gps information.);
 
-int handle_motor_shell_cmd(int argc, char** argv);
+int handle_motor_shell_cmd(int argc, char** argv, int optc, sh_optv* optv);
 int cmd_motor(int argc, char** argv)
 {
-	return handle_motor_shell_cmd(argc, argv);
+	return shell_cmd_process(argc, argv, handle_motor_shell_cmd);
+	//return handle_motor_shell_cmd(argc, argv);
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_motor, __cmd_motor, motor operation);
 

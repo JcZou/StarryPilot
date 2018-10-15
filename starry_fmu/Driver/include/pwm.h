@@ -10,7 +10,7 @@
 #ifndef __PWM_H__
 #define __PWM_H__
 
-#define MAX_PWM_FMU_CHAN      6
+#define MAX_PWM_AUX_CHAN      6
 
 int stm32_pwm_init(void);
 
