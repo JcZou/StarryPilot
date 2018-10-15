@@ -15,8 +15,8 @@
 
 #define MOTOR_NUM	4
 
-#define MOTOR_MIN_DC	0.0f
-#define MOTOR_MAX_DC	1.0f	
+#define MOTOR_MIN_DC	0.05f		/* minimal duty cycle: 1ms/20ms=0.05 */
+#define MOTOR_MAX_DC	0.1f		/* minimal duty cycle: 2ms/20ms=0.1 */	
 
 #define	MOTOR_CTRL_FREQUENCY	0x01
 
