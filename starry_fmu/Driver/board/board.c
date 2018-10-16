@@ -27,6 +27,8 @@
 #include "stm32f4_spi.h"
 #include "console.h"
 #include "cdcacm.h"
+#include "incapture.h"
+#include "balance_car_motor.h"
 
 /**
  * @addtogroup STM32
@@ -291,8 +293,10 @@ void rt_hw_board_init()
 	
     stm32_hw_pin_init();
 	stm32_hw_spi_init();
-	stm32_pwm_init();
+	//stm32_pwm_init();
 	pwm_io_init();
+	capture_init();
+	balance_car_motor_init();
     
 //#ifdef RT_USING_CONSOLE
 //    rt_console_set_device(CONSOLE_DEVICE);

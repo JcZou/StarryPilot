@@ -610,6 +610,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\Mavproxy\mavlink_param.c</FilePath>
             </File>
+            <File>
+              <FileName>balance_car_motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\BalanceCar\balance_car_motor.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -804,6 +809,11 @@
               <FileName>pwm_io.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Driver\pwm\pwm_io.c</FilePath>
+            </File>
+            <File>
+              <FileName>incapture.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Driver\pwm\incapture.c</FilePath>
             </File>
           </Files>
         </Group>
