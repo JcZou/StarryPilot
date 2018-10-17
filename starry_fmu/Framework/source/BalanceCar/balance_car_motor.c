@@ -1,7 +1,9 @@
 
+#include <string.h>
 #include "motor.h"
 #include "balance_car_motor.h"
 #include "console.h"
+#include "msh_usr_cmd.h"
 
 #define MOTOR_USED	0x7F
 
@@ -18,7 +20,8 @@ void balance_car_motor_init(void)
 	}
 	rt_device_open(motor_device_t , RT_DEVICE_OFLAG_RDWR);
 	
-	_standby = 0.0f;
+	// standby off by default
+	_standby = 1.0f;
 }
 
 void balance_car_standby(int enable)
@@ -41,7 +44,7 @@ void balance_car_motor_set(float left, float right)
 	float motor_val[7];
 	float Ain1, Ain2, Bin1, Bin2;
 	
-	if(left){
+	if(left>=0.0f){
 		motor_val[0] = left;
 		motor_val[1] = 0.0f;
 		motor_val[2] = 1.0f;
@@ -51,7 +54,7 @@ void balance_car_motor_set(float left, float right)
 		motor_val[2] = 0.0f;
 	}
 	
-	if(right){
+	if(right>=0.0f){
 		motor_val[3] = right;
 		motor_val[4] = 1.0f;
 		motor_val[5] = 0.0f;
@@ -64,4 +67,20 @@ void balance_car_motor_set(float left, float right)
 	motor_val[6] = _standby;
 	
 	rt_device_write(motor_device_t, MOTOR_USED, motor_val, 7);
+}
+
+int handle_balance_car_motor_shell_cmd(int argc, char** argv, int optc, sh_optv* optv)
+{
+	if(argc > 1){
+		if(strcmp(argv[1], "set") == 0 && argc >= 4){
+			float left, right;
+			left = atof(argv[2]);
+			right = atof(argv[3]);
+		
+			balance_car_motor_set(left, right);
+			Console.print("balance car motor, left:%f right:%f\n", left, right);
+		}
+	}
+	
+	return 0;
 }

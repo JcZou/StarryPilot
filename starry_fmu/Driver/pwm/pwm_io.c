@@ -31,8 +31,10 @@ void pwm_io_write(struct rt_device *device, uint8_t chan_id, float* duty_cyc)
     PWM_CHAN_MSG pwm_chan_msg;
 
     for(uint8_t i = 0 ; i < MAX_PWM_MAIN_CHAN ; i++){
-        pwm_chan_msg.duty_cyc[i] = duty_cyc[i];
-        _pwm_duty_cycle[i] = pwm_chan_msg.duty_cyc[i];
+		if(chan_id & (1<<i)){
+			pwm_chan_msg.duty_cyc[i] = duty_cyc[i];
+			_pwm_duty_cycle[i] = pwm_chan_msg.duty_cyc[i];
+		}
     }
     pwm_chan_msg.chan_id = chan_id;
 

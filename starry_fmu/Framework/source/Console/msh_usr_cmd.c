@@ -20,6 +20,19 @@
 
 typedef int (*shell_handle_func)(int, char**, int, sh_optv*);
 
+int _is_option(char* str)
+{
+	if(strlen(str) < 2)
+		return 0;
+	
+	if(str[0] == '-' && !(str[1]>='0'&&str[1]<='9')){
+		// the case of negative number, like -3, -2.1, these are not options
+		return 1;
+	}else{
+		return 0;
+	}
+}
+
 int shell_cmd_process(int argc, char** argv, shell_handle_func func)
 {
 	int res = 1;
@@ -30,7 +43,7 @@ int shell_cmd_process(int argc, char** argv, shell_handle_func func)
 	
 	// pre-process to determine arguments and options count
 	for(int i = 0 ; i < argc ; i++){
-		if(argv[i][0] == '-'){
+		if(_is_option(argv[i])){
 			opt_c++;
 		}else{
 			arg_c++;
@@ -52,7 +65,7 @@ int shell_cmd_process(int argc, char** argv, shell_handle_func func)
 	int opt_cnt = 0;
 	// process for arguments and options
 	for(int i = 0 ; i < argc ; i++){
-		if(argv[i][0] == '-'){
+		if(_is_option(argv[i])){
 			/* handle option */
 			int opt_len = strlen(argv[i]);
 			int val_len = 0;
@@ -494,3 +507,10 @@ int cmd_control(int argc, char** argv)
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_control, __cmd_control, control operations);
 
+int handle_balance_car_motor_shell_cmd(int argc, char** argv, int optc, sh_optv* optv);
+int cmd_bc_motor(int argc, char** argv)
+{
+	return shell_cmd_process(argc, argv, handle_balance_car_motor_shell_cmd);
+	//return handle_motor_shell_cmd(argc, argv);
+}
+FINSH_FUNCTION_EXPORT_ALIAS(cmd_bc_motor, __cmd_bc_motor, balance car motor operation);
