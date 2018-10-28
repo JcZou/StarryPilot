@@ -1,10 +1,33 @@
-/*
- * File      : starryio_manager.c
- *
- * Change Logs:
- * Date           Author       Notes
- * 2017-02-13     zoujiachi   	the first version
- */
+/*****************************************************************************
+Copyright (c) 2018, StarryPilot Development Team. All rights reserved.
+
+Author: Jiachi Zou, weety
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of StarryPilot nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*******************************************************************************/
  
 #include <rthw.h>
 #include <rtdevice.h>
@@ -15,109 +38,124 @@
 #include "uMCN.h"
 
 //#define PX4IO_DEBUG
+#define MSEC_TO_TICKS(ms) ((ms) * RT_TICK_PER_SECOND / 1000)
+#define STARRYIO_DTX_TIMEOUT MSEC_TO_TICKS(30)
+#define MAX_IO_BUFFER_SIZE				10
 
 //static rt_device_t debug_dev;
 struct rt_semaphore starryio_dbg_rx_sem;
 struct rt_semaphore starryio_rx_pack_sem;
 struct rt_semaphore starryio_tx_pack_sem;
 static rt_device_t serial_dev;
-#define MSEC_TO_TICKS(ms) ((ms) * RT_TICK_PER_SECOND / 1000)
-#define STARRYIO_DTX_TIMEOUT MSEC_TO_TICKS(30)
+static bool _io_comm_suspend = false;
+static Package_Def _io_pack_buffer[MAX_IO_BUFFER_SIZE];
+static uint16_t _buffer_head = 0;
+static uint16_t _buffer_tail = 0;
+static uint8_t _send_pack_buff[MAX_PACKAGE_SIZE];
 
-//static ringbuffer* rb;
 static char* TAG = "STARRYIO Manager";
 
 uint8_t ppm_send_freq = 20;	/* sending frequemcy of ppm signal, HZ */
 
 MCN_DECLARE(RC_STATUS);
 
-rt_err_t starryio_serial_tx_done(rt_device_t dev, void * buffer)
+rt_err_t _starryio_serial_tx_done(rt_device_t dev, void * buffer)
 {
-	rt_sem_release(&starryio_tx_pack_sem);
+	return rt_sem_release(&starryio_tx_pack_sem);
 }
 
-static rt_err_t send_char(uint8_t c)
+static rt_err_t _send_char(uint8_t c)
 {
 	rt_size_t bytes;
 	
 	bytes = rt_device_write(serial_dev, 0, (const void *)&c, 1);
-	if(bytes != 1)
+	if(bytes != 1){
+		Console.print("starryio tx err\n");
 		return -RT_ERROR;
-
-	if (rt_sem_take(&starryio_tx_pack_sem, STARRYIO_DTX_TIMEOUT) != RT_EOK) {
-		Console.print("starryio tx timeout\n");
-		return -RT_EIO;
 	}
 	
 	return RT_EOK;
 }
 
-static rt_err_t send(uint8_t* buff, uint32_t size)
+static rt_err_t _send(uint8_t* buff, uint32_t size)
 {
 	rt_size_t bytes;
-	
+		
 	bytes = rt_device_write(serial_dev, 0, (const void *)buff, size);
-	if(bytes != size)
+	if(bytes != size){
+		Console.print("starryio tx err\n");
 		return -RT_ERROR;
-
-	if (rt_sem_take(&starryio_tx_pack_sem, STARRYIO_DTX_TIMEOUT) != RT_EOK) {
-		Console.print("starryio tx timeout\n");
-		return -RT_EIO;
 	}
 	
 	return RT_EOK;
 }
 
 //this function will be callback on rt_hw_serial_isr()
-static rt_err_t starryio_serial_rx_ind(rt_device_t dev, rt_size_t size)
+static rt_err_t _starryio_serial_rx_ind(rt_device_t dev, rt_size_t size)
 {	
 	rt_sem_release(&starryio_rx_pack_sem);
 
     return RT_EOK;
 }
 
-//static rt_err_t starryio_debug_rx_ind(rt_device_t dev, rt_size_t size)
-//{
-//	rt_sem_release(&starryio_dbg_rx_sem);
-
-//    return RT_EOK;
-//}
+uint8_t _sendout_buffer_package(void)
+{
+	SendPackage_Def send_pack;
+	send_pack.send_buff = _send_pack_buff;
+	
+	package2sendpack_static(_io_pack_buffer[_buffer_tail] , &send_pack);
+	_send(send_pack.send_buff, send_pack.buff_size);
+	
+	free_pack(&_io_pack_buffer[_buffer_tail]);
+	OS_ENTER_CRITICAL;
+	_buffer_tail = (_buffer_tail+1) % MAX_IO_BUFFER_SIZE;
+	OS_EXIT_CRITICAL;
+	
+	return 1;
+}
 
 rt_device_t starryio_get_device(void)
 {
 	return serial_dev;
 }
 
+void starryio_suspend_comm(bool enable)
+{
+	_io_comm_suspend = enable;
+}
+
 void px4io_reset_rx_ind(void)
 {
-	rt_device_set_rx_indicate(serial_dev, starryio_serial_rx_ind);
+	rt_device_set_rx_indicate(serial_dev, _starryio_serial_rx_ind);
 }
 
 uint8_t send_package(uint8_t cmd, uint8_t* data, uint16_t len)
 {
 	Package_Def pack;
 	SendPackage_Def send_pack;
+	uint8_t res = 1;
 	
-	if(!make_package(data , cmd , len , &pack)){
+	if(_io_comm_suspend){
+		// suspend io package sending
 		return 0;
 	}
 	
-	package2sendpack(pack , &send_pack);
-	send(send_pack.send_buff, send_pack.buff_size);
+	if( (_buffer_head+1) % MAX_IO_BUFFER_SIZE == _buffer_tail ){
+		Console.print("io package overflow\n");
+		res = 0;
+	}else{
+		if(!make_package(data , cmd , len , &pack)){
+			Console.print("make pack fail\n");
+			return 0;
+		}
+		
+		OS_ENTER_CRITICAL;
+		_io_pack_buffer[_buffer_head] = pack;
+		_buffer_head = (_buffer_head + 1) % MAX_IO_BUFFER_SIZE;
+		OS_EXIT_CRITICAL;
+	}
 	
-	free_pack(&pack);
-	free_sendpack(&send_pack);
-	
-	return 1;
-}
-
-rt_err_t set_ppm_freq(uint8_t freq)
-{
-	rt_err_t ret;
-	
-	ret = send_package(CMD_CONFIG_CHANNEL, &freq, 1) ? RT_EOK : RT_ERROR;
-	
-	return ret;
+	return res;
 }
 
 rt_err_t request_reboot(void)
@@ -129,11 +167,11 @@ rt_err_t request_reboot(void)
 	return ret;
 }
 
-rt_err_t reply_sync(void)
+rt_err_t reply_io_sync_package(void)
 {
 	send_package(ACK_SYNC, NULL, 0);
 	
-	/* after sync, we should config starryio */
+	/* after sync, we should config starryio ppm frequency */
 	send_package(CMD_CONFIG_CHANNEL, &ppm_send_freq, 1);
 	
 	return RT_EOK;
@@ -165,10 +203,10 @@ void starryio_entry(void *parameter)
     }
 	
 	rt_sem_init(&starryio_rx_pack_sem, "rxpack", 0, 0);
-	rt_sem_init(&starryio_tx_pack_sem, "txpack", 0, RT_IPC_FLAG_FIFO);
+	rt_sem_init(&starryio_tx_pack_sem, "txpack", 1, RT_IPC_FLAG_FIFO);
 	
-	rt_device_set_rx_indicate(serial_dev, starryio_serial_rx_ind);
-	rt_device_set_tx_complete(serial_dev, starryio_serial_tx_done);
+	rt_device_set_rx_indicate(serial_dev, _starryio_serial_rx_ind);
+	rt_device_set_tx_complete(serial_dev, _starryio_serial_tx_done);
 	rt_device_open(serial_dev, RT_DEVICE_OFLAG_RDWR | RT_DEVICE_FLAG_DMA_RX | RT_DEVICE_FLAG_DMA_TX);
 	
 	int mcn_res;
@@ -186,13 +224,22 @@ void starryio_entry(void *parameter)
 			}
 		}
 #endif
-	
-		if (rt_sem_take(&starryio_rx_pack_sem, 20) == RT_EOK){
-			uint8_t ch;
-			while(rt_device_read(serial_dev , 0 , &ch , 1)){
-				if(wait_complete_pack(ch))
-					process_recv_pack();
+		if(_buffer_head != _buffer_tail){
+			if (rt_sem_take(&starryio_tx_pack_sem, 0) == RT_EOK){
+				// DMA is accessible
+				_sendout_buffer_package();
 			}
 		}
+	
+		if (rt_sem_take(&starryio_rx_pack_sem, 0) == RT_EOK){
+			uint8_t ch;
+			while(rt_device_read(serial_dev , 0 , &ch , 1)){
+				if(wait_complete_pack(ch)){
+					process_recv_pack();
+				}
+			}
+		}
+		
+		rt_thread_delay(1);
 	}
 }

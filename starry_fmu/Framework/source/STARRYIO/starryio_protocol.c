@@ -127,6 +127,25 @@ uint8_t package2sendpack(const Package_Def package , SendPackage_Def* send_pack)
 	return 1;
 }
 
+uint8_t package2sendpack_static(const Package_Def package , SendPackage_Def* send_pack)
+{
+	int i;
+	send_pack->buff_size = package.len+PACK_SIZE_EXCEPT_DATA;
+	
+	send_pack->send_buff[0] = package.head[0];
+	send_pack->send_buff[1] = package.head[1];
+	//little-endian 
+	*((uint16_t*)&send_pack->send_buff[2]) = package.len;
+	send_pack->send_buff[4] = package.cmd;
+	for(i=0 ; i<package.len ; i++){
+		send_pack->send_buff[5+i] = package.usr_data[i];
+	}
+	*((uint16_t*)&send_pack->send_buff[5+package.len]) = package.checksum;
+	send_pack->send_buff[7+package.len] = package.endflag;
+	
+	return 1;
+}
+
 uint8_t parse_package(const uint8_t* data , Package_Def* package)
 {
 	static Package_Def tempPack;
@@ -166,7 +185,7 @@ uint8_t parse_package(const uint8_t* data , Package_Def* package)
 
 	correct_checksum = _calc_checksum(&tempPack);
 	if(tempPack.checksum != correct_checksum){
-		Console.e(TAG, "checksum not correct %x\n" , correct_checksum);
+		Console.e(TAG, "checksum is not correct %x\n" , correct_checksum);
 		return 0x04;
 	}
 	
@@ -315,7 +334,7 @@ void handle_package(const Package_Def package)
 		case CMD_SYNC:
 		{
 			//Console.w(TAG, "receive px4io sync\n");
-			reply_sync();
+			reply_io_sync_package();
 		}break;
 		case ACK_REBOOT:
 		{

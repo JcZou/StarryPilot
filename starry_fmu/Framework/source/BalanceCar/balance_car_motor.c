@@ -4,6 +4,7 @@
 #include "balance_car_motor.h"
 #include "console.h"
 #include "msh_usr_cmd.h"
+#include "incapture.h"
 
 #define MOTOR_USED	0x7F
 
@@ -56,12 +57,12 @@ void balance_car_motor_set(float left, float right)
 	
 	if(right>=0.0f){
 		motor_val[3] = right;
-		motor_val[4] = 1.0f;
-		motor_val[5] = 0.0f;
-	}else{
-		motor_val[3] = -right;
 		motor_val[4] = 0.0f;
 		motor_val[5] = 1.0f;
+	}else{
+		motor_val[3] = -right;
+		motor_val[4] = 1.0f;
+		motor_val[5] = 0.0f;
 	}
 	
 	motor_val[6] = _standby;
@@ -79,6 +80,12 @@ int handle_balance_car_motor_shell_cmd(int argc, char** argv, int optc, sh_optv*
 		
 			balance_car_motor_set(left, right);
 			Console.print("balance car motor, left:%f right:%f\n", left, right);
+		}
+		if(strcmp(argv[1], "get") == 0 && argc >= 3){
+			if(strcmp(argv[2], "speed") == 0){
+				wheel_encoder pulse_cnt = capture_read();
+				Console.print("pulse count, left:%d right:%d\n", pulse_cnt.left_count, pulse_cnt.right_count);
+			}
 		}
 	}
 	

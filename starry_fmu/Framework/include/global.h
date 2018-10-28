@@ -45,6 +45,8 @@
 #define OS_MALLOC(size)			rt_malloc(size)
 #define OS_FREE(ptr)			rt_free(ptr)
 
+#define VEHICLE_BALANCE_CAR
+
 /* HIL simulation */
 //#define HIL_SIMULATION
 

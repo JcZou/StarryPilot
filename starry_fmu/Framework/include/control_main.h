@@ -53,4 +53,6 @@ uint8_t control_set(char* name, float val);
 HomePosition ctrl_get_home(void);
 uint8_t ctrl_set_home(void);
 
+int control_balance_car(float dT);
+
 #endif

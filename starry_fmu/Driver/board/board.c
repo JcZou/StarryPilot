@@ -1,16 +1,33 @@
-/*
- * File      : board.c
- * This file is part of RT-Thread RTOS
- * COPYRIGHT (C) 2009 RT-Thread Develop Team
- *
- * The license and distribution terms for this file may be
- * found in the file LICENSE in this distribution or at
- * http://www.rt-thread.org/license/LICENSE
- *
- * Change Logs:
- * Date           Author       Notes
- * 2009-01-05     Bernard      first implementation
- */
+/*****************************************************************************
+Copyright (c) 2018, StarryPilot Development Team. All rights reserved.
+
+Author: Jiachi Zou
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of StarryPilot nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*******************************************************************************/
 
 #include <rthw.h>
 #include <rtthread.h>
@@ -157,18 +174,6 @@ void stm32_hw_spi_init(void)
 
 		/* rt name max is 8 (RT_NAME_MAX	   8) */
 		rt_spi_bus_attach_device(&rt_spi_device_1, "spi_d1", "spi1", (void*)&stm32_spi_cs_1);
-		
-//		{
-//			struct rt_spi_configuration cfg;
-//			cfg.data_width = 8;
-//			cfg.mode = RT_SPI_MODE_3 | RT_SPI_MSB; /* SPI Compatible Modes 3 */	
-//			cfg.max_hz = 3000000;
-//			
-//			rt_spi_device_1.config.data_width = cfg.data_width;
-//			rt_spi_device_1.config.mode       = cfg.mode & RT_SPI_MODE_MASK ;
-//			rt_spi_device_1.config.max_hz     = cfg.max_hz;
-//			rt_spi_configure(&rt_spi_device_1, &cfg);
-//		}
 	}
 	
 	/* attach spi_device_2 to spi1 */
@@ -194,19 +199,6 @@ void stm32_hw_spi_init(void)
 
 		/* rt name max is 8 (RT_NAME_MAX	   8) */
 		rt_spi_bus_attach_device(&rt_spi_device_2, "spi_d2", "spi1", (void*)&stm32_spi_cs_2);
-		
-//		/* config spi_device2 */
-//		{
-//			struct rt_spi_configuration cfg;
-//			cfg.data_width = 8;
-//			cfg.mode = RT_SPI_MODE_3 | RT_SPI_MSB; /* SPI Compatible Modes 3 */	
-//			cfg.max_hz = 3000000;	/* max speed 8M Hz */
-//			
-//			rt_spi_device_2.config.data_width = cfg.data_width;
-//			rt_spi_device_2.config.mode       = cfg.mode & RT_SPI_MODE_MASK ;
-//			rt_spi_device_2.config.max_hz     = cfg.max_hz;
-//			rt_spi_configure(&rt_spi_device_2, &cfg);
-//		}
 	}
 	
 	/* attach spi_device_3 to spi1 */
@@ -232,19 +224,6 @@ void stm32_hw_spi_init(void)
 
 		/* rt name max is 8 (RT_NAME_MAX	   8) */
 		rt_spi_bus_attach_device(&rt_spi_device_3, "spi_d3", "spi1", (void*)&stm32_spi_cs_3);
-		
-//		/* config spi_device2 */
-//		{
-//			struct rt_spi_configuration cfg;
-//			cfg.data_width = 8;
-//			cfg.mode = RT_SPI_MODE_3 | RT_SPI_MSB; /* SPI Compatible Modes 3 */	
-//			cfg.max_hz = 3000000;	/* max speed 8M Hz */
-//			
-//			rt_spi_device_2.config.data_width = cfg.data_width;
-//			rt_spi_device_2.config.mode       = cfg.mode & RT_SPI_MODE_MASK ;
-//			rt_spi_device_2.config.max_hz     = cfg.max_hz;
-//			rt_spi_configure(&rt_spi_device_2, &cfg);
-//		}
 	}
 	
 	/* attach spi_device_4 to spi1 */
@@ -287,20 +266,15 @@ void rt_hw_board_init()
     SysTick_Configuration();
 
 	stm32_hw_usart_init();
-	//usb_cdc_init();
-//	/* do not use INT_TX or INT_RX flag here, because rt_mem is not init yet */
-//	log_init(LOG_INTERFACE_SERIAL);
-	
     stm32_hw_pin_init();
 	stm32_hw_spi_init();
-	//stm32_pwm_init();
 	pwm_io_init();
+#ifdef VEHICLE_BALANCE_CAR
 	capture_init();
 	balance_car_motor_init();
-    
-//#ifdef RT_USING_CONSOLE
-//    rt_console_set_device(CONSOLE_DEVICE);
-//#endif
+#else
+	stm32_pwm_init();
+#endif
 }
 
 /*@}*/

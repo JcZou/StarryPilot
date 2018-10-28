@@ -619,7 +619,10 @@ uint8_t mavproxy_period_msg_register(uint8_t msgid, uint16_t period_ms, void (* 
 	
 	if(_period_msg_queue.size < MAX_PERIOD_MSG_QUEUE_SIZE){
 		
+		OS_ENTER_CRITICAL;
 		_period_msg_queue.queue[_period_msg_queue.size++] = msg;
+		OS_EXIT_CRITICAL;
+		
 		return 1;
 	}else{
 		
@@ -633,13 +636,16 @@ uint8_t mavproxy_temp_msg_push(mavlink_message_t *msg)
 	if(_mav_disable)
 		return 0;
 	
+	OS_ENTER_CRITICAL;
 	if( (_temp_msg_queue.head+1) % MAX_TEMP_MSG_QUEUE_SIZE == _temp_msg_queue.tail ){
-
+		OS_EXIT_CRITICAL;
 		return 0;
 	}
 	
 	_temp_msg_queue.queue[_temp_msg_queue.head] = *msg;
 	_temp_msg_queue.head = (_temp_msg_queue.head+1) % MAX_TEMP_MSG_QUEUE_SIZE;
+	
+	OS_EXIT_CRITICAL;
 	
 	//printf("temp push msg\n");
 	

@@ -15,6 +15,7 @@
 
 uint8_t _pwm_freq = PWM_DEFAULT_FREQUENCY;
 static float _tim_duty_cycle[MAX_PWM_CHAN] = {0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00};
+static int _enable = 0;
 
 void pwm_gpio_init(void)
 {
@@ -120,6 +121,11 @@ void pwm_timer_init(void)
 
 uint8_t pwm_write(float* duty_cyc, uint8_t chan_id)
 {
+	if(!_enable){
+		// pwm is not enabled
+		return 1;
+	}
+	
 	if(chan_id & PWM_CHAN_1){
 		TIM_SetCompare1(TIM2, PWM_ARR(_pwm_freq)*duty_cyc[0]);
 		_tim_duty_cycle[0] = duty_cyc[0];
@@ -200,10 +206,14 @@ uint8_t pwm_configure(uint8_t cmd, void *args)
 			TIM_Cmd(TIM2, ENABLE);
 			TIM_Cmd(TIM4, ENABLE);
 			TIM_Cmd(TIM3, ENABLE);
+			_enable = 1;
 		}else{
+			float _pwm[] = {0,0,0,0,0,0,0,0};
+			pwm_write(_pwm, PWM_CHAN_ALL);
 			TIM_Cmd(TIM2, DISABLE);
 			TIM_Cmd(TIM4, DISABLE);
 			TIM_Cmd(TIM3, DISABLE);
+			_enable = 0;
 		}
 
 		return 0;
@@ -221,6 +231,7 @@ uint8_t pwm_init(void)
 	TIM_Cmd(TIM2, DISABLE);	// disable by default
 	TIM_Cmd(TIM4, DISABLE);
 	TIM_Cmd(TIM3, DISABLE);
+	_enable = 0;
 
 	return 0;
 }

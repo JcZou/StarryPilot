@@ -143,8 +143,6 @@ int handle_test_shell_cmd(int argc, char** argv)
 //	if(mag[0] == 0.0f && mag[1] == 0.0f && mag[2] == 0.0f){
 //		Console.print("mag null\n");
 //	}
-
-	Console.print("left:%d right:%d\n", _wheel_en.left_count, _wheel_en.right_count);
 	
 	return 0;
 }

@@ -3,7 +3,7 @@
 #include "incapture.h"
 #include "console.h"
 
-wheel_encoder _wheel_en = {0, 0};
+static wheel_encoder _wheel_pulse_cnt = {0, 0};
 
 /**
   * @brief  This function handles TIM4 global interrupt request.
@@ -16,13 +16,13 @@ void TIM4_IRQHandler(void)
 	{
 		// left wheel count increase
 		TIM_ClearITPendingBit(TIM4, TIM_IT_CC2);
-		_wheel_en.left_count++;
+		_wheel_pulse_cnt.left_count++;
 	}
 	if(TIM_GetITStatus(TIM4, TIM_IT_CC3) == SET)
 	{
 		// right wheel count increase
 		TIM_ClearITPendingBit(TIM4, TIM_IT_CC3);
-		_wheel_en.right_count++;
+		_wheel_pulse_cnt.right_count++;
 	}
 }
 
@@ -79,4 +79,15 @@ void capture_init(void)
 	/* Enable the CC2, CC3 Interrupt Request */
 	TIM_ITConfig(TIM4, TIM_IT_CC2, ENABLE);
 	TIM_ITConfig(TIM4, TIM_IT_CC3, ENABLE);
+}
+
+wheel_encoder capture_read(void)
+{
+	wheel_encoder pulse_cnt;
+	
+	OS_ENTER_CRITICAL;
+	pulse_cnt = _wheel_pulse_cnt;
+	OS_EXIT_CRITICAL;
+	
+	return pulse_cnt;
 }

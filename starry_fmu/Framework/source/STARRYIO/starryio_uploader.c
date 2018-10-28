@@ -85,6 +85,17 @@ enum {
 
 };
 
+struct serial_configure _io_serial_config = {                                          \
+    BAUD_RATE_115200, /* 115200 bits/s */  \
+    DATA_BITS_8,      /* 8 databits */     \
+    STOP_BITS_1,      /* 1 stopbit */      \
+    PARITY_NONE,      /* No parity  */     \
+    BIT_ORDER_LSB,    /* LSB first sent */ \
+    NRZ_NORMAL,       /* Normal mode */    \
+    RT_SERIAL_RB_BUFSZ, /* Buffer size */  \
+    0                                      \
+};
+
 static rt_device_t _dev;
 static ringbuffer* rb;
 
@@ -128,7 +139,7 @@ static rt_err_t recv_bytes(uint8_t *buff, unsigned count)
 	return ret;
 }
 
-static rt_err_t send_char(uint8_t c)
+static rt_err_t _send_char(uint8_t c)
 {
 	rt_size_t bytes;
 	
@@ -180,11 +191,11 @@ static rt_err_t sync(void)
 {
 	/* complete any pending program operation */
 //	for (unsigned i = 0; i < (PROG_MULTI_MAX + 6); i++) {
-//		send_char(0);
+//		_send_char(0);
 //	}
 	
-	send_char(PROTO_GET_SYNC);
-	send_char(PROTO_EOC);
+	_send_char(PROTO_GET_SYNC);
+	_send_char(PROTO_EOC);
 	
 	return get_sync(50);
 }
@@ -193,9 +204,9 @@ static rt_err_t get_info(int param, uint8_t* val, uint32_t size)
 {
 	int ret;
 
-	send_char(PROTO_GET_DEVICE);
-	send_char(param);
-	send_char(PROTO_EOC);
+	_send_char(PROTO_GET_DEVICE);
+	_send_char(param);
+	_send_char(PROTO_EOC);
 
 	ret = recv_bytes(val, size);
 
@@ -208,8 +219,8 @@ static rt_err_t get_info(int param, uint8_t* val, uint32_t size)
 
 static rt_err_t erase(void)
 {
-	send_char(PROTO_CHIP_ERASE);
-	send_char(PROTO_EOC);
+	_send_char(PROTO_CHIP_ERASE);
+	_send_char(PROTO_EOC);
 	return get_sync(10000);		/* allow 10s timeout */
 }
 
@@ -259,10 +270,10 @@ static rt_err_t program_fs(char* file_name)
 		/* calculate crc32 sum */
 		sum = crc32part((uint8_t *)file_buf, PROG_MULTI_MAX, sum);
 		
-		send_char(PROTO_PROG_MULTI);
-		send_char(PROG_MULTI_MAX);
+		_send_char(PROTO_PROG_MULTI);
+		_send_char(PROG_MULTI_MAX);
 		send(file_buf, PROG_MULTI_MAX);
-		send_char(PROTO_EOC);
+		_send_char(PROTO_EOC);
 
 		ret = get_sync(1000);
 		
@@ -283,10 +294,10 @@ static rt_err_t program_fs(char* file_name)
 		/* calculate crc32 sum */
 		sum = crc32part((uint8_t *)file_buf, prog_offset, sum);
 		
-		send_char(PROTO_PROG_MULTI);
-		send_char(prog_offset);
+		_send_char(PROTO_PROG_MULTI);
+		_send_char(prog_offset);
 		send(file_buf, prog_offset);
-		send_char(PROTO_EOC);
+		_send_char(PROTO_EOC);
 
 		ret = get_sync(1000);
 		
@@ -299,7 +310,7 @@ static rt_err_t program_fs(char* file_name)
 	rt_free(file_buf);
 	
 	ret = get_info(INFO_FLASH_SIZE, (uint8_t*)&fw_size_remote, sizeof(fw_size_remote));
-	send_char(PROTO_EOC);
+	_send_char(PROTO_EOC);
 
 	if (ret != RT_EOK) {
 		Console.print("could not read firmware size\r\n");
@@ -314,8 +325,8 @@ static rt_err_t program_fs(char* file_name)
 	}
 	
 	/* request CRC from IO */
-	send_char(PROTO_GET_CRC);
-	send_char(PROTO_EOC);
+	_send_char(PROTO_GET_CRC);
+	_send_char(PROTO_EOC);
 
 	ret = recv_bytes((uint8_t *)(&crc), sizeof(crc));
 	
@@ -378,10 +389,10 @@ static rt_err_t program_serial(size_t fw_size)
 		/* calculate crc32 sum */
 		sum = crc32part((uint8_t *)&file_buf[i*PROG_MULTI_MAX], PROG_MULTI_MAX, sum);
 		
-		send_char(PROTO_PROG_MULTI);
-		send_char(PROG_MULTI_MAX);
+		_send_char(PROTO_PROG_MULTI);
+		_send_char(PROG_MULTI_MAX);
 		send(&file_buf[i*PROG_MULTI_MAX], PROG_MULTI_MAX);
-		send_char(PROTO_EOC);
+		_send_char(PROTO_EOC);
 
 		ret = get_sync(1000);
 		
@@ -402,10 +413,10 @@ static rt_err_t program_serial(size_t fw_size)
 		/* calculate crc32 sum */
 		sum = crc32part((uint8_t *)&file_buf[prog_cnt*PROG_MULTI_MAX], prog_offset, sum);
 		
-		send_char(PROTO_PROG_MULTI);
-		send_char(prog_offset);
+		_send_char(PROTO_PROG_MULTI);
+		_send_char(prog_offset);
 		send(&file_buf[prog_cnt*PROG_MULTI_MAX], prog_offset);
-		send_char(PROTO_EOC);
+		_send_char(PROTO_EOC);
 
 		ret = get_sync(1000);
 		
@@ -418,7 +429,7 @@ static rt_err_t program_serial(size_t fw_size)
 	rt_free(file_buf);
 	
 	ret = get_info(INFO_FLASH_SIZE, (uint8_t*)&fw_size_remote, sizeof(fw_size_remote));
-	send_char(PROTO_EOC);
+	_send_char(PROTO_EOC);
 
 	if (ret != RT_EOK) {
 		Console.print("could not read firmware size\r\n");
@@ -433,8 +444,8 @@ static rt_err_t program_serial(size_t fw_size)
 	}
 	
 	/* request CRC from IO */
-	send_char(PROTO_GET_CRC);
-	send_char(PROTO_EOC);
+	_send_char(PROTO_GET_CRC);
+	_send_char(PROTO_EOC);
 
 	ret = recv_bytes((uint8_t *)(&crc), sizeof(crc));
 	
@@ -456,9 +467,9 @@ static rt_err_t program_serial(size_t fw_size)
 
 static rt_err_t reboot()
 {
-	send_char(PROTO_REBOOT);
+	_send_char(PROTO_REBOOT);
 	time_waitUs(100 * 1000);
-	send_char(PROTO_EOC);
+	_send_char(PROTO_EOC);
 
 	return RT_EOK;
 }
@@ -494,12 +505,13 @@ void starryio_upload(void)
 	
 	Console.print("starryio uploader, wait sync signal...\r\n");
 	
+	request_reboot();	/* reboot starryio to let device enter bootloader */
+	rt_thread_delay(10);
+	
 	if(uploader_init() != RT_EOK){
 		uploader_deinit();
 		return ;
 	}
-	
-	request_reboot();	/* reboot starryio to let device enter bootloader */
 	
 	ringbuffer_flush(rb);	/*flush ring buffer*/
 	
@@ -576,6 +588,11 @@ rt_err_t uploader_init(void)
         return RT_EEMPTY;
     }
 	
+	starryio_suspend_comm(true); // suspend io protocol communication
+	
+	struct rt_serial_device *serial = (struct rt_serial_device *)_dev;
+	serial->ops->configure(serial, &_io_serial_config);
+	
 	rb = ringbuffer_create(256);
 	rt_device_set_rx_indicate(_dev, uploader_serial_rx_ind);
 
@@ -589,6 +606,11 @@ rt_err_t uploader_init(void)
 
 rt_err_t uploader_deinit(void)
 {
+	struct rt_serial_device *serial = (struct rt_serial_device *)_dev;
+	serial->ops->configure(serial, &serial->config);
+	
+	starryio_suspend_comm(false);	// resume io protocol communication
+	
 	ringbuffer_delete(rb);
 	px4io_reset_rx_ind();
 	_dev = NULL;

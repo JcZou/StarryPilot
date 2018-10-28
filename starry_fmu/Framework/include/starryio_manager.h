@@ -10,13 +10,15 @@
 #define __PX4IO_MANAGER_H__
 
 #include "stm32f4xx.h"
+#include "global.h"
 #include <rtthread.h>
 
 void starryio_entry(void *parameter);
 rt_device_t starryio_get_device(void);
+void starryio_suspend_comm(bool enable);
 void px4io_reset_rx_ind(void);
 rt_err_t request_reboot(void);
-rt_err_t reply_sync(void);
+rt_err_t reply_io_sync_package(void);
 uint8_t send_package(uint8_t cmd, uint8_t* data, uint16_t len);
 
 extern uint8_t ppm_send_freq;

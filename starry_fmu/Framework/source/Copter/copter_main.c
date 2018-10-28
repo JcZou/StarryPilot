@@ -1,10 +1,33 @@
-/*
- * File      : copter_main.c
- *
- * Change Logs:
- * Date           Author       Notes
- * 2017-10-27     zoujiachi    first version.
- */
+/*****************************************************************************
+Copyright (c) 2018, StarryPilot Development Team. All rights reserved.
+
+Author: Jiachi Zou
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of StarryPilot nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*******************************************************************************/
  
 #include <rtthread.h>
 #include "copter_main.h"
@@ -19,8 +42,11 @@
 #include "param.h"
 #include "gps.h"
 #include "state_est.h"
+#include "OnBoard.h"
+#include "INS.h"                 /* Model's header file */
+#include "rtwtypes.h"
 
-#define EVENT_COPTER_FAST_LOOP		(1<<0)
+#define EVENT_COPTER_MAIN_LOOP		(1<<0)
 
 static struct rt_timer timer_copter;
 static struct rt_event event_copter;
@@ -54,15 +80,20 @@ void copter_main_loop(uint32_t att_est_period, uint32_t pos_est_period, uint32_t
 		pos_est_update(0.001f*pos_est_period);
 	}
 #endif
+	
 	if(TIME_GAP(ctrl_time, now) >= control_period){
 		ctrl_time = now;
+#ifdef	VEHICLE_BALANCE_CAR
+		control_balance_car(0.001f*control_period);
+#else
 		control_vehicle(0.001f*control_period);
+#endif
 	}
 }
 
 static void timer_copter_update(void* parameter)
 {
-	rt_event_send(&event_copter, EVENT_COPTER_FAST_LOOP);
+	rt_event_send(&event_copter, EVENT_COPTER_MAIN_LOOP);
 }
 
 uint32_t copter_get_event_period(Copter_Period event)
@@ -94,7 +125,7 @@ void copter_entry(void *parameter)
 {
 	rt_err_t res;
 	rt_uint32_t recv_set = 0;
-	rt_uint32_t wait_set = EVENT_COPTER_FAST_LOOP;
+	rt_uint32_t wait_set = EVENT_COPTER_MAIN_LOOP;
 	
 #ifdef HIL_SIMULATION
 	_att_est_period = PARAM_GET_UINT32(HIL_SIM, HIL_ATT_EST_PRD);
@@ -113,10 +144,16 @@ void copter_entry(void *parameter)
 	state_est_init(1e-3*_ekf_est_period);
 #ifdef HIL_SIMULATION
 	hil_interface_init(HIL_SENSOR_LEVEL);
-	Console.print("HIL Mode...\n");
+	Console.print("HIL Simulation...\n");
 #endif
 	sensor_manager_init();
 	pos_est_init(1e-3f*_pos_est_period);
+	
+	/* Initialize simulink model */
+	INS_initialize();
+#ifdef	VEHICLE_BALANCE_CAR
+	OnBoard_initialize();
+#endif
 	
 	/* create event */
 	res = rt_event_init(&event_copter, "copter_event", RT_IPC_FLAG_FIFO);
@@ -135,7 +172,7 @@ void copter_entry(void *parameter)
 								RT_WAITING_FOREVER, &recv_set);
 		
 		if(res == RT_EOK){
-			if(recv_set & EVENT_COPTER_FAST_LOOP){
+			if(recv_set & EVENT_COPTER_MAIN_LOOP){
 				copter_main_loop(_att_est_period, _pos_est_period, _control_period);
 			}
 		}

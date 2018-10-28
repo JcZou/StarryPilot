@@ -33,6 +33,9 @@
 #include "copter_main.h"
 #include "adrc_att.h"
 #include "gps.h"
+#include "balance_car_motor.h"
+#include "incapture.h"
+#include "OnBoard.h"
 
 #define EVENT_CONTROL			(1<<0)
 
@@ -96,6 +99,7 @@ MCN_DEFINE(MOTOR_THROTTLE, MOTOR_NUM*sizeof(float));
 MCN_DEFINE(ADRC, sizeof(ADRC_Log));
 
 MCN_DECLARE(ATT_EULER);
+MCN_DECLARE(SENSOR_FILTER_GYR);
 MCN_DECLARE(ALT_INFO);
 McnNode_t alt_node_t;
 
@@ -586,6 +590,40 @@ int control_vehicle(float dT)
 			return 2;
 		}break;
 	}
+}
+
+int control_balance_car(float dT)
+{
+	float gyr_fil[3];
+	float left_throttle = 0.0f, right_throttle = 0.0f;
+	Euler ec;
+	static wheel_encoder last_pulse_cnt = {0, 0};
+	
+	
+	/* Balance Car Control */
+	mcn_copy_from_hub(MCN_ID(ATT_EULER), &ec);
+	mcn_copy_from_hub(MCN_ID(SENSOR_FILTER_GYR), gyr_fil);
+	
+	wheel_encoder pulse_cnt = capture_read();
+	
+	rtU.alpha_m_l = pulse_cnt.left_count - last_pulse_cnt.left_count;
+	rtU.alpha_m_r = pulse_cnt.right_count - last_pulse_cnt.right_count;
+	if(rtY.pwm_l < 0){
+		rtU.alpha_m_l = -rtU.alpha_m_l;
+	}
+	if(rtY.pwm_r < 0){
+		rtU.alpha_m_r = -rtU.alpha_m_r;
+	}
+	rtU.theta_rad_m = ec.pitch;
+	rtU.theta_dot_radDs_m = gyr_fil[1];
+	
+	OnBoard_step();
+	
+	//static uint32_t time = 0;
+	//Console.print_eachtime(&time, 500, "%f %f\n", rtY.pwm_l, rtY.pwm_r);
+	balance_car_motor_set(rtY.pwm_l, rtY.pwm_r);
+	
+	last_pulse_cnt = pulse_cnt;
 	
 	return 0;
 }
