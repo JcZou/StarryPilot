@@ -58,6 +58,7 @@ typedef enum
 
 uint8_t make_package(uint8_t* data , char cmd , uint16_t len , Package_Def* package);
 uint8_t package2sendpack(const Package_Def package , SendPackage_Def* send_pack);
+uint8_t package2sendpack_static(const Package_Def package , SendPackage_Def* send_pack);
 void free_pack(Package_Def* package);
 void free_sendpack(SendPackage_Def* send_pack);
 uint8_t wait_complete_pack(uint8_t c);

@@ -60,7 +60,7 @@ struct rt_thread thread_mavlink_handle;
 static char thread_starryio_stack[2048];
 struct rt_thread thread_starryio_handle;
 
-static char thread_copter_stack[4096];
+static char thread_copter_stack[20480];
 struct rt_thread thread_copter_handle;
 
 static char thread_logger_stack[2048];

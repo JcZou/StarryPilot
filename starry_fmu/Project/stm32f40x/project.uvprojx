@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER,STM32F427X,__VFP_FP__,ARM_MATH_MATRIX_CHECK,ARM_MATH_CM4,__FPU_PRESENT=1,__FPU_USED=1</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Library\STM_Lib\STM32F4xx_StdPeriph_Driver\inc;..\..\Library\STM_Lib\CMSIS\Include;..\..\Library\STM_Lib\CMSIS\Device\ST\STM32F4xx\Include;..\..\Library\mavlink\v1.0;..\..\Library\mavlink\v1.0\common;..\..\Library\Fatfs;..\..\Driver\usb\inc;..\..\Driver\include;..\..\RTOS\components\finsh;..\..\RTOS\libcpu\arm\common;..\..\RTOS\libcpu\arm\cortex-m4;..\..\RTOS\include;..\..\HAL\include;..\..\Framework\include;..\stm32f40x</IncludePath>
+              <IncludePath>..\..\Library\STM_Lib\STM32F4xx_StdPeriph_Driver\inc;..\..\Library\STM_Lib\CMSIS\Include;..\..\Library\STM_Lib\CMSIS\Device\ST\STM32F4xx\Include;..\..\Library\mavlink\v1.0;..\..\Library\mavlink\v1.0\common;..\..\Library\Fatfs;..\..\Driver\usb\inc;..\..\Driver\include;..\..\RTOS\components\finsh;..\..\RTOS\libcpu\arm\common;..\..\RTOS\libcpu\arm\cortex-m4;..\..\RTOS\include;..\..\HAL\include;..\..\Framework\include;..\stm32f40x;..\..\Framework\source\Simulink;..\..\Framework\source\INS\Simulink\Model;..\..\Framework\source\INS\Simulink\Shared</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -610,6 +610,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\Mavproxy\mavlink_param.c</FilePath>
             </File>
+            <File>
+              <FileName>balance_car_motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\BalanceCar\balance_car_motor.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -804,6 +809,11 @@
               <FileName>pwm_io.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Driver\pwm\pwm_io.c</FilePath>
+            </File>
+            <File>
+              <FileName>incapture.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Driver\pwm\incapture.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1374,6 +1384,106 @@
               <FileName>arm_mat_trans_f32.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Library\STM_Lib\CMSIS\DSP_Lib\Source\MatrixFunctions\arm_mat_trans_f32.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Simulink</GroupName>
+          <Files>
+            <File>
+              <FileName>OnBoard.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\Simulink\OnBoard.c</FilePath>
+            </File>
+            <File>
+              <FileName>const_params.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\Simulink\Shared\const_params.c</FilePath>
+            </File>
+            <File>
+              <FileName>eye_YlI46ghJ.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\Simulink\Shared\eye_YlI46ghJ.c</FilePath>
+            </File>
+            <File>
+              <FileName>rt_nonfinite.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\Simulink\Shared\rt_nonfinite.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtGetInf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\Simulink\Shared\rtGetInf.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtGetNaN.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\Simulink\Shared\rtGetNaN.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>INS</GroupName>
+          <Files>
+            <File>
+              <FileName>EKF_BaroCorrect.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_BaroCorrect.c</FilePath>
+            </File>
+            <File>
+              <FileName>EKF_BaroJacobian.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_BaroJacobian.c</FilePath>
+            </File>
+            <File>
+              <FileName>EKF_GpsCorrect.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_GpsCorrect.c</FilePath>
+            </File>
+            <File>
+              <FileName>EKF_GpsJacobian.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_GpsJacobian.c</FilePath>
+            </File>
+            <File>
+              <FileName>EKF_ImuCorrect.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_ImuCorrect.c</FilePath>
+            </File>
+            <File>
+              <FileName>EKF_ImuJacobian.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_ImuJacobian.c</FilePath>
+            </File>
+            <File>
+              <FileName>EKF_MagCorrect.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_MagCorrect.c</FilePath>
+            </File>
+            <File>
+              <FileName>EKF_MagJacobian.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_MagJacobian.c</FilePath>
+            </File>
+            <File>
+              <FileName>EKF_Predict.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_Predict.c</FilePath>
+            </File>
+            <File>
+              <FileName>EKF_PredictJacobian.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_PredictJacobian.c</FilePath>
+            </File>
+            <File>
+              <FileName>INS.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\Simulink\Model\INS.c</FilePath>
+            </File>
+            <File>
+              <FileName>INS_data.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Framework\source\INS\Simulink\Model\INS_data.c</FilePath>
             </File>
           </Files>
         </Group>

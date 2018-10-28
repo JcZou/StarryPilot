@@ -18,6 +18,7 @@
 #include "stm32f4xx.h"
 #include "usart.h"
 #include "board.h"
+#include "console.h"
 
 #include <rtdevice.h>
 
@@ -29,8 +30,6 @@
 #define UART1_GPIO          GPIOA
 #define UART1_GPIO_RCC      RCC_AHB1Periph_GPIOA
 #define RCC_APBPeriph_UART1 RCC_APB2Periph_USART1
-#define UART1_TX_DMA        DMA1_Channel4
-#define UART1_RX_DMA        DMA1_Channel5
 
 #define UART2_GPIO_TX       GPIO_Pin_5
 #define UART2_TX_PIN_SOURCE GPIO_PinSource5
@@ -39,8 +38,6 @@
 #define UART2_GPIO          GPIOD
 #define UART2_GPIO_RCC      RCC_AHB1Periph_GPIOD
 #define RCC_APBPeriph_UART2 RCC_APB1Periph_USART2
-#define UART2_TX_DMA        DMA1_Channel4
-#define UART2_RX_DMA        DMA1_Channel5
 
 #define UART3_GPIO_TX       GPIO_Pin_8
 #define UART3_TX_PIN_SOURCE GPIO_PinSource8
@@ -49,8 +46,6 @@
 #define UART3_GPIO          GPIOD
 #define UART3_GPIO_RCC      RCC_AHB1Periph_GPIOD
 #define RCC_APBPeriph_UART3 RCC_APB1Periph_USART3
-#define UART3_TX_DMA        DMA1_Stream1
-#define UART3_RX_DMA        DMA1_Stream3
 
 #define UART4_GPIO_TX       GPIO_Pin_0
 #define UART4_TX_PIN_SOURCE GPIO_PinSource0
@@ -220,7 +215,10 @@ rt_size_t stm32_dma_transmit(struct rt_serial_device *serial, rt_uint8_t *buf, r
 {
     if (direction == RT_SERIAL_DMA_TX) {
         dma_uart_tx_config(serial, buf, size);
+		return size;
     }
+	
+	return 0;
 }
 
 
@@ -875,7 +873,7 @@ static void DMA_Configuration(struct rt_serial_device *serial) {
 
 #define RT_SERIAL6_CONFIG           	   \
 {                                          \
-    BAUD_RATE_115200, /* 115200 bits/s */  \
+    BAUD_RATE_921600, /* 115200 bits/s */  \
     DATA_BITS_8,      /* 8 databits */     \
     STOP_BITS_1,      /* 1 stopbit */      \
     PARITY_NONE,      /* No parity  */     \

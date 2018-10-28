@@ -29,6 +29,7 @@
 #include "declination.h"
 #include "light_matrix.h"
 #include "sensor_manager.h"
+#include "incapture.h"
 
 MCN_DECLARE(SENSOR_BARO);
 MCN_DECLARE(SENSOR_GYR);
@@ -128,20 +129,20 @@ int handle_test_shell_cmd(int argc, char** argv)
 //	Console.print("eig val: %lf %lf\n %lf %lf %lf\n\n", eig_val[0],eig_val[1],eig_val[2],eig_val[3],eig_val[4]);
 //	MatDump(&eig_vec);
 
-	float acc[3], gyr[3], mag[3];
+//	float acc[3], gyr[3], mag[3];
 
-	sensor_get_acc(acc);
-	sensor_get_mag(mag);
-	sensor_get_gyr(gyr);
-	
-	Console.print("acc:%f %f %f\n", acc[0], acc[1], acc[2]);
-	Console.print("mag:%f %f %f\n", mag[0], mag[1], mag[2]);
-	if(acc[0] == 0.0f && acc[1]==0.0f  && acc[2] == 0.0f){
-		Console.print("acc null\n");
-	}
-	if(mag[0] == 0.0f && mag[1] == 0.0f && mag[2] == 0.0f){
-		Console.print("mag null\n");
-	}
+//	sensor_get_acc(acc);
+//	sensor_get_mag(mag);
+//	sensor_get_gyr(gyr);
+//	
+//	Console.print("acc:%f %f %f\n", acc[0], acc[1], acc[2]);
+//	Console.print("mag:%f %f %f\n", mag[0], mag[1], mag[2]);
+//	if(acc[0] == 0.0f && acc[1]==0.0f  && acc[2] == 0.0f){
+//		Console.print("acc null\n");
+//	}
+//	if(mag[0] == 0.0f && mag[1] == 0.0f && mag[2] == 0.0f){
+//		Console.print("mag null\n");
+//	}
 	
 	return 0;
 }

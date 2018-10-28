@@ -12,9 +12,9 @@
 *.ilk
 *.px4
 build
-Debug
-documentation/html
-*~
+#Debug
+#documentation/html
+#*~
 *.o
 *.obj
 *.bak
@@ -23,5 +23,5 @@ documentation/html
 *.a
 *.i
 *.d
-*uvoptx*
-*uvguix*
+*.uvoptx*
+*.uvguix*

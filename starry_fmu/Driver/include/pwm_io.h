@@ -19,4 +19,6 @@ typedef struct{
 extern float _remote_pwm_duty_cycle[MAX_PWM_MAIN_CHAN];
 extern rt_sem_t _sem_pwm_chan_recv;
 
+int pwm_io_init(void);
+
 #endif

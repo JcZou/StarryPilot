@@ -20,6 +20,7 @@
  */
 
 #include <rtthread.h>
+#include "console.h"
 
 //#define USE_FPU   /* ARMCC */ (  (defined ( __CC_ARM ) && defined ( __TARGET_FPU_VFP )) \
 //                  /* IAR */   || (defined ( __ICCARM__ ) && defined ( __ARMVFP__ )) \
@@ -204,16 +205,16 @@ void rt_hw_hard_fault_exception(struct exception_stack_frame *exception_stack)
         if (result == RT_EOK) return;
     }
 
-    rt_kprintf("psr: 0x%08x\n", exception_stack->psr);
-    rt_kprintf(" pc: 0x%08x\n", exception_stack->pc);
-    rt_kprintf(" lr: 0x%08x\n", exception_stack->lr);
-    rt_kprintf("r12: 0x%08x\n", exception_stack->r12);
-    rt_kprintf("r03: 0x%08x\n", exception_stack->r3);
-    rt_kprintf("r02: 0x%08x\n", exception_stack->r2);
-    rt_kprintf("r01: 0x%08x\n", exception_stack->r1);
-    rt_kprintf("r00: 0x%08x\n", exception_stack->r0);
+//    rt_kprintf("psr: 0x%08x\n", exception_stack->psr);
+//    rt_kprintf(" pc: 0x%08x\n", exception_stack->pc);
+//    rt_kprintf(" lr: 0x%08x\n", exception_stack->lr);
+//    rt_kprintf("r12: 0x%08x\n", exception_stack->r12);
+//    rt_kprintf("r03: 0x%08x\n", exception_stack->r3);
+//    rt_kprintf("r02: 0x%08x\n", exception_stack->r2);
+//    rt_kprintf("r01: 0x%08x\n", exception_stack->r1);
+//    rt_kprintf("r00: 0x%08x\n", exception_stack->r0);
 
-    rt_kprintf("hard fault on thread: %s\n", rt_thread_self()->name);
+    Console.print("hard fault on thread: %s\n", rt_thread_self()->name);
 
 #ifdef RT_USING_FINSH
     list_thread();
