@@ -12,137 +12,61 @@
 
 #include <rtthread.h>
 #include <rtdevice.h>
+#include "global.h"
 
-#define LOG_MAX_NAME_LENGTH		20
-#define LOG_MAX_ELEMENT_NUM		100
-	
-#define LOG_ELEMENT_INFO_FLOAT(_name) \
-			{ \
-				.name = #_name, \
-				.type = LOG_FLOAT \
-			}
-#define LOG_ELEMENT_INFO_DOUBLE(_name) \
-			{ \
-				.name = #_name, \
-				.type = LOG_DOUBLE \
-			}
 
-#define LOG_ELEMENT_FLOAT(_name)						float _name##_elem
-#define LOG_SET_ELEMENT(_logger_info, _name, _val)		_logger_info.log_field._name##_elem = _val
-#define LOG_GET_ELEMENT(_logger_info, _name)			(_logger_info.log_field._name##_elem)
+#define LOG_MAX_NAME_LEN            20
+#define LOG_BUFFER_SIZE             16384
+#define LOG_BLOCK_SIZE              4096        // write 8 sectors in each time to increase wrte speed       
 
-enum
+// Macro to define packed structures
+#ifdef __GNUC__
+  #define LOGPACKED( __Declaration__ ) __Declaration__ __attribute__((packed))
+#else
+  #define LOGPACKED( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop) )
+#endif
+
+LOGPACKED(
+typedef struct
 {
-	LOGGER_IDLE = 0,
-	LOGGER_BUSY
-};
+    char name[LOG_MAX_NAME_LEN];
+    uint16_t type;
+    uint16_t number;
+})log_elem_t;
+
+LOGPACKED(
+typedef struct
+{
+    char name[LOG_MAX_NAME_LEN];
+    uint8_t msg_id;
+    uint8_t num_elem;
+    log_elem_t *elem_list;
+})log_field_t;
+
+LOGPACKED(
+typedef struct
+{
+    uint8_t num_field;
+    log_field_t *filed_list;
+})log_header_t;
 
 typedef struct
 {
-	LOG_ELEMENT_FLOAT(QUATERNION_W);
-	LOG_ELEMENT_FLOAT(QUATERNION_X);
-	LOG_ELEMENT_FLOAT(QUATERNION_Y);
-	LOG_ELEMENT_FLOAT(QUATERNION_Z);
-	LOG_ELEMENT_FLOAT(ROLL);
-	LOG_ELEMENT_FLOAT(PITCH);
-	LOG_ELEMENT_FLOAT(YAW);
-	LOG_ELEMENT_FLOAT(X);
-	LOG_ELEMENT_FLOAT(Y);
-	LOG_ELEMENT_FLOAT(Z);
-	LOG_ELEMENT_FLOAT(VX);
-	LOG_ELEMENT_FLOAT(VY);
-	LOG_ELEMENT_FLOAT(VZ);
-	LOG_ELEMENT_FLOAT(GYR_X);
-	LOG_ELEMENT_FLOAT(GYR_Y);
-	LOG_ELEMENT_FLOAT(GYR_Z);
-	LOG_ELEMENT_FLOAT(GYR_FILTER_X);
-	LOG_ELEMENT_FLOAT(GYR_FILTER_Y);
-	LOG_ELEMENT_FLOAT(GYR_FILTER_Z);
-	LOG_ELEMENT_FLOAT(ACC_X);
-	LOG_ELEMENT_FLOAT(ACC_Y);
-	LOG_ELEMENT_FLOAT(ACC_Z);
-	LOG_ELEMENT_FLOAT(ACC_FILTER_X);
-	LOG_ELEMENT_FLOAT(ACC_FILTER_Y);
-	LOG_ELEMENT_FLOAT(ACC_FILTER_Z);
-	LOG_ELEMENT_FLOAT(MAG_X);
-	LOG_ELEMENT_FLOAT(MAG_Y);
-	LOG_ELEMENT_FLOAT(MAG_Z);
-	LOG_ELEMENT_FLOAT(MAG_FILTER_X);
-	LOG_ELEMENT_FLOAT(MAG_FILTER_Y);
-	LOG_ELEMENT_FLOAT(MAG_FILTER_Z);
-	LOG_ELEMENT_FLOAT(MOTOR_1);
-	LOG_ELEMENT_FLOAT(MOTOR_2);
-	LOG_ELEMENT_FLOAT(MOTOR_3);
-	LOG_ELEMENT_FLOAT(MOTOR_4);
-	LOG_ELEMENT_FLOAT(ADRC_PITCH_SP_RATE);
-	LOG_ELEMENT_FLOAT(ADRC_PITCH_V);
-	LOG_ELEMENT_FLOAT(ADRC_PITCH_V1);
-	LOG_ELEMENT_FLOAT(ADRC_PITCH_V2);
-	LOG_ELEMENT_FLOAT(ADRC_PITCH_Z1);
-	LOG_ELEMENT_FLOAT(ADRC_PITCH_Z2);
-	LOG_ELEMENT_FLOAT(GPS_LAT);
-	LOG_ELEMENT_FLOAT(GPS_LON);
-	LOG_ELEMENT_FLOAT(GPS_X);
-	LOG_ELEMENT_FLOAT(GPS_Y);
-	LOG_ELEMENT_FLOAT(GPS_Z);
-	LOG_ELEMENT_FLOAT(GPS_VN);
-	LOG_ELEMENT_FLOAT(GPS_VE);
-	LOG_ELEMENT_FLOAT(GPS_VD);
-	LOG_ELEMENT_FLOAT(GPS_HDOP);
-	LOG_ELEMENT_FLOAT(BARO_ALT);
-	LOG_ELEMENT_FLOAT(BARO_VEL);
-//	LOG_ELEMENT_FLOAT(KF_U_X);
-//	LOG_ELEMENT_FLOAT(KF_U_Y);
-//	LOG_ELEMENT_FLOAT(KF_U_Z);
-//	LOG_ELEMENT_FLOAT(KF_X);
-//	LOG_ELEMENT_FLOAT(KF_Y);
-//	LOG_ELEMENT_FLOAT(KF_Z);
-//	LOG_ELEMENT_FLOAT(KF_VX);
-//	LOG_ELEMENT_FLOAT(KF_VY);
-//	LOG_ELEMENT_FLOAT(KF_VZ);
-//	LOG_ELEMENT_FLOAT(KF_Z_X);
-//	LOG_ELEMENT_FLOAT(KF_Z_Y);
-//	LOG_ELEMENT_FLOAT(KF_Z_Z);
-//	LOG_ELEMENT_FLOAT(KF_Z_VX);
-//	LOG_ELEMENT_FLOAT(KF_Z_VY);
-//	LOG_ELEMENT_FLOAT(KF_Z_VZ);
-}LOG_FieldDef;
+    uint8_t data[LOG_BUFFER_SIZE];
+    uint32_t head;      // head point for sector
+    uint32_t tail;      // tail point for sector
+    uint32_t num_sector;
+    uint32_t index;     // index in sector
+}log_buffer_t;
 
-typedef struct
-{
-	uint8_t status;
-	uint32_t log_period;
-	uint32_t last_record_time;
-	LOG_FieldDef log_field;
-}LOGGER_InfoDef;
 
-enum
-{
-	LOG_INT8 = 0,
-	LOG_UINT8,
-	LOG_INT16,
-	LOG_UINT16,
-	LOG_INT32,
-	LOG_UINT32,
-	LOG_FLOAT,
-	LOG_DOUBLE,
-};
-
-typedef struct
-{
-	char name[LOG_MAX_NAME_LENGTH];
-	uint32_t type;
-}LOG_ElementInfoDef;
-
-typedef struct
-{
-	uint32_t start_time;
-	uint32_t log_period;
-	uint32_t element_num;
-	uint32_t header_size;
-	uint32_t field_size;
-	LOG_ElementInfoDef *element_info;
-}LOG_HeaderDef;
+void log_init(void);
+uint8_t log_start(char *file_name);
+void log_stop(void);
+uint8_t log_write(void);
+uint8_t log_push(uint8_t *payload, uint16_t len);
+uint8_t log_push_msg(uint8_t *payload, uint8_t msg_id, uint16_t len);
+uint8_t log_status(void);
 
 void logger_entry(void *parameter);
 
