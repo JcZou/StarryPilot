@@ -25,3 +25,4 @@ build
 *.d
 *.uvoptx*
 *.uvguix*
+*.vscode/

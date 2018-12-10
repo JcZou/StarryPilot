@@ -18,19 +18,19 @@
 #include <rtthread.h>
 #include <stdio.h>
 #include "board.h"
-#include "att_estimator.h"
+//#include "att_estimator.h"
 #include "global.h"
 #include "starryio_manager.h"
-#include "control_main.h"
+////#include "control_main.h"
 #include "mavproxy.h"
-#include "pos_estimator.h"
+//#include "pos_estimator.h"
 #include "led.h"
 #include "cdcacm.h"
 #include "param.h"
 #include "sensor_manager.h"
 #include "console.h"
 #include "statistic.h"
-#include "copter_main.h"
+//#include "copter_main.h"
 #include "file_manager.h"
 #include "logger.h"
 #include "fast_loop.h"
@@ -51,7 +51,7 @@
 
 static rt_thread_t tid0;
 
-static char thread_fastloop_stack[2048];
+static char thread_fastloop_stack[20480];
 struct rt_thread thread_fastloop_handle;
 
 static char thread_mavlink_stack[2048];
@@ -60,8 +60,8 @@ struct rt_thread thread_mavlink_handle;
 static char thread_starryio_stack[2048];
 struct rt_thread thread_starryio_handle;
 
-static char thread_copter_stack[20480];
-struct rt_thread thread_copter_handle;
+// static char thread_copter_stack[20480];
+// struct rt_thread thread_copter_handle;
 
 static char thread_logger_stack[2048];
 struct rt_thread thread_logger_handle;
@@ -125,14 +125,14 @@ void rt_init_thread_entry(void* parameter)
 	if (res == RT_EOK)
 		rt_thread_startup(&thread_fastloop_handle);
 	
-	res = rt_thread_init(&thread_copter_handle,
-						   "copter",
-						   copter_entry,
-						   RT_NULL,
-						   &thread_copter_stack[0],
-						   sizeof(thread_copter_stack),COPTER_THREAD_PRIORITY,1);
-	if (res == RT_EOK)
-		rt_thread_startup(&thread_copter_handle);
+	// res = rt_thread_init(&thread_copter_handle,
+	// 					   "copter",
+	// 					   copter_entry,
+	// 					   RT_NULL,
+	// 					   &thread_copter_stack[0],
+	// 					   sizeof(thread_copter_stack),COPTER_THREAD_PRIORITY,1);
+	// if (res == RT_EOK)
+	// 	rt_thread_startup(&thread_copter_handle);
 	
 	res = rt_thread_init(&thread_starryio_handle,
 						   "starryio",
@@ -153,7 +153,7 @@ void rt_init_thread_entry(void* parameter)
 		rt_thread_startup(&thread_mavlink_handle);
 	
 	res = rt_thread_init(&thread_logger_handle,
-						   "logger",
+						   "log",
 						   logger_entry,
 						   RT_NULL,
 						   &thread_logger_stack[0],
@@ -187,6 +187,7 @@ int rt_application_init()
 {
 	usb_cdc_init();
 	fm_init("0:");
+	log_init();
 	console_init(CONSOLE_INTERFACE_SERIAL);
 	rt_console_set_device(CONSOLE_DEVICE);
 	rt_show_version();

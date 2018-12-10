@@ -11,7 +11,7 @@
 #include <rtdevice.h>
 #include <math.h>
 #include "sensor_manager.h"
-#include "delay.h"
+#include "systime.h"
 #include "conversion.h"
 
 #define POW2(_x)		((_x) * (_x))
@@ -21,8 +21,8 @@
 #define DIR_WRITE               (0<<7)
 
 #define ADDR_RESET_CMD				0x1E	/* write to this address to reset chip */
-#define ADDR_CMD_CONVERT_D1			0x48	/* write to this address to start pressure conversion */
-#define ADDR_CMD_CONVERT_D2			0x58	/* write to this address to start temperature conversion */
+#define ADDR_CMD_CONVERT_D1			0x46	/* write to this address to start pressure conversion, OSR=2048 */
+#define ADDR_CMD_CONVERT_D2			0x56	/* write to this address to start temperature conversion, OSR=2048 */
 #define ADDR_ADC					0x00	/* address of 3 bytes / 32bit pressure data */
 #define ADDR_PROM_SETUP				0xA0	/* address of 8x 2 bytes factory and calibration data */
 #define ADDR_PROM_C1				0xA2	/* address of 6x 2 bytes calibration data */
@@ -33,7 +33,7 @@
 #define ADDR_PROM_C6				0xAC
 #define ADDR_PROM_CRC				0xAE
 
-#define INTERVAL_CONV_TIME			10		/* the max conv time is 9ms */
+#define INTERVAL_CONV_TIME			5		/* the max conv time is 9ms */
 
 static rt_device_t spi_device;
 static struct rt_device baro_device;
@@ -170,8 +170,9 @@ rt_err_t baro_collect_data(void *args)
 	
 	int32_t _pressure = (((_raw_pressure * SENS) >> 21) - OFF) >> 15;
 	
-	report->temperature = _temp / 100.0f;
-	report->pressure = _pressure / 100.0f;
+	report->temperature = _temp / 100.0f;	// in deg
+//	report->pressure = _pressure / 100.0f;  // in mbar
+	report->pressure = _pressure;  // in Pa
 	
 	/* tropospheric properties (0-11km) for standard atmosphere */
 	const double T1 = 15.0 + 273.15;	/* temperature at base height in Kelvin, [K] = [°C] + 273.15 */

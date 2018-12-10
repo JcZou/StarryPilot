@@ -39,13 +39,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gpio.h"
 #include "pwm.h"
 #include "pwm_io.h"
-#include "delay.h"
+#include "systime.h"
 //#include <spi.h>
 #include "stm32f4_spi.h"
 #include "console.h"
 #include "cdcacm.h"
-#include "incapture.h"
-#include "balance_car_motor.h"
+//#include "incapture.h"
+//#include "balance_car_motor.h"
 
 /**
  * @addtogroup STM32
@@ -106,7 +106,7 @@ void SysTick_Handler(void)
 
     rt_tick_increase();
 	
-	_delay_t.msPeriod += _delay_t.msPerPeriod;
+	_systime_t.msPeriod += _systime_t.msPerPeriod;
 
     /* leave interrupt */
     rt_interrupt_leave();
@@ -260,7 +260,7 @@ void rt_hw_board_init()
     /* NVIC Configuration */
     NVIC_Configuration();
 	
-	device_delay_init();
+	device_systime_init();
 
     /* Configure the SysTick */
     SysTick_Configuration();
@@ -269,12 +269,7 @@ void rt_hw_board_init()
     stm32_hw_pin_init();
 	stm32_hw_spi_init();
 	pwm_io_init();
-#ifdef VEHICLE_BALANCE_CAR
-	capture_init();
-	balance_car_motor_init();
-#else
 	stm32_pwm_init();
-#endif
 }
 
 /*@}*/

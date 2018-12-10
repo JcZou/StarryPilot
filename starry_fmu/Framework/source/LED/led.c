@@ -33,10 +33,6 @@ static uint8_t _rgbled_color;
 
 static char* TAG = "LED";
 
-MCN_DECLARE(RC_STATUS);
-
-static McnNode_t rc_status_node_t;
-
 uint8_t color_index[][4] = 
 {
 	{LED_RED 	, 0x00 , 0x00 , BRIGHT},
@@ -169,18 +165,6 @@ int device_led_init(void)
 	return 0;
 }
 
-void led_rc_status_cb(void *parameter)
-{
-	RC_STATUS status;
-	mcn_copy(MCN_ID(RC_STATUS), rc_status_node_t, &status);
-	
-	if(status == RC_LOCK_STATUS){
-		_rgbled_color = LED_BLUE;
-	}else if(status == RC_UNLOCK_STATUS){
-		_rgbled_color = LED_GREEN;
-	}
-}
-
 void led_entry(void *parameter)
 {
 	static int _inc;
@@ -191,10 +175,6 @@ void led_entry(void *parameter)
 	
 	TCA62724_blink_control(1);
 	TCA62724_set_color(_rgbled_color);
-	
-	rc_status_node_t = mcn_subscribe(MCN_ID(RC_STATUS), led_rc_status_cb);
-	if(rc_status_node_t == NULL)
-		Console.e(TAG, "RC_STATUS subscribe err\n");
 
 	while(1)
 	{

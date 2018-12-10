@@ -13,10 +13,10 @@
 #include <stdio.h>
 #include <string.h>
 #include "console.h"
-#include "delay.h"
+#include "systime.h"
 #include "quaternion.h"
-#include "pos_estimator.h"
-#include "att_estimator.h"
+//#include "pos_estimator.h"
+//#include "att_estimator.h"
 #include "mavproxy.h"
 #include "uMCN.h"
 #include "sensor_manager.h"
@@ -26,6 +26,7 @@
 #include "mavlink_status.h"
 #include "calibration.h"
 #include "shell.h"
+#include "ftp_manager.h"
 
 #define EVENT_MAVPROXY_UPDATE		(1<<0)
 #define EVENT_MAVPROXY_SEND_ALL_PARAM		(1<<1)
@@ -51,7 +52,7 @@ static MAV_PeriodMsg_Queue _period_msg_queue;
 static MAV_TempMsg_Queue _temp_msg_queue;
 static McnNode_t _gps_status_node_t;
 
-static char thread_mavlink_rx_stack[2048];
+static char thread_mavlink_rx_stack[4096];
 struct rt_thread thread_mavlink_rx_handle;
 
 MCN_DEFINE(HIL_STATE_Q, sizeof(mavlink_hil_state_quaternion_t));
@@ -62,7 +63,7 @@ MCN_DECLARE(SENSOR_FILTER_GYR);
 MCN_DECLARE(SENSOR_FILTER_ACC);
 MCN_DECLARE(SENSOR_FILTER_MAG);
 MCN_DECLARE(SENSOR_BARO);
-MCN_DECLARE(ALT_INFO);
+//MCN_DECLARE(ALT_INFO);
 MCN_DECLARE(SENSOR_LIDAR);
 MCN_DECLARE(CORRECT_LIDAR);
 MCN_DECLARE(ATT_EULER);
@@ -147,57 +148,57 @@ void mavproxy_msg_attitude_pack(mavlink_message_t *msg_t)
 	mavlink_attitude_t attitude;
 	uint16_t len;
 
-	Euler e;
-	mcn_copy_from_hub(MCN_ID(ATT_EULER), &e);
-	float gyr[3];
-	mcn_copy_from_hub(MCN_ID(SENSOR_FILTER_GYR), gyr);
+	// Euler e;
+	// mcn_copy_from_hub(MCN_ID(ATT_EULER), &e);
+	// float gyr[3];
+	// mcn_copy_from_hub(MCN_ID(SENSOR_FILTER_GYR), gyr);
 	
-	attitude.roll = e.roll;
-	attitude.pitch = e.pitch;
-	attitude.yaw = e.yaw;
-	attitude.rollspeed = gyr[0];
-	attitude.pitchspeed = gyr[1];
-	attitude.yawspeed = gyr[2];
+	// attitude.roll = e.roll;
+	// attitude.pitch = e.pitch;
+	// attitude.yaw = e.yaw;
+	// attitude.rollspeed = gyr[0];
+	// attitude.pitchspeed = gyr[1];
+	// attitude.yawspeed = gyr[2];
 	
-	mavlink_msg_attitude_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &attitude);
+	// mavlink_msg_attitude_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &attitude);
 }
 
 void mavproxy_msg_altitude_pack(mavlink_message_t *msg_t)
 {
-	mavlink_altitude_t altitude;
-	uint16_t len;
+	// mavlink_altitude_t altitude;
+	// uint16_t len;
 
-	Altitude_Info alt_info;
-	mcn_copy_from_hub(MCN_ID(ALT_INFO), &alt_info);
+	// Altitude_Info alt_info;
+	// mcn_copy_from_hub(MCN_ID(ALT_INFO), &alt_info);
 	
-	altitude.altitude_monotonic = 0;
-	altitude.altitude_amsl = alt_info.alt;
-	altitude.altitude_local = 0;
-	altitude.altitude_relative = alt_info.relative_alt;
-	altitude.altitude_terrain = 0;
+	// altitude.altitude_monotonic = 0;
+	// altitude.altitude_amsl = alt_info.alt;
+	// altitude.altitude_local = 0;
+	// altitude.altitude_relative = alt_info.relative_alt;
+	// altitude.altitude_terrain = 0;
 	
-	mavlink_msg_altitude_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &altitude);
+	// mavlink_msg_altitude_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &altitude);
 }
 
 void mavproxy_msg_global_position_pack(mavlink_message_t *msg_t)
 {
-	mavlink_global_position_int_t global_position;
-	uint16_t len;
+//	mavlink_global_position_int_t global_position;
+//	uint16_t len;
 
-	struct vehicle_gps_position_s gps_pos_t;
-	mcn_copy_from_hub(MCN_ID(GPS_POSITION), &gps_pos_t);
-	Altitude_Info alt_info;
-	mcn_copy_from_hub(MCN_ID(ALT_INFO), &alt_info);
-	
-	global_position.lat 			= gps_pos_t.lat;
-	global_position.lon 			= gps_pos_t.lon;
-	global_position.alt 			= alt_info.alt*1e3;
-	global_position.relative_alt 	= alt_info.relative_alt*1e3;
-	global_position.vx				= gps_pos_t.vel_n_m_s*1e2;
-	global_position.vy 				= gps_pos_t.vel_e_m_s*1e2;
-	global_position.vz				= alt_info.vz*1e2;
-	
-	mavlink_msg_global_position_int_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &global_position);
+//	struct vehicle_gps_position_s gps_pos_t;
+//	mcn_copy_from_hub(MCN_ID(GPS_POSITION), &gps_pos_t);
+//	Altitude_Info alt_info;
+//	mcn_copy_from_hub(MCN_ID(ALT_INFO), &alt_info);
+//	
+//	global_position.lat 			= gps_pos_t.lat;
+//	global_position.lon 			= gps_pos_t.lon;
+//	global_position.alt 			= alt_info.alt*1e3;
+//	global_position.relative_alt 	= alt_info.relative_alt*1e3;
+//	global_position.vx				= gps_pos_t.vel_n_m_s*1e2;
+//	global_position.vy 				= gps_pos_t.vel_e_m_s*1e2;
+//	global_position.vz				= alt_info.vz*1e2;
+//	
+//	mavlink_msg_global_position_int_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &global_position);
 }
 
 void mavproxy_msg_gps_raw_int_pack(mavlink_message_t *msg_t)
@@ -572,6 +573,28 @@ void mavproxy_rx_entry(void *param)
 					mavlink_msg_hil_state_quaternion_decode(&msg, &hil_state_q);
 					/* publish */
 					mcn_publish(MCN_ID(HIL_STATE_Q), &hil_state_q);
+				}break;
+				case MAVLINK_MSG_ID_FILE_TRANSFER_PROTOCOL:
+				{
+					mavlink_file_transfer_protocol_t ftp_protocol_t;
+
+					if(mavlink_system.sysid != mavlink_msg_file_transfer_protocol_get_target_system(&msg))
+						return;
+
+					mavlink_msg_file_transfer_protocol_decode(&msg, &ftp_protocol_t);
+
+					ftp_msg_parse(ftp_protocol_t.payload, msg.sysid);
+
+					ftp_protocol_t.target_system = msg.sysid;
+					ftp_protocol_t.target_component = msg.compid;
+
+					// FTP_Msg_Payload *ftp_msg_t = (FTP_Msg_Payload *)ftp_protocol_t.payload;
+					// Console.print("send seq:%d sess:%d op:%d size:%d req_op:%d burst_comp:%d offset:%d\n", ftp_msg_t->seq_number,
+					// 	ftp_msg_t->session, ftp_msg_t->opcode, ftp_msg_t->size, ftp_msg_t->req_opcode, ftp_msg_t->burst_complete, 
+					// 	 ftp_msg_t->offset);
+
+					mavlink_msg_file_transfer_protocol_encode(mavlink_system.sysid, mavlink_system.compid, &msg, &ftp_protocol_t);
+					mavproxy_temp_msg_push(&msg);
 				}break;
 				default :
 				{

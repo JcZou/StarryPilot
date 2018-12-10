@@ -10,6 +10,12 @@
 #ifndef __MSH_USR_CMD_H__
 #define __MSH_USR_CMD_H__
 
+typedef struct
+{
+	char *opt;
+	char *val;
+}sh_optv;
+
 int handle_help_shell_cmd(int argc, char** argv);
 
 #endif

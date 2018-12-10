@@ -13,7 +13,7 @@
 #include <string.h>
 #include "calibration.h"
 #include "starryio_uploader.h"
-#include "pos_estimator.h"
+//#include "pos_estimator.h"
 #include "msh_usr_cmd.h"
 #include "msh.h"
 #include "console.h"
@@ -388,13 +388,6 @@ int cmd_motor(int argc, char** argv)
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_motor, __cmd_motor, motor operation);
 
-int handle_rc_shell_cmd(int argc, char** argv);
-int cmd_rc(int argc, char** argv)
-{
-	return handle_rc_shell_cmd(argc, argv);
-}
-FINSH_FUNCTION_EXPORT_ALIAS(cmd_rc, __cmd_rc, rc operation);
-
 int handle_param_shell_cmd(int argc, char** argv);
 int cmd_param(int argc, char** argv)
 {
@@ -465,20 +458,6 @@ int cmd_rtt(int argc, char** argv)
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_rtt, __cmd_rtt, rt-thread rtos commands);
 
-int handle_att_est_shell_cmd(int argc, char** argv);
-int cmd_att_est(int argc, char** argv)
-{
-	return handle_att_est_shell_cmd(argc, argv);
-}
-FINSH_FUNCTION_EXPORT_ALIAS(cmd_att_est, __cmd_att_est, attitude estimator commands);
-
-int handle_pos_est_shell_cmd(int argc, char** argv);
-int cmd_pos_est(int argc, char** argv)
-{
-	return handle_pos_est_shell_cmd(argc, argv);
-}
-FINSH_FUNCTION_EXPORT_ALIAS(cmd_pos_est, __cmd_pos_est, position estimator commands);
-
 int handle_mavproxy_shell_cmd(int argc, char** argv);
 int cmd_mavproxy(int argc, char** argv)
 {
@@ -493,24 +472,9 @@ int cmd_exit(int argc, char** argv)
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_exit, __cmd_exit, redirect console device);
 
-int handle_logger_shell_cmd(int argc, char** argv);
-int cmd_logger(int argc, char** argv)
+int handle_log_shell_cmd(int argc, char** argv);
+int cmd_log(int argc, char** argv)
 {
-	return handle_logger_shell_cmd(argc, argv);
+	return handle_log_shell_cmd(argc, argv);
 }
-FINSH_FUNCTION_EXPORT_ALIAS(cmd_logger, __cmd_logger, log operations);
-
-int handle_control_shell_cmd(int argc, char** argv);
-int cmd_control(int argc, char** argv)
-{
-	return handle_control_shell_cmd(argc, argv);
-}
-FINSH_FUNCTION_EXPORT_ALIAS(cmd_control, __cmd_control, control operations);
-
-int handle_balance_car_motor_shell_cmd(int argc, char** argv, int optc, sh_optv* optv);
-int cmd_bc_motor(int argc, char** argv)
-{
-	return shell_cmd_process(argc, argv, handle_balance_car_motor_shell_cmd);
-	//return handle_motor_shell_cmd(argc, argv);
-}
-FINSH_FUNCTION_EXPORT_ALIAS(cmd_bc_motor, __cmd_bc_motor, balance car motor operation);
+FINSH_FUNCTION_EXPORT_ALIAS(cmd_log, __cmd_log, log operations);

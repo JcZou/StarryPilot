@@ -57,8 +57,6 @@ static char* TAG = "STARRYIO Manager";
 
 uint8_t ppm_send_freq = 20;	/* sending frequemcy of ppm signal, HZ */
 
-MCN_DECLARE(RC_STATUS);
-
 rt_err_t _starryio_serial_tx_done(rt_device_t dev, void * buffer)
 {
 	return rt_sem_release(&starryio_tx_pack_sem);
@@ -208,12 +206,6 @@ void starryio_entry(void *parameter)
 	rt_device_set_rx_indicate(serial_dev, _starryio_serial_rx_ind);
 	rt_device_set_tx_complete(serial_dev, _starryio_serial_tx_done);
 	rt_device_open(serial_dev, RT_DEVICE_OFLAG_RDWR | RT_DEVICE_FLAG_DMA_RX | RT_DEVICE_FLAG_DMA_TX);
-	
-	int mcn_res;
-	mcn_res = mcn_advertise(MCN_ID(RC_STATUS));
-	if(mcn_res != 0){
-		Console.e(TAG, "err:%d, RC_STATUS advertise fail!\n", mcn_res);
-	}
 	
 	while(1){
 #ifdef PX4IO_DEBUG

@@ -14,7 +14,7 @@
 #include "starryio_protocol.h"
 #include "starryio_manager.h"
 #include "console.h"
-#include "delay.h"
+#include "systime.h"
 #include "sensor_manager.h"
 #include "pwm_io.h"
 
@@ -343,11 +343,11 @@ void handle_package(const Package_Def package)
 		case CMD_CHANNEL_VAL:
 		{
 			float chan_val[CHAN_NUM];
-			
-			for(int i = 0 ; i < CHAN_NUM ; i++){
-				chan_val[i] = rc_raw2chanval(((uint32_t*)package.usr_data)[i]);
-			}
-			rc_handle_ppm_signal(chan_val);
+//			
+//			for(int i = 0 ; i < CHAN_NUM ; i++){
+//				chan_val[i] = rc_raw2chanval(((uint32_t*)package.usr_data)[i]);
+//			}
+//			rc_handle_ppm_signal(chan_val);
 		}break;
 		case ACK_CONFIG_CHANNEL:
 		{

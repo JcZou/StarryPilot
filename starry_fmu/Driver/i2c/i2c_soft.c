@@ -9,7 +9,7 @@
  
 #include "stm32f4xx.h"
 #include "i2c_soft.h"
-#include "delay.h"
+#include "systime.h"
 #include <stdio.h>
 
 #define BSP_I2C1_SDA_PORT	GPIOB

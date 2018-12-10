@@ -32,6 +32,13 @@
 #define Deg2Rad(x)			((x)*0.0174533f)
 #define GRAVITY_MSS 		9.81f
 
+// Macro to define packed structures
+#ifdef __GNUC__
+  #define __PACKED__( __Declaration__ ) __Declaration__ __attribute__((packed))
+#else
+  #define __PACKED__( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop) )
+#endif
+
 //extern const float PI;
 #ifndef PI
 	#define PI					3.14159265358979f
@@ -51,7 +58,7 @@
 //#define HIL_SIMULATION
 
 /* global configuration */
-//#define AHRS_USE_EKF
+#define AHRS_USE_EKF
 
 typedef int bool;
 #define true	1

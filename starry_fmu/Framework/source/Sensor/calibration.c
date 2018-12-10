@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include "console.h"
 #include "sensor_manager.h"
-#include "delay.h"
+#include "systime.h"
 #include "shell.h"
 #include "calibration.h"
 #include "light_matrix.h"

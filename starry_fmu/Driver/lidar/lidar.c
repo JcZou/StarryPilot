@@ -4,7 +4,7 @@
 #include <rtdevice.h>
 #include "sensor_manager.h"
 #include "console.h"
-#include "delay.h"
+#include "systime.h"
 #include "lidar.h"
 
 static rt_device_t _i2c_device; 

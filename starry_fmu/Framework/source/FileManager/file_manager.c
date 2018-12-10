@@ -80,7 +80,7 @@ FRESULT f_deldir(TCHAR *path)
 
 int fm_init(const TCHAR* path)
 {
-	FRESULT f_res = f_mount(&_fs, "0:", 0);  
+	FRESULT f_res = f_mount(&_fs, "0:", 0);
 	if(f_res == FR_OK){
 		_fmInit = 1;
 		//Console.print("File Manager Init Success\n");

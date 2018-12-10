@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "test.h"
-#include "att_estimator.h"
+//#include "att_estimator.h"
 #include "quaternion.h"
 #include "console.h"
 #include "global.h"
@@ -23,9 +23,9 @@
 #include "param.h"
 #include "uMCN.h"
 #include "ms5611.h"
-#include "control_main.h"
+//#include "control_main.h"
 #include "shell.h"
-#include "delay.h"
+#include "systime.h"
 #include "declination.h"
 #include "light_matrix.h"
 #include "sensor_manager.h"

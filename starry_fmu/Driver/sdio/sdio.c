@@ -224,6 +224,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "sdio.h"
 #include <rtthread.h>
+#include "global.h"
 
 /** @addtogroup Utilities
   * @{
@@ -401,22 +402,23 @@ static rt_err_t SD_LockInit(void)
 }
 static rt_err_t SD_LockPend(void)
 {
-	rt_err_t err;
-	//CPU_TS ts;
+	// rt_err_t err;
+
+	// err = rt_mutex_take (&SdioSD_Mutex, RT_WAITING_FOREVER);
 	
-	//OSMutexPend(&SdioSD_Mutex, 0, OS_OPT_PEND_BLOCKING, &ts, &err);
-	err = rt_mutex_take (&SdioSD_Mutex, RT_WAITING_FOREVER);
-	
-	return err;	
+	// return err;	
+
+  return RT_EOK;
 }
 static rt_err_t SD_LockPost(void)
 {
-	rt_err_t err;
+	// rt_err_t err;
+
+	// err = rt_mutex_release(&SdioSD_Mutex);
 	
-	//SMutexPost(&SdioSD_Mutex, OS_OPT_POST_NONE, &err);
-	err = rt_mutex_release(&SdioSD_Mutex);
-	
-	return err;	
+	// return err;	
+
+  return RT_EOK;
 }
 /**
   * @brief  DeInitializes the SDIO interface.
@@ -563,7 +565,7 @@ uint8_t SD_Detect(void)
 {
   __IO uint8_t status = SD_PRESENT;
 
-	//TODO, ÎÞ·¨¼ì²âµ½
+	//TODO, ï¿½Þ·ï¿½ï¿½ï¿½âµ½
 //  /*!< Check GPIO to detect SD */
 //  if (GPIO_ReadInputDataBit(SD_DETECT_GPIO_PORT, SD_DETECT_PIN) != Bit_RESET)
 //  {
@@ -1439,7 +1441,9 @@ SD_Error SD_WaitReadOperation(void)
 
   if (StopCondition == 1)
   {
+    OS_ENTER_CRITICAL;
     errorstatus = SD_StopTransfer();
+    OS_EXIT_CRITICAL;
     StopCondition = 0;
   }
   
@@ -1732,7 +1736,9 @@ SD_Error SD_WaitWriteOperation(void)
 
   if (StopCondition == 1)
   {
+    OS_ENTER_CRITICAL;
     errorstatus = SD_StopTransfer();
+    OS_EXIT_CRITICAL;
     StopCondition = 0;
   }
   
@@ -2991,13 +2997,15 @@ SD_Error SD_ReadDisk(uint8_t *readbuff, uint32_t sector, uint32_t count)
 	{
 		for(i=0; i<count; i++)
 		{
+      OS_ENTER_CRITICAL;
 			Status = SD_ReadBlock((uint8_t*)dma_buffer, (sector + i) << 9 , 512);
+      OS_EXIT_CRITICAL;
 
 			if (Status != SD_OK)
 				goto returen_status;
 			
 #ifdef SD_DMA_MODE
-			/* SDIO¹¤×÷ÔÚDMAÄ£Ê½£¬ÐèÒª¼ì²é²Ù×÷DMA´«ÊäÊÇ·ñÍê³É */
+			/* SDIOï¿½ï¿½ï¿½ï¿½ï¿½ï¿½DMAÄ£Ê½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½DMAï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ */
 			Status = SD_WaitReadOperation();
 			if (Status != SD_OK)
 				goto returen_status;
@@ -3005,8 +3013,6 @@ SD_Error SD_ReadDisk(uint8_t *readbuff, uint32_t sector, uint32_t count)
 			//while(SD_GetStatus() != SD_TRANSFER_OK);
 			while(SD_GetStatus() != SD_TRANSFER_OK)
 			{
-//				OS_ERR      err;
-//				OSTimeDly(1, OS_OPT_TIME_DLY, &err);
 				rt_thread_delay(1);
 			}
 #endif	
@@ -3019,24 +3025,26 @@ SD_Error SD_ReadDisk(uint8_t *readbuff, uint32_t sector, uint32_t count)
 	{
 		if (count == 1)
 		{
+      OS_ENTER_CRITICAL;
 			Status = SD_ReadBlock(readbuff, sector << 9 , 512);
+      OS_EXIT_CRITICAL;
 		}
 		else
 		{
+      OS_ENTER_CRITICAL;
 			Status = SD_ReadMultiBlocks(readbuff, sector << 9 , 512, count);
+      OS_EXIT_CRITICAL;
 		}
 		if (Status != SD_OK)
 			goto returen_status;
 #ifdef SD_DMA_MODE
-		/* SDIO¹¤×÷ÔÚDMAÄ£Ê½£¬ÐèÒª¼ì²é²Ù×÷DMA´«ÊäÊÇ·ñÍê³É */
+		/* SDIOï¿½ï¿½ï¿½ï¿½ï¿½ï¿½DMAÄ£Ê½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½DMAï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ */
 		Status = SD_WaitReadOperation();
 		if (Status != SD_OK)
 			goto returen_status;
 		//while(SD_GetStatus() != SD_TRANSFER_OK);
 		while(SD_GetStatus() != SD_TRANSFER_OK)
 		{
-//			OS_ERR      err;
-//			OSTimeDly(1, OS_OPT_TIME_DLY, &err);
 			rt_thread_delay(1);
 		}
 #endif
@@ -3061,11 +3069,13 @@ SD_Error SD_WriteDisk(const uint8_t *writebuff, uint32_t sector, uint32_t count)
 			memcpy((uint8_t*)dma_buffer, writebuff, 512);
 			writebuff += 512;
 			
+      OS_ENTER_CRITICAL;
 			Status = SD_WriteBlock((uint8_t*)dma_buffer, (sector + i) << 9 , 512);
+      OS_EXIT_CRITICAL;
 			if(Status != SD_OK)
 				goto returen_status;
 #ifdef SD_DMA_MODE
-			/* SDIO¹¤×÷ÔÚDMAÄ£Ê½£¬ÐèÒª¼ì²é²Ù×÷DMA´«ÊäÊÇ·ñÍê³É */
+			/* SDIOï¿½ï¿½ï¿½ï¿½ï¿½ï¿½DMAÄ£Ê½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½DMAï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ */
 			Status = SD_WaitWriteOperation();
 			if (Status != SD_OK)
 				goto returen_status;
@@ -3073,8 +3083,6 @@ SD_Error SD_WriteDisk(const uint8_t *writebuff, uint32_t sector, uint32_t count)
 			//while(SD_GetStatus() != SD_TRANSFER_OK);
 			while(SD_GetStatus() != SD_TRANSFER_OK)
 			{
-//				OS_ERR      err;
-//				OSTimeDly(1, OS_OPT_TIME_DLY, &err);
 				rt_thread_delay(1);
 			}
 #endif
@@ -3084,33 +3092,29 @@ SD_Error SD_WriteDisk(const uint8_t *writebuff, uint32_t sector, uint32_t count)
 	{
 		if (count == 1)
 		{
+      OS_ENTER_CRITICAL;
 			Status = SD_WriteBlock((uint8_t *)writebuff, sector << 9 ,512);
+      OS_EXIT_CRITICAL;
 		}
 		else
 		{
-			/* ´Ë´¦´æÔÚÒÉÎÊ£º ÉÈÇø¸öÊýÈç¹ûÐ´ count £¬½«µ¼ÖÂ×îºó1¸öblockÎÞ·¨Ð´Èë */
+			OS_ENTER_CRITICAL;
 			Status = SD_WriteMultiBlocks((uint8_t *)writebuff, sector << 9 ,512, count);
-			//Status = SD_WriteMultiBlocks((uint8_t *)writebuff, sector << 9 ,512, count + 1);
+			OS_EXIT_CRITICAL;
 		}
 		
 		if (Status != SD_OK)
 			goto returen_status;
 
 #ifdef SD_DMA_MODE
-		/* SDIO¹¤×÷ÔÚDMAÄ£Ê½£¬ÐèÒª¼ì²é²Ù×÷DMA´«ÊäÊÇ·ñÍê³É */
+		/* SDIOï¿½ï¿½ï¿½ï¿½ï¿½ï¿½DMAÄ£Ê½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½DMAï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ */
 		Status = SD_WaitWriteOperation();
 		if (Status != SD_OK)
 			goto returen_status;
 
-//		wts = OS_AbsoluteTime();
-		//while(SD_GetStatus() != SD_TRANSFER_OK);
-//		wte = OS_AbsoluteTime();
-//		wtu = wte-wts; //3550us		
 		while(SD_GetStatus() != SD_TRANSFER_OK)
 		{
 			rt_thread_delay(1);
-			//OS_ERR      err;
-			//OSTimeDly(1, OS_OPT_TIME_DLY, &err);
 		}
 #endif	
 		

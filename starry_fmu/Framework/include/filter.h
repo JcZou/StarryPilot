@@ -12,7 +12,7 @@
 
 #include <rtthread.h>
 #include "butter.h"
-#include "fir.h"
+//#include "fir.h"
 //#include <rtdevice.h>
 
 rt_err_t filter_init(void);

@@ -29,8 +29,8 @@ typedef struct
 {
 	u32 raw_temperature;
 	u32 raw_pressure;
-	float temperature;
-	float pressure;
+	float temperature;	// degree
+	int32_t pressure;	//Pa
 	float altitude;
 	u32 time_stamp;
 }MS5611_REPORT_Def;

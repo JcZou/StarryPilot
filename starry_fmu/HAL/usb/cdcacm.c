@@ -18,6 +18,7 @@
 #else 
 	#define RECEIVE_RINGBUFF_SIZE		2*RX_FIFO_FS_SIZE
 #endif
+#define USB_SEND_TIMEOUT				100		// 100ms
 
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE    USB_OTG_dev __ALIGN_END ;
 
@@ -125,9 +126,15 @@ rt_size_t usb_read(rt_device_t dev, rt_off_t pos, void *buffer, rt_size_t size)
 
 rt_size_t usb_write(rt_device_t dev, rt_off_t pos, const void *buffer, rt_size_t size)
 {	
+	uint32_t timeout = USB_SEND_TIMEOUT;
 	/* usb is busy now */
-	if(!cdc_check_sent())
-		return 0;
+	while(!cdc_check_sent()){
+		if(timeout--){
+			rt_thread_delay(1);
+		}else{
+			return 0;
+		}
+	}
 
 	cdc_send_data((uint8_t*)buffer, size);
 

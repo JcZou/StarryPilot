@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER,STM32F427X,__VFP_FP__,ARM_MATH_MATRIX_CHECK,ARM_MATH_CM4,__FPU_PRESENT=1,__FPU_USED=1</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Library\STM_Lib\STM32F4xx_StdPeriph_Driver\inc;..\..\Library\STM_Lib\CMSIS\Include;..\..\Library\STM_Lib\CMSIS\Device\ST\STM32F4xx\Include;..\..\Library\mavlink\v1.0;..\..\Library\mavlink\v1.0\common;..\..\Library\Fatfs;..\..\Driver\usb\inc;..\..\Driver\include;..\..\RTOS\components\finsh;..\..\RTOS\libcpu\arm\common;..\..\RTOS\libcpu\arm\cortex-m4;..\..\RTOS\include;..\..\HAL\include;..\..\Framework\include;..\stm32f40x;..\..\Framework\source\Simulink;..\..\Framework\source\INS\Simulink\Model;..\..\Framework\source\INS\Simulink\Shared</IncludePath>
+              <IncludePath>..\..\Library\STM_Lib\STM32F4xx_StdPeriph_Driver\inc;..\..\Library\STM_Lib\CMSIS\Include;..\..\Library\STM_Lib\CMSIS\Device\ST\STM32F4xx\Include;..\..\Library\mavlink\v1.0;..\..\Library\mavlink\v1.0\common;..\..\Library\Fatfs;..\..\Driver\usb\inc;..\..\Driver\include;..\..\RTOS\components\finsh;..\..\RTOS\libcpu\arm\common;..\..\RTOS\libcpu\arm\cortex-m4;..\..\RTOS\include;..\..\HAL\include;..\..\Framework\include;..\stm32f40x</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -396,54 +396,9 @@
           <GroupName>Framework</GroupName>
           <Files>
             <File>
-              <FileName>att_estimator.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\att_estimator.c</FilePath>
-            </File>
-            <File>
-              <FileName>att_pid.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\Control\att_pid.c</FilePath>
-            </File>
-            <File>
-              <FileName>adrc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\Control\adrc.c</FilePath>
-            </File>
-            <File>
-              <FileName>adrc_att.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\Control\adrc_att.c</FilePath>
-            </File>
-            <File>
-              <FileName>AHRS.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\AHRS.c</FilePath>
-            </File>
-            <File>
-              <FileName>butter.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\Filter\butter.c</FilePath>
-            </File>
-            <File>
               <FileName>console.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\Console\console.c</FilePath>
-            </File>
-            <File>
-              <FileName>copter_main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\Copter\copter_main.c</FilePath>
-            </File>
-            <File>
-              <FileName>control_main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\Control\control_main.c</FilePath>
-            </File>
-            <File>
-              <FileName>control_alt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\Control\control_alt.c</FilePath>
             </File>
             <File>
               <FileName>calibration.c</FileName>
@@ -451,39 +406,14 @@
               <FilePath>..\..\Framework\source\Sensor\calibration.c</FilePath>
             </File>
             <File>
-              <FileName>delay.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\Time\delay.c</FilePath>
-            </File>
-            <File>
               <FileName>file_manager.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\FileManager\file_manager.c</FilePath>
             </File>
             <File>
-              <FileName>filter.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\Filter\filter.c</FilePath>
-            </File>
-            <File>
-              <FileName>fir.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\Filter\fir.c</FilePath>
-            </File>
-            <File>
               <FileName>global.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\Global\global.c</FilePath>
-            </File>
-            <File>
-              <FileName>hil_interface.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\HIL\hil_interface.c</FilePath>
-            </File>
-            <File>
-              <FileName>kf.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\KF\kf.c</FilePath>
             </File>
             <File>
               <FileName>led.c</FileName>
@@ -501,24 +431,9 @@
               <FilePath>..\..\Framework\source\Mavproxy\mavproxy.c</FilePath>
             </File>
             <File>
-              <FileName>pos_estimator.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\pos_estimator.c</FilePath>
-            </File>
-            <File>
               <FileName>param.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\Param\param.c</FilePath>
-            </File>
-            <File>
-              <FileName>pid.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\PID\pid.c</FilePath>
-            </File>
-            <File>
-              <FileName>rc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\RC\rc.c</FilePath>
             </File>
             <File>
               <FileName>sensor_manager.c</FileName>
@@ -571,29 +486,14 @@
               <FilePath>..\..\Framework\source\Console\msh_usr_cmd.c</FilePath>
             </File>
             <File>
-              <FileName>declination.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\declination.c</FilePath>
-            </File>
-            <File>
               <FileName>mavlink_console.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\Console\mavlink_console.c</FilePath>
             </File>
             <File>
-              <FileName>ekf.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\KF\ekf.c</FilePath>
-            </File>
-            <File>
               <FileName>mavproxy_rtt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Framework\source\Mavproxy\mavproxy_rtt.c</FilePath>
-            </File>
-            <File>
-              <FileName>state_est.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\StateEstimator\state_est.c</FilePath>
             </File>
             <File>
               <FileName>fast_loop.c</FileName>
@@ -611,9 +511,9 @@
               <FilePath>..\..\Framework\source\Mavproxy\mavlink_param.c</FilePath>
             </File>
             <File>
-              <FileName>balance_car_motor.c</FileName>
+              <FileName>systime.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\BalanceCar\balance_car_motor.c</FilePath>
+              <FilePath>..\..\Framework\source\Time\systime.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1388,102 +1288,17 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Simulink</GroupName>
-          <Files>
-            <File>
-              <FileName>OnBoard.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\Simulink\OnBoard.c</FilePath>
-            </File>
-            <File>
-              <FileName>const_params.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\Simulink\Shared\const_params.c</FilePath>
-            </File>
-            <File>
-              <FileName>eye_YlI46ghJ.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\Simulink\Shared\eye_YlI46ghJ.c</FilePath>
-            </File>
-            <File>
-              <FileName>rt_nonfinite.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\Simulink\Shared\rt_nonfinite.c</FilePath>
-            </File>
-            <File>
-              <FileName>rtGetInf.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\Simulink\Shared\rtGetInf.c</FilePath>
-            </File>
-            <File>
-              <FileName>rtGetNaN.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\Simulink\Shared\rtGetNaN.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>INS</GroupName>
           <Files>
             <File>
-              <FileName>EKF_BaroCorrect.c</FileName>
+              <FileName>CF_INS.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_BaroCorrect.c</FilePath>
+              <FilePath>..\..\Framework\source\INS\Simulink\Model\CF_INS.c</FilePath>
             </File>
             <File>
-              <FileName>EKF_BaroJacobian.c</FileName>
+              <FileName>CF_INS_data.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_BaroJacobian.c</FilePath>
-            </File>
-            <File>
-              <FileName>EKF_GpsCorrect.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_GpsCorrect.c</FilePath>
-            </File>
-            <File>
-              <FileName>EKF_GpsJacobian.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_GpsJacobian.c</FilePath>
-            </File>
-            <File>
-              <FileName>EKF_ImuCorrect.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_ImuCorrect.c</FilePath>
-            </File>
-            <File>
-              <FileName>EKF_ImuJacobian.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_ImuJacobian.c</FilePath>
-            </File>
-            <File>
-              <FileName>EKF_MagCorrect.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_MagCorrect.c</FilePath>
-            </File>
-            <File>
-              <FileName>EKF_MagJacobian.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_MagJacobian.c</FilePath>
-            </File>
-            <File>
-              <FileName>EKF_Predict.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_Predict.c</FilePath>
-            </File>
-            <File>
-              <FileName>EKF_PredictJacobian.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\Simulink\Model\EKF_PredictJacobian.c</FilePath>
-            </File>
-            <File>
-              <FileName>INS.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\Simulink\Model\INS.c</FilePath>
-            </File>
-            <File>
-              <FileName>INS_data.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Framework\source\INS\Simulink\Model\INS_data.c</FilePath>
+              <FilePath>..\..\Framework\source\INS\Simulink\Shared\CF_INS_data.c</FilePath>
             </File>
           </Files>
         </Group>

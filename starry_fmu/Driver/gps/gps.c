@@ -12,7 +12,7 @@
 #include <string.h>
 #include "gps.h"
 #include "console.h"
-#include "delay.h"
+#include "systime.h"
 #include "sensor_manager.h"
 #include "uMCN.h"
 
@@ -47,6 +47,7 @@ rt_bool_t _got_velned;
 rt_bool_t _got_svinfo;
 
 MCN_DEFINE(GPS_POSITION, sizeof(struct vehicle_gps_position_s));
+MCN_DEFINE(uBLOX_PVT, sizeof(SensorGPS_PVT));
 
 void _decode_init(void)
 {
@@ -207,16 +208,15 @@ payload_rx_done(void)
 		case UBX_MSG_NAV_PVT:
 		{
 			struct tm timeinfo;
-			
-			//Console.print("Rx NAV-PVT %d\r\n", time_nowMs());
+
 			
 			if ((_buf.payload_rx_nav_pvt.flags & UBX_RX_NAV_PVT_FLAGS_GNSSFIXOK) == 1) {
 				_gps_position->fix_type		 = _buf.payload_rx_nav_pvt.fixType;
-				_gps_position->vel_ned_valid = RT_TRUE;
+				_gps_position->vel_ned_valid = 1;
 
 			} else {
 				_gps_position->fix_type		 = 0;
-				_gps_position->vel_ned_valid = RT_FALSE;
+				_gps_position->vel_ned_valid = 0;
 			}
 
 			_gps_position->satellites_used	= _buf.payload_rx_nav_pvt.numSV;
@@ -253,19 +253,51 @@ payload_rx_done(void)
 				//_gps_position->time_utc_usec = 0;
 			}
 
-			_gps_position->timestamp_time		= time_nowUs();
-			_gps_position->timestamp_velocity 	= time_nowUs();
-			_gps_position->timestamp_variance 	= time_nowUs();
-			_gps_position->timestamp_position	= time_nowUs();
+			_gps_position->timestamp_time		= time_nowMs();
+			_gps_position->timestamp_velocity 	= time_nowMs();
+			_gps_position->timestamp_variance 	= time_nowMs();
+			_gps_position->timestamp_position	= time_nowMs();
 
 			_rate_count_vel++;
 			_rate_count_lat_lon++;
-			
-//			Console.print("sat:%d alt:%d lat:%d lon:%d %f %f %f\n" , _gps_position->satellites_used, _gps_position->alt, _gps_position->lat,_gps_position->lon,
-//				_gps_position->vel_n_m_s,_gps_position->vel_e_m_s,_gps_position->vel_d_m_s);
 
 			_got_posllh = RT_TRUE;
 			_got_velned = RT_TRUE;
+
+			SensorGPS_PVT gps_pvt;
+			gps_pvt.iTOW = _buf.payload_rx_nav_pvt.iTOW;
+			gps_pvt.year = _buf.payload_rx_nav_pvt.year;
+			gps_pvt.month = _buf.payload_rx_nav_pvt.month;
+			gps_pvt.day = _buf.payload_rx_nav_pvt.day;
+			gps_pvt.hour = _buf.payload_rx_nav_pvt.hour;
+			gps_pvt.min = _buf.payload_rx_nav_pvt.min;
+			gps_pvt.sec = _buf.payload_rx_nav_pvt.sec;	
+			gps_pvt.valid = _buf.payload_rx_nav_pvt.valid;
+			gps_pvt.tAcc = _buf.payload_rx_nav_pvt.tAcc;		
+			gps_pvt.nano = _buf.payload_rx_nav_pvt.nano;
+			gps_pvt.fixType = _buf.payload_rx_nav_pvt.fixType;
+			gps_pvt.flags = _buf.payload_rx_nav_pvt.flags;
+			gps_pvt.numSV = _buf.payload_rx_nav_pvt.numSV;	
+			gps_pvt.lon = _buf.payload_rx_nav_pvt.lon;
+			gps_pvt.lat = _buf.payload_rx_nav_pvt.lat;
+			gps_pvt.height = _buf.payload_rx_nav_pvt.height;
+			gps_pvt.hMSL = _buf.payload_rx_nav_pvt.hMSL;
+			gps_pvt.hAcc = _buf.payload_rx_nav_pvt.hAcc;
+			gps_pvt.vAcc = _buf.payload_rx_nav_pvt.vAcc;
+			gps_pvt.velN = _buf.payload_rx_nav_pvt.velN;
+			gps_pvt.velE = _buf.payload_rx_nav_pvt.velE;
+			gps_pvt.velD = _buf.payload_rx_nav_pvt.velD;
+			gps_pvt.gSpeed = _buf.payload_rx_nav_pvt.gSpeed;
+			gps_pvt.headMot = _buf.payload_rx_nav_pvt.headMot;
+			gps_pvt.sAcc = _buf.payload_rx_nav_pvt.sAcc;
+			gps_pvt.headAcc = _buf.payload_rx_nav_pvt.headAcc;
+			gps_pvt.pDOP = _buf.payload_rx_nav_pvt.pDOP;
+			gps_pvt.Timestamp_ms = time_nowMs();
+
+			#ifndef HIL_SIMULATION
+				/* publish uBlox-PVT */
+				mcn_publish(MCN_ID(uBLOX_PVT), &gps_pvt);
+			#endif
 
 			ret = 1;	
 		}break;
@@ -280,7 +312,7 @@ payload_rx_done(void)
 			_gps_position->epv	= (float)_buf.payload_rx_nav_posllh.vAcc * 1e-3f; // from mm to m
 			_gps_position->alt_ellipsoid = _buf.payload_rx_nav_posllh.height;
 
-			_gps_position->timestamp_position = time_nowUs();
+			_gps_position->timestamp_position = time_nowMs();
 
 			_rate_count_lat_lon++;
 			_got_posllh = RT_TRUE;
@@ -297,7 +329,7 @@ payload_rx_done(void)
 			_gps_position->s_variance_m_s	= (float)_buf.payload_rx_nav_sol.sAcc * 1e-2f;	// from cm to m
 			_gps_position->satellites_used	= _buf.payload_rx_nav_sol.numSV;
 
-			_gps_position->timestamp_variance = time_nowUs();
+			_gps_position->timestamp_variance = time_nowMs();
 		}break;
 		case UBX_MSG_NAV_DOP:
 		{
@@ -309,7 +341,7 @@ payload_rx_done(void)
 			_gps_position->ndop		= _buf.payload_rx_nav_dop.nDOP * 0.01f;	// from cm to m
 			_gps_position->edop		= _buf.payload_rx_nav_dop.eDOP * 0.01f;	// from cm to m
 
-			_gps_position->timestamp_variance = time_nowUs();
+			_gps_position->timestamp_variance = time_nowMs();
 
 			ret = 1;
 		}break;
@@ -331,7 +363,7 @@ payload_rx_done(void)
 				//Console.print("%d-%d-%d %d:%d:%d\r\n" , timeinfo.tm_year,timeinfo.tm_mon,timeinfo.tm_mday,timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
 			}
 
-			_gps_position->timestamp_time = time_nowUs();
+			_gps_position->timestamp_time = time_nowMs();
 
 			ret = 1;
 		}break;
@@ -355,9 +387,9 @@ payload_rx_done(void)
 			_gps_position->vel_d_m_s	= (float)_buf.payload_rx_nav_velned.velD * 1e-2f; /* NED DOWN velocity */
 			_gps_position->cog_rad		= (float)_buf.payload_rx_nav_velned.heading * M_DEG_TO_RAD_F * 1e-5f;
 			_gps_position->c_variance_rad	= (float)_buf.payload_rx_nav_velned.cAcc * M_DEG_TO_RAD_F * 1e-5f;
-			_gps_position->vel_ned_valid	= RT_TRUE;
+			_gps_position->vel_ned_valid	= 1;
 
-			_gps_position->timestamp_velocity = time_nowUs();
+			_gps_position->timestamp_velocity = time_nowMs();
 
 			_rate_count_vel++;
 			_got_velned = RT_TRUE;
@@ -1069,6 +1101,11 @@ rt_err_t rt_gps_init(char* serial_device_name , struct vehicle_gps_position_s *g
 	mcn_res = mcn_advertise(MCN_ID(GPS_POSITION));
 	if(mcn_res != 0){
 		Console.e("GPS", "err:%d, gps position advertise fail!\n", mcn_res);
+	}
+
+	mcn_res = mcn_advertise(MCN_ID(uBLOX_PVT));
+	if(mcn_res != 0){
+		Console.e("GPS", "err:%d, gps uBlox-PVT fail!\n", mcn_res);
 	}
 	
 	serial_device = rt_device_find(serial_device_name);

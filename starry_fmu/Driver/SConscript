@@ -18,6 +18,7 @@ lsm303d/lsm303d.c
 mpu6000/mpu6000.c
 ms5611/ms5611.c
 pwm/pwm.c
+pwm/pwm_io.c
 rtc/stm32f4_rtc.c
 sdio/sdio.c
 spi/stm32f4_spi.c
