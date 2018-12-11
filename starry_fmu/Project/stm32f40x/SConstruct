@@ -41,5 +41,13 @@ Export('rtconfig')
 # prepare building environment
 objs = PrepareBuilding(env, RTT_ROOT, has_libcpu=False)
 
+cwd = str(Dir('#'))
+list = os.listdir(cwd + '/../../')
+starry_vdir = 'build/starry'
+for d in list:
+    path = os.path.join(cwd, '../..', d)
+    if os.path.isfile(os.path.join(path, 'SConscript')):
+        objs.extend(SConscript(os.path.join(path, 'SConscript'), variant_dir=starry_vdir + '/' + d, duplicate=0))
+
 # make a building
 DoBuilding(TARGET, objs)
