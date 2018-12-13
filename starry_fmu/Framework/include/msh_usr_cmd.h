@@ -10,6 +10,8 @@
 #ifndef __MSH_USR_CMD_H__
 #define __MSH_USR_CMD_H__
 
+#include "global.h"
+
 typedef struct
 {
 	char *opt;
@@ -17,5 +19,6 @@ typedef struct
 }sh_optv;
 
 int handle_help_shell_cmd(int argc, char** argv);
+bool shell_is_number(char* str);
 
 #endif

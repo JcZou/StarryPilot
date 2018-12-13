@@ -14,6 +14,8 @@
 #include "systime.h"
 #include "conversion.h"
 
+#define OSR				4096
+
 #define POW2(_x)		((_x) * (_x))
 
 /* SPI protocol address bits */
@@ -21,8 +23,27 @@
 #define DIR_WRITE               (0<<7)
 
 #define ADDR_RESET_CMD				0x1E	/* write to this address to reset chip */
-#define ADDR_CMD_CONVERT_D1			0x46	/* write to this address to start pressure conversion, OSR=2048 */
-#define ADDR_CMD_CONVERT_D2			0x56	/* write to this address to start temperature conversion, OSR=2048 */
+#if OSR==256
+	#define ADDR_CMD_CONVERT_D1			0x40	/* write to this address to start pressure conversion */
+	#define ADDR_CMD_CONVERT_D2			0x50	/* write to this address to start temperature conversion */
+	#define INTERVAL_CONV_TIME			1		/* the max conv time */
+#elif OSR==512
+	#define ADDR_CMD_CONVERT_D1			0x42	/* write to this address to start pressure conversion */
+	#define ADDR_CMD_CONVERT_D2			0x52	/* write to this address to start temperature conversion */
+	#define INTERVAL_CONV_TIME			2		/* the max conv time is 9ms */
+#elif OSR==512
+	#define ADDR_CMD_CONVERT_D1			0x44	/* write to this address to start pressure conversion */
+	#define ADDR_CMD_CONVERT_D2			0x54	/* write to this address to start temperature conversion */
+	#define INTERVAL_CONV_TIME			3		
+#elif OSR==512
+	#define ADDR_CMD_CONVERT_D1			0x46	/* write to this address to start pressure conversion */
+	#define ADDR_CMD_CONVERT_D2			0x56	/* write to this address to start temperature conversion */	
+	#define INTERVAL_CONV_TIME			5		
+#else
+	#define ADDR_CMD_CONVERT_D1			0x48	/* write to this address to start pressure conversion */
+	#define ADDR_CMD_CONVERT_D2			0x58	/* write to this address to start temperature conversion */
+	#define INTERVAL_CONV_TIME			10		
+#endif
 #define ADDR_ADC					0x00	/* address of 3 bytes / 32bit pressure data */
 #define ADDR_PROM_SETUP				0xA0	/* address of 8x 2 bytes factory and calibration data */
 #define ADDR_PROM_C1				0xA2	/* address of 6x 2 bytes calibration data */
@@ -32,8 +53,6 @@
 #define ADDR_PROM_C5				0xAA
 #define ADDR_PROM_C6				0xAC
 #define ADDR_PROM_CRC				0xAE
-
-#define INTERVAL_CONV_TIME			5		/* the max conv time is 9ms */
 
 static rt_device_t spi_device;
 static struct rt_device baro_device;
@@ -250,12 +269,14 @@ rt_err_t baro_control(rt_device_t dev, rt_uint8_t cmd, void *args)
 	{
 		case SENSOR_CONVERSION:
 		{
-			if(*(u8*)args != ADDR_CMD_CONVERT_D1 && *(u8*)args != ADDR_CMD_CONVERT_D2)
-			{
+			if(*(u8*)args == 1){
+				ms5611_write_cmd(ADDR_CMD_CONVERT_D1);
+			}else if(*(u8*)args == 2){
+				ms5611_write_cmd(ADDR_CMD_CONVERT_D2);
+			}else{
 				return RT_ERROR;
 			}
-			
-			ms5611_write_cmd(*(u8*)args);
+
 			/* record last convertion time */
 			last_conv_time = time_nowMs();
 		}break;

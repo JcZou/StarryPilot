@@ -670,7 +670,8 @@ uint8_t mavproxy_temp_msg_push(mavlink_message_t *msg)
 	
 	OS_EXIT_CRITICAL;
 	
-	//printf("temp push msg\n");
+	// wakeup mavproxy to send out temporary msg immediately
+	rt_event_send(&event_mavproxy, EVENT_MAVPROXY_UPDATE);
 	
 	return 1;
 }

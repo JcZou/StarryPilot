@@ -765,7 +765,8 @@ int calibrate_acc_custome_run(uint32_t N)
 			
 			float acc_f[3];
 			for(int i = 0 ; i < 100 ; i ++){
-				mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+				//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+				sensor_acc_measure(acc_f);
 				cali_least_squre_update(&obj, acc_f);
 				//Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
 				rt_thread_delay(20);
@@ -826,7 +827,8 @@ int calibrate_acc_run(void)
 		
 		float acc_f[3];
 		for(int i = 0 ; i < 100 ; i ++){
-			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+			sensor_acc_measure(acc_f);
 			cali_least_squre_update(&obj, acc_f);
 			//Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
 			rt_thread_delay(20);
@@ -842,7 +844,8 @@ int calibrate_acc_run(void)
 		
 		float acc_f[3];
 		for(int i = 0 ; i < 100 ; i ++){
-			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+			sensor_acc_measure(acc_f);
 			cali_least_squre_update(&obj, acc_f);
 			//Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
 			rt_thread_delay(20);
@@ -858,7 +861,8 @@ int calibrate_acc_run(void)
 		
 		float acc_f[3];
 		for(int i = 0 ; i < 100 ; i ++){
-			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+			sensor_acc_measure(acc_f);
 			cali_least_squre_update(&obj, acc_f);
 			//Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
 			rt_thread_delay(20);
@@ -874,7 +878,8 @@ int calibrate_acc_run(void)
 		
 		float acc_f[3];
 		for(int i = 0 ; i < 100 ; i ++){
-			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+			sensor_acc_measure(acc_f);
 			cali_least_squre_update(&obj, acc_f);
 			//Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
 			rt_thread_delay(20);
@@ -890,7 +895,8 @@ int calibrate_acc_run(void)
 		
 		float acc_f[3];
 		for(int i = 0 ; i < 100 ; i ++){
-			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+			sensor_acc_measure(acc_f);
 			cali_least_squre_update(&obj, acc_f);
 			//Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
 			rt_thread_delay(20);
@@ -906,7 +912,8 @@ int calibrate_acc_run(void)
 		
 		float acc_f[3];
 		for(int i = 0 ; i < 100 ; i ++){
-			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+			sensor_acc_measure(acc_f);
 			cali_least_squre_update(&obj, acc_f);
 			//Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
 			rt_thread_delay(20);
@@ -966,7 +973,8 @@ int calibrate_mag_custom_run(uint32_t sec_time)
 	if(ch == 'Y' || ch == 'y'){
 		Console.print("reading data...\n");
 		for(int i = 0 ; i < sec_time*1000/50 ; i ++){
-			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
+			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
+			sensor_mag_measure(mag_f);
 			cali_least_squre_update(&obj, mag_f);
 			//Console.print("%lf %lf %lf\n", mag_f[0], mag_f[1], mag_f[2]);
 			rt_thread_delay(50);
@@ -1028,7 +1036,8 @@ int calibrate_mag_run(void)
 	if(ch == 'Y' || ch == 'y'){
 		Console.print("reading data...\n");
 		for(int i = 0 ; i < 200 ; i ++){
-			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
+			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
+			sensor_mag_measure(mag_f);
 			cali_least_squre_update(&obj, mag_f);
 			//Console.print("%lf %lf %lf\n", mag_f[0], mag_f[1], mag_f[2]);
 			rt_thread_delay(50);
@@ -1042,7 +1051,8 @@ int calibrate_mag_run(void)
 	if(ch == 'Y' || ch == 'y'){
 		Console.print("reading data...\n");
 		for(int i = 0 ; i < 200 ; i ++){
-			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
+			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
+			sensor_mag_measure(mag_f);
 			cali_least_squre_update(&obj, mag_f);
 			//Console.print("%lf %lf %lf\n", mag_f[0], mag_f[1], mag_f[2]);
 			rt_thread_delay(50);
@@ -1056,7 +1066,8 @@ int calibrate_mag_run(void)
 	if(ch == 'Y' || ch == 'y'){
 		Console.print("reading data...\n");
 		for(int i = 0 ; i < 200 ; i ++){
-			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
+			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
+			sensor_mag_measure(mag_f);
 			cali_least_squre_update(&obj, mag_f);
 			//Console.print("%lf %lf %lf\n", mag_f[0], mag_f[1], mag_f[2]);
 			rt_thread_delay(50);
@@ -1117,7 +1128,8 @@ int calibrate_gyr_run(void)
 		Console.print("reading data...\n");
 		for(uint32_t i = 0 ; i < p_num ; i++)
 		{
-			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_GYR), gyr_f);
+			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_GYR), gyr_f);
+			sensor_gyr_measure(gyr_f);
 			sum_gyr[0] += gyr_f[0];
 			sum_gyr[1] += gyr_f[1];
 			sum_gyr[2] += gyr_f[2];

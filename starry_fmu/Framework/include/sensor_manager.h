@@ -159,7 +159,7 @@ typedef struct
 	uint32_t	headAcc;	/**< Heading accuracy estimate (motion and vehicle) [1e-5 deg] */
 	uint16_t	pDOP;		/**< Position DOP [0.01] */
 	uint16_t	reserved2;
-	uint32_t	Timestamp_ms;
+	uint32_t	timestamp_ms;
 }SensorGPS_PVT;
 
 rt_err_t device_sensor_init(void);

@@ -60,8 +60,16 @@
 /* global configuration */
 #define AHRS_USE_EKF
 
-typedef int bool;
-#define true	1
-#define false	0
+#ifndef bool
+  #define bool    uint8_t
+  #define true	  1
+  #define false	  0
+#endif
+// #ifndef true
+//   #define true	  1
+// #endif
+// #ifndef false
+//   #define false	  0
+// #endif
 
 #endif

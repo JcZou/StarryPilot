@@ -17,6 +17,8 @@
 #include "msh_usr_cmd.h"
 #include "msh.h"
 #include "console.h"
+#include "msh_usr_cmd.h"
+#include "global.h"
 
 typedef int (*shell_handle_func)(int, char**, int, sh_optv*);
 
@@ -31,6 +33,20 @@ int _is_option(char* str)
 	}else{
 		return 0;
 	}
+}
+
+bool shell_is_number(char* str)
+{
+	if(str == NULL)
+		return false;
+	
+	for(int i = 0 ; i < strlen(str) ; i++){
+		if(!(str[i]>='0'&&str[i]<='9')){
+			return false;
+		}
+	}
+
+	return true;
 }
 
 int shell_cmd_process(int argc, char** argv, shell_handle_func func)
@@ -366,10 +382,10 @@ int cmd_uploader(int argc, char** argv)
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_uploader, __cmd_uploader, upload bin file to starryio.);
 
-int handle_sensor_shell_cmd(int argc, char** argv);
+int handle_sensor_shell_cmd(int argc, char** argv, int optc, sh_optv* optv);
 int cmd_sensor(int argc, char** argv)
 {
-	return handle_sensor_shell_cmd(argc, argv);
+	return shell_cmd_process(argc, argv, handle_sensor_shell_cmd);
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_sensor, __cmd_sensor, get sensor information.);
 

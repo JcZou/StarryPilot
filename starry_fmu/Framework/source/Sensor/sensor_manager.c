@@ -27,13 +27,8 @@
 #include "lidar.h"
 #include "ap_math.h"
 #include "hil_interface.h"
-//#include "control_main.h"
-//#include "att_estimator.h"
-//#include "pos_estimator.h"
+#include "msh_usr_cmd.h"
 #include "calibration.h"
-
-#define ADDR_CMD_CONVERT_D1			0x46	/* write to this address to start pressure conversion */
-#define ADDR_CMD_CONVERT_D2			0x56	/* write to this address to start temperature conversion */
 
 #define BARO_UPDATE_INTERVAL    10
 
@@ -364,7 +359,7 @@ rt_err_t sensor_process_baro_state_machine(void)
 	{
 		case S_CONV_1:
 		{
-			err = _baro_trig_conversion(ADDR_CMD_CONVERT_D1);
+			err = _baro_trig_conversion(1);
 			if(err == RT_EOK)
 				baro_state = S_CONV_2;
 		}break;
@@ -374,7 +369,7 @@ rt_err_t sensor_process_baro_state_machine(void)
 			err = _baro_read_raw_press();
 			if(err == RT_EOK){
 				/* directly start D2 conversion */
-				err = _baro_trig_conversion(ADDR_CMD_CONVERT_D2);
+				err = _baro_trig_conversion(2);
 				if(err == RT_EOK)
 					baro_state = S_COLLECT_REPORT;
 				else
@@ -390,7 +385,7 @@ rt_err_t sensor_process_baro_state_machine(void)
 			if(err == RT_EOK){
 				if(rt_device_read(baro_device_t, COLLECT_DATA_POS, (void*)&report_baro, 1)){
 					/* start D1 conversion */
-					if(_baro_trig_conversion(ADDR_CMD_CONVERT_D1) == RT_EOK)
+					if(_baro_trig_conversion(1) == RT_EOK)
 						baro_state = S_CONV_2;
 				}else{
 					err = RT_ERROR;
@@ -804,52 +799,58 @@ int handle_gps_shell_cmd(int argc, char** argv)
 	return 0;
 }
 
-int handle_sensor_shell_cmd(int argc, char** argv)
+int handle_sensor_shell_cmd(int argc, char** argv, int optc, sh_optv* optv)
 {
 	uint8_t sensor_type = 0;
-	uint32_t interval = 1000;	//default is 1s
-	uint32_t cnt = 1;
-	uint8_t raw_data = 0;
-	uint8_t no_cali = 0;
+	uint32_t period = 1000;	//default is 1s
+	uint32_t read_num = 1;
+	uint8_t data_type = 1;	// 0: raw data, 1: scaled data
 	
 	if(argc > 1){
 		if(strcmp(argv[1], "acc") == 0){
 			sensor_type = 1;
-		}
-		else if(strcmp(argv[1], "mag") == 0){
+		}else if(strcmp(argv[1], "mag") == 0){
 			sensor_type = 2;
-		}
-		else if(strcmp(argv[1], "gyr") == 0){
+		}else if(strcmp(argv[1], "gyr") == 0){
 			sensor_type = 3;
-		}else if(strcmp(argv[1], "gps") == 0){
+		}else if(strcmp(argv[1], "baro") == 0){
 			sensor_type = 4;
+		}else if(strcmp(argv[1], "gps") == 0){
+			sensor_type = 5;
 		}else{
 			Console.print("unknow parameter:%s\n", argv[1]);
 			return 1;
 		}
-		
-		for(uint16_t i = 2 ; i < argc ; i++){
-			if(strcmp(argv[i], "-t") == 0){
-				i++;
-				if(i >= argc){
-					Console.print("wrong cmd format.\n");
-					return 2;
+
+		// handle option
+		for(uint16_t i = 0 ; i < optc ; i++){
+
+			if( strcmp(optv[i].opt, "--type")==0 || strcmp(optv[i].opt, "-t")==0 ){
+
+				if(optv[i].val == NULL)
+					continue;
+				
+				if(strcmp(optv[i].val, "raw") == 0){
+					data_type = 0;
+				}else{
+					data_type = 1;	// default read scaled data
 				}
-				interval = atoi(argv[i]);
 			}
-			if(strcmp(argv[i], "-n") == 0){
-				i++;
-				if(i >= argc){
-					Console.print("wrong cmd format.\n");
-					return 2;
-				}
-				cnt = atoi(argv[i]);
+
+			if( strcmp(optv[i].opt, "--period")==0 || strcmp(optv[i].opt, "-p")==0 ){				
+				
+				if(!shell_is_number(optv[i].val))
+					continue;
+
+				period = atoi(optv[i].val);
 			}
-			if(strcmp(argv[i], "-r") == 0){
-				raw_data = 1;
-			}
-			if(strcmp(argv[i], "-nc") == 0){
-				no_cali = 1;
+
+			if( strcmp(optv[i].opt, "--num")==0 || strcmp(optv[i].opt, "-n")==0 ){
+
+				if(!shell_is_number(optv[i].val))
+					continue;
+
+				read_num = atoi(optv[i].val);
 			}
 		}
 		
@@ -857,74 +858,77 @@ int handle_sensor_shell_cmd(int argc, char** argv)
 		{
 			case 1:	//acc
 			{
-				for(uint32_t i = 0 ; i < cnt ; i++){
-					if(raw_data){
+				for(uint32_t i = 0 ; i < read_num ; i++){
+
+					// TODO, read data from uMCN topic instead of driver
+					if(data_type == 0){
 						int16_t raw_acc[3];
 						sensor_acc_raw_measure(raw_acc);
-						Console.print("raw acc:%d %d %d\n", raw_acc[0], raw_acc[1], raw_acc[2]);
-					}else if(no_cali){
+						Console.print("%d %d %d\n", raw_acc[0], raw_acc[1], raw_acc[2]);
+					}else if(data_type == 1){
 						float acc[3];
 						sensor_acc_measure(acc);
-						Console.print("acc:%f %f %f\n", acc[0], acc[1], acc[2]);
+						Console.print("%f %f %f\n", acc[0], acc[1], acc[2]);
 					}else{
-						float acc[3];
-						/* read from topics instead of remeasuring */
-						mcn_copy_from_hub(MCN_ID(SENSOR_ACC), acc);
-						//sensor_acc_get_calibrated_data(acc);
-						Console.print("cali acc:%f %f %f\n", acc[0], acc[1], acc[2]);
+						Console.print("unknown data type\n");
+						break;
 					}
-					if(cnt > 1)
-						rt_thread_delay(interval);
+
+					if(read_num > 1)
+						rt_thread_delay(period);
 				}
 			}break;
 			case 2:	//mag
 			{
-				for(uint32_t i = 0 ; i < cnt ; i++){
-					if(raw_data){
+				for(uint32_t i = 0 ; i < read_num ; i++){
+					if(data_type == 0){
 						int16_t raw_mag[3];
 						sensor_mag_raw_measure(raw_mag);
-						Console.print("raw mag:%d %d %d\n", raw_mag[0], raw_mag[1], raw_mag[2]);
-					}else if(no_cali){
+						Console.print("%d %d %d\n", raw_mag[0], raw_mag[1], raw_mag[2]);
+					}else if(data_type == 1){
 						float mag[3];
 						sensor_mag_measure(mag);
-						Console.print("mag:%f %f %f\n", mag[0], mag[1], mag[2]);
+						Console.print("%f %f %f\n", mag[0], mag[1], mag[2]);
 					}else{
-						float mag[3];
-						/* read from topics instead of remeasuring */
-						mcn_copy_from_hub(MCN_ID(SENSOR_MAG), mag);
-						Console.print("cali mag:%f %f %f\n", mag[0], mag[1], mag[2]);
+						Console.print("unknown data type\n");
+						break;
 					}
-					if(cnt > 1)
-						rt_thread_delay(interval);
+
+					if(read_num > 1)
+						rt_thread_delay(period);
 				}			
 			}break;
 			case 3:	//gyr
 			{
-				for(uint32_t i = 0 ; i < cnt ; i++){
-					if(raw_data){
+				for(uint32_t i = 0 ; i < read_num ; i++){
+					if(data_type == 0){
 						int16_t raw_gyr[3];
 						sensor_gyr_raw_measure(raw_gyr);
-						Console.print("raw gyr:%d %d %d\n", raw_gyr[0], raw_gyr[1], raw_gyr[2]);
-					}else if(no_cali){
+						Console.print("%d %d %d\n", raw_gyr[0], raw_gyr[1], raw_gyr[2]);
+					}else if(data_type == 1){
 						float gyr[3];
 						sensor_gyr_measure(gyr);
-						Console.print("gyr:%f %f %f\n", gyr[0], gyr[1], gyr[2]);
+						Console.print("%f %f %f\n", gyr[0], gyr[1], gyr[2]);
 					}else{
-						float gyr[3];
-						//sensor_gyr_get_calibrated_data(gyr);
-						mcn_copy_from_hub(MCN_ID(SENSOR_GYR), gyr);
-						Console.print("cali gyr:%f %f %f\n", gyr[0], gyr[1], gyr[2]);
+						Console.print("unknown data type\n");
+						break;
 					}
-					if(cnt > 1)
-						rt_thread_delay(interval);
+					if(read_num > 1)
+						rt_thread_delay(period);
 				}	
 			}break;
-			case 4:	//gps
+			case 4:	//baro
+			{
+
+			}break;
+			case 5:	//gps
 			{
 
 			}break;
 			default:
-				break;
+			{
+				Console.print("unknown sensor type:%d\n", sensor_type);
+			}break;
 		}
 	}
 	

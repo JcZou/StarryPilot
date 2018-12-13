@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define INS_STEP_PERIOD				2
 #define CONTROL_STEP_PERIOD			2
 #define MAG_READ_PERIOD				10
-#define BARO_READ_PERIOD			5
+#define BARO_READ_PERIOD			10
 #define GPS_READ_PERIOD				100
 
 static struct rt_timer timer_fastloop;
@@ -98,12 +98,16 @@ void fast_loop(void)
 	if(_gps_cnt >= GPS_READ_PERIOD){
 		_gps_cnt = 0;
 
-		if(mcn_poll(gps_node_t)){
+		// if(mcn_poll(gps_node_t)){
 
-			mcn_copy(MCN_ID(uBLOX_PVT), gps_node_t, &gps_pvt);	
+		// 	mcn_copy(MCN_ID(uBLOX_PVT), gps_node_t, &gps_pvt);	
 
-			log_push_msg((uint8_t *)&gps_pvt, 0x04, sizeof(gps_pvt));
-		}
+		// 	log_push_msg((uint8_t *)&gps_pvt, 0x04, sizeof(gps_pvt));
+		// }
+
+		mcn_copy_from_hub(MCN_ID(uBLOX_PVT), &gps_pvt);	
+		gps_pvt.timestamp_ms = time_nowMs();
+		log_push_msg((uint8_t *)&gps_pvt, 0x04, sizeof(gps_pvt));
 	}
 
 

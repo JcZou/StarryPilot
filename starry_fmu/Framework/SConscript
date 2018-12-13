@@ -37,14 +37,15 @@ src += Glob('source/uMCN/*.c')
 src += Glob('source/YXML/*.c')
 src += Glob('source/Tool/*.c')
 src += Glob('source/FTP/*.c')
-# src += Split("""
-# source/Tool/ringbuffer.c
-# source/Tool/fifo.c
-# """)
+src += Glob('source/INS/simulink/SensorProcessing_ert_rtw/*.c')
+#src += Split("""
+#source/INS/simulin/SensorProcessing_ert_rtw/*.c
+#source/INS/simulink/slprj/ert/_sharedutils/*.c
+#""")
 
 #src += ['source/command/msh_usr_cmd.c']
 
-CPPPATH = [cwd + '/include']
+CPPPATH = [cwd + '/include', cwd + '/source/INS/simulink/SensorProcessing_ert_rtw']
 
 group = DefineGroup('Framework', src, depend = [''], CPPPATH = CPPPATH)
 

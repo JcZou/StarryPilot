@@ -292,7 +292,7 @@ payload_rx_done(void)
 			gps_pvt.sAcc = _buf.payload_rx_nav_pvt.sAcc;
 			gps_pvt.headAcc = _buf.payload_rx_nav_pvt.headAcc;
 			gps_pvt.pDOP = _buf.payload_rx_nav_pvt.pDOP;
-			gps_pvt.Timestamp_ms = time_nowMs();
+			gps_pvt.timestamp_ms = time_nowMs();
 
 			#ifndef HIL_SIMULATION
 				/* publish uBlox-PVT */
