@@ -1,10 +1,12 @@
 /**
 * File      : calibration.c
 *
-* 最小二乘法椭球拟合校正算法
+* Least-squre ellipsoid fitting
 */
 /*****************************************************************************
 Copyright (c) 2018, StarryPilot Development Team. All rights reserved.
+
+Author: Jiachi Zou, weety
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -169,7 +171,7 @@ void gyr_mavlink_calibration_start(void)
 	gyr_calibrate_flag = true;
 }
 
-void cali_obj_init(Cali_Obj *obj)
+void cali_obj_init(Cali_Obj *obj, uint8_t rotated_fit)
 {
 	for(int i = 0 ; i < 9 ; i++){
 		obj->V[i] = 0.0f;
@@ -180,7 +182,11 @@ void cali_obj_init(Cali_Obj *obj)
 	}
 	
 	obj->P[0][0] = obj->P[1][1] = obj->P[2][2] = 10.0f;
-	obj->P[3][3] = obj->P[4][4] = obj->P[5][5] = 1.0f;
+	if(rotated_fit){
+		obj->P[3][3] = obj->P[4][4] = obj->P[5][5] = 1.0f;
+	}else{
+		obj->P[3][3] = obj->P[4][4] = obj->P[5][5] = 0.0f;
+	}
 	obj->P[6][6] = obj->P[7][7] = obj->P[8][8] = 1.0f;
 	obj->R = 0.001f;
 	
@@ -400,8 +406,8 @@ static void copter_jitter_check(void)
 static void acc_position_detect(void)
 {
 	float acc_f[3];
-	//sensor_acc_measure(acc_f);
-	mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+	sensor_acc_measure(acc_f);
+	// mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
 
 	if ((fabsf(acc_f[0]) > ACC_MAX_THRESHOLD) && 
 		(fabsf(acc_f[1]) < ACC_MIN_THRESHOLD) && 
@@ -443,7 +449,7 @@ void acc_mavlink_calibration(void)
 	}
 
 	if (!acc.pos.bit.obj_flag) {
-		cali_obj_init(&(acc.obj));
+		cali_obj_init(&(acc.obj), 0);
 		acc.pos.bit.obj_flag = 1;
 	}
 
@@ -542,8 +548,8 @@ void acc_mavlink_calibration(void)
 
 	if (acc.sample_flag) {
 		if (acc.sample_cnt < ACC_SAMPLE_COUNT) {
-			//sensor_acc_measure(acc_f);
-			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
+			sensor_acc_measure(acc_f);
+			// mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
 			cali_least_squre_update(&(acc.obj), acc_f);
 			acc.sample_cnt++;
 		} else if (acc.sample_cnt == ACC_SAMPLE_COUNT) {
@@ -631,8 +637,8 @@ void mag_mavlink_calibration(void)
 		return;
 	}
 
-	//sensor_gyr_measure(gyr_f);
-	mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_GYR), gyr_f);
+	sensor_gyr_measure(gyr_f);
+	// mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_GYR), gyr_f);
 	now = time_nowMs();
 	delta_t = (now - mag.last_time) * 1e-3;
 	mag.last_time = now;
@@ -644,7 +650,7 @@ void mag_mavlink_calibration(void)
 		case 0:
 		{
 			if (!mag.stat.bit.obj_flag) {
-				cali_obj_init(&(mag.obj));
+				cali_obj_init(&(mag.obj), 1);
 				mag.stat.bit.obj_flag = 1;
 			}
 			if ((acc.cur_pos == ACC_POS_UP) || (acc.cur_pos == ACC_POS_DOWN)) {
@@ -659,8 +665,8 @@ void mag_mavlink_calibration(void)
 				mavlink_send_status(CAL_DOWN_DETECTED);
 				mag.stat.bit.down_flag = 1;
 			}
-			//sensor_mag_measure(mag_f);
-			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
+			sensor_mag_measure(mag_f);
+			// mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
 			cali_least_squre_update(&(mag.obj), mag_f);
 			mavlink_send_calibration_progress_msg(fabsf(mag.rotation_angle) / (2*PI/5));
 
@@ -688,8 +694,8 @@ void mag_mavlink_calibration(void)
 		{
 			mag.rotation_angle += gyr_f[0] * delta_t;
 
-			//sensor_mag_measure(mag_f);
-			mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
+			sensor_mag_measure(mag_f);
+			// mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
 			cali_least_squre_update(&(mag.obj), mag_f);
 			mavlink_send_calibration_progress_msg(fabsf(mag.rotation_angle + 2*PI) / (2*PI/5));
 			if (fabsf(mag.rotation_angle) > (2*PI)) {
@@ -755,7 +761,7 @@ int calibrate_acc_custome_run(uint32_t N)
 	
 	Cali_Obj obj;
 	char ch;
-	cali_obj_init(&obj);
+	cali_obj_init(&obj, 0);
 	
 	for(int n = 0 ; n < N ; n++){
 		Console.print("For %d point...{Y/N}\n", n+1);
@@ -818,7 +824,7 @@ int calibrate_acc_run(void)
 	
 	Cali_Obj obj;
 	char ch;
-	cali_obj_init(&obj);
+	cali_obj_init(&obj, 0);
 	
 	Console.print("towards Z-axis to DOWN side, and keep it static...{Y/N}\n");
 	ch = shell_wait_ch();
@@ -962,7 +968,7 @@ int calibrate_mag_custom_run(uint32_t sec_time)
 {
 	char ch;
 	Cali_Obj obj;
-	cali_obj_init(&obj);
+	cali_obj_init(&obj, 1);
 	
 	float mag_f[3];
 	
@@ -1027,7 +1033,7 @@ int calibrate_mag_run(void)
 	
 	char ch;
 	Cali_Obj obj;
-	cali_obj_init(&obj);
+	cali_obj_init(&obj, 1);
 	
 	float mag_f[3];
 	
@@ -1167,13 +1173,13 @@ int handle_calib_shell_cmd(int argc, char** argv)
 		}
 		
 		if(strcmp("acc", argv[1]) == 0){
-			//res = calibrate_acc_run();
-			calibrate_acc_custome_run(14);
+			res = calibrate_acc_run();
+			// calibrate_acc_custome_run(14);
 		}
 		
 		if(strcmp("mag", argv[1]) == 0){
-			//res = calibrate_mag_run();
-			calibrate_mag_custom_run(20);
+			res = calibrate_mag_run();
+			// calibrate_mag_custom_run(20);
 		}
 	}
 	

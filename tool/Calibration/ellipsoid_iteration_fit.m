@@ -1,4 +1,4 @@
-function [ofs,gain,rotM,u]=my_ellipsoid_fit2(XYZ)
+function [ofs,gain,rotM,u]=ellipsoid_iteration_fit(XYZ, rotate_fit)
 % Fit an (non)rotated ellipsoid or sphere to a set of xyz data points
 % XYZ: N(rows) x 3(cols), matrix of N data points (x,y,z)
 % optional flag f, default to 0 (fitting of rotated ellipsoid)
@@ -6,8 +6,12 @@ x=XYZ(:,1); y=XYZ(:,2); z=XYZ(:,3);
 
 len = length(x);
 v = zeros(9,1);
-% P = eye(9);
-P = diag([10,10,10,1,1,1,1,1,1]);
+
+if rotate_fit == 1
+    P = diag([10,10,10,1,1,1,1,1,1]);
+else
+    P = diag([10,10,10,0,0,0,1,1,1]);
+end
 R = 0.001;
 for i = 1:len
     H = [x(i).*x(i), y(i).*y(i), z(i).*z(i), 2*x(i).*y(i),2*x(i).*z(i),2*y(i).*z(i), 2*x(i),2*y(i),2*z(i)];
