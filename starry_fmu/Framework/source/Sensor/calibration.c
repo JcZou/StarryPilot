@@ -48,8 +48,29 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mavproxy.h"
 #include "mavlink_param.h"
 #include "param.h"
+#include "msh_usr_cmd.h"
+#include "ff.h"
+
+#define GYR_DEFAULT_NUM			2000
+#define GYR_DEFAULT_PERIOD		5
+
+#define ACC_DEFAULT_NUM			100
+#define ACC_DEFAULT_PERIOD		5
+
+#define MAG_DEFAULT_NUM			1500
+#define MAG_DEFAULT_PERIOD		20
 
 static bool gyr_calibrate_flag;
+
+char _acc_instruction[6][20] = 
+{
+	"put z-axis down.",
+	"put z-axis up.",
+	"put y-axis down.",
+	"put y-axis up.",
+	"put x-axis down.",
+	"put x-axis up.",
+};
 
 MCN_DECLARE(SENSOR_MEASURE_GYR);
 MCN_DECLARE(SENSOR_MEASURE_ACC);
@@ -753,39 +774,46 @@ void mag_mavlink_calibration_start(void)
 	mag.mag_calibrate_flag = true;
 }
 
-/**************************** Calibrate method 2 End ************************************/
-
-int calibrate_acc_custome_run(uint32_t N)
+int calibrate_acc_run(uint32_t num, uint32_t period, bool echo, FIL* fid, bool rotated_fitting)
 {
-	Console.print("Start to calibrate acc\n");
-	
 	Cali_Obj obj;
-	char ch;
-	cali_obj_init(&obj, 0);
+	float acc_f[3];
+
+	cali_obj_init(&obj, rotated_fitting);
 	
-	for(int n = 0 ; n < N ; n++){
-		Console.print("For %d point...{Y/N}\n", n+1);
-		ch = shell_wait_ch();
+	for(int n = 0 ; n < 6 ; n++){
+		Console.print("%s {Y/N}\n", _acc_instruction[n]);
+		char ch = shell_wait_ch();
 		if(ch == 'Y' || ch == 'y'){
+
 			Console.print("reading data...\n");
-			
-			float acc_f[3];
-			for(int i = 0 ; i < 100 ; i ++){
+			for(int i = 0 ; i < num ; i ++){
 				//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
 				sensor_acc_measure(acc_f);
 				cali_least_squre_update(&obj, acc_f);
-				//Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
-				rt_thread_delay(20);
+
+				if(echo)
+					Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
+
+				if(fid != NULL){
+					UINT bw;
+					char str_buffer[50];
+
+					sprintf(str_buffer, "%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
+					f_write(fid, str_buffer, strlen(str_buffer), &bw);
+				}
+
+				rt_thread_delay(period);
 			}
 		}else{
 			goto finish;
 		}
 	}
-
+	
 	cali_solve(&obj, GRAVITY_MSS);
-	Console.print("Center:%f %f %f\n", obj.OFS[0],obj.OFS[1],obj.OFS[2]);
-	Console.print("Radius:%f %f %f\n", obj.GAIN[0],obj.GAIN[1],obj.GAIN[2]);
-	Console.print("Rotation Matrix:\n");
+	Console.print("center:%f %f %f\n", obj.OFS[0],obj.OFS[1],obj.OFS[2]);
+	Console.print("radius:%f %f %f\n", obj.GAIN[0],obj.GAIN[1],obj.GAIN[2]);
+	Console.print("rotation matrix:\n");
 	for(int row = 0 ; row < obj.RotM.row ; row++){
 		for(int col = 0 ; col < obj.RotM.col ; col++){
 			Console.print("%.4f\t", obj.RotM.element[row][col]);
@@ -794,7 +822,7 @@ int calibrate_acc_custome_run(uint32_t N)
 	}
 	
 	Console.print("store to parameter? (Y/N)\n");
-	ch = shell_wait_ch();
+	char ch = shell_wait_ch();
 	if(ch == 'Y' || ch == 'y'){
 		PARAM_SET_FLOAT(CALIBRATION, ACC_X_OFFSET, obj.OFS[0]);
 		PARAM_SET_FLOAT(CALIBRATION, ACC_Y_OFFSET, obj.OFS[1]);
@@ -818,172 +846,34 @@ finish:
 	return 0;
 }
 
-int calibrate_acc_run(void)
-{
-	Console.print("Start to calibrate acc\n");
-	
+int calibrate_mag_run(uint32_t num, uint32_t period, bool echo, FIL* fid, bool rotated_fitting)
+{	
 	Cali_Obj obj;
-	char ch;
-	cali_obj_init(&obj, 0);
-	
-	Console.print("towards Z-axis to DOWN side, and keep it static...{Y/N}\n");
-	ch = shell_wait_ch();
-	if(ch == 'Y' || ch == 'y'){
-		Console.print("reading data...\n");
-		
-		float acc_f[3];
-		for(int i = 0 ; i < 100 ; i ++){
-			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
-			sensor_acc_measure(acc_f);
-			cali_least_squre_update(&obj, acc_f);
-			//Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
-			rt_thread_delay(20);
-		}
-	}else{
-		goto finish;
-	}
-	
-	Console.print("towards Z-axis to UP side, and keep it static...{Y/N}\n");
-	ch = shell_wait_ch();
-	if(ch == 'Y' || ch == 'y'){
-		Console.print("reading data...\n");
-		
-		float acc_f[3];
-		for(int i = 0 ; i < 100 ; i ++){
-			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
-			sensor_acc_measure(acc_f);
-			cali_least_squre_update(&obj, acc_f);
-			//Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
-			rt_thread_delay(20);
-		}
-	}else{
-		goto finish;
-	}
-	
-	Console.print("towards X-axis to DOWN side, and keep it static...{Y/N}\n");
-	ch = shell_wait_ch();
-	if(ch == 'Y' || ch == 'y'){
-		Console.print("reading data...\n");
-		
-		float acc_f[3];
-		for(int i = 0 ; i < 100 ; i ++){
-			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
-			sensor_acc_measure(acc_f);
-			cali_least_squre_update(&obj, acc_f);
-			//Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
-			rt_thread_delay(20);
-		}
-	}else{
-		goto finish;
-	}
-	
-	Console.print("towards X-axis to UP side, and keep it static...{Y/N}\n");
-	ch = shell_wait_ch();
-	if(ch == 'Y' || ch == 'y'){
-		Console.print("reading data...\n");
-		
-		float acc_f[3];
-		for(int i = 0 ; i < 100 ; i ++){
-			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
-			sensor_acc_measure(acc_f);
-			cali_least_squre_update(&obj, acc_f);
-			//Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
-			rt_thread_delay(20);
-		}
-	}else{
-		goto finish;
-	}
-	
-	Console.print("towards Y-axis to DOWN side, and keep it static...{Y/N}\n");
-	ch = shell_wait_ch();
-	if(ch == 'Y' || ch == 'y'){
-		Console.print("reading data...\n");
-		
-		float acc_f[3];
-		for(int i = 0 ; i < 100 ; i ++){
-			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
-			sensor_acc_measure(acc_f);
-			cali_least_squre_update(&obj, acc_f);
-			//Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
-			rt_thread_delay(20);
-		}
-	}else{
-		goto finish;
-	}
-	
-	Console.print("towards Y-axis to UP side, and keep it static...{Y/N}\n");
-	ch = shell_wait_ch();
-	if(ch == 'Y' || ch == 'y'){
-		Console.print("reading data...\n");
-		
-		float acc_f[3];
-		for(int i = 0 ; i < 100 ; i ++){
-			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_ACC), acc_f);
-			sensor_acc_measure(acc_f);
-			cali_least_squre_update(&obj, acc_f);
-			//Console.print("%lf %lf %lf\n", acc_f[0], acc_f[1], acc_f[2]);
-			rt_thread_delay(20);
-		}
-	}else{
-		goto finish;
-	}
-	
-	cali_solve(&obj, GRAVITY_MSS);
-	Console.print("Center:%f %f %f\n", obj.OFS[0],obj.OFS[1],obj.OFS[2]);
-	Console.print("Radius:%f %f %f\n", obj.GAIN[0],obj.GAIN[1],obj.GAIN[2]);
-	Console.print("Rotation Matrix:\n");
-	for(int row = 0 ; row < obj.RotM.row ; row++){
-		for(int col = 0 ; col < obj.RotM.col ; col++){
-			Console.print("%.4f\t", obj.RotM.element[row][col]);
-		}
-		Console.print("\n");
-	}
-	
-	Console.print("store to parameter? (Y/N)\n");
-	ch = shell_wait_ch();
-	if(ch == 'Y' || ch == 'y'){
-		PARAM_SET_FLOAT(CALIBRATION, ACC_X_OFFSET, obj.OFS[0]);
-		PARAM_SET_FLOAT(CALIBRATION, ACC_Y_OFFSET, obj.OFS[1]);
-		PARAM_SET_FLOAT(CALIBRATION, ACC_Z_OFFSET, obj.OFS[2]);
-		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT00, obj.RotM.element[0][0]);
-		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT01, obj.RotM.element[0][1]);
-		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT02, obj.RotM.element[0][2]);
-		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT10, obj.RotM.element[1][0]);
-		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT11, obj.RotM.element[1][1]);
-		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT12, obj.RotM.element[1][2]);
-		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT20, obj.RotM.element[2][0]);
-		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT21, obj.RotM.element[2][1]);
-		PARAM_SET_FLOAT(CALIBRATION, ACC_TRANS_MAT22, obj.RotM.element[2][2]);
-		PARAM_SET_UINT32(CALIBRATION, ACC_CALIB, 1);
-		
-		param_store();
-	}
-	
-finish:
-	cali_obj_delete(&obj);
-	return 0;
-}
-
-int calibrate_mag_custom_run(uint32_t sec_time)
-{
-	char ch;
-	Cali_Obj obj;
-	cali_obj_init(&obj, 1);
-	
 	float mag_f[3];
+
+	cali_obj_init(&obj, rotated_fitting);
 	
-	Console.print("Start to calibrate mag\n");
-	
-	Console.print("Rotate the compass with 8 figure...(Y/N)\n");
-	ch = shell_wait_ch();
+	Console.print("rotate with each axis... (Y/N)\n");
+	char ch = shell_wait_ch();
 	if(ch == 'Y' || ch == 'y'){
 		Console.print("reading data...\n");
-		for(int i = 0 ; i < sec_time*1000/50 ; i ++){
+		for(int i = 0 ; i < num ; i ++){
 			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
 			sensor_mag_measure(mag_f);
 			cali_least_squre_update(&obj, mag_f);
-			//Console.print("%lf %lf %lf\n", mag_f[0], mag_f[1], mag_f[2]);
-			rt_thread_delay(50);
+
+			if(echo)
+				Console.print("%lf %lf %lf\n", mag_f[0], mag_f[1], mag_f[2]);
+
+			if(fid != NULL){
+				UINT bw;
+				char str_buffer[50];
+
+				sprintf(str_buffer, "%lf %lf %lf\n", mag_f[0], mag_f[1], mag_f[2]);
+				f_write(fid, str_buffer, strlen(str_buffer), &bw);
+			}
+			
+			rt_thread_delay(period);
 		}	
 	}else{
 		goto finish;
@@ -992,9 +882,9 @@ int calibrate_mag_custom_run(uint32_t sec_time)
 	// solve
 	cali_solve(&obj, 1);
 	
-	Console.print("Center:%f %f %f\n", obj.OFS[0],obj.OFS[1],obj.OFS[2]);
-	Console.print("Radius:%f %f %f\n", obj.GAIN[0],obj.GAIN[1],obj.GAIN[2]);
-	Console.print("Rotation Matrix:\n");
+	Console.print("center:%f %f %f\n", obj.OFS[0],obj.OFS[1],obj.OFS[2]);
+	Console.print("radius:%f %f %f\n", obj.GAIN[0],obj.GAIN[1],obj.GAIN[2]);
+	Console.print("rotation matrix:\n");
 	for(int row = 0 ; row < obj.RotM.row ; row++){
 		for(int col = 0 ; col < obj.RotM.col ; col++){
 			Console.print("%.4f\t", obj.RotM.element[row][col]);
@@ -1027,127 +917,45 @@ finish:
 	return 0;
 }
 
-int calibrate_mag_run(void)
-{
-	Console.print("Start to calibrate mag\n");
-	
-	char ch;
-	Cali_Obj obj;
-	cali_obj_init(&obj, 1);
-	
-	float mag_f[3];
-	
-	Console.print("towards Z-axis to DOWN side, and rotate with it...(Y/N)\n");
-	ch = shell_wait_ch();
-	if(ch == 'Y' || ch == 'y'){
-		Console.print("reading data...\n");
-		for(int i = 0 ; i < 200 ; i ++){
-			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
-			sensor_mag_measure(mag_f);
-			cali_least_squre_update(&obj, mag_f);
-			//Console.print("%lf %lf %lf\n", mag_f[0], mag_f[1], mag_f[2]);
-			rt_thread_delay(50);
-		}	
-	}else{
-		goto finish;
-	}
-	
-	Console.print("towards X-axis to DOWN side, and rotate with it...(Y/N)\n");
-	ch = shell_wait_ch();
-	if(ch == 'Y' || ch == 'y'){
-		Console.print("reading data...\n");
-		for(int i = 0 ; i < 200 ; i ++){
-			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
-			sensor_mag_measure(mag_f);
-			cali_least_squre_update(&obj, mag_f);
-			//Console.print("%lf %lf %lf\n", mag_f[0], mag_f[1], mag_f[2]);
-			rt_thread_delay(50);
-		}	
-	}else{
-		goto finish;
-	}
-	
-	Console.print("towards Y-axis to DOWN side, and rotate with it...(Y/N)\n");
-	ch = shell_wait_ch();
-	if(ch == 'Y' || ch == 'y'){
-		Console.print("reading data...\n");
-		for(int i = 0 ; i < 200 ; i ++){
-			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_MAG), mag_f);
-			sensor_mag_measure(mag_f);
-			cali_least_squre_update(&obj, mag_f);
-			//Console.print("%lf %lf %lf\n", mag_f[0], mag_f[1], mag_f[2]);
-			rt_thread_delay(50);
-		}	
-	}else{
-		goto finish;
-	}
-
-	cali_solve(&obj, 1);
-	
-	Console.print("Center:%f %f %f\n", obj.OFS[0],obj.OFS[1],obj.OFS[2]);
-	Console.print("Radius:%f %f %f\n", obj.GAIN[0],obj.GAIN[1],obj.GAIN[2]);
-	Console.print("Rotation Matrix:\n");
-	for(int row = 0 ; row < obj.RotM.row ; row++){
-		for(int col = 0 ; col < obj.RotM.col ; col++){
-			Console.print("%.4f\t", obj.RotM.element[row][col]);
-		}
-		Console.print("\n");
-	}
-	
-	Console.print("store to parameter? (Y/N)\n");
-	ch = shell_wait_ch();
-	if(ch == 'Y' || ch == 'y'){
-		PARAM_SET_FLOAT(CALIBRATION, MAG_X_OFFSET, obj.OFS[0]);
-		PARAM_SET_FLOAT(CALIBRATION, MAG_Y_OFFSET, obj.OFS[1]);
-		PARAM_SET_FLOAT(CALIBRATION, MAG_Z_OFFSET, obj.OFS[2]);
-		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT00, obj.RotM.element[0][0]);
-		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT01, obj.RotM.element[0][1]);
-		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT02, obj.RotM.element[0][2]);
-		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT10, obj.RotM.element[1][0]);
-		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT11, obj.RotM.element[1][1]);
-		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT12, obj.RotM.element[1][2]);
-		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT20, obj.RotM.element[2][0]);
-		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT21, obj.RotM.element[2][1]);
-		PARAM_SET_FLOAT(CALIBRATION, MAG_TRANS_MAT22, obj.RotM.element[2][2]);
-		PARAM_SET_UINT32(CALIBRATION, MAG_CALIB, 1);
-		
-		param_store();
-	}
-	
-finish:
-	cali_obj_delete(&obj);
-	return 0;
-}
-
-int calibrate_gyr_run(void)
+int calibrate_gyr_run(uint32_t num, uint32_t period, bool echo, FIL* fid)
 {
 	float gyr_f[3];
 	double sum_gyr[3] = {0.0f,0.0f,0.0f};
 	float offset_gyr[3];
-	char ch;
-	int p_num = 2000;
 	
 	Console.print("start to calibrate gyr\n");
 	Console.print("keep the board static...(Y/N)\n");
-	ch = shell_wait_ch();
+	char ch = shell_wait_ch();
+
 	if(ch == 'Y' || ch == 'y'){
 		Console.print("reading data...\n");
-		for(uint32_t i = 0 ; i < p_num ; i++)
+		for(uint32_t i = 0 ; i < num ; i++)
 		{
-			//mcn_copy_from_hub(MCN_ID(SENSOR_MEASURE_GYR), gyr_f);
 			sensor_gyr_measure(gyr_f);
 			sum_gyr[0] += gyr_f[0];
 			sum_gyr[1] += gyr_f[1];
 			sum_gyr[2] += gyr_f[2];
-			rt_thread_delay(5);
+
+			if(echo)
+				Console.print("%lf %lf %lf\n", gyr_f[0], gyr_f[1], gyr_f[2]);
+
+			if(fid != NULL){
+				UINT bw;
+				char str_buffer[50];
+
+				sprintf(str_buffer, "%lf %lf %lf\n", gyr_f[0], gyr_f[1], gyr_f[2]);
+				f_write(fid, str_buffer, strlen(str_buffer), &bw);
+			}
+
+			rt_thread_delay(period);
 		}
 	}else{
 		return 1;
 	}
 	
-	offset_gyr[0] = -sum_gyr[0]/p_num;
-	offset_gyr[1] = -sum_gyr[1]/p_num;
-	offset_gyr[2] = -sum_gyr[2]/p_num;
+	offset_gyr[0] = -sum_gyr[0]/num;
+	offset_gyr[1] = -sum_gyr[1]/num;
+	offset_gyr[2] = -sum_gyr[2]/num;
 	
 	Console.print("gyr offset:%f %f %f\r\n\n" , offset_gyr[0],offset_gyr[1],offset_gyr[2]);
 	
@@ -1161,26 +969,117 @@ int calibrate_gyr_run(void)
 		
 		param_store();
 	}
+
 	return 0;
 }
 
-int handle_calib_shell_cmd(int argc, char** argv)
+int handle_calibrate_shell_cmd(int argc, char** argv, int optc, sh_optv* optv)
 {
 	int res = 0;
+	uint8_t sensor_type = 0;
+	uint32_t num, period;
+	bool echo = false;
+	bool rotated_fitting = false;
+	bool save_file = false;
+	FIL fid;
+
 	if(argc > 1){
 		if(strcmp("gyr", argv[1]) == 0){
-			res = calibrate_gyr_run();
+			sensor_type = 1;
+
+			num = GYR_DEFAULT_NUM;
+			period = GYR_DEFAULT_PERIOD;
 		}
 		
 		if(strcmp("acc", argv[1]) == 0){
-			res = calibrate_acc_run();
-			// calibrate_acc_custome_run(14);
+			sensor_type = 2;
+
+			num = ACC_DEFAULT_NUM;
+			period = ACC_DEFAULT_PERIOD;
+			rotated_fitting = false;
 		}
 		
 		if(strcmp("mag", argv[1]) == 0){
-			res = calibrate_mag_run();
-			// calibrate_mag_custom_run(20);
+			sensor_type = 3;
+
+			num = MAG_DEFAULT_NUM;
+			period = MAG_DEFAULT_PERIOD;
+			rotated_fitting = true;
 		}
+	}
+
+	// handle option
+	for(uint16_t i = 0 ; i < optc ; i++){
+
+		if( strcmp(optv[i].opt, "--echo")==0 || strcmp(optv[i].opt, "-e")==0 ){
+
+			echo = true;
+		}
+
+		if( strcmp(optv[i].opt, "--period")==0 || strcmp(optv[i].opt, "-p")==0 ){				
+			
+			if(!shell_is_number(optv[i].val))
+				continue;
+
+			period = atoi(optv[i].val);
+		}
+
+		if( strcmp(optv[i].opt, "--num")==0 || strcmp(optv[i].opt, "-n")==0 ){
+
+			if(!shell_is_number(optv[i].val))
+				continue;
+
+			num = atoi(optv[i].val);
+		}
+
+		if( strcmp(optv[i].opt, "--save_file")==0 ){
+
+			if(optv[i].val == NULL)
+				continue;
+
+			FRESULT fres = f_open(&fid, optv[i].val, FA_OPEN_ALWAYS | FA_WRITE);
+			if(fres == FR_OK){
+				save_file = true;
+			}else{
+				Console.print("%s open fail:%d\n", optv[i].val, fres);
+				save_file = false;
+			}
+		}
+
+		if( strcmp(optv[i].opt, "--rotated_fitting")==0 || strcmp(optv[i].opt, "-r")==0 ){
+
+			if(optv[i].val == NULL)
+				continue;
+			
+			if(strcmp(optv[i].val, "true") == 0){
+				rotated_fitting = true;
+			}else{
+				rotated_fitting = false;
+			}
+		}
+	}
+
+	FIL *fid_t = save_file==true ? &fid : NULL;
+	switch(sensor_type)
+	{
+		case 1:
+		{
+			res = calibrate_gyr_run(num, period, echo, fid_t);
+		}break;
+		case 2:
+		{
+			res = calibrate_acc_run(num, period, echo, fid_t, rotated_fitting);
+		}break;
+		case 3:
+		{
+			res = calibrate_mag_run(num, period, echo, fid_t, rotated_fitting);
+		}break;
+		default:
+			break;
+	}
+
+	if(fid_t){
+		f_close(fid_t);
 	}
 	
 	return res;

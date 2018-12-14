@@ -37,8 +37,9 @@ y = y(:);
 z = z(:);
 
 %% read data from file
-fid = fopen('mag.dat');    % change the file name to your test file
-refr = 1; % reference radius
+fid = fopen('acc.txt');    % change the file name to your test file
+% refr = 1; % mag reference radius
+refr = 9.81; % acc reference radius
 
 Data = fscanf(fid, '%f %f %f', [3 inf]);
 Data = Data';
@@ -48,8 +49,8 @@ y = Data(:,2);
 z = Data(:,3);
 
 %% do the fitting
-% [ center, radii, evecs, v] = ellipsoid_iteration_fit( [ x y z ], 1 );
-[ center, radii, evecs, v] = ellipsoid_fit( [ x y z ], 1);
+[ center, radii, evecs, v] = ellipsoid_iteration_fit( [ x y z ], 0 );
+% [ center, radii, evecs, v] = ellipsoid_fit( [ x y z ], 1);
 g_mat = zeros(3, 3);
 g_mat(1,1) = 1/radii(1)*refr;
 g_mat(2,2) = 1/radii(2)*refr;

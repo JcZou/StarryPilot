@@ -224,7 +224,7 @@ int fm_cat(const TCHAR* FileName)
 		Console.print("malloc fail\n");
 		goto error;
 	}
-	if(malloc_size < MAX_CAT_MALLOC_SIZE){
+	if(fp.fsize < MAX_CAT_MALLOC_SIZE){
 		res = f_read(&fp, f_buff, fp.fsize, &br);
 	
 		if(br != fp.fsize){
@@ -232,14 +232,14 @@ int fm_cat(const TCHAR* FileName)
 			goto error;
 		}
 		Console.write(f_buff, br);
-		Console.print("\n");
 	}else{
 		while(!f_eof(&fp)){
 			res = f_read(&fp, f_buff, malloc_size, &br);
 			Console.write(f_buff, br);
 		}
-		Console.print("\n");
 	}
+
+	Console.print("\n");
 	
 	rt_free(f_buff);
 	f_close(&fp);

@@ -365,14 +365,14 @@ int cmd_sys(int argc, char** argv)
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_sys, __cmd_sys, system status);
 
-int handle_calib_shell_cmd(int argc, char** argv);
-int cmd_calib(int argc, char** argv)
+int handle_calibrate_shell_cmd(int argc, char** argv, int optc, sh_optv* optv);
+int cmd_calibrate(int argc, char** argv)
 {
-	return handle_calib_shell_cmd(argc, argv);
+	return shell_cmd_process(argc, argv, handle_calibrate_shell_cmd);
 	
 	return 0;
 }
-FINSH_FUNCTION_EXPORT_ALIAS(cmd_calib, __cmd_calib, calibrate the acc and mag sensor.);
+FINSH_FUNCTION_EXPORT_ALIAS(cmd_calibrate, __cmd_calibrate, calibrate the acc and mag sensor.);
 
 int cmd_uploader(int argc, char** argv)
 {
