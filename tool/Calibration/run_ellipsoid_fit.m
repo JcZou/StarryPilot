@@ -37,9 +37,9 @@ y = y(:);
 z = z(:);
 
 %% read data from file
-fid = fopen('acc.txt');    % change the file name to your test file
-% refr = 1; % mag reference radius
-refr = 9.81; % acc reference radius
+fid = fopen('mag.txt');    % change the file name to your test file
+refr = 1; % mag reference radius
+% refr = 9.81; % acc reference radius
 
 Data = fscanf(fid, '%f %f %f', [3 inf]);
 Data = Data';
@@ -49,7 +49,7 @@ y = Data(:,2);
 z = Data(:,3);
 
 %% do the fitting
-[ center, radii, evecs, v] = ellipsoid_iteration_fit( [ x y z ], 0 );
+[ center, radii, evecs, v] = ellipsoid_iteration_fit( [ x y z ], 1 );
 % [ center, radii, evecs, v] = ellipsoid_fit( [ x y z ], 1);
 g_mat = zeros(3, 3);
 g_mat(1,1) = 1/radii(1)*refr;
@@ -74,6 +74,7 @@ fprintf( '\n' );
 
 %% draw data points
 figure,
+subplot(1,2,1);
 plot3( x, y, z, '.r' );
 hold on;
 
@@ -114,8 +115,9 @@ XC=XYZC(1,:);
 YC=XYZC(2,:);
 ZC=XYZC(3,:);
 %% draw calibrated data points
-figure;
-plot3(XC,YC,ZC,'r*');
+% figure;
+subplot(1,2,2);
+plot3(XC,YC,ZC,'r.');
 
 %% draw X axis
 tx = linspace(0,xlim(2),50)';
@@ -153,3 +155,7 @@ YC=XYZC(2,:);
 ZC=XYZC(3,:);
 hold on;
 plot3(XC,YC,ZC,'b*');
+
+%% draw reference sohere
+[x y z] = sphere();
+surface(refr*x, refr*y, refr*z, 'FaceColor', 'none');
