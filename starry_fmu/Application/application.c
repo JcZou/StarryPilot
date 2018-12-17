@@ -30,11 +30,11 @@
 #include "sensor_manager.h"
 #include "console.h"
 #include "statistic.h"
-//#include "copter_main.h"
 #include "file_manager.h"
 #include "logger.h"
 #include "fast_loop.h"
 #include "calibration.h"
+#include "INS.h"
 
 #ifdef RT_USING_LWIP
 #include <lwip/sys.h>
@@ -191,6 +191,9 @@ int rt_application_init()
 	console_init(CONSOLE_INTERFACE_SERIAL);
 	rt_console_set_device(CONSOLE_DEVICE);
 	rt_show_version();
+
+	/* init simulink model */
+	INS_initialize();
 	
     tid0 = rt_thread_create("init",
         rt_init_thread_entry, RT_NULL,

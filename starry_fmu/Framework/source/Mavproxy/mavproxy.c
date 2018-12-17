@@ -27,6 +27,7 @@
 #include "calibration.h"
 #include "shell.h"
 #include "ftp_manager.h"
+#include "fast_loop.h"
 
 #define EVENT_MAVPROXY_UPDATE		(1<<0)
 #define EVENT_MAVPROXY_SEND_ALL_PARAM		(1<<1)
@@ -59,14 +60,17 @@ MCN_DEFINE(HIL_STATE_Q, sizeof(mavlink_hil_state_quaternion_t));
 MCN_DEFINE(HIL_SENSOR, sizeof(mavlink_hil_sensor_t));
 MCN_DEFINE(HIL_GPS, sizeof(mavlink_hil_gps_t));
 
+MCN_DECLARE(ATT_EULER);
+MCN_DECLARE(ROT_RAD);
+MCN_DECLARE(POSITION);
+MCN_DECLARE(VELOCITY);
+
 MCN_DECLARE(SENSOR_FILTER_GYR);
 MCN_DECLARE(SENSOR_FILTER_ACC);
 MCN_DECLARE(SENSOR_FILTER_MAG);
 MCN_DECLARE(SENSOR_BARO);
-//MCN_DECLARE(ALT_INFO);
 MCN_DECLARE(SENSOR_LIDAR);
 MCN_DECLARE(CORRECT_LIDAR);
-MCN_DECLARE(ATT_EULER);
 MCN_DECLARE(GPS_POSITION);
 MCN_DECLARE(GPS_STATUS);
 
@@ -146,35 +150,33 @@ void mavproxy_msg_scaled_imu_pack(mavlink_message_t *msg_t)
 void mavproxy_msg_attitude_pack(mavlink_message_t *msg_t)
 {
 	mavlink_attitude_t attitude;
-	uint16_t len;
+	float euler[3];
+	float rot_speed_rad[3];
 
-	// Euler e;
-	// mcn_copy_from_hub(MCN_ID(ATT_EULER), &e);
-	// float gyr[3];
-	// mcn_copy_from_hub(MCN_ID(SENSOR_FILTER_GYR), gyr);
+	mcn_copy_from_hub(MCN_ID(ATT_EULER), euler);
+	mcn_copy_from_hub(MCN_ID(ROT_RAD), rot_speed_rad);
 	
-	// attitude.roll = e.roll;
-	// attitude.pitch = e.pitch;
-	// attitude.yaw = e.yaw;
-	// attitude.rollspeed = gyr[0];
-	// attitude.pitchspeed = gyr[1];
-	// attitude.yawspeed = gyr[2];
+	attitude.roll = euler[0];
+	attitude.pitch = euler[1];
+	attitude.yaw = euler[2];
+	attitude.rollspeed = rot_speed_rad[0];
+	attitude.pitchspeed = rot_speed_rad[1];
+	attitude.yawspeed = rot_speed_rad[2];
 	
-	// mavlink_msg_attitude_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &attitude);
+	mavlink_msg_attitude_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &attitude);
 }
 
 void mavproxy_msg_altitude_pack(mavlink_message_t *msg_t)
 {
 	// mavlink_altitude_t altitude;
-	// uint16_t len;
 
-	// Altitude_Info alt_info;
-	// mcn_copy_from_hub(MCN_ID(ALT_INFO), &alt_info);
+	// float altitude_rel;
+	// mcn_copy_from_hub(MCN_ID(ALT_RELATIVE), &altitude_rel);
 	
 	// altitude.altitude_monotonic = 0;
-	// altitude.altitude_amsl = alt_info.alt;
+	// altitude.altitude_amsl = 0;
 	// altitude.altitude_local = 0;
-	// altitude.altitude_relative = alt_info.relative_alt;
+	// altitude.altitude_relative = altitude_rel;
 	// altitude.altitude_terrain = 0;
 	
 	// mavlink_msg_altitude_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &altitude);
@@ -182,23 +184,22 @@ void mavproxy_msg_altitude_pack(mavlink_message_t *msg_t)
 
 void mavproxy_msg_global_position_pack(mavlink_message_t *msg_t)
 {
-//	mavlink_global_position_int_t global_position;
-//	uint16_t len;
+	mavlink_global_position_int_t global_position;
+	position_int_t position;
+	velocity_int_t velocity;
 
-//	struct vehicle_gps_position_s gps_pos_t;
-//	mcn_copy_from_hub(MCN_ID(GPS_POSITION), &gps_pos_t);
-//	Altitude_Info alt_info;
-//	mcn_copy_from_hub(MCN_ID(ALT_INFO), &alt_info);
-//	
-//	global_position.lat 			= gps_pos_t.lat;
-//	global_position.lon 			= gps_pos_t.lon;
-//	global_position.alt 			= alt_info.alt*1e3;
-//	global_position.relative_alt 	= alt_info.relative_alt*1e3;
-//	global_position.vx				= gps_pos_t.vel_n_m_s*1e2;
-//	global_position.vy 				= gps_pos_t.vel_e_m_s*1e2;
-//	global_position.vz				= alt_info.vz*1e2;
-//	
-//	mavlink_msg_global_position_int_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &global_position);
+	mcn_copy_from_hub(MCN_ID(POSITION), &position);
+	mcn_copy_from_hub(MCN_ID(VELOCITY), &velocity);
+	
+	global_position.lat 			= position.lat_1e7_deg;
+	global_position.lon 			= position.lon_1e7_deg;
+	global_position.alt 			= position.altitude_cm*10;
+	global_position.relative_alt 	= position.altitude_cm*10;
+	global_position.vx				= velocity.vel_cmPs_N;
+	global_position.vy 				= velocity.vel_cmPs_E;
+	global_position.vz				= velocity.vel_cmPs_D;
+	
+	mavlink_msg_global_position_int_encode(mavlink_system.sysid, mavlink_system.compid, msg_t, &global_position);
 }
 
 void mavproxy_msg_gps_raw_int_pack(mavlink_message_t *msg_t)
@@ -871,8 +872,7 @@ void mavproxy_entry(void *parameter)
 	mavproxy_period_msg_register(MAVLINK_MSG_ID_SYS_STATUS, 1000, mavproxy_msg_sys_status_pack, 1);
 	mavproxy_period_msg_register(MAVLINK_MSG_ID_SCALED_IMU, 50, mavproxy_msg_scaled_imu_pack, 1);
 	mavproxy_period_msg_register(MAVLINK_MSG_ID_ATTITUDE, 100, mavproxy_msg_attitude_pack, 1);
-	mavproxy_period_msg_register(MAVLINK_MSG_ID_ALTITUDE, 100, mavproxy_msg_altitude_pack, 1);
-	//mavproxy_period_msg_register(MAVLINK_MSG_ID_GLOBAL_POSITION_INT, 100, mavproxy_msg_global_position_pack, 1);
+	mavproxy_period_msg_register(MAVLINK_MSG_ID_GLOBAL_POSITION_INT, 100, mavproxy_msg_global_position_pack, 1);
 
 	_gps_status_node_t = mcn_subscribe(MCN_ID(GPS_STATUS), mavproxy_gps_status_cb);
 	

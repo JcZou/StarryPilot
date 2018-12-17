@@ -111,6 +111,15 @@ log_elem_t _INS_Out_elem[] = {
     LOG_ELEMENT("timestamp_ms", LOG_UINT32)
 };
 
+log_elem_t _Sensor_Param_elem[] = {
+    LOG_ELEMENT_ARRAY("gyr_rotM", LOG_FLOAT, 9),
+    LOG_ELEMENT("gyr_bias", LOG_FLOAT),
+    LOG_ELEMENT_ARRAY("acc_rotM", LOG_FLOAT, 9),
+    LOG_ELEMENT("acc_bias", LOG_FLOAT),
+    LOG_ELEMENT_ARRAY("mag_rotM", LOG_FLOAT, 9),
+    LOG_ELEMENT("mag_bias", LOG_FLOAT),
+};
+
 /////////////////////////////////////////////////////
 
 log_field_t _log_field_list[] = 
@@ -120,6 +129,7 @@ log_field_t _log_field_list[] =
     LOG_FIELD("BARO", 0x03, _BARO_elem),
     LOG_FIELD("GPS_uBlox", 0x04, _GPS_uBlox_elem),
     LOG_FIELD("INS_Out", 0x05, _INS_Out_elem),
+    //LOG_FIELD("Sensor_Param", 0x06, _Sensor_Param_elem),
 };
 
 static log_header_t _log_header = { sizeof(_log_field_list)/sizeof(log_field_t), _log_field_list };

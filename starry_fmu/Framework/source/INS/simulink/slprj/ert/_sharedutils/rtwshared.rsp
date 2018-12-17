@@ -1,0 +1,5 @@
+..\slprj\ert\_sharedutils\rtGetInf.c
+..\slprj\ert\_sharedutils\rtGetNaN.c
+..\slprj\ert\_sharedutils\rt_atan2f_snf.c
+..\slprj\ert\_sharedutils\rt_nonfinite.c
+..\slprj\ert\_sharedutils\rt_powd_snf.c

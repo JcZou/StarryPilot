@@ -37,15 +37,15 @@ src += Glob('source/uMCN/*.c')
 src += Glob('source/YXML/*.c')
 src += Glob('source/Tool/*.c')
 src += Glob('source/FTP/*.c')
-src += Glob('source/INS/simulink/SensorProcessing_ert_rtw/*.c')
-#src += Split("""
-#source/INS/simulin/SensorProcessing_ert_rtw/*.c
-#source/INS/simulink/slprj/ert/_sharedutils/*.c
-#""")
+src += Glob('source/INS/simulink/INS_ert_rtw/*.c')
+src += Glob('source/INS/simulink/slprj/ert/_sharedutils/*.c')
+src += Glob('source/INS/simulink/slprj/ert/CF_INS/*.c')
+src += Glob('source/INS/simulink/slprj/ert/SensorProcessing/*.c')
 
-#src += ['source/command/msh_usr_cmd.c']
 
-CPPPATH = [cwd + '/include', cwd + '/source/INS/simulink/SensorProcessing_ert_rtw']
+CPPPATH = [cwd + '/include', cwd + '/source/INS/simulink/INS_ert_rtw', cwd + '/source/INS/simulink/INS_ert_rtw/referenced_model_includes',
+ cwd + '/source/INS/simulink/slprj/ert/_sharedutils', cwd + '/source/INS/simulink/slprj/ert/CF_INS',
+ cwd + '/source/INS/simulink/slprj/ert/SensorProcessing']
 
 group = DefineGroup('Framework', src, depend = [''], CPPPATH = CPPPATH)
 

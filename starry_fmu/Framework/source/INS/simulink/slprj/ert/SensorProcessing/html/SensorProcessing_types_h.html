@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="./js/coder_app.js"></script>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src="./rtwreport_utils.js"></script>
+<script type="text/javascript" src="./rtwannotate.js"></script>
+<link rel="stylesheet" type="text/css" href="./css/coder_app.css"/>
+</head>
+<body onload="srcFileOnload();">
+<pre id="code">
+<table class="code" id="codeTbl">
+<tr name="1" id="1">
+<td><a id="l1" class='ln'>1</a></td><td><span class="ct">/*</span></td></tr>
+<tr name="2" id="2">
+<td><a id="l2" class='ln'>2</a></td><td><span class="ct"> * Academic License - for use in teaching, academic research, and meeting</span></td></tr>
+<tr name="3" id="3">
+<td><a id="l3" class='ln'>3</a></td><td><span class="ct"> * course requirements at degree granting institutions only.  Not for</span></td></tr>
+<tr name="4" id="4">
+<td><a id="l4" class='ln'>4</a></td><td><span class="ct"> * government, commercial, or other organizational use.</span></td></tr>
+<tr name="5" id="5">
+<td><a id="l5" class='ln'>5</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="6" id="6">
+<td><a id="l6" class='ln'>6</a></td><td><span class="ct"> * File: SensorProcessing_types.h</span></td></tr>
+<tr name="7" id="7">
+<td><a id="l7" class='ln'>7</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="8" id="8">
+<td><a id="l8" class='ln'>8</a></td><td><span class="ct"> * Code generated for Simulink model 'SensorProcessing'.</span></td></tr>
+<tr name="9" id="9">
+<td><a id="l9" class='ln'>9</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="10" id="10">
+<td><a id="l10" class='ln'>10</a></td><td><span class="ct"> * Model version                  : 1.174</span></td></tr>
+<tr name="11" id="11">
+<td><a id="l11" class='ln'>11</a></td><td><span class="ct"> * Simulink Coder version         : 9.0 (R2018b) 24-May-2018</span></td></tr>
+<tr name="12" id="12">
+<td><a id="l12" class='ln'>12</a></td><td><span class="ct"> * C/C++ source code generated on : Sun Dec 16 13:15:05 2018</span></td></tr>
+<tr name="13" id="13">
+<td><a id="l13" class='ln'>13</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="14" id="14">
+<td><a id="l14" class='ln'>14</a></td><td><span class="ct"> * Target selection: ert.tlc</span></td></tr>
+<tr name="15" id="15">
+<td><a id="l15" class='ln'>15</a></td><td><span class="ct"> * Embedded hardware selection: ARM Compatible-&gt;ARM Cortex</span></td></tr>
+<tr name="16" id="16">
+<td><a id="l16" class='ln'>16</a></td><td><span class="ct"> * Code generation objectives: Unspecified</span></td></tr>
+<tr name="17" id="17">
+<td><a id="l17" class='ln'>17</a></td><td><span class="ct"> * Validation result: Not run</span></td></tr>
+<tr name="18" id="18">
+<td><a id="l18" class='ln'>18</a></td><td><span class="ct"> */</span></td></tr>
+<tr name="19" id="19">
+<td><a id="l19" class='ln'>19</a></td><td></td></tr>
+<tr name="20" id="20">
+<td><a id="l20" class='ln'>20</a></td><td><span class="pp">#ifndef</span> <a id="20c9" class="tk">RTW_HEADER_SensorProcessing_types_h_</a></td></tr>
+<tr name="21" id="21">
+<td><a id="l21" class='ln'>21</a></td><td><span class="pp">#define</span> <a id="21c9" class="tk">RTW_HEADER_SensorProcessing_types_h_</a></td></tr>
+<tr name="22" id="22">
+<td><a id="l22" class='ln'>22</a></td><td><span class="pp">#include "rtwtypes.h"</span></td></tr>
+<tr name="23" id="23">
+<td><a id="l23" class='ln'>23</a></td><td><span class="pp">#ifndef</span> <a id="23c9" class="tk">DEFINED_TYPEDEF_FOR_IMU1_Bus_</a></td></tr>
+<tr name="24" id="24">
+<td><a id="l24" class='ln'>24</a></td><td><span class="pp">#define</span> <a id="24c9" class="tk">DEFINED_TYPEDEF_FOR_IMU1_Bus_</a></td></tr>
+<tr name="25" id="25">
+<td><a id="l25" class='ln'>25</a></td><td></td></tr>
+<tr name="26" id="26">
+<td><a id="l26" class='ln'>26</a></td><td><span class="kw">typedef</span> <span class="kw">struct</span> <span class="br">{</span></td></tr>
+<tr name="27" id="27">
+<td><a id="l27" class='ln'>27</a></td><td>  <a id="27c3" class="tk">real32_T</a> <a id="27c12" class="tk">gyr_radPs_B</a>[3];</td></tr>
+<tr name="28" id="28">
+<td><a id="l28" class='ln'>28</a></td><td>  <a id="28c3" class="tk">real32_T</a> <a id="28c12" class="tk">acc_mPs2_B</a>[3];</td></tr>
+<tr name="29" id="29">
+<td><a id="l29" class='ln'>29</a></td><td>  <a id="29c3" class="tk">uint32_T</a> <a id="29c12" class="tk">timestamp_ms</a>;</td></tr>
+<tr name="30" id="30">
+<td><a id="l30" class='ln'>30</a></td><td><span class="br">}</span> <a id="30c3" class="tk">IMU1_Bus</a>;</td></tr>
+<tr name="31" id="31">
+<td><a id="l31" class='ln'>31</a></td><td></td></tr>
+<tr name="32" id="32">
+<td><a id="l32" class='ln'>32</a></td><td><span class="pp">#endif</span></td></tr>
+<tr name="33" id="33">
+<td><a id="l33" class='ln'>33</a></td><td></td></tr>
+<tr name="34" id="34">
+<td><a id="l34" class='ln'>34</a></td><td><span class="pp">#ifndef</span> <a id="34c9" class="tk">DEFINED_TYPEDEF_FOR_Mag_Bus_</a></td></tr>
+<tr name="35" id="35">
+<td><a id="l35" class='ln'>35</a></td><td><span class="pp">#define</span> <a id="35c9" class="tk">DEFINED_TYPEDEF_FOR_Mag_Bus_</a></td></tr>
+<tr name="36" id="36">
+<td><a id="l36" class='ln'>36</a></td><td></td></tr>
+<tr name="37" id="37">
+<td><a id="l37" class='ln'>37</a></td><td><span class="kw">typedef</span> <span class="kw">struct</span> <span class="br">{</span></td></tr>
+<tr name="38" id="38">
+<td><a id="l38" class='ln'>38</a></td><td>  <a id="38c3" class="tk">real32_T</a> <a id="38c12" class="tk">mag_ga_B</a>[3];</td></tr>
+<tr name="39" id="39">
+<td><a id="l39" class='ln'>39</a></td><td>  <a id="39c3" class="tk">uint32_T</a> <a id="39c12" class="tk">timestamp_ms</a>;</td></tr>
+<tr name="40" id="40">
+<td><a id="l40" class='ln'>40</a></td><td><span class="br">}</span> <a id="40c3" class="tk">Mag_Bus</a>;</td></tr>
+<tr name="41" id="41">
+<td><a id="l41" class='ln'>41</a></td><td></td></tr>
+<tr name="42" id="42">
+<td><a id="l42" class='ln'>42</a></td><td><span class="pp">#endif</span></td></tr>
+<tr name="43" id="43">
+<td><a id="l43" class='ln'>43</a></td><td></td></tr>
+<tr name="44" id="44">
+<td><a id="l44" class='ln'>44</a></td><td><span class="pp">#ifndef</span> <a id="44c9" class="tk">DEFINED_TYPEDEF_FOR_GPS_uBlox_Bus_</a></td></tr>
+<tr name="45" id="45">
+<td><a id="l45" class='ln'>45</a></td><td><span class="pp">#define</span> <a id="45c9" class="tk">DEFINED_TYPEDEF_FOR_GPS_uBlox_Bus_</a></td></tr>
+<tr name="46" id="46">
+<td><a id="l46" class='ln'>46</a></td><td></td></tr>
+<tr name="47" id="47">
+<td><a id="l47" class='ln'>47</a></td><td><span class="ct">/* NAV-PVT Message of u-Blox GPS */</span></td></tr>
+<tr name="48" id="48">
+<td><a id="l48" class='ln'>48</a></td><td><span class="kw">typedef</span> <span class="kw">struct</span> <span class="br">{</span></td></tr>
+<tr name="49" id="49">
+<td><a id="l49" class='ln'>49</a></td><td>  <a id="49c3" class="tk">uint32_T</a> <a id="49c12" class="tk">iTOW</a>;</td></tr>
+<tr name="50" id="50">
+<td><a id="l50" class='ln'>50</a></td><td>  <a id="50c3" class="tk">uint16_T</a> <a id="50c12" class="tk">year</a>;</td></tr>
+<tr name="51" id="51">
+<td><a id="l51" class='ln'>51</a></td><td>  <a id="51c3" class="tk">uint8_T</a> <a id="51c11" class="tk">month</a>;</td></tr>
+<tr name="52" id="52">
+<td><a id="l52" class='ln'>52</a></td><td>  <a id="52c3" class="tk">uint8_T</a> <a id="52c11" class="tk">day</a>;</td></tr>
+<tr name="53" id="53">
+<td><a id="l53" class='ln'>53</a></td><td>  <a id="53c3" class="tk">uint8_T</a> <a id="53c11" class="tk">hour</a>;</td></tr>
+<tr name="54" id="54">
+<td><a id="l54" class='ln'>54</a></td><td>  <a id="54c3" class="tk">uint8_T</a> <a id="54c11" class="tk">min</a>;</td></tr>
+<tr name="55" id="55">
+<td><a id="l55" class='ln'>55</a></td><td>  <a id="55c3" class="tk">uint8_T</a> <a id="55c11" class="tk">sec</a>;</td></tr>
+<tr name="56" id="56">
+<td><a id="l56" class='ln'>56</a></td><td>  <a id="56c3" class="tk">uint8_T</a> <a id="56c11" class="tk">valid</a>;</td></tr>
+<tr name="57" id="57">
+<td><a id="l57" class='ln'>57</a></td><td>  <a id="57c3" class="tk">uint32_T</a> <a id="57c12" class="tk">tAcc</a>;</td></tr>
+<tr name="58" id="58">
+<td><a id="l58" class='ln'>58</a></td><td>  <a id="58c3" class="tk">int32_T</a> <a id="58c11" class="tk">nano</a>;</td></tr>
+<tr name="59" id="59">
+<td><a id="l59" class='ln'>59</a></td><td>  <a id="59c3" class="tk">uint8_T</a> <a id="59c11" class="tk">fixType</a>;</td></tr>
+<tr name="60" id="60">
+<td><a id="l60" class='ln'>60</a></td><td>  <a id="60c3" class="tk">uint8_T</a> <a id="60c11" class="tk">flags</a>;</td></tr>
+<tr name="61" id="61">
+<td><a id="l61" class='ln'>61</a></td><td>  <a id="61c3" class="tk">uint8_T</a> <a id="61c11" class="tk">reserved1</a>;</td></tr>
+<tr name="62" id="62">
+<td><a id="l62" class='ln'>62</a></td><td>  <a id="62c3" class="tk">uint8_T</a> <a id="62c11" class="tk">numSV</a>;</td></tr>
+<tr name="63" id="63">
+<td><a id="l63" class='ln'>63</a></td><td>  <a id="63c3" class="tk">int32_T</a> <a id="63c11" class="tk">lon</a>;</td></tr>
+<tr name="64" id="64">
+<td><a id="l64" class='ln'>64</a></td><td>  <a id="64c3" class="tk">int32_T</a> <a id="64c11" class="tk">lat</a>;</td></tr>
+<tr name="65" id="65">
+<td><a id="l65" class='ln'>65</a></td><td>  <a id="65c3" class="tk">int32_T</a> <a id="65c11" class="tk">height</a>;</td></tr>
+<tr name="66" id="66">
+<td><a id="l66" class='ln'>66</a></td><td>  <a id="66c3" class="tk">int32_T</a> <a id="66c11" class="tk">hMSL</a>;</td></tr>
+<tr name="67" id="67">
+<td><a id="l67" class='ln'>67</a></td><td>  <a id="67c3" class="tk">uint32_T</a> <a id="67c12" class="tk">hAcc</a>;</td></tr>
+<tr name="68" id="68">
+<td><a id="l68" class='ln'>68</a></td><td>  <a id="68c3" class="tk">uint32_T</a> <a id="68c12" class="tk">vAcc</a>;</td></tr>
+<tr name="69" id="69">
+<td><a id="l69" class='ln'>69</a></td><td>  <a id="69c3" class="tk">int32_T</a> <a id="69c11" class="tk">velN</a>;</td></tr>
+<tr name="70" id="70">
+<td><a id="l70" class='ln'>70</a></td><td>  <a id="70c3" class="tk">int32_T</a> <a id="70c11" class="tk">velE</a>;</td></tr>
+<tr name="71" id="71">
+<td><a id="l71" class='ln'>71</a></td><td>  <a id="71c3" class="tk">int32_T</a> <a id="71c11" class="tk">velD</a>;</td></tr>
+<tr name="72" id="72">
+<td><a id="l72" class='ln'>72</a></td><td>  <a id="72c3" class="tk">int32_T</a> <a id="72c11" class="tk">gSpeed</a>;</td></tr>
+<tr name="73" id="73">
+<td><a id="l73" class='ln'>73</a></td><td>  <a id="73c3" class="tk">int32_T</a> <a id="73c11" class="tk">headMot</a>;</td></tr>
+<tr name="74" id="74">
+<td><a id="l74" class='ln'>74</a></td><td>  <a id="74c3" class="tk">uint32_T</a> <a id="74c12" class="tk">sAcc</a>;</td></tr>
+<tr name="75" id="75">
+<td><a id="l75" class='ln'>75</a></td><td>  <a id="75c3" class="tk">uint32_T</a> <a id="75c12" class="tk">headAcc</a>;</td></tr>
+<tr name="76" id="76">
+<td><a id="l76" class='ln'>76</a></td><td>  <a id="76c3" class="tk">uint16_T</a> <a id="76c12" class="tk">pDOP</a>;</td></tr>
+<tr name="77" id="77">
+<td><a id="l77" class='ln'>77</a></td><td>  <a id="77c3" class="tk">uint16_T</a> <a id="77c12" class="tk">reserved2</a>;</td></tr>
+<tr name="78" id="78">
+<td><a id="l78" class='ln'>78</a></td><td>  <a id="78c3" class="tk">uint32_T</a> <a id="78c12" class="tk">timestamp_ms</a>;</td></tr>
+<tr name="79" id="79">
+<td><a id="l79" class='ln'>79</a></td><td><span class="br">}</span> <a id="79c3" class="tk">GPS_uBlox_Bus</a>;</td></tr>
+<tr name="80" id="80">
+<td><a id="l80" class='ln'>80</a></td><td></td></tr>
+<tr name="81" id="81">
+<td><a id="l81" class='ln'>81</a></td><td><span class="pp">#endif</span></td></tr>
+<tr name="82" id="82">
+<td><a id="l82" class='ln'>82</a></td><td></td></tr>
+<tr name="83" id="83">
+<td><a id="l83" class='ln'>83</a></td><td><span class="pp">#ifndef</span> <a id="83c9" class="tk">DEFINED_TYPEDEF_FOR_Baro_Bus_</a></td></tr>
+<tr name="84" id="84">
+<td><a id="l84" class='ln'>84</a></td><td><span class="pp">#define</span> <a id="84c9" class="tk">DEFINED_TYPEDEF_FOR_Baro_Bus_</a></td></tr>
+<tr name="85" id="85">
+<td><a id="l85" class='ln'>85</a></td><td></td></tr>
+<tr name="86" id="86">
+<td><a id="l86" class='ln'>86</a></td><td><span class="ct">/* MS5611 (barometer) sensor data */</span></td></tr>
+<tr name="87" id="87">
+<td><a id="l87" class='ln'>87</a></td><td><span class="kw">typedef</span> <span class="kw">struct</span> <span class="br">{</span></td></tr>
+<tr name="88" id="88">
+<td><a id="l88" class='ln'>88</a></td><td>  <a id="88c3" class="tk">int32_T</a> <a id="88c11" class="tk">pressure_Pa</a>;</td></tr>
+<tr name="89" id="89">
+<td><a id="l89" class='ln'>89</a></td><td>  <a id="89c3" class="tk">real32_T</a> <a id="89c12" class="tk">temperature_deg</a>;</td></tr>
+<tr name="90" id="90">
+<td><a id="l90" class='ln'>90</a></td><td>  <a id="90c3" class="tk">uint32_T</a> <a id="90c12" class="tk">timestamp_ms</a>;</td></tr>
+<tr name="91" id="91">
+<td><a id="l91" class='ln'>91</a></td><td><span class="br">}</span> <a id="91c3" class="tk">Baro_Bus</a>;</td></tr>
+<tr name="92" id="92">
+<td><a id="l92" class='ln'>92</a></td><td></td></tr>
+<tr name="93" id="93">
+<td><a id="l93" class='ln'>93</a></td><td><span class="pp">#endif</span></td></tr>
+<tr name="94" id="94">
+<td><a id="l94" class='ln'>94</a></td><td></td></tr>
+<tr name="95" id="95">
+<td><a id="l95" class='ln'>95</a></td><td><span class="pp">#ifndef</span> <a id="95c9" class="tk">DEFINED_TYPEDEF_FOR_Sensor_Param_</a></td></tr>
+<tr name="96" id="96">
+<td><a id="l96" class='ln'>96</a></td><td><span class="pp">#define</span> <a id="96c9" class="tk">DEFINED_TYPEDEF_FOR_Sensor_Param_</a></td></tr>
+<tr name="97" id="97">
+<td><a id="l97" class='ln'>97</a></td><td></td></tr>
+<tr name="98" id="98">
+<td><a id="l98" class='ln'>98</a></td><td><span class="kw">typedef</span> <span class="kw">struct</span> <span class="br">{</span></td></tr>
+<tr name="99" id="99">
+<td><a id="l99" class='ln'>99</a></td><td>  <a id="99c3" class="tk">real32_T</a> <a id="99c12" class="tk">gyr_rotM</a>[9];</td></tr>
+<tr name="100" id="100">
+<td><a id="l100" class='ln'>100</a></td><td>  <a id="100c3" class="tk">real32_T</a> <a id="100c12" class="tk">gyr_bias</a>[3];</td></tr>
+<tr name="101" id="101">
+<td><a id="l101" class='ln'>101</a></td><td>  <a id="101c3" class="tk">real32_T</a> <a id="101c12" class="tk">acc_rotM</a>[9];</td></tr>
+<tr name="102" id="102">
+<td><a id="l102" class='ln'>102</a></td><td>  <a id="102c3" class="tk">real32_T</a> <a id="102c12" class="tk">acc_bias</a>[3];</td></tr>
+<tr name="103" id="103">
+<td><a id="l103" class='ln'>103</a></td><td>  <a id="103c3" class="tk">real32_T</a> <a id="103c12" class="tk">mag_rotM</a>[9];</td></tr>
+<tr name="104" id="104">
+<td><a id="l104" class='ln'>104</a></td><td>  <a id="104c3" class="tk">real32_T</a> <a id="104c12" class="tk">mag_bias</a>[3];</td></tr>
+<tr name="105" id="105">
+<td><a id="l105" class='ln'>105</a></td><td><span class="br">}</span> <a id="105c3" class="tk">Sensor_Param</a>;</td></tr>
+<tr name="106" id="106">
+<td><a id="l106" class='ln'>106</a></td><td></td></tr>
+<tr name="107" id="107">
+<td><a id="l107" class='ln'>107</a></td><td><span class="pp">#endif</span></td></tr>
+<tr name="108" id="108">
+<td><a id="l108" class='ln'>108</a></td><td></td></tr>
+<tr name="109" id="109">
+<td><a id="l109" class='ln'>109</a></td><td><span class="pp">#ifndef</span> <a id="109c9" class="tk">DEFINED_TYPEDEF_FOR_Baro_Data_</a></td></tr>
+<tr name="110" id="110">
+<td><a id="l110" class='ln'>110</a></td><td><span class="pp">#define</span> <a id="110c9" class="tk">DEFINED_TYPEDEF_FOR_Baro_Data_</a></td></tr>
+<tr name="111" id="111">
+<td><a id="l111" class='ln'>111</a></td><td></td></tr>
+<tr name="112" id="112">
+<td><a id="l112" class='ln'>112</a></td><td><span class="kw">typedef</span> <span class="kw">struct</span> <span class="br">{</span></td></tr>
+<tr name="113" id="113">
+<td><a id="l113" class='ln'>113</a></td><td>  <a id="113c3" class="tk">boolean_T</a> <a id="113c13" class="tk">valid</a>;</td></tr>
+<tr name="114" id="114">
+<td><a id="l114" class='ln'>114</a></td><td>  <a id="114c3" class="tk">real32_T</a> <a id="114c12" class="tk">altitude_M</a>;</td></tr>
+<tr name="115" id="115">
+<td><a id="l115" class='ln'>115</a></td><td>  <a id="115c3" class="tk">real32_T</a> <a id="115c12" class="tk">relative_alt_m</a>;</td></tr>
+<tr name="116" id="116">
+<td><a id="l116" class='ln'>116</a></td><td><span class="br">}</span> <a id="116c3" class="tk">Baro_Data</a>;</td></tr>
+<tr name="117" id="117">
+<td><a id="l117" class='ln'>117</a></td><td></td></tr>
+<tr name="118" id="118">
+<td><a id="l118" class='ln'>118</a></td><td><span class="pp">#endif</span></td></tr>
+<tr name="119" id="119">
+<td><a id="l119" class='ln'>119</a></td><td></td></tr>
+<tr name="120" id="120">
+<td><a id="l120" class='ln'>120</a></td><td><span class="pp">#ifndef</span> <a id="120c9" class="tk">DEFINED_TYPEDEF_FOR_IMU_Data_</a></td></tr>
+<tr name="121" id="121">
+<td><a id="l121" class='ln'>121</a></td><td><span class="pp">#define</span> <a id="121c9" class="tk">DEFINED_TYPEDEF_FOR_IMU_Data_</a></td></tr>
+<tr name="122" id="122">
+<td><a id="l122" class='ln'>122</a></td><td></td></tr>
+<tr name="123" id="123">
+<td><a id="l123" class='ln'>123</a></td><td><span class="kw">typedef</span> <span class="kw">struct</span> <span class="br">{</span></td></tr>
+<tr name="124" id="124">
+<td><a id="l124" class='ln'>124</a></td><td>  <a id="124c3" class="tk">real32_T</a> <a id="124c12" class="tk">rot_radPs_B</a>[3];</td></tr>
+<tr name="125" id="125">
+<td><a id="l125" class='ln'>125</a></td><td>  <a id="125c3" class="tk">real32_T</a> <a id="125c12" class="tk">sfor_mPs2_B</a>[3];</td></tr>
+<tr name="126" id="126">
+<td><a id="l126" class='ln'>126</a></td><td>  <a id="126c3" class="tk">boolean_T</a> <a id="126c13" class="tk">valid</a>;</td></tr>
+<tr name="127" id="127">
+<td><a id="l127" class='ln'>127</a></td><td><span class="br">}</span> <a id="127c3" class="tk">IMU_Data</a>;</td></tr>
+<tr name="128" id="128">
+<td><a id="l128" class='ln'>128</a></td><td></td></tr>
+<tr name="129" id="129">
+<td><a id="l129" class='ln'>129</a></td><td><span class="pp">#endif</span></td></tr>
+<tr name="130" id="130">
+<td><a id="l130" class='ln'>130</a></td><td></td></tr>
+<tr name="131" id="131">
+<td><a id="l131" class='ln'>131</a></td><td><span class="pp">#ifndef</span> <a id="131c9" class="tk">DEFINED_TYPEDEF_FOR_Mag_Data_</a></td></tr>
+<tr name="132" id="132">
+<td><a id="l132" class='ln'>132</a></td><td><span class="pp">#define</span> <a id="132c9" class="tk">DEFINED_TYPEDEF_FOR_Mag_Data_</a></td></tr>
+<tr name="133" id="133">
+<td><a id="l133" class='ln'>133</a></td><td></td></tr>
+<tr name="134" id="134">
+<td><a id="l134" class='ln'>134</a></td><td><span class="kw">typedef</span> <span class="kw">struct</span> <span class="br">{</span></td></tr>
+<tr name="135" id="135">
+<td><a id="l135" class='ln'>135</a></td><td>  <a id="135c3" class="tk">real32_T</a> <a id="135c12" class="tk">mag_ga_B</a>[3];</td></tr>
+<tr name="136" id="136">
+<td><a id="l136" class='ln'>136</a></td><td>  <a id="136c3" class="tk">boolean_T</a> <a id="136c13" class="tk">valid</a>;</td></tr>
+<tr name="137" id="137">
+<td><a id="l137" class='ln'>137</a></td><td><span class="br">}</span> <a id="137c3" class="tk">Mag_Data</a>;</td></tr>
+<tr name="138" id="138">
+<td><a id="l138" class='ln'>138</a></td><td></td></tr>
+<tr name="139" id="139">
+<td><a id="l139" class='ln'>139</a></td><td><span class="pp">#endif</span></td></tr>
+<tr name="140" id="140">
+<td><a id="l140" class='ln'>140</a></td><td></td></tr>
+<tr name="141" id="141">
+<td><a id="l141" class='ln'>141</a></td><td><span class="pp">#ifndef</span> <a id="141c9" class="tk">DEFINED_TYPEDEF_FOR_GPS_Data_</a></td></tr>
+<tr name="142" id="142">
+<td><a id="l142" class='ln'>142</a></td><td><span class="pp">#define</span> <a id="142c9" class="tk">DEFINED_TYPEDEF_FOR_GPS_Data_</a></td></tr>
+<tr name="143" id="143">
+<td><a id="l143" class='ln'>143</a></td><td></td></tr>
+<tr name="144" id="144">
+<td><a id="l144" class='ln'>144</a></td><td><span class="kw">typedef</span> <span class="kw">struct</span> <span class="br">{</span></td></tr>
+<tr name="145" id="145">
+<td><a id="l145" class='ln'>145</a></td><td>  <a id="145c3" class="tk">real32_T</a> <a id="145c12" class="tk">pos_quality</a>;</td></tr>
+<tr name="146" id="146">
+<td><a id="l146" class='ln'>146</a></td><td>  <a id="146c3" class="tk">real32_T</a> <a id="146c12" class="tk">vel_quality</a>;</td></tr>
+<tr name="147" id="147">
+<td><a id="l147" class='ln'>147</a></td><td>  <a id="147c3" class="tk">real32_T</a> <a id="147c12" class="tk">status</a>;</td></tr>
+<tr name="148" id="148">
+<td><a id="l148" class='ln'>148</a></td><td>  <a id="148c3" class="tk">real_T</a> <a id="148c10" class="tk">lon_rad</a>;</td></tr>
+<tr name="149" id="149">
+<td><a id="l149" class='ln'>149</a></td><td></td></tr>
+<tr name="150" id="150">
+<td><a id="l150" class='ln'>150</a></td><td>  <span class="ct">/* need double to ensure accurancy */</span></td></tr>
+<tr name="151" id="151">
+<td><a id="l151" class='ln'>151</a></td><td>  <a id="151c3" class="tk">real_T</a> <a id="151c10" class="tk">lat_rad</a>;</td></tr>
+<tr name="152" id="152">
+<td><a id="l152" class='ln'>152</a></td><td>  <a id="152c3" class="tk">real32_T</a> <a id="152c12" class="tk">height_m</a>;</td></tr>
+<tr name="153" id="153">
+<td><a id="l153" class='ln'>153</a></td><td>  <a id="153c3" class="tk">real32_T</a> <a id="153c12" class="tk">velN_mPs</a>;</td></tr>
+<tr name="154" id="154">
+<td><a id="l154" class='ln'>154</a></td><td>  <a id="154c3" class="tk">real32_T</a> <a id="154c12" class="tk">velE_mPs</a>;</td></tr>
+<tr name="155" id="155">
+<td><a id="l155" class='ln'>155</a></td><td>  <a id="155c3" class="tk">real32_T</a> <a id="155c12" class="tk">velD_mPs</a>;</td></tr>
+<tr name="156" id="156">
+<td><a id="l156" class='ln'>156</a></td><td>  <a id="156c3" class="tk">uint16_T</a> <a id="156c12" class="tk">numSV</a>;</td></tr>
+<tr name="157" id="157">
+<td><a id="l157" class='ln'>157</a></td><td><span class="br">}</span> <a id="157c3" class="tk">GPS_Data</a>;</td></tr>
+<tr name="158" id="158">
+<td><a id="l158" class='ln'>158</a></td><td></td></tr>
+<tr name="159" id="159">
+<td><a id="l159" class='ln'>159</a></td><td><span class="pp">#endif</span></td></tr>
+<tr name="160" id="160">
+<td><a id="l160" class='ln'>160</a></td><td></td></tr>
+<tr name="161" id="161">
+<td><a id="l161" class='ln'>161</a></td><td><span class="pp">#ifndef</span> <a id="161c9" class="tk">DEFINED_TYPEDEF_FOR_Sensor_Data_</a></td></tr>
+<tr name="162" id="162">
+<td><a id="l162" class='ln'>162</a></td><td><span class="pp">#define</span> <a id="162c9" class="tk">DEFINED_TYPEDEF_FOR_Sensor_Data_</a></td></tr>
+<tr name="163" id="163">
+<td><a id="l163" class='ln'>163</a></td><td></td></tr>
+<tr name="164" id="164">
+<td><a id="l164" class='ln'>164</a></td><td><span class="kw">typedef</span> <span class="kw">struct</span> <span class="br">{</span></td></tr>
+<tr name="165" id="165">
+<td><a id="l165" class='ln'>165</a></td><td>  <a id="165c3" class="tk">IMU_Data</a> <a id="165c12" class="tk">IMU_Data</a>;</td></tr>
+<tr name="166" id="166">
+<td><a id="l166" class='ln'>166</a></td><td>  <a id="166c3" class="tk">Mag_Data</a> <a id="166c12" class="tk">Mag_Data</a>;</td></tr>
+<tr name="167" id="167">
+<td><a id="l167" class='ln'>167</a></td><td>  <a id="167c3" class="tk">GPS_Data</a> <a id="167c12" class="tk">GPS_Data</a>;</td></tr>
+<tr name="168" id="168">
+<td><a id="l168" class='ln'>168</a></td><td>  <a id="168c3" class="tk">Baro_Data</a> <a id="168c13" class="tk">Baro_Data</a>;</td></tr>
+<tr name="169" id="169">
+<td><a id="l169" class='ln'>169</a></td><td><span class="br">}</span> <a id="169c3" class="tk">Sensor_Data</a>;</td></tr>
+<tr name="170" id="170">
+<td><a id="l170" class='ln'>170</a></td><td></td></tr>
+<tr name="171" id="171">
+<td><a id="l171" class='ln'>171</a></td><td><span class="pp">#endif</span></td></tr>
+<tr name="172" id="172">
+<td><a id="l172" class='ln'>172</a></td><td></td></tr>
+<tr name="173" id="173">
+<td><a id="l173" class='ln'>173</a></td><td><span class="ct">/* Forward declaration for rtModel */</span></td></tr>
+<tr name="174" id="174">
+<td><a id="l174" class='ln'>174</a></td><td><span class="kw">typedef</span> <span class="kw">struct</span> <a id="174c16" class="tk">tag_RTM_SensorProcessing_T</a> <a id="174c43" class="tk">RT_MODEL_SensorProcessing_T</a>;</td></tr>
+<tr name="175" id="175">
+<td><a id="l175" class='ln'>175</a></td><td></td></tr>
+<tr name="176" id="176">
+<td><a id="l176" class='ln'>176</a></td><td><span class="pp">#endif</span>                                 <span class="ct">/* RTW_HEADER_SensorProcessing_types_h_ */</span></td></tr>
+<tr name="177" id="177">
+<td><a id="l177" class='ln'>177</a></td><td></td></tr>
+<tr name="178" id="178">
+<td><a id="l178" class='ln'>178</a></td><td><span class="ct">/*</span></td></tr>
+<tr name="179" id="179">
+<td><a id="l179" class='ln'>179</a></td><td><span class="ct"> * File trailer for generated code.</span></td></tr>
+<tr name="180" id="180">
+<td><a id="l180" class='ln'>180</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="181" id="181">
+<td><a id="l181" class='ln'>181</a></td><td><span class="ct"> * [EOF]</span></td></tr>
+<tr name="182" id="182">
+<td><a id="l182" class='ln'>182</a></td><td><span class="ct"> */</span></td></tr>
+<tr name="183" id="183">
+<td><a id="l183" class='ln'>183</a></td><td></td></tr>
+</table>
+</pre>
+</body>
+</html>

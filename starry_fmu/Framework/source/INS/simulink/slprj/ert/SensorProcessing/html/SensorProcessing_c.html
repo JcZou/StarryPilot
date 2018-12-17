@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="./js/coder_app.js"></script>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src="./rtwreport_utils.js"></script>
+<script type="text/javascript" src="./rtwannotate.js"></script>
+<link rel="stylesheet" type="text/css" href="./css/coder_app.css"/>
+</head>
+<body onload="srcFileOnload();">
+<pre id="code">
+<table class="code" id="codeTbl">
+<tr name="1" id="1">
+<td><a id="l1" class='ln'>1</a></td><td><span class="ct">/*</span></td></tr>
+<tr name="2" id="2">
+<td><a id="l2" class='ln'>2</a></td><td><span class="ct"> * Academic License - for use in teaching, academic research, and meeting</span></td></tr>
+<tr name="3" id="3">
+<td><a id="l3" class='ln'>3</a></td><td><span class="ct"> * course requirements at degree granting institutions only.  Not for</span></td></tr>
+<tr name="4" id="4">
+<td><a id="l4" class='ln'>4</a></td><td><span class="ct"> * government, commercial, or other organizational use.</span></td></tr>
+<tr name="5" id="5">
+<td><a id="l5" class='ln'>5</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="6" id="6">
+<td><a id="l6" class='ln'>6</a></td><td><span class="ct"> * File: SensorProcessing.c</span></td></tr>
+<tr name="7" id="7">
+<td><a id="l7" class='ln'>7</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="8" id="8">
+<td><a id="l8" class='ln'>8</a></td><td><span class="ct"> * Code generated for Simulink model 'SensorProcessing'.</span></td></tr>
+<tr name="9" id="9">
+<td><a id="l9" class='ln'>9</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="10" id="10">
+<td><a id="l10" class='ln'>10</a></td><td><span class="ct"> * Model version                  : 1.174</span></td></tr>
+<tr name="11" id="11">
+<td><a id="l11" class='ln'>11</a></td><td><span class="ct"> * Simulink Coder version         : 9.0 (R2018b) 24-May-2018</span></td></tr>
+<tr name="12" id="12">
+<td><a id="l12" class='ln'>12</a></td><td><span class="ct"> * C/C++ source code generated on : Sun Dec 16 13:15:05 2018</span></td></tr>
+<tr name="13" id="13">
+<td><a id="l13" class='ln'>13</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="14" id="14">
+<td><a id="l14" class='ln'>14</a></td><td><span class="ct"> * Target selection: ert.tlc</span></td></tr>
+<tr name="15" id="15">
+<td><a id="l15" class='ln'>15</a></td><td><span class="ct"> * Embedded hardware selection: ARM Compatible-&gt;ARM Cortex</span></td></tr>
+<tr name="16" id="16">
+<td><a id="l16" class='ln'>16</a></td><td><span class="ct"> * Code generation objectives: Unspecified</span></td></tr>
+<tr name="17" id="17">
+<td><a id="l17" class='ln'>17</a></td><td><span class="ct"> * Validation result: Not run</span></td></tr>
+<tr name="18" id="18">
+<td><a id="l18" class='ln'>18</a></td><td><span class="ct"> */</span></td></tr>
+<tr name="19" id="19">
+<td><a id="l19" class='ln'>19</a></td><td></td></tr>
+<tr name="20" id="20">
+<td><a id="l20" class='ln'>20</a></td><td><span class="pp">#include "SensorProcessing.h"</span></td></tr>
+<tr name="21" id="21">
+<td><a id="l21" class='ln'>21</a></td><td><span class="pp">#include "SensorProcessing_private.h"</span></td></tr>
+<tr name="22" id="22">
+<td><a id="l22" class='ln'>22</a></td><td><span class="pp">#include "rt_powd_snf.h"</span></td></tr>
+<tr name="23" id="23">
+<td><a id="l23" class='ln'>23</a></td><td></td></tr>
+<tr name="24" id="24">
+<td><a id="l24" class='ln'>24</a></td><td><a id="24c1" class="tk">int_T</a> <a id="24c7" class="tk">SensorProcessing_GlobalTID</a>[2];</td></tr>
+<tr name="25" id="25">
+<td><a id="l25" class='ln'>25</a></td><td><span class="kw">const</span> <a id="25c7" class="tk">rtTimingBridge</a> <a id="25c22" class="tk">*</a><a id="25c23" class="tk">SensorProcessing_TimingBrdg</a>;</td></tr>
+<tr name="26" id="26">
+<td><a id="l26" class='ln'>26</a></td><td><a id="26c1" class="tk">MdlrefDW_SensorProcessing_T</a> <a id="26c29" class="tk">SensorProcessing_MdlrefDW</a>;</td></tr>
+<tr name="27" id="27">
+<td><a id="l27" class='ln'>27</a></td><td></td></tr>
+<tr name="28" id="28">
+<td><a id="l28" class='ln'>28</a></td><td><span class="ct">/* Block signals (default storage) */</span></td></tr>
+<tr name="29" id="29">
+<td><a id="l29" class='ln'>29</a></td><td><a id="29c1" class="tk">B_SensorProcessing_c_T</a> <a id="29c24" class="tk">SensorProcessing_B</a>;</td></tr>
+<tr name="30" id="30">
+<td><a id="l30" class='ln'>30</a></td><td></td></tr>
+<tr name="31" id="31">
+<td><a id="l31" class='ln'>31</a></td><td><span class="ct">/* Block states (default storage) */</span></td></tr>
+<tr name="32" id="32">
+<td><a id="l32" class='ln'>32</a></td><td><a id="32c1" class="tk">DW_SensorProcessing_f_T</a> <a id="32c25" class="tk">SensorProcessing_DW</a>;</td></tr>
+<tr name="33" id="33">
+<td><a id="l33" class='ln'>33</a></td><td></td></tr>
+<tr name="34" id="34">
+<td><a id="l34" class='ln'>34</a></td><td><span class="ct">/* System initialize for referenced model: 'SensorProcessing' */</span></td></tr>
+<tr name="35" id="35">
+<td><a id="l35" class='ln'>35</a></td><td><span class="kw">void</span> <a id="35c6" class="tk">SensorProcessing_Init</a>(<span class="kw">void</span>)</td></tr>
+<tr name="36" id="36">
+<td><a id="l36" class='ln'>36</a></td><td><span class="br">{</span></td></tr>
+<tr name="37" id="37">
+<td><a id="l37" class='ln'>37</a></td><td>  <span class="ct">/* SystemInitialize for Enabled SubSystem: '<a class="ct blk" blk_line="37">&lt;S1&gt;/Pressure_Altitude</a>' */</span></td></tr>
+<tr name="38" id="38">
+<td><a id="l38" class='ln'>38</a></td><td>  <span class="ct">/* InitializeConditions for Memory: '<a class="ct blk" blk_line="38">&lt;S11&gt;/Memory3</a>' */</span></td></tr>
+<tr name="39" id="39">
+<td><a id="l39" class='ln'>39</a></td><td>  <a id="39c3" class="tk">SensorProcessing_DW</a>.<a id="39c23" class="tk">Memory3_PreviousInput</a> = true;</td></tr>
+<tr name="40" id="40">
+<td><a id="l40" class='ln'>40</a></td><td></td></tr>
+<tr name="41" id="41">
+<td><a id="l41" class='ln'>41</a></td><td>  <span class="ct">/* End of SystemInitialize for SubSystem: '<a class="ct blk" blk_line="41">&lt;S1&gt;/Pressure_Altitude</a>' */</span></td></tr>
+<tr name="42" id="42">
+<td><a id="l42" class='ln'>42</a></td><td><span class="br">}</span></td></tr>
+<tr name="43" id="43">
+<td><a id="l43" class='ln'>43</a></td><td></td></tr>
+<tr name="44" id="44">
+<td><a id="l44" class='ln'>44</a></td><td><span class="ct">/* Output and update for referenced model: 'SensorProcessing' */</span></td></tr>
+<tr name="45" id="45">
+<td><a id="l45" class='ln'>45</a></td><td><span class="kw">void</span> <a id="45c6" class="tk">SensorProcessing</a>(<span class="kw">const</span> <a id="45c29" class="tk">real32_T</a> <a id="45c38" class="tk">rtu_IMU1_gyr_radPs_B</a>[3], <span class="kw">const</span> <a id="45c69" class="tk">real32_T</a></td></tr>
+<tr name="46" id="46">
+<td><a id="l46" class='ln'>46</a></td><td>                      <a id="46c23" class="tk">rtu_IMU1_acc_mPs2_B</a>[3], <span class="kw">const</span> <a id="46c53" class="tk">uint32_T</a></td></tr>
+<tr name="47" id="47">
+<td><a id="l47" class='ln'>47</a></td><td>                      <a id="47c23" class="tk">*</a><a id="47c24" class="tk">rtu_IMU1_timestamp_ms</a>, <span class="kw">const</span> <a id="47c53" class="tk">real32_T</a> <a id="47c62" class="tk">rtu_Mag_mag_ga_B</a>[3],</td></tr>
+<tr name="48" id="48">
+<td><a id="l48" class='ln'>48</a></td><td>                      <span class="kw">const</span> <a id="48c29" class="tk">uint32_T</a> <a id="48c38" class="tk">*</a><a id="48c39" class="tk">rtu_Mag_timestamp_ms</a>, <span class="kw">const</span> <a id="48c67" class="tk">uint8_T</a></td></tr>
+<tr name="49" id="49">
+<td><a id="l49" class='ln'>49</a></td><td>                      <a id="49c23" class="tk">*</a><a id="49c24" class="tk">rtu_GPS_uBlox_fixType</a>, <span class="kw">const</span> <a id="49c53" class="tk">uint8_T</a> <a id="49c61" class="tk">*</a><a id="49c62" class="tk">rtu_GPS_uBlox_numSV</a>,</td></tr>
+<tr name="50" id="50">
+<td><a id="l50" class='ln'>50</a></td><td>                      <span class="kw">const</span> <a id="50c29" class="tk">int32_T</a> <a id="50c37" class="tk">*</a><a id="50c38" class="tk">rtu_GPS_uBlox_lon</a>, <span class="kw">const</span> <a id="50c63" class="tk">int32_T</a></td></tr>
+<tr name="51" id="51">
+<td><a id="l51" class='ln'>51</a></td><td>                      <a id="51c23" class="tk">*</a><a id="51c24" class="tk">rtu_GPS_uBlox_lat</a>, <span class="kw">const</span> <a id="51c49" class="tk">int32_T</a> <a id="51c57" class="tk">*</a><a id="51c58" class="tk">rtu_GPS_uBlox_height</a>,</td></tr>
+<tr name="52" id="52">
+<td><a id="l52" class='ln'>52</a></td><td>                      <span class="kw">const</span> <a id="52c29" class="tk">uint32_T</a> <a id="52c38" class="tk">*</a><a id="52c39" class="tk">rtu_GPS_uBlox_hAcc</a>, <span class="kw">const</span> <a id="52c65" class="tk">int32_T</a></td></tr>
+<tr name="53" id="53">
+<td><a id="l53" class='ln'>53</a></td><td>                      <a id="53c23" class="tk">*</a><a id="53c24" class="tk">rtu_GPS_uBlox_velN</a>, <span class="kw">const</span> <a id="53c50" class="tk">int32_T</a> <a id="53c58" class="tk">*</a><a id="53c59" class="tk">rtu_GPS_uBlox_velE</a>,</td></tr>
+<tr name="54" id="54">
+<td><a id="l54" class='ln'>54</a></td><td>                      <span class="kw">const</span> <a id="54c29" class="tk">int32_T</a> <a id="54c37" class="tk">*</a><a id="54c38" class="tk">rtu_GPS_uBlox_velD</a>, <span class="kw">const</span> <a id="54c64" class="tk">uint32_T</a></td></tr>
+<tr name="55" id="55">
+<td><a id="l55" class='ln'>55</a></td><td>                      <a id="55c23" class="tk">*</a><a id="55c24" class="tk">rtu_GPS_uBlox_sAcc</a>, <span class="kw">const</span> <a id="55c50" class="tk">uint32_T</a></td></tr>
+<tr name="56" id="56">
+<td><a id="l56" class='ln'>56</a></td><td>                      <a id="56c23" class="tk">*</a><a id="56c24" class="tk">rtu_GPS_uBlox_timestamp_ms</a>, <span class="kw">const</span> <a id="56c58" class="tk">int32_T</a></td></tr>
+<tr name="57" id="57">
+<td><a id="l57" class='ln'>57</a></td><td>                      <a id="57c23" class="tk">*</a><a id="57c24" class="tk">rtu_Baro_pressure_Pa</a>, <span class="kw">const</span> <a id="57c52" class="tk">real32_T</a></td></tr>
+<tr name="58" id="58">
+<td><a id="l58" class='ln'>58</a></td><td>                      <a id="58c23" class="tk">*</a><a id="58c24" class="tk">rtu_Baro_temperature_deg</a>, <span class="kw">const</span> <a id="58c56" class="tk">uint32_T</a></td></tr>
+<tr name="59" id="59">
+<td><a id="l59" class='ln'>59</a></td><td>                      <a id="59c23" class="tk">*</a><a id="59c24" class="tk">rtu_Baro_timestamp_ms</a>, <span class="kw">const</span> <a id="59c53" class="tk">real32_T</a></td></tr>
+<tr name="60" id="60">
+<td><a id="l60" class='ln'>60</a></td><td>                      <a id="60c23" class="tk">rtu_Sensor_Param_gyr_rotM</a>[9], <span class="kw">const</span> <a id="60c59" class="tk">real32_T</a></td></tr>
+<tr name="61" id="61">
+<td><a id="l61" class='ln'>61</a></td><td>                      <a id="61c23" class="tk">rtu_Sensor_Param_gyr_bias</a>[3], <span class="kw">const</span> <a id="61c59" class="tk">real32_T</a></td></tr>
+<tr name="62" id="62">
+<td><a id="l62" class='ln'>62</a></td><td>                      <a id="62c23" class="tk">rtu_Sensor_Param_acc_rotM</a>[9], <span class="kw">const</span> <a id="62c59" class="tk">real32_T</a></td></tr>
+<tr name="63" id="63">
+<td><a id="l63" class='ln'>63</a></td><td>                      <a id="63c23" class="tk">rtu_Sensor_Param_acc_bias</a>[3], <span class="kw">const</span> <a id="63c59" class="tk">real32_T</a></td></tr>
+<tr name="64" id="64">
+<td><a id="l64" class='ln'>64</a></td><td>                      <a id="64c23" class="tk">rtu_Sensor_Param_mag_rotM</a>[9], <span class="kw">const</span> <a id="64c59" class="tk">real32_T</a></td></tr>
+<tr name="65" id="65">
+<td><a id="l65" class='ln'>65</a></td><td>                      <a id="65c23" class="tk">rtu_Sensor_Param_mag_bias</a>[3], <a id="65c53" class="tk">real32_T</a></td></tr>
+<tr name="66" id="66">
+<td><a id="l66" class='ln'>66</a></td><td>                      <a id="66c23" class="tk">rty_Sensor_Data_IMU_Data_rot_ra</a>[3], <a id="66c59" class="tk">real32_T</a></td></tr>
+<tr name="67" id="67">
+<td><a id="l67" class='ln'>67</a></td><td>                      <a id="67c23" class="tk">rty_Sensor_Data_IMU_Data_sfor_m</a>[3], <a id="67c59" class="tk">boolean_T</a></td></tr>
+<tr name="68" id="68">
+<td><a id="l68" class='ln'>68</a></td><td>                      <a id="68c23" class="tk">*</a><a id="68c24" class="tk">rty_Sensor_Data_IMU_Data_valid</a>, <a id="68c56" class="tk">real32_T</a></td></tr>
+<tr name="69" id="69">
+<td><a id="l69" class='ln'>69</a></td><td>                      <a id="69c23" class="tk">rty_Sensor_Data_Mag_Data_mag_ga</a>[3], <a id="69c59" class="tk">boolean_T</a></td></tr>
+<tr name="70" id="70">
+<td><a id="l70" class='ln'>70</a></td><td>                      <a id="70c23" class="tk">*</a><a id="70c24" class="tk">rty_Sensor_Data_Mag_Data_valid</a>, <a id="70c56" class="tk">real32_T</a></td></tr>
+<tr name="71" id="71">
+<td><a id="l71" class='ln'>71</a></td><td>                      <a id="71c23" class="tk">*</a><a id="71c24" class="tk">rty_Sensor_Data_GPS_Data_pos_qu</a>, <a id="71c57" class="tk">real32_T</a></td></tr>
+<tr name="72" id="72">
+<td><a id="l72" class='ln'>72</a></td><td>                      <a id="72c23" class="tk">*</a><a id="72c24" class="tk">rty_Sensor_Data_GPS_Data_vel_qu</a>, <a id="72c57" class="tk">real32_T</a></td></tr>
+<tr name="73" id="73">
+<td><a id="l73" class='ln'>73</a></td><td>                      <a id="73c23" class="tk">*</a><a id="73c24" class="tk">rty_Sensor_Data_GPS_Data_status</a>, <a id="73c57" class="tk">real_T</a></td></tr>
+<tr name="74" id="74">
+<td><a id="l74" class='ln'>74</a></td><td>                      <a id="74c23" class="tk">*</a><a id="74c24" class="tk">rty_Sensor_Data_GPS_Data_lon_ra</a>, <a id="74c57" class="tk">real_T</a></td></tr>
+<tr name="75" id="75">
+<td><a id="l75" class='ln'>75</a></td><td>                      <a id="75c23" class="tk">*</a><a id="75c24" class="tk">rty_Sensor_Data_GPS_Data_lat_ra</a>, <a id="75c57" class="tk">real32_T</a></td></tr>
+<tr name="76" id="76">
+<td><a id="l76" class='ln'>76</a></td><td>                      <a id="76c23" class="tk">*</a><a id="76c24" class="tk">rty_Sensor_Data_GPS_Data_height</a>, <a id="76c57" class="tk">real32_T</a></td></tr>
+<tr name="77" id="77">
+<td><a id="l77" class='ln'>77</a></td><td>                      <a id="77c23" class="tk">*</a><a id="77c24" class="tk">rty_Sensor_Data_GPS_Data_velN_m</a>, <a id="77c57" class="tk">real32_T</a></td></tr>
+<tr name="78" id="78">
+<td><a id="l78" class='ln'>78</a></td><td>                      <a id="78c23" class="tk">*</a><a id="78c24" class="tk">rty_Sensor_Data_GPS_Data_velE_m</a>, <a id="78c57" class="tk">real32_T</a></td></tr>
+<tr name="79" id="79">
+<td><a id="l79" class='ln'>79</a></td><td>                      <a id="79c23" class="tk">*</a><a id="79c24" class="tk">rty_Sensor_Data_GPS_Data_velD_m</a>, <a id="79c57" class="tk">uint16_T</a></td></tr>
+<tr name="80" id="80">
+<td><a id="l80" class='ln'>80</a></td><td>                      <a id="80c23" class="tk">*</a><a id="80c24" class="tk">rty_Sensor_Data_GPS_Data_numSV</a>, <a id="80c56" class="tk">boolean_T</a></td></tr>
+<tr name="81" id="81">
+<td><a id="l81" class='ln'>81</a></td><td>                      <a id="81c23" class="tk">*</a><a id="81c24" class="tk">rty_Sensor_Data_Baro_Data_valid</a>, <a id="81c57" class="tk">real32_T</a></td></tr>
+<tr name="82" id="82">
+<td><a id="l82" class='ln'>82</a></td><td>                      <a id="82c23" class="tk">*</a><a id="82c24" class="tk">rty_Sensor_Data_Baro_Data_altit</a>, <a id="82c57" class="tk">real32_T</a></td></tr>
+<tr name="83" id="83">
+<td><a id="l83" class='ln'>83</a></td><td>                      <a id="83c23" class="tk">*</a><a id="83c24" class="tk">rty_Sensor_Data_Baro_Data_relat</a>)</td></tr>
+<tr name="84" id="84">
+<td><a id="l84" class='ln'>84</a></td><td><span class="br">{</span></td></tr>
+<tr name="85" id="85">
+<td><a id="l85" class='ln'>85</a></td><td>  <a id="85c3" class="tk">uint8_T</a> <a id="85c11" class="tk">rtb_Compare_pz</a>;</td></tr>
+<tr name="86" id="86">
+<td><a id="l86" class='ln'>86</a></td><td>  <a id="86c3" class="tk">uint8_T</a> <a id="86c11" class="tk">rtb_Compare_n</a>;</td></tr>
+<tr name="87" id="87">
+<td><a id="l87" class='ln'>87</a></td><td>  <a id="87c3" class="tk">real32_T</a> <a id="87c12" class="tk">rtb_Sum3</a>;</td></tr>
+<tr name="88" id="88">
+<td><a id="l88" class='ln'>88</a></td><td>  <a id="88c3" class="tk">boolean_T</a> <a id="88c13" class="tk">rtb_init_ref_alt</a>;</td></tr>
+<tr name="89" id="89">
+<td><a id="l89" class='ln'>89</a></td><td>  <a id="89c3" class="tk">real_T</a> <a id="89c10" class="tk">rtb_Divide2</a>;</td></tr>
+<tr name="90" id="90">
+<td><a id="l90" class='ln'>90</a></td><td>  <a id="90c3" class="tk">boolean_T</a> <a id="90c13" class="tk">rtb_LogicalOperator4_n</a>;</td></tr>
+<tr name="91" id="91">
+<td><a id="l91" class='ln'>91</a></td><td>  <a id="91c3" class="tk">real32_T</a> <a id="91c12" class="tk">rtu_IMU1_acc_mPs2_B_0</a>[3];</td></tr>
+<tr name="92" id="92">
+<td><a id="l92" class='ln'>92</a></td><td>  <a id="92c3" class="tk">real32_T</a> <a id="92c12" class="tk">rtu_Mag_mag_ga_B_0</a>[3];</td></tr>
+<tr name="93" id="93">
+<td><a id="l93" class='ln'>93</a></td><td>  <a id="93c3" class="tk">int32_T</a> <a id="93c11" class="tk">i</a>;</td></tr>
+<tr name="94" id="94">
+<td><a id="l94" class='ln'>94</a></td><td>  <a id="94c3" class="tk">real32_T</a> <a id="94c12" class="tk">rtu_IMU1_gyr_radPs_B_idx_0</a>;</td></tr>
+<tr name="95" id="95">
+<td><a id="l95" class='ln'>95</a></td><td>  <a id="95c3" class="tk">real32_T</a> <a id="95c12" class="tk">rtu_IMU1_gyr_radPs_B_idx_1</a>;</td></tr>
+<tr name="96" id="96">
+<td><a id="l96" class='ln'>96</a></td><td>  <a id="96c3" class="tk">real32_T</a> <a id="96c12" class="tk">rtu_IMU1_gyr_radPs_B_idx_2</a>;</td></tr>
+<tr name="97" id="97">
+<td><a id="l97" class='ln'>97</a></td><td></td></tr>
+<tr name="98" id="98">
+<td><a id="l98" class='ln'>98</a></td><td>  <span class="ct">/* DiscreteIntegrator: '<a class="ct blk" blk_line="98">&lt;S23&gt;/Discrete-Time Integrator</a>' incorporates:</span></td></tr>
+<tr name="99" id="99">
+<td><a id="l99" class='ln'>99</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="99">&lt;S25&gt;/FixPt Relational Operator</a>'</span></td></tr>
+<tr name="100" id="100">
+<td><a id="l100" class='ln'>100</a></td><td><span class="ct">   *  UnitDelay: '<a class="ct blk" blk_line="100">&lt;S25&gt;/Delay Input1</a>'</span></td></tr>
+<tr name="101" id="101">
+<td><a id="l101" class='ln'>101</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="102" id="102">
+<td><a id="l102" class='ln'>102</a></td><td><span class="ct">   * Block description for '<a class="ct blk" blk_line="102">&lt;S25&gt;/Delay Input1</a>':</span></td></tr>
+<tr name="103" id="103">
+<td><a id="l103" class='ln'>103</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="104" id="104">
+<td><a id="l104" class='ln'>104</a></td><td><span class="ct">   *  Store in Global RAM</span></td></tr>
+<tr name="105" id="105">
+<td><a id="l105" class='ln'>105</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="106" id="106">
+<td><a id="l106" class='ln'>106</a></td><td>  <span class="kw">if</span> (<a id="106c7" class="tk">*</a><a id="106c8" class="tk">rtu_IMU1_timestamp_ms</a> <a id="106c30" class="tk">!=</a> <a id="106c33" class="tk">SensorProcessing_DW</a>.<a id="106c53" class="tk">DelayInput1_DSTATE</a>) <span class="br">{</span></td></tr>
+<tr name="107" id="107">
+<td><a id="l107" class='ln'>107</a></td><td>    <a id="107c5" class="tk">SensorProcessing_DW</a>.<a id="107c25" class="tk">DiscreteTimeIntegrator_DSTATE</a> = 0U;</td></tr>
+<tr name="108" id="108">
+<td><a id="l108" class='ln'>108</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="109" id="109">
+<td><a id="l109" class='ln'>109</a></td><td></td></tr>
+<tr name="110" id="110">
+<td><a id="l110" class='ln'>110</a></td><td>  <span class="ct">/* DiscreteIntegrator: '<a class="ct blk" blk_line="110">&lt;S31&gt;/Discrete-Time Integrator</a>' incorporates:</span></td></tr>
+<tr name="111" id="111">
+<td><a id="l111" class='ln'>111</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="111">&lt;S33&gt;/FixPt Relational Operator</a>'</span></td></tr>
+<tr name="112" id="112">
+<td><a id="l112" class='ln'>112</a></td><td><span class="ct">   *  UnitDelay: '<a class="ct blk" blk_line="112">&lt;S33&gt;/Delay Input1</a>'</span></td></tr>
+<tr name="113" id="113">
+<td><a id="l113" class='ln'>113</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="114" id="114">
+<td><a id="l114" class='ln'>114</a></td><td><span class="ct">   * Block description for '<a class="ct blk" blk_line="114">&lt;S33&gt;/Delay Input1</a>':</span></td></tr>
+<tr name="115" id="115">
+<td><a id="l115" class='ln'>115</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="116" id="116">
+<td><a id="l116" class='ln'>116</a></td><td><span class="ct">   *  Store in Global RAM</span></td></tr>
+<tr name="117" id="117">
+<td><a id="l117" class='ln'>117</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="118" id="118">
+<td><a id="l118" class='ln'>118</a></td><td>  <span class="kw">if</span> (<a id="118c7" class="tk">*</a><a id="118c8" class="tk">rtu_Mag_timestamp_ms</a> <a id="118c29" class="tk">!=</a> <a id="118c32" class="tk">SensorProcessing_DW</a>.<a id="118c52" class="tk">DelayInput1_DSTATE_b</a>) <span class="br">{</span></td></tr>
+<tr name="119" id="119">
+<td><a id="l119" class='ln'>119</a></td><td>    <a id="119c5" class="tk">SensorProcessing_DW</a>.<a id="119c25" class="tk">DiscreteTimeIntegrator_DSTATE_m</a> = 0U;</td></tr>
+<tr name="120" id="120">
+<td><a id="l120" class='ln'>120</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="121" id="121">
+<td><a id="l121" class='ln'>121</a></td><td></td></tr>
+<tr name="122" id="122">
+<td><a id="l122" class='ln'>122</a></td><td>  <span class="kw">if</span> (<a id="122c7" class="tk">rtmIsSampleHit</a>(1, 0)) <span class="br">{</span></td></tr>
+<tr name="123" id="123">
+<td><a id="l123" class='ln'>123</a></td><td>    <span class="ct">/* UnitDelay: '<a class="ct blk" blk_line="123">&lt;S18&gt;/Unit Delay</a>' */</span></td></tr>
+<tr name="124" id="124">
+<td><a id="l124" class='ln'>124</a></td><td>    <a id="124c5" class="tk">SensorProcessing_B</a>.<a id="124c24" class="tk">UnitDelay</a> = <a id="124c36" class="tk">SensorProcessing_DW</a>.<a id="124c56" class="tk">UnitDelay_DSTATE</a>;</td></tr>
+<tr name="125" id="125">
+<td><a id="l125" class='ln'>125</a></td><td></td></tr>
+<tr name="126" id="126">
+<td><a id="l126" class='ln'>126</a></td><td>    <span class="ct">/* Rounding: '<a class="ct blk" blk_line="126">&lt;S18&gt;/Rounding Function</a>' incorporates:</span></td></tr>
+<tr name="127" id="127">
+<td><a id="l127" class='ln'>127</a></td><td><span class="ct">     *  Gain: '<a class="ct blk" blk_line="127">&lt;S18&gt;/Gain1</a>'</span></td></tr>
+<tr name="128" id="128">
+<td><a id="l128" class='ln'>128</a></td><td><span class="ct">     */</span></td></tr>
+<tr name="129" id="129">
+<td><a id="l129" class='ln'>129</a></td><td>    <a id="129c5" class="tk">SensorProcessing_B</a>.<a id="129c24" class="tk">RoundingFunction</a> = <a id="129c43" class="tk">floorf</a>(0.001F <a id="129c57" class="tk">*</a> (<a id="129c60" class="tk">real32_T</a>)</td></tr>
+<tr name="130" id="130">
+<td><a id="l130" class='ln'>130</a></td><td>      <a id="130c7" class="tk">SensorProcessing_B</a>.<a id="130c26" class="tk">UnitDelay</a>);</td></tr>
+<tr name="131" id="131">
+<td><a id="l131" class='ln'>131</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="132" id="132">
+<td><a id="l132" class='ln'>132</a></td><td></td></tr>
+<tr name="133" id="133">
+<td><a id="l133" class='ln'>133</a></td><td>  <span class="ct">/* RelationalOperator: '<a class="ct blk" blk_line="133">&lt;S20&gt;/Compare</a>' incorporates:</span></td></tr>
+<tr name="134" id="134">
+<td><a id="l134" class='ln'>134</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="134">&lt;S20&gt;/Constant</a>'</span></td></tr>
+<tr name="135" id="135">
+<td><a id="l135" class='ln'>135</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="136" id="136">
+<td><a id="l136" class='ln'>136</a></td><td>  <a id="136c3" class="tk">rtb_Compare_pz</a> = (<a id="136c21" class="tk">uint8_T</a>)(<a id="136c30" class="tk">*</a><a id="136c31" class="tk">rtu_GPS_uBlox_fixType</a> <a id="136c53" class="tk">==</a> 3);</td></tr>
+<tr name="137" id="137">
+<td><a id="l137" class='ln'>137</a></td><td></td></tr>
+<tr name="138" id="138">
+<td><a id="l138" class='ln'>138</a></td><td>  <span class="ct">/* DiscreteIntegrator: '<a class="ct blk" blk_line="138">&lt;S12&gt;/Discrete-Time Integrator</a>' incorporates:</span></td></tr>
+<tr name="139" id="139">
+<td><a id="l139" class='ln'>139</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="139">&lt;S16&gt;/FixPt Relational Operator</a>'</span></td></tr>
+<tr name="140" id="140">
+<td><a id="l140" class='ln'>140</a></td><td><span class="ct">   *  UnitDelay: '<a class="ct blk" blk_line="140">&lt;S16&gt;/Delay Input1</a>'</span></td></tr>
+<tr name="141" id="141">
+<td><a id="l141" class='ln'>141</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="142" id="142">
+<td><a id="l142" class='ln'>142</a></td><td><span class="ct">   * Block description for '<a class="ct blk" blk_line="142">&lt;S16&gt;/Delay Input1</a>':</span></td></tr>
+<tr name="143" id="143">
+<td><a id="l143" class='ln'>143</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="144" id="144">
+<td><a id="l144" class='ln'>144</a></td><td><span class="ct">   *  Store in Global RAM</span></td></tr>
+<tr name="145" id="145">
+<td><a id="l145" class='ln'>145</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="146" id="146">
+<td><a id="l146" class='ln'>146</a></td><td>  <span class="kw">if</span> (<a id="146c7" class="tk">*</a><a id="146c8" class="tk">rtu_GPS_uBlox_timestamp_ms</a> <a id="146c35" class="tk">!=</a> <a id="146c38" class="tk">SensorProcessing_DW</a>.<a id="146c58" class="tk">DelayInput1_DSTATE_g</a>) <span class="br">{</span></td></tr>
+<tr name="147" id="147">
+<td><a id="l147" class='ln'>147</a></td><td>    <a id="147c5" class="tk">SensorProcessing_DW</a>.<a id="147c25" class="tk">DiscreteTimeIntegrator_DSTATE_e</a> = 0U;</td></tr>
+<tr name="148" id="148">
+<td><a id="l148" class='ln'>148</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="149" id="149">
+<td><a id="l149" class='ln'>149</a></td><td></td></tr>
+<tr name="150" id="150">
+<td><a id="l150" class='ln'>150</a></td><td>  <span class="ct">/* RelationalOperator: '<a class="ct blk" blk_line="150">&lt;S21&gt;/Compare</a>' incorporates:</span></td></tr>
+<tr name="151" id="151">
+<td><a id="l151" class='ln'>151</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="151">&lt;S21&gt;/Constant</a>'</span></td></tr>
+<tr name="152" id="152">
+<td><a id="l152" class='ln'>152</a></td><td><span class="ct">   *  DiscreteIntegrator: '<a class="ct blk" blk_line="152">&lt;S12&gt;/Discrete-Time Integrator</a>'</span></td></tr>
+<tr name="153" id="153">
+<td><a id="l153" class='ln'>153</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="154" id="154">
+<td><a id="l154" class='ln'>154</a></td><td>  <a id="154c3" class="tk">rtb_Compare_n</a> = (<a id="154c20" class="tk">uint8_T</a>)(<a id="154c29" class="tk">SensorProcessing_DW</a>.<a id="154c49" class="tk">DiscreteTimeIntegrator_DSTATE_e</a> <a id="154c81" class="tk">&lt;</a></td></tr>
+<tr name="155" id="155">
+<td><a id="l155" class='ln'>155</a></td><td>    500U);</td></tr>
+<tr name="156" id="156">
+<td><a id="l156" class='ln'>156</a></td><td></td></tr>
+<tr name="157" id="157">
+<td><a id="l157" class='ln'>157</a></td><td>  <span class="ct">/* Sum: '<a class="ct blk" blk_line="157">&lt;S18&gt;/Sum3</a>' incorporates:</span></td></tr>
+<tr name="158" id="158">
+<td><a id="l158" class='ln'>158</a></td><td><span class="ct">   *  Logic: '<a class="ct blk" blk_line="158">&lt;S18&gt;/Logical Operator1</a>'</span></td></tr>
+<tr name="159" id="159">
+<td><a id="l159" class='ln'>159</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="160" id="160">
+<td><a id="l160" class='ln'>160</a></td><td>  <a id="160c3" class="tk">rtb_Sum3</a> = (<a id="160c15" class="tk">real32_T</a>)((<a id="160c26" class="tk">SensorProcessing_B</a>.<a id="160c45" class="tk">RoundingFunction</a> <a id="160c62" class="tk">!=</a> 0.0F) <a id="160c71" class="tk">&amp;&amp;</a></td></tr>
+<tr name="161" id="161">
+<td><a id="l161" class='ln'>161</a></td><td>                        (<a id="161c26" class="tk">rtb_Compare_pz</a> <a id="161c41" class="tk">!=</a> 0) <a id="161c47" class="tk">&amp;&amp;</a> (<a id="161c51" class="tk">rtb_Compare_n</a> <a id="161c65" class="tk">!=</a> 0)) <a id="161c72" class="tk">+</a></td></tr>
+<tr name="162" id="162">
+<td><a id="l162" class='ln'>162</a></td><td>    <a id="162c5" class="tk">SensorProcessing_B</a>.<a id="162c24" class="tk">RoundingFunction</a>;</td></tr>
+<tr name="163" id="163">
+<td><a id="l163" class='ln'>163</a></td><td></td></tr>
+<tr name="164" id="164">
+<td><a id="l164" class='ln'>164</a></td><td>  <span class="ct">/* RelationalOperator: '<a class="ct blk" blk_line="164">&lt;S14&gt;/Compare</a>' incorporates:</span></td></tr>
+<tr name="165" id="165">
+<td><a id="l165" class='ln'>165</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="165">&lt;S14&gt;/Constant</a>'</span></td></tr>
+<tr name="166" id="166">
+<td><a id="l166" class='ln'>166</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="167" id="167">
+<td><a id="l167" class='ln'>167</a></td><td>  <a id="167c3" class="tk">rtb_init_ref_alt</a> = (<a id="167c23" class="tk">rtb_Sum3</a> <a id="167c32" class="tk">&gt;</a> 1.0F);</td></tr>
+<tr name="168" id="168">
+<td><a id="l168" class='ln'>168</a></td><td></td></tr>
+<tr name="169" id="169">
+<td><a id="l169" class='ln'>169</a></td><td>  <span class="ct">/* DiscreteIntegrator: '<a class="ct blk" blk_line="169">&lt;S12&gt;/Discrete-Time Integrator1</a>' incorporates:</span></td></tr>
+<tr name="170" id="170">
+<td><a id="l170" class='ln'>170</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="170">&lt;S17&gt;/FixPt Relational Operator</a>'</span></td></tr>
+<tr name="171" id="171">
+<td><a id="l171" class='ln'>171</a></td><td><span class="ct">   *  UnitDelay: '<a class="ct blk" blk_line="171">&lt;S17&gt;/Delay Input1</a>'</span></td></tr>
+<tr name="172" id="172">
+<td><a id="l172" class='ln'>172</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="173" id="173">
+<td><a id="l173" class='ln'>173</a></td><td><span class="ct">   * Block description for '<a class="ct blk" blk_line="173">&lt;S17&gt;/Delay Input1</a>':</span></td></tr>
+<tr name="174" id="174">
+<td><a id="l174" class='ln'>174</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="175" id="175">
+<td><a id="l175" class='ln'>175</a></td><td><span class="ct">   *  Store in Global RAM</span></td></tr>
+<tr name="176" id="176">
+<td><a id="l176" class='ln'>176</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="177" id="177">
+<td><a id="l177" class='ln'>177</a></td><td>  <span class="kw">if</span> (<a id="177c7" class="tk">*</a><a id="177c8" class="tk">rtu_GPS_uBlox_timestamp_ms</a> <a id="177c35" class="tk">!=</a> <a id="177c38" class="tk">SensorProcessing_DW</a>.<a id="177c58" class="tk">DelayInput1_DSTATE_c</a>) <span class="br">{</span></td></tr>
+<tr name="178" id="178">
+<td><a id="l178" class='ln'>178</a></td><td>    <a id="178c5" class="tk">SensorProcessing_DW</a>.<a id="178c25" class="tk">DiscreteTimeIntegrator1_DSTATE</a> = 0U;</td></tr>
+<tr name="179" id="179">
+<td><a id="l179" class='ln'>179</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="180" id="180">
+<td><a id="l180" class='ln'>180</a></td><td></td></tr>
+<tr name="181" id="181">
+<td><a id="l181" class='ln'>181</a></td><td>  <span class="ct">/* DiscreteIntegrator: '<a class="ct blk" blk_line="181">&lt;S5&gt;/Discrete-Time Integrator</a>' incorporates:</span></td></tr>
+<tr name="182" id="182">
+<td><a id="l182" class='ln'>182</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="182">&lt;S8&gt;/FixPt Relational Operator</a>'</span></td></tr>
+<tr name="183" id="183">
+<td><a id="l183" class='ln'>183</a></td><td><span class="ct">   *  UnitDelay: '<a class="ct blk" blk_line="183">&lt;S8&gt;/Delay Input1</a>'</span></td></tr>
+<tr name="184" id="184">
+<td><a id="l184" class='ln'>184</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="185" id="185">
+<td><a id="l185" class='ln'>185</a></td><td><span class="ct">   * Block description for '<a class="ct blk" blk_line="185">&lt;S8&gt;/Delay Input1</a>':</span></td></tr>
+<tr name="186" id="186">
+<td><a id="l186" class='ln'>186</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="187" id="187">
+<td><a id="l187" class='ln'>187</a></td><td><span class="ct">   *  Store in Global RAM</span></td></tr>
+<tr name="188" id="188">
+<td><a id="l188" class='ln'>188</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="189" id="189">
+<td><a id="l189" class='ln'>189</a></td><td>  <span class="kw">if</span> (<a id="189c7" class="tk">*</a><a id="189c8" class="tk">rtu_Baro_timestamp_ms</a> <a id="189c30" class="tk">!=</a> <a id="189c33" class="tk">SensorProcessing_DW</a>.<a id="189c53" class="tk">DelayInput1_DSTATE_c0</a>) <span class="br">{</span></td></tr>
+<tr name="190" id="190">
+<td><a id="l190" class='ln'>190</a></td><td>    <a id="190c5" class="tk">SensorProcessing_DW</a>.<a id="190c25" class="tk">DiscreteTimeIntegrator_DSTATE_c</a> = 0U;</td></tr>
+<tr name="191" id="191">
+<td><a id="l191" class='ln'>191</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="192" id="192">
+<td><a id="l192" class='ln'>192</a></td><td></td></tr>
+<tr name="193" id="193">
+<td><a id="l193" class='ln'>193</a></td><td>  <span class="ct">/* Logic: '<a class="ct blk" blk_line="193">&lt;S5&gt;/Logical Operator4</a>' incorporates:</span></td></tr>
+<tr name="194" id="194">
+<td><a id="l194" class='ln'>194</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="194">&lt;S10&gt;/Lower Limit</a>'</span></td></tr>
+<tr name="195" id="195">
+<td><a id="l195" class='ln'>195</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="195">&lt;S10&gt;/Upper Limit</a>'</span></td></tr>
+<tr name="196" id="196">
+<td><a id="l196" class='ln'>196</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="196">&lt;S7&gt;/Constant</a>'</span></td></tr>
+<tr name="197" id="197">
+<td><a id="l197" class='ln'>197</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="197">&lt;S9&gt;/Lower Limit</a>'</span></td></tr>
+<tr name="198" id="198">
+<td><a id="l198" class='ln'>198</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="198">&lt;S9&gt;/Upper Limit</a>'</span></td></tr>
+<tr name="199" id="199">
+<td><a id="l199" class='ln'>199</a></td><td><span class="ct">   *  DiscreteIntegrator: '<a class="ct blk" blk_line="199">&lt;S5&gt;/Discrete-Time Integrator</a>'</span></td></tr>
+<tr name="200" id="200">
+<td><a id="l200" class='ln'>200</a></td><td><span class="ct">   *  Logic: '<a class="ct blk" blk_line="200">&lt;S10&gt;/AND</a>'</span></td></tr>
+<tr name="201" id="201">
+<td><a id="l201" class='ln'>201</a></td><td><span class="ct">   *  Logic: '<a class="ct blk" blk_line="201">&lt;S5&gt;/Logical Operator</a>'</span></td></tr>
+<tr name="202" id="202">
+<td><a id="l202" class='ln'>202</a></td><td><span class="ct">   *  Logic: '<a class="ct blk" blk_line="202">&lt;S9&gt;/AND</a>'</span></td></tr>
+<tr name="203" id="203">
+<td><a id="l203" class='ln'>203</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="203">&lt;S10&gt;/Lower Test</a>'</span></td></tr>
+<tr name="204" id="204">
+<td><a id="l204" class='ln'>204</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="204">&lt;S10&gt;/Upper Test</a>'</span></td></tr>
+<tr name="205" id="205">
+<td><a id="l205" class='ln'>205</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="205">&lt;S7&gt;/Compare</a>'</span></td></tr>
+<tr name="206" id="206">
+<td><a id="l206" class='ln'>206</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="206">&lt;S9&gt;/Lower Test</a>'</span></td></tr>
+<tr name="207" id="207">
+<td><a id="l207" class='ln'>207</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="207">&lt;S9&gt;/Upper Test</a>'</span></td></tr>
+<tr name="208" id="208">
+<td><a id="l208" class='ln'>208</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="209" id="209">
+<td><a id="l209" class='ln'>209</a></td><td>  <a id="209c3" class="tk">rtb_LogicalOperator4_n</a> = ((1000 <a id="209c35" class="tk">&lt;</a> <a id="209c37" class="tk">*</a><a id="209c38" class="tk">rtu_Baro_pressure_Pa</a>) <a id="209c60" class="tk">&amp;&amp;</a></td></tr>
+<tr name="210" id="210">
+<td><a id="l210" class='ln'>210</a></td><td>    (<a id="210c6" class="tk">*</a><a id="210c7" class="tk">rtu_Baro_pressure_Pa</a> <a id="210c28" class="tk">&lt;</a> 130000) <a id="210c38" class="tk">&amp;&amp;</a> ((<a id="210c43" class="tk">-</a>40.0F <a id="210c50" class="tk">&lt;</a> <a id="210c52" class="tk">*</a><a id="210c53" class="tk">rtu_Baro_temperature_deg</a>) <a id="210c79" class="tk">&amp;&amp;</a></td></tr>
+<tr name="211" id="211">
+<td><a id="l211" class='ln'>211</a></td><td>    (<a id="211c6" class="tk">*</a><a id="211c7" class="tk">rtu_Baro_temperature_deg</a> <a id="211c32" class="tk">&lt;</a> 85.0F)) <a id="211c42" class="tk">&amp;&amp;</a></td></tr>
+<tr name="212" id="212">
+<td><a id="l212" class='ln'>212</a></td><td>    (<a id="212c6" class="tk">SensorProcessing_DW</a>.<a id="212c26" class="tk">DiscreteTimeIntegrator_DSTATE_c</a> <a id="212c58" class="tk">&lt;</a> 200U));</td></tr>
+<tr name="213" id="213">
+<td><a id="l213" class='ln'>213</a></td><td></td></tr>
+<tr name="214" id="214">
+<td><a id="l214" class='ln'>214</a></td><td>  <span class="ct">/* Outputs for Enabled SubSystem: '<a class="ct blk" blk_line="214">&lt;S1&gt;/Pressure_Altitude</a>' incorporates:</span></td></tr>
+<tr name="215" id="215">
+<td><a id="l215" class='ln'>215</a></td><td><span class="ct">   *  EnablePort: '<a class="ct blk" blk_line="215">&lt;S6&gt;/Enable</a>'</span></td></tr>
+<tr name="216" id="216">
+<td><a id="l216" class='ln'>216</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="217" id="217">
+<td><a id="l217" class='ln'>217</a></td><td>  <span class="kw">if</span> (<a id="217c7" class="tk">rtb_LogicalOperator4_n</a>) <span class="br">{</span></td></tr>
+<tr name="218" id="218">
+<td><a id="l218" class='ln'>218</a></td><td>    <span class="ct">/* Product: '<a class="ct blk" blk_line="218">&lt;S6&gt;/Divide</a>' incorporates:</span></td></tr>
+<tr name="219" id="219">
+<td><a id="l219" class='ln'>219</a></td><td><span class="ct">     *  Constant: '<a class="ct blk" blk_line="219">&lt;S6&gt;/p1</a>'</span></td></tr>
+<tr name="220" id="220">
+<td><a id="l220" class='ln'>220</a></td><td><span class="ct">     *  Gain: '<a class="ct blk" blk_line="220">&lt;S6&gt;/Gain</a>'</span></td></tr>
+<tr name="221" id="221">
+<td><a id="l221" class='ln'>221</a></td><td><span class="ct">     */</span></td></tr>
+<tr name="222" id="222">
+<td><a id="l222" class='ln'>222</a></td><td>    <a id="222c5" class="tk">rtb_Divide2</a> = 0.0010000000002037268 <a id="222c41" class="tk">*</a> (<a id="222c44" class="tk">real_T</a>)<a id="222c51" class="tk">*</a><a id="222c52" class="tk">rtu_Baro_pressure_Pa</a> <a id="222c73" class="tk">/</a></td></tr>
+<tr name="223" id="223">
+<td><a id="l223" class='ln'>223</a></td><td>      101.325;</td></tr>
+<tr name="224" id="224">
+<td><a id="l224" class='ln'>224</a></td><td></td></tr>
+<tr name="225" id="225">
+<td><a id="l225" class='ln'>225</a></td><td>    <span class="ct">/* Math: '<a class="ct blk" blk_line="225">&lt;S6&gt;/Pow</a>' */</span></td></tr>
+<tr name="226" id="226">
+<td><a id="l226" class='ln'>226</a></td><td>    <span class="kw">if</span> ((<a id="226c10" class="tk">rtb_Divide2</a> <a id="226c22" class="tk">&lt;</a> 0.0) <a id="226c29" class="tk">&amp;&amp;</a> (<a id="226c33" class="tk">SensorProcessing_ConstB</a>.<a id="226c57" class="tk">Divide1</a> <a id="226c65" class="tk">&gt;</a> <a id="226c67" class="tk">floor</a></td></tr>
+<tr name="227" id="227">
+<td><a id="l227" class='ln'>227</a></td><td>         (<a id="227c11" class="tk">SensorProcessing_ConstB</a>.<a id="227c35" class="tk">Divide1</a>))) <span class="br">{</span></td></tr>
+<tr name="228" id="228">
+<td><a id="l228" class='ln'>228</a></td><td>      <a id="228c7" class="tk">rtb_Divide2</a> = <a id="228c21" class="tk">-</a><a id="228c22" class="tk">rt_powd_snf</a>(<a id="228c34" class="tk">-</a><a id="228c35" class="tk">rtb_Divide2</a>, <a id="228c48" class="tk">SensorProcessing_ConstB</a>.<a id="228c72" class="tk">Divide1</a>);</td></tr>
+<tr name="229" id="229">
+<td><a id="l229" class='ln'>229</a></td><td>    <span class="br">}</span> <span class="kw">else</span> <span class="br">{</span></td></tr>
+<tr name="230" id="230">
+<td><a id="l230" class='ln'>230</a></td><td>      <a id="230c7" class="tk">rtb_Divide2</a> = <a id="230c21" class="tk">rt_powd_snf</a>(<a id="230c33" class="tk">rtb_Divide2</a>, <a id="230c46" class="tk">SensorProcessing_ConstB</a>.<a id="230c70" class="tk">Divide1</a>);</td></tr>
+<tr name="231" id="231">
+<td><a id="l231" class='ln'>231</a></td><td>    <span class="br">}</span></td></tr>
+<tr name="232" id="232">
+<td><a id="l232" class='ln'>232</a></td><td></td></tr>
+<tr name="233" id="233">
+<td><a id="l233" class='ln'>233</a></td><td>    <span class="ct">/* End of Math: '<a class="ct blk" blk_line="233">&lt;S6&gt;/Pow</a>' */</span></td></tr>
+<tr name="234" id="234">
+<td><a id="l234" class='ln'>234</a></td><td></td></tr>
+<tr name="235" id="235">
+<td><a id="l235" class='ln'>235</a></td><td>    <span class="ct">/* DataTypeConversion: '<a class="ct blk" blk_line="235">&lt;S6&gt;/Data Type Conversion</a>' incorporates:</span></td></tr>
+<tr name="236" id="236">
+<td><a id="l236" class='ln'>236</a></td><td><span class="ct">     *  Constant: '<a class="ct blk" blk_line="236">&lt;S6&gt;/T1</a>'</span></td></tr>
+<tr name="237" id="237">
+<td><a id="l237" class='ln'>237</a></td><td><span class="ct">     *  Constant: '<a class="ct blk" blk_line="237">&lt;S6&gt;/a</a>'</span></td></tr>
+<tr name="238" id="238">
+<td><a id="l238" class='ln'>238</a></td><td><span class="ct">     *  Product: '<a class="ct blk" blk_line="238">&lt;S6&gt;/Divide2</a>'</span></td></tr>
+<tr name="239" id="239">
+<td><a id="l239" class='ln'>239</a></td><td><span class="ct">     *  Product: '<a class="ct blk" blk_line="239">&lt;S6&gt;/Multiply1</a>'</span></td></tr>
+<tr name="240" id="240">
+<td><a id="l240" class='ln'>240</a></td><td><span class="ct">     *  Sum: '<a class="ct blk" blk_line="240">&lt;S6&gt;/Subtract</a>'</span></td></tr>
+<tr name="241" id="241">
+<td><a id="l241" class='ln'>241</a></td><td><span class="ct">     */</span></td></tr>
+<tr name="242" id="242">
+<td><a id="l242" class='ln'>242</a></td><td>    <a id="242c5" class="tk">SensorProcessing_B</a>.<a id="242c24" class="tk">DataTypeConversion</a> = (<a id="242c46" class="tk">real32_T</a>)((<a id="242c57" class="tk">rtb_Divide2</a> <a id="242c69" class="tk">*</a> 288.15 <a id="242c78" class="tk">-</a></td></tr>
+<tr name="243" id="243">
+<td><a id="l243" class='ln'>243</a></td><td>      288.15) <a id="243c15" class="tk">/</a> <a id="243c17" class="tk">-</a>0.0065);</td></tr>
+<tr name="244" id="244">
+<td><a id="l244" class='ln'>244</a></td><td></td></tr>
+<tr name="245" id="245">
+<td><a id="l245" class='ln'>245</a></td><td>    <span class="ct">/* Switch: '<a class="ct blk" blk_line="245">&lt;S11&gt;/Switch</a>' incorporates:</span></td></tr>
+<tr name="246" id="246">
+<td><a id="l246" class='ln'>246</a></td><td><span class="ct">     *  Memory: '<a class="ct blk" blk_line="246">&lt;S11&gt;/Memory3</a>'</span></td></tr>
+<tr name="247" id="247">
+<td><a id="l247" class='ln'>247</a></td><td><span class="ct">     */</span></td></tr>
+<tr name="248" id="248">
+<td><a id="l248" class='ln'>248</a></td><td>    <span class="kw">if</span> (<a id="248c9" class="tk">SensorProcessing_DW</a>.<a id="248c29" class="tk">Memory3_PreviousInput</a>) <span class="br">{</span></td></tr>
+<tr name="249" id="249">
+<td><a id="l249" class='ln'>249</a></td><td>      <a id="249c7" class="tk">SensorProcessing_DW</a>.<a id="249c27" class="tk">ref_alt_PreviousInput</a> =</td></tr>
+<tr name="250" id="250">
+<td><a id="l250" class='ln'>250</a></td><td>        <a id="250c9" class="tk">SensorProcessing_B</a>.<a id="250c28" class="tk">DataTypeConversion</a>;</td></tr>
+<tr name="251" id="251">
+<td><a id="l251" class='ln'>251</a></td><td>    <span class="br">}</span></td></tr>
+<tr name="252" id="252">
+<td><a id="l252" class='ln'>252</a></td><td></td></tr>
+<tr name="253" id="253">
+<td><a id="l253" class='ln'>253</a></td><td>    <span class="ct">/* End of Switch: '<a class="ct blk" blk_line="253">&lt;S11&gt;/Switch</a>' */</span></td></tr>
+<tr name="254" id="254">
+<td><a id="l254" class='ln'>254</a></td><td></td></tr>
+<tr name="255" id="255">
+<td><a id="l255" class='ln'>255</a></td><td>    <span class="ct">/* Sum: '<a class="ct blk" blk_line="255">&lt;S11&gt;/Subtract1</a>' */</span></td></tr>
+<tr name="256" id="256">
+<td><a id="l256" class='ln'>256</a></td><td>    <a id="256c5" class="tk">SensorProcessing_B</a>.<a id="256c24" class="tk">Subtract1</a> = <a id="256c36" class="tk">SensorProcessing_B</a>.<a id="256c55" class="tk">DataTypeConversion</a> <a id="256c74" class="tk">-</a></td></tr>
+<tr name="257" id="257">
+<td><a id="l257" class='ln'>257</a></td><td>      <a id="257c7" class="tk">SensorProcessing_DW</a>.<a id="257c27" class="tk">ref_alt_PreviousInput</a>;</td></tr>
+<tr name="258" id="258">
+<td><a id="l258" class='ln'>258</a></td><td></td></tr>
+<tr name="259" id="259">
+<td><a id="l259" class='ln'>259</a></td><td>    <span class="ct">/* Update for Memory: '<a class="ct blk" blk_line="259">&lt;S11&gt;/Memory3</a>' incorporates:</span></td></tr>
+<tr name="260" id="260">
+<td><a id="l260" class='ln'>260</a></td><td><span class="ct">     *  Constant: '<a class="ct blk" blk_line="260">&lt;S11&gt;/Constant2</a>'</span></td></tr>
+<tr name="261" id="261">
+<td><a id="l261" class='ln'>261</a></td><td><span class="ct">     */</span></td></tr>
+<tr name="262" id="262">
+<td><a id="l262" class='ln'>262</a></td><td>    <a id="262c5" class="tk">SensorProcessing_DW</a>.<a id="262c25" class="tk">Memory3_PreviousInput</a> = false;</td></tr>
+<tr name="263" id="263">
+<td><a id="l263" class='ln'>263</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="264" id="264">
+<td><a id="l264" class='ln'>264</a></td><td></td></tr>
+<tr name="265" id="265">
+<td><a id="l265" class='ln'>265</a></td><td>  <span class="ct">/* End of Outputs for SubSystem: '<a class="ct blk" blk_line="265">&lt;S1&gt;/Pressure_Altitude</a>' */</span></td></tr>
+<tr name="266" id="266">
+<td><a id="l266" class='ln'>266</a></td><td></td></tr>
+<tr name="267" id="267">
+<td><a id="l267" class='ln'>267</a></td><td>  <span class="ct">/* Sum: '<a class="ct blk" blk_line="267">&lt;S22&gt;/Subtract</a>' */</span></td></tr>
+<tr name="268" id="268">
+<td><a id="l268" class='ln'>268</a></td><td>  <a id="268c3" class="tk">rtu_IMU1_gyr_radPs_B_idx_0</a> = <a id="268c32" class="tk">rtu_IMU1_gyr_radPs_B</a>[0] <a id="268c56" class="tk">-</a></td></tr>
+<tr name="269" id="269">
+<td><a id="l269" class='ln'>269</a></td><td>    <a id="269c5" class="tk">rtu_Sensor_Param_gyr_bias</a>[0];</td></tr>
+<tr name="270" id="270">
+<td><a id="l270" class='ln'>270</a></td><td>  <a id="270c3" class="tk">rtu_IMU1_gyr_radPs_B_idx_1</a> = <a id="270c32" class="tk">rtu_IMU1_gyr_radPs_B</a>[1] <a id="270c56" class="tk">-</a></td></tr>
+<tr name="271" id="271">
+<td><a id="l271" class='ln'>271</a></td><td>    <a id="271c5" class="tk">rtu_Sensor_Param_gyr_bias</a>[1];</td></tr>
+<tr name="272" id="272">
+<td><a id="l272" class='ln'>272</a></td><td>  <a id="272c3" class="tk">rtu_IMU1_gyr_radPs_B_idx_2</a> = <a id="272c32" class="tk">rtu_IMU1_gyr_radPs_B</a>[2] <a id="272c56" class="tk">-</a></td></tr>
+<tr name="273" id="273">
+<td><a id="l273" class='ln'>273</a></td><td>    <a id="273c5" class="tk">rtu_Sensor_Param_gyr_bias</a>[2];</td></tr>
+<tr name="274" id="274">
+<td><a id="l274" class='ln'>274</a></td><td>  <span class="kw">for</span> (<a id="274c8" class="tk">i</a> = 0; <a id="274c15" class="tk">i</a> <a id="274c17" class="tk">&lt;</a> 3; <a id="274c22" class="tk">i</a><a id="274c23" class="tk">++</a>) <span class="br">{</span></td></tr>
+<tr name="275" id="275">
+<td><a id="l275" class='ln'>275</a></td><td>    <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="275">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' incorporates:</span></td></tr>
+<tr name="276" id="276">
+<td><a id="l276" class='ln'>276</a></td><td><span class="ct">     *  Product: '<a class="ct blk" blk_line="276">&lt;S22&gt;/Multiply</a>'</span></td></tr>
+<tr name="277" id="277">
+<td><a id="l277" class='ln'>277</a></td><td><span class="ct">     */</span></td></tr>
+<tr name="278" id="278">
+<td><a id="l278" class='ln'>278</a></td><td>    <a id="278c5" class="tk">rty_Sensor_Data_IMU_Data_rot_ra</a>[<a id="278c37" class="tk">i</a>] = 0.0F;</td></tr>
+<tr name="279" id="279">
+<td><a id="l279" class='ln'>279</a></td><td>    <a id="279c5" class="tk">rty_Sensor_Data_IMU_Data_rot_ra</a>[<a id="279c37" class="tk">i</a>] <a id="279c40" class="tk">+=</a> <a id="279c43" class="tk">rtu_Sensor_Param_gyr_rotM</a>[<a id="279c69" class="tk">i</a>] <a id="279c72" class="tk">*</a></td></tr>
+<tr name="280" id="280">
+<td><a id="l280" class='ln'>280</a></td><td>      <a id="280c7" class="tk">rtu_IMU1_gyr_radPs_B_idx_0</a>;</td></tr>
+<tr name="281" id="281">
+<td><a id="l281" class='ln'>281</a></td><td>    <a id="281c5" class="tk">rty_Sensor_Data_IMU_Data_rot_ra</a>[<a id="281c37" class="tk">i</a>] <a id="281c40" class="tk">+=</a> <a id="281c43" class="tk">rtu_Sensor_Param_gyr_rotM</a>[<a id="281c69" class="tk">i</a> <a id="281c71" class="tk">+</a> 3] <a id="281c76" class="tk">*</a></td></tr>
+<tr name="282" id="282">
+<td><a id="l282" class='ln'>282</a></td><td>      <a id="282c7" class="tk">rtu_IMU1_gyr_radPs_B_idx_1</a>;</td></tr>
+<tr name="283" id="283">
+<td><a id="l283" class='ln'>283</a></td><td>    <a id="283c5" class="tk">rty_Sensor_Data_IMU_Data_rot_ra</a>[<a id="283c37" class="tk">i</a>] <a id="283c40" class="tk">+=</a> <a id="283c43" class="tk">rtu_Sensor_Param_gyr_rotM</a>[<a id="283c69" class="tk">i</a> <a id="283c71" class="tk">+</a> 6] <a id="283c76" class="tk">*</a></td></tr>
+<tr name="284" id="284">
+<td><a id="l284" class='ln'>284</a></td><td>      <a id="284c7" class="tk">rtu_IMU1_gyr_radPs_B_idx_2</a>;</td></tr>
+<tr name="285" id="285">
+<td><a id="l285" class='ln'>285</a></td><td></td></tr>
+<tr name="286" id="286">
+<td><a id="l286" class='ln'>286</a></td><td>    <span class="ct">/* Sum: '<a class="ct blk" blk_line="286">&lt;S22&gt;/Subtract1</a>' */</span></td></tr>
+<tr name="287" id="287">
+<td><a id="l287" class='ln'>287</a></td><td>    <a id="287c5" class="tk">rtu_IMU1_acc_mPs2_B_0</a>[<a id="287c27" class="tk">i</a>] = <a id="287c32" class="tk">rtu_IMU1_acc_mPs2_B</a>[<a id="287c52" class="tk">i</a>] <a id="287c55" class="tk">-</a></td></tr>
+<tr name="288" id="288">
+<td><a id="l288" class='ln'>288</a></td><td>      <a id="288c7" class="tk">rtu_Sensor_Param_acc_bias</a>[<a id="288c33" class="tk">i</a>];</td></tr>
+<tr name="289" id="289">
+<td><a id="l289" class='ln'>289</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="290" id="290">
+<td><a id="l290" class='ln'>290</a></td><td></td></tr>
+<tr name="291" id="291">
+<td><a id="l291" class='ln'>291</a></td><td>  <span class="kw">for</span> (<a id="291c8" class="tk">i</a> = 0; <a id="291c15" class="tk">i</a> <a id="291c17" class="tk">&lt;</a> 3; <a id="291c22" class="tk">i</a><a id="291c23" class="tk">++</a>) <span class="br">{</span></td></tr>
+<tr name="292" id="292">
+<td><a id="l292" class='ln'>292</a></td><td>    <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="292">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' incorporates:</span></td></tr>
+<tr name="293" id="293">
+<td><a id="l293" class='ln'>293</a></td><td><span class="ct">     *  Product: '<a class="ct blk" blk_line="293">&lt;S22&gt;/Multiply1</a>'</span></td></tr>
+<tr name="294" id="294">
+<td><a id="l294" class='ln'>294</a></td><td><span class="ct">     */</span></td></tr>
+<tr name="295" id="295">
+<td><a id="l295" class='ln'>295</a></td><td>    <a id="295c5" class="tk">rty_Sensor_Data_IMU_Data_sfor_m</a>[<a id="295c37" class="tk">i</a>] = 0.0F;</td></tr>
+<tr name="296" id="296">
+<td><a id="l296" class='ln'>296</a></td><td>    <a id="296c5" class="tk">rty_Sensor_Data_IMU_Data_sfor_m</a>[<a id="296c37" class="tk">i</a>] <a id="296c40" class="tk">+=</a> <a id="296c43" class="tk">rtu_Sensor_Param_acc_rotM</a>[<a id="296c69" class="tk">i</a>] <a id="296c72" class="tk">*</a></td></tr>
+<tr name="297" id="297">
+<td><a id="l297" class='ln'>297</a></td><td>      <a id="297c7" class="tk">rtu_IMU1_acc_mPs2_B_0</a>[0];</td></tr>
+<tr name="298" id="298">
+<td><a id="l298" class='ln'>298</a></td><td>    <a id="298c5" class="tk">rty_Sensor_Data_IMU_Data_sfor_m</a>[<a id="298c37" class="tk">i</a>] <a id="298c40" class="tk">+=</a> <a id="298c43" class="tk">rtu_Sensor_Param_acc_rotM</a>[<a id="298c69" class="tk">i</a> <a id="298c71" class="tk">+</a> 3] <a id="298c76" class="tk">*</a></td></tr>
+<tr name="299" id="299">
+<td><a id="l299" class='ln'>299</a></td><td>      <a id="299c7" class="tk">rtu_IMU1_acc_mPs2_B_0</a>[1];</td></tr>
+<tr name="300" id="300">
+<td><a id="l300" class='ln'>300</a></td><td>    <a id="300c5" class="tk">rty_Sensor_Data_IMU_Data_sfor_m</a>[<a id="300c37" class="tk">i</a>] <a id="300c40" class="tk">+=</a> <a id="300c43" class="tk">rtu_Sensor_Param_acc_rotM</a>[<a id="300c69" class="tk">i</a> <a id="300c71" class="tk">+</a> 6] <a id="300c76" class="tk">*</a></td></tr>
+<tr name="301" id="301">
+<td><a id="l301" class='ln'>301</a></td><td>      <a id="301c7" class="tk">rtu_IMU1_acc_mPs2_B_0</a>[2];</td></tr>
+<tr name="302" id="302">
+<td><a id="l302" class='ln'>302</a></td><td></td></tr>
+<tr name="303" id="303">
+<td><a id="l303" class='ln'>303</a></td><td>    <span class="ct">/* Sum: '<a class="ct blk" blk_line="303">&lt;S29&gt;/Subtract1</a>' */</span></td></tr>
+<tr name="304" id="304">
+<td><a id="l304" class='ln'>304</a></td><td>    <a id="304c5" class="tk">rtu_Mag_mag_ga_B_0</a>[<a id="304c24" class="tk">i</a>] = <a id="304c29" class="tk">rtu_Mag_mag_ga_B</a>[<a id="304c46" class="tk">i</a>] <a id="304c49" class="tk">-</a> <a id="304c51" class="tk">rtu_Sensor_Param_mag_bias</a>[<a id="304c77" class="tk">i</a>];</td></tr>
+<tr name="305" id="305">
+<td><a id="l305" class='ln'>305</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="306" id="306">
+<td><a id="l306" class='ln'>306</a></td><td></td></tr>
+<tr name="307" id="307">
+<td><a id="l307" class='ln'>307</a></td><td>  <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="307">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' incorporates:</span></td></tr>
+<tr name="308" id="308">
+<td><a id="l308" class='ln'>308</a></td><td><span class="ct">   *  Product: '<a class="ct blk" blk_line="308">&lt;S29&gt;/Multiply1</a>'</span></td></tr>
+<tr name="309" id="309">
+<td><a id="l309" class='ln'>309</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="310" id="310">
+<td><a id="l310" class='ln'>310</a></td><td>  <span class="kw">for</span> (<a id="310c8" class="tk">i</a> = 0; <a id="310c15" class="tk">i</a> <a id="310c17" class="tk">&lt;</a> 3; <a id="310c22" class="tk">i</a><a id="310c23" class="tk">++</a>) <span class="br">{</span></td></tr>
+<tr name="311" id="311">
+<td><a id="l311" class='ln'>311</a></td><td>    <a id="311c5" class="tk">rty_Sensor_Data_Mag_Data_mag_ga</a>[<a id="311c37" class="tk">i</a>] = 0.0F;</td></tr>
+<tr name="312" id="312">
+<td><a id="l312" class='ln'>312</a></td><td>    <a id="312c5" class="tk">rty_Sensor_Data_Mag_Data_mag_ga</a>[<a id="312c37" class="tk">i</a>] <a id="312c40" class="tk">+=</a> <a id="312c43" class="tk">rtu_Sensor_Param_mag_rotM</a>[<a id="312c69" class="tk">i</a>] <a id="312c72" class="tk">*</a></td></tr>
+<tr name="313" id="313">
+<td><a id="l313" class='ln'>313</a></td><td>      <a id="313c7" class="tk">rtu_Mag_mag_ga_B_0</a>[0];</td></tr>
+<tr name="314" id="314">
+<td><a id="l314" class='ln'>314</a></td><td>    <a id="314c5" class="tk">rty_Sensor_Data_Mag_Data_mag_ga</a>[<a id="314c37" class="tk">i</a>] <a id="314c40" class="tk">+=</a> <a id="314c43" class="tk">rtu_Sensor_Param_mag_rotM</a>[<a id="314c69" class="tk">i</a> <a id="314c71" class="tk">+</a> 3] <a id="314c76" class="tk">*</a></td></tr>
+<tr name="315" id="315">
+<td><a id="l315" class='ln'>315</a></td><td>      <a id="315c7" class="tk">rtu_Mag_mag_ga_B_0</a>[1];</td></tr>
+<tr name="316" id="316">
+<td><a id="l316" class='ln'>316</a></td><td>    <a id="316c5" class="tk">rty_Sensor_Data_Mag_Data_mag_ga</a>[<a id="316c37" class="tk">i</a>] <a id="316c40" class="tk">+=</a> <a id="316c43" class="tk">rtu_Sensor_Param_mag_rotM</a>[<a id="316c69" class="tk">i</a> <a id="316c71" class="tk">+</a> 6] <a id="316c76" class="tk">*</a></td></tr>
+<tr name="317" id="317">
+<td><a id="l317" class='ln'>317</a></td><td>      <a id="317c7" class="tk">rtu_Mag_mag_ga_B_0</a>[2];</td></tr>
+<tr name="318" id="318">
+<td><a id="l318" class='ln'>318</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="319" id="319">
+<td><a id="l319" class='ln'>319</a></td><td></td></tr>
+<tr name="320" id="320">
+<td><a id="l320" class='ln'>320</a></td><td>  <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="320">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' incorporates:</span></td></tr>
+<tr name="321" id="321">
+<td><a id="l321" class='ln'>321</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="321">&lt;S24&gt;/Constant</a>'</span></td></tr>
+<tr name="322" id="322">
+<td><a id="l322" class='ln'>322</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="322">&lt;S26&gt;/Lower Limit</a>'</span></td></tr>
+<tr name="323" id="323">
+<td><a id="l323" class='ln'>323</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="323">&lt;S26&gt;/Upper Limit</a>'</span></td></tr>
+<tr name="324" id="324">
+<td><a id="l324" class='ln'>324</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="324">&lt;S28&gt;/Lower Limit</a>'</span></td></tr>
+<tr name="325" id="325">
+<td><a id="l325" class='ln'>325</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="325">&lt;S28&gt;/Upper Limit</a>'</span></td></tr>
+<tr name="326" id="326">
+<td><a id="l326" class='ln'>326</a></td><td><span class="ct">   *  DiscreteIntegrator: '<a class="ct blk" blk_line="326">&lt;S23&gt;/Discrete-Time Integrator</a>'</span></td></tr>
+<tr name="327" id="327">
+<td><a id="l327" class='ln'>327</a></td><td><span class="ct">   *  Logic: '<a class="ct blk" blk_line="327">&lt;S23&gt;/Logical Operator</a>'</span></td></tr>
+<tr name="328" id="328">
+<td><a id="l328" class='ln'>328</a></td><td><span class="ct">   *  Logic: '<a class="ct blk" blk_line="328">&lt;S23&gt;/Logical Operator1</a>'</span></td></tr>
+<tr name="329" id="329">
+<td><a id="l329" class='ln'>329</a></td><td><span class="ct">   *  Logic: '<a class="ct blk" blk_line="329">&lt;S23&gt;/Logical Operator2</a>'</span></td></tr>
+<tr name="330" id="330">
+<td><a id="l330" class='ln'>330</a></td><td><span class="ct">   *  Logic: '<a class="ct blk" blk_line="330">&lt;S23&gt;/Logical Operator4</a>'</span></td></tr>
+<tr name="331" id="331">
+<td><a id="l331" class='ln'>331</a></td><td><span class="ct">   *  Logic: '<a class="ct blk" blk_line="331">&lt;S26&gt;/AND</a>'</span></td></tr>
+<tr name="332" id="332">
+<td><a id="l332" class='ln'>332</a></td><td><span class="ct">   *  Logic: '<a class="ct blk" blk_line="332">&lt;S28&gt;/AND</a>'</span></td></tr>
+<tr name="333" id="333">
+<td><a id="l333" class='ln'>333</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="333">&lt;S24&gt;/Compare</a>'</span></td></tr>
+<tr name="334" id="334">
+<td><a id="l334" class='ln'>334</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="334">&lt;S26&gt;/Lower Test</a>'</span></td></tr>
+<tr name="335" id="335">
+<td><a id="l335" class='ln'>335</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="335">&lt;S26&gt;/Upper Test</a>'</span></td></tr>
+<tr name="336" id="336">
+<td><a id="l336" class='ln'>336</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="336">&lt;S28&gt;/Lower Test</a>'</span></td></tr>
+<tr name="337" id="337">
+<td><a id="l337" class='ln'>337</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="337">&lt;S28&gt;/Upper Test</a>'</span></td></tr>
+<tr name="338" id="338">
+<td><a id="l338" class='ln'>338</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="339" id="339">
+<td><a id="l339" class='ln'>339</a></td><td>  <a id="339c3" class="tk">*</a><a id="339c4" class="tk">rty_Sensor_Data_IMU_Data_valid</a> = ((<a id="339c39" class="tk">-</a>38.3972435F <a id="339c52" class="tk">&lt;</a> <a id="339c54" class="tk">rtu_IMU1_gyr_radPs_B</a>[0]) <a id="339c79" class="tk">&amp;&amp;</a></td></tr>
+<tr name="340" id="340">
+<td><a id="l340" class='ln'>340</a></td><td>    (<a id="340c6" class="tk">rtu_IMU1_gyr_radPs_B</a>[0] <a id="340c30" class="tk">&lt;</a> 38.3972435F) <a id="340c45" class="tk">&amp;&amp;</a> ((<a id="340c50" class="tk">-</a>38.3972435F <a id="340c63" class="tk">&lt;</a></td></tr>
+<tr name="341" id="341">
+<td><a id="l341" class='ln'>341</a></td><td>    <a id="341c5" class="tk">rtu_IMU1_gyr_radPs_B</a>[1]) <a id="341c30" class="tk">&amp;&amp;</a> (<a id="341c34" class="tk">rtu_IMU1_gyr_radPs_B</a>[1] <a id="341c58" class="tk">&lt;</a> 38.3972435F)) <a id="341c74" class="tk">&amp;&amp;</a></td></tr>
+<tr name="342" id="342">
+<td><a id="l342" class='ln'>342</a></td><td>    ((<a id="342c7" class="tk">-</a>38.3972435F <a id="342c20" class="tk">&lt;</a> <a id="342c22" class="tk">rtu_IMU1_gyr_radPs_B</a>[2]) <a id="342c47" class="tk">&amp;&amp;</a> (<a id="342c51" class="tk">rtu_IMU1_gyr_radPs_B</a>[2] <a id="342c75" class="tk">&lt;</a></td></tr>
+<tr name="343" id="343">
+<td><a id="l343" class='ln'>343</a></td><td>    38.3972435F)) <a id="343c19" class="tk">&amp;&amp;</a> ((<a id="343c24" class="tk">-</a>98.1F <a id="343c31" class="tk">&lt;</a> <a id="343c33" class="tk">rtu_IMU1_acc_mPs2_B</a>[0]) <a id="343c57" class="tk">&amp;&amp;</a> (<a id="343c61" class="tk">rtu_IMU1_acc_mPs2_B</a></td></tr>
+<tr name="344" id="344">
+<td><a id="l344" class='ln'>344</a></td><td>    [0] <a id="344c9" class="tk">&lt;</a> 98.1F) <a id="344c18" class="tk">&amp;&amp;</a> ((<a id="344c23" class="tk">-</a>98.1F <a id="344c30" class="tk">&lt;</a> <a id="344c32" class="tk">rtu_IMU1_acc_mPs2_B</a>[1]) <a id="344c56" class="tk">&amp;&amp;</a> (<a id="344c60" class="tk">rtu_IMU1_acc_mPs2_B</a>[1]</td></tr>
+<tr name="345" id="345">
+<td><a id="l345" class='ln'>345</a></td><td>    <a id="345c5" class="tk">&lt;</a> 98.1F)) <a id="345c15" class="tk">&amp;&amp;</a> ((<a id="345c20" class="tk">-</a>98.1F <a id="345c27" class="tk">&lt;</a> <a id="345c29" class="tk">rtu_IMU1_acc_mPs2_B</a>[2]) <a id="345c53" class="tk">&amp;&amp;</a> (<a id="345c57" class="tk">rtu_IMU1_acc_mPs2_B</a>[2] <a id="345c80" class="tk">&lt;</a></td></tr>
+<tr name="346" id="346">
+<td><a id="l346" class='ln'>346</a></td><td>    98.1F))) <a id="346c14" class="tk">&amp;&amp;</a> <a id="346c17" class="tk">SensorProcessing_ConstB</a>.<a id="346c41" class="tk">AND</a> <a id="346c45" class="tk">&amp;&amp;</a></td></tr>
+<tr name="347" id="347">
+<td><a id="l347" class='ln'>347</a></td><td>    (<a id="347c6" class="tk">SensorProcessing_DW</a>.<a id="347c26" class="tk">DiscreteTimeIntegrator_DSTATE</a> <a id="347c56" class="tk">&lt;</a> 100U));</td></tr>
+<tr name="348" id="348">
+<td><a id="l348" class='ln'>348</a></td><td></td></tr>
+<tr name="349" id="349">
+<td><a id="l349" class='ln'>349</a></td><td>  <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="349">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' incorporates:</span></td></tr>
+<tr name="350" id="350">
+<td><a id="l350" class='ln'>350</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="350">&lt;S32&gt;/Constant</a>'</span></td></tr>
+<tr name="351" id="351">
+<td><a id="l351" class='ln'>351</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="351">&lt;S35&gt;/Lower Limit</a>'</span></td></tr>
+<tr name="352" id="352">
+<td><a id="l352" class='ln'>352</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="352">&lt;S35&gt;/Upper Limit</a>'</span></td></tr>
+<tr name="353" id="353">
+<td><a id="l353" class='ln'>353</a></td><td><span class="ct">   *  DiscreteIntegrator: '<a class="ct blk" blk_line="353">&lt;S31&gt;/Discrete-Time Integrator</a>'</span></td></tr>
+<tr name="354" id="354">
+<td><a id="l354" class='ln'>354</a></td><td><span class="ct">   *  Logic: '<a class="ct blk" blk_line="354">&lt;S31&gt;/Logical Operator</a>'</span></td></tr>
+<tr name="355" id="355">
+<td><a id="l355" class='ln'>355</a></td><td><span class="ct">   *  Logic: '<a class="ct blk" blk_line="355">&lt;S31&gt;/Logical Operator1</a>'</span></td></tr>
+<tr name="356" id="356">
+<td><a id="l356" class='ln'>356</a></td><td><span class="ct">   *  Logic: '<a class="ct blk" blk_line="356">&lt;S31&gt;/Logical Operator4</a>'</span></td></tr>
+<tr name="357" id="357">
+<td><a id="l357" class='ln'>357</a></td><td><span class="ct">   *  Logic: '<a class="ct blk" blk_line="357">&lt;S35&gt;/AND</a>'</span></td></tr>
+<tr name="358" id="358">
+<td><a id="l358" class='ln'>358</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="358">&lt;S32&gt;/Compare</a>'</span></td></tr>
+<tr name="359" id="359">
+<td><a id="l359" class='ln'>359</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="359">&lt;S35&gt;/Lower Test</a>'</span></td></tr>
+<tr name="360" id="360">
+<td><a id="l360" class='ln'>360</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="360">&lt;S35&gt;/Upper Test</a>'</span></td></tr>
+<tr name="361" id="361">
+<td><a id="l361" class='ln'>361</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="362" id="362">
+<td><a id="l362" class='ln'>362</a></td><td>  <a id="362c3" class="tk">*</a><a id="362c4" class="tk">rty_Sensor_Data_Mag_Data_valid</a> = ((<a id="362c39" class="tk">-</a>2.0F <a id="362c45" class="tk">&lt;</a> <a id="362c47" class="tk">rtu_Mag_mag_ga_B</a>[0]) <a id="362c68" class="tk">&amp;&amp;</a></td></tr>
+<tr name="363" id="363">
+<td><a id="l363" class='ln'>363</a></td><td>    (<a id="363c6" class="tk">rtu_Mag_mag_ga_B</a>[0] <a id="363c26" class="tk">&lt;</a> 2.0F) <a id="363c34" class="tk">&amp;&amp;</a> ((<a id="363c39" class="tk">-</a>2.0F <a id="363c45" class="tk">&lt;</a> <a id="363c47" class="tk">rtu_Mag_mag_ga_B</a>[1]) <a id="363c68" class="tk">&amp;&amp;</a></td></tr>
+<tr name="364" id="364">
+<td><a id="l364" class='ln'>364</a></td><td>    (<a id="364c6" class="tk">rtu_Mag_mag_ga_B</a>[1] <a id="364c26" class="tk">&lt;</a> 2.0F)) <a id="364c35" class="tk">&amp;&amp;</a> ((<a id="364c40" class="tk">-</a>2.0F <a id="364c46" class="tk">&lt;</a> <a id="364c48" class="tk">rtu_Mag_mag_ga_B</a>[2]) <a id="364c69" class="tk">&amp;&amp;</a></td></tr>
+<tr name="365" id="365">
+<td><a id="l365" class='ln'>365</a></td><td>    (<a id="365c6" class="tk">rtu_Mag_mag_ga_B</a>[2] <a id="365c26" class="tk">&lt;</a> 2.0F)) <a id="365c35" class="tk">&amp;&amp;</a> <a id="365c38" class="tk">SensorProcessing_ConstB</a>.<a id="365c62" class="tk">AND_m</a> <a id="365c68" class="tk">&amp;&amp;</a></td></tr>
+<tr name="366" id="366">
+<td><a id="l366" class='ln'>366</a></td><td>    (<a id="366c6" class="tk">SensorProcessing_DW</a>.<a id="366c26" class="tk">DiscreteTimeIntegrator_DSTATE_m</a> <a id="366c58" class="tk">&lt;</a> 1000U));</td></tr>
+<tr name="367" id="367">
+<td><a id="l367" class='ln'>367</a></td><td></td></tr>
+<tr name="368" id="368">
+<td><a id="l368" class='ln'>368</a></td><td>  <span class="ct">/* Gain: '<a class="ct blk" blk_line="368">&lt;S12&gt;/Gain2</a>' incorporates:</span></td></tr>
+<tr name="369" id="369">
+<td><a id="l369" class='ln'>369</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="369">&lt;S12&gt;/Constant1</a>'</span></td></tr>
+<tr name="370" id="370">
+<td><a id="l370" class='ln'>370</a></td><td><span class="ct">   *  Sum: '<a class="ct blk" blk_line="370">&lt;S12&gt;/Sum1</a>'</span></td></tr>
+<tr name="371" id="371">
+<td><a id="l371" class='ln'>371</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="372" id="372">
+<td><a id="l372" class='ln'>372</a></td><td>  <a id="372c3" class="tk">rtu_IMU1_gyr_radPs_B_idx_0</a> = (3.0F <a id="372c38" class="tk">-</a> (<a id="372c41" class="tk">real32_T</a>)<a id="372c50" class="tk">*</a><a id="372c51" class="tk">rtu_GPS_uBlox_hAcc</a>) <a id="372c71" class="tk">*</a> 0.4F;</td></tr>
+<tr name="373" id="373">
+<td><a id="l373" class='ln'>373</a></td><td></td></tr>
+<tr name="374" id="374">
+<td><a id="l374" class='ln'>374</a></td><td>  <span class="ct">/* Saturate: '<a class="ct blk" blk_line="374">&lt;S12&gt;/Saturation1</a>' */</span></td></tr>
+<tr name="375" id="375">
+<td><a id="l375" class='ln'>375</a></td><td>  <span class="kw">if</span> (<a id="375c7" class="tk">rtu_IMU1_gyr_radPs_B_idx_0</a> <a id="375c34" class="tk">&gt;</a> 1.0F) <span class="br">{</span></td></tr>
+<tr name="376" id="376">
+<td><a id="l376" class='ln'>376</a></td><td>    <a id="376c5" class="tk">rtu_IMU1_gyr_radPs_B_idx_0</a> = 1.0F;</td></tr>
+<tr name="377" id="377">
+<td><a id="l377" class='ln'>377</a></td><td>  <span class="br">}</span> <span class="kw">else</span> <span class="br">{</span></td></tr>
+<tr name="378" id="378">
+<td><a id="l378" class='ln'>378</a></td><td>    <span class="kw">if</span> (<a id="378c9" class="tk">rtu_IMU1_gyr_radPs_B_idx_0</a> <a id="378c36" class="tk">&lt;</a> 0.0F) <span class="br">{</span></td></tr>
+<tr name="379" id="379">
+<td><a id="l379" class='ln'>379</a></td><td>      <a id="379c7" class="tk">rtu_IMU1_gyr_radPs_B_idx_0</a> = 0.0F;</td></tr>
+<tr name="380" id="380">
+<td><a id="l380" class='ln'>380</a></td><td>    <span class="br">}</span></td></tr>
+<tr name="381" id="381">
+<td><a id="l381" class='ln'>381</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="382" id="382">
+<td><a id="l382" class='ln'>382</a></td><td></td></tr>
+<tr name="383" id="383">
+<td><a id="l383" class='ln'>383</a></td><td>  <span class="ct">/* End of Saturate: '<a class="ct blk" blk_line="383">&lt;S12&gt;/Saturation1</a>' */</span></td></tr>
+<tr name="384" id="384">
+<td><a id="l384" class='ln'>384</a></td><td></td></tr>
+<tr name="385" id="385">
+<td><a id="l385" class='ln'>385</a></td><td>  <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="385">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' incorporates:</span></td></tr>
+<tr name="386" id="386">
+<td><a id="l386" class='ln'>386</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="386">&lt;S15&gt;/Constant</a>'</span></td></tr>
+<tr name="387" id="387">
+<td><a id="l387" class='ln'>387</a></td><td><span class="ct">   *  DiscreteIntegrator: '<a class="ct blk" blk_line="387">&lt;S12&gt;/Discrete-Time Integrator</a>'</span></td></tr>
+<tr name="388" id="388">
+<td><a id="l388" class='ln'>388</a></td><td><span class="ct">   *  Product: '<a class="ct blk" blk_line="388">&lt;S12&gt;/Product1</a>'</span></td></tr>
+<tr name="389" id="389">
+<td><a id="l389" class='ln'>389</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="389">&lt;S15&gt;/Compare</a>'</span></td></tr>
+<tr name="390" id="390">
+<td><a id="l390" class='ln'>390</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="391" id="391">
+<td><a id="l391" class='ln'>391</a></td><td>  <a id="391c3" class="tk">*</a><a id="391c4" class="tk">rty_Sensor_Data_GPS_Data_pos_qu</a> = (<a id="391c39" class="tk">real32_T</a>)</td></tr>
+<tr name="392" id="392">
+<td><a id="l392" class='ln'>392</a></td><td>    (<a id="392c6" class="tk">SensorProcessing_DW</a>.<a id="392c26" class="tk">DiscreteTimeIntegrator_DSTATE_e</a> <a id="392c58" class="tk">&lt;</a> 5000U) <a id="392c67" class="tk">*</a></td></tr>
+<tr name="393" id="393">
+<td><a id="l393" class='ln'>393</a></td><td>    <a id="393c5" class="tk">rtu_IMU1_gyr_radPs_B_idx_0</a> <a id="393c32" class="tk">*</a> (<a id="393c35" class="tk">real32_T</a>)<a id="393c44" class="tk">rtb_init_ref_alt</a>;</td></tr>
+<tr name="394" id="394">
+<td><a id="l394" class='ln'>394</a></td><td></td></tr>
+<tr name="395" id="395">
+<td><a id="l395" class='ln'>395</a></td><td>  <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="395">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' */</span></td></tr>
+<tr name="396" id="396">
+<td><a id="l396" class='ln'>396</a></td><td>  <a id="396c3" class="tk">*</a><a id="396c4" class="tk">rty_Sensor_Data_GPS_Data_numSV</a> = <a id="396c37" class="tk">*</a><a id="396c38" class="tk">rtu_GPS_uBlox_numSV</a>;</td></tr>
+<tr name="397" id="397">
+<td><a id="l397" class='ln'>397</a></td><td></td></tr>
+<tr name="398" id="398">
+<td><a id="l398" class='ln'>398</a></td><td>  <span class="ct">/* Gain: '<a class="ct blk" blk_line="398">&lt;S12&gt;/Gain3</a>' incorporates:</span></td></tr>
+<tr name="399" id="399">
+<td><a id="l399" class='ln'>399</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="399">&lt;S12&gt;/Constant3</a>'</span></td></tr>
+<tr name="400" id="400">
+<td><a id="l400" class='ln'>400</a></td><td><span class="ct">   *  Sum: '<a class="ct blk" blk_line="400">&lt;S12&gt;/Sum</a>'</span></td></tr>
+<tr name="401" id="401">
+<td><a id="l401" class='ln'>401</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="402" id="402">
+<td><a id="l402" class='ln'>402</a></td><td>  <a id="402c3" class="tk">rtu_IMU1_gyr_radPs_B_idx_0</a> = (0.5F <a id="402c38" class="tk">-</a> (<a id="402c41" class="tk">real32_T</a>)<a id="402c50" class="tk">*</a><a id="402c51" class="tk">rtu_GPS_uBlox_sAcc</a>) <a id="402c71" class="tk">*</a> 2.5F;</td></tr>
+<tr name="403" id="403">
+<td><a id="l403" class='ln'>403</a></td><td></td></tr>
+<tr name="404" id="404">
+<td><a id="l404" class='ln'>404</a></td><td>  <span class="ct">/* Saturate: '<a class="ct blk" blk_line="404">&lt;S12&gt;/Saturation</a>' */</span></td></tr>
+<tr name="405" id="405">
+<td><a id="l405" class='ln'>405</a></td><td>  <span class="kw">if</span> (<a id="405c7" class="tk">rtu_IMU1_gyr_radPs_B_idx_0</a> <a id="405c34" class="tk">&gt;</a> 1.0F) <span class="br">{</span></td></tr>
+<tr name="406" id="406">
+<td><a id="l406" class='ln'>406</a></td><td>    <a id="406c5" class="tk">rtu_IMU1_gyr_radPs_B_idx_0</a> = 1.0F;</td></tr>
+<tr name="407" id="407">
+<td><a id="l407" class='ln'>407</a></td><td>  <span class="br">}</span> <span class="kw">else</span> <span class="br">{</span></td></tr>
+<tr name="408" id="408">
+<td><a id="l408" class='ln'>408</a></td><td>    <span class="kw">if</span> (<a id="408c9" class="tk">rtu_IMU1_gyr_radPs_B_idx_0</a> <a id="408c36" class="tk">&lt;</a> 0.0F) <span class="br">{</span></td></tr>
+<tr name="409" id="409">
+<td><a id="l409" class='ln'>409</a></td><td>      <a id="409c7" class="tk">rtu_IMU1_gyr_radPs_B_idx_0</a> = 0.0F;</td></tr>
+<tr name="410" id="410">
+<td><a id="l410" class='ln'>410</a></td><td>    <span class="br">}</span></td></tr>
+<tr name="411" id="411">
+<td><a id="l411" class='ln'>411</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="412" id="412">
+<td><a id="l412" class='ln'>412</a></td><td></td></tr>
+<tr name="413" id="413">
+<td><a id="l413" class='ln'>413</a></td><td>  <span class="ct">/* End of Saturate: '<a class="ct blk" blk_line="413">&lt;S12&gt;/Saturation</a>' */</span></td></tr>
+<tr name="414" id="414">
+<td><a id="l414" class='ln'>414</a></td><td></td></tr>
+<tr name="415" id="415">
+<td><a id="l415" class='ln'>415</a></td><td>  <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="415">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' incorporates:</span></td></tr>
+<tr name="416" id="416">
+<td><a id="l416" class='ln'>416</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="416">&lt;S13&gt;/Constant</a>'</span></td></tr>
+<tr name="417" id="417">
+<td><a id="l417" class='ln'>417</a></td><td><span class="ct">   *  DiscreteIntegrator: '<a class="ct blk" blk_line="417">&lt;S12&gt;/Discrete-Time Integrator1</a>'</span></td></tr>
+<tr name="418" id="418">
+<td><a id="l418" class='ln'>418</a></td><td><span class="ct">   *  Product: '<a class="ct blk" blk_line="418">&lt;S12&gt;/Product2</a>'</span></td></tr>
+<tr name="419" id="419">
+<td><a id="l419" class='ln'>419</a></td><td><span class="ct">   *  RelationalOperator: '<a class="ct blk" blk_line="419">&lt;S13&gt;/Compare</a>'</span></td></tr>
+<tr name="420" id="420">
+<td><a id="l420" class='ln'>420</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="421" id="421">
+<td><a id="l421" class='ln'>421</a></td><td>  <a id="421c3" class="tk">*</a><a id="421c4" class="tk">rty_Sensor_Data_GPS_Data_vel_qu</a> = (<a id="421c39" class="tk">real32_T</a>)</td></tr>
+<tr name="422" id="422">
+<td><a id="l422" class='ln'>422</a></td><td>    (<a id="422c6" class="tk">SensorProcessing_DW</a>.<a id="422c26" class="tk">DiscreteTimeIntegrator1_DSTATE</a> <a id="422c57" class="tk">&lt;</a> 5000U) <a id="422c66" class="tk">*</a></td></tr>
+<tr name="423" id="423">
+<td><a id="l423" class='ln'>423</a></td><td>    <a id="423c5" class="tk">rtu_IMU1_gyr_radPs_B_idx_0</a> <a id="423c32" class="tk">*</a> (<a id="423c35" class="tk">real32_T</a>)<a id="423c44" class="tk">rtb_init_ref_alt</a>;</td></tr>
+<tr name="424" id="424">
+<td><a id="l424" class='ln'>424</a></td><td></td></tr>
+<tr name="425" id="425">
+<td><a id="l425" class='ln'>425</a></td><td>  <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="425">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' incorporates:</span></td></tr>
+<tr name="426" id="426">
+<td><a id="l426" class='ln'>426</a></td><td><span class="ct">   *  BusCreator: '<a class="ct blk" blk_line="426">&lt;Root&gt;/BusConversion_InsertedFor_Bus Creator_at_inport_2</a>'</span></td></tr>
+<tr name="427" id="427">
+<td><a id="l427" class='ln'>427</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="428" id="428">
+<td><a id="l428" class='ln'>428</a></td><td>  <a id="428c3" class="tk">*</a><a id="428c4" class="tk">rty_Sensor_Data_GPS_Data_status</a> = <a id="428c38" class="tk">rtb_Sum3</a>;</td></tr>
+<tr name="429" id="429">
+<td><a id="l429" class='ln'>429</a></td><td></td></tr>
+<tr name="430" id="430">
+<td><a id="l430" class='ln'>430</a></td><td>  <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="430">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' incorporates:</span></td></tr>
+<tr name="431" id="431">
+<td><a id="l431" class='ln'>431</a></td><td><span class="ct">   *  Gain: '<a class="ct blk" blk_line="431">&lt;S2&gt;/Scalefactor2</a>'</span></td></tr>
+<tr name="432" id="432">
+<td><a id="l432" class='ln'>432</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="433" id="433">
+<td><a id="l433" class='ln'>433</a></td><td>  <a id="433c3" class="tk">*</a><a id="433c4" class="tk">rty_Sensor_Data_GPS_Data_lon_ra</a> = 1.745329251783001E-9 <a id="433c59" class="tk">*</a> (<a id="433c62" class="tk">real_T</a>)</td></tr>
+<tr name="434" id="434">
+<td><a id="l434" class='ln'>434</a></td><td>    <a id="434c5" class="tk">*</a><a id="434c6" class="tk">rtu_GPS_uBlox_lon</a>;</td></tr>
+<tr name="435" id="435">
+<td><a id="l435" class='ln'>435</a></td><td></td></tr>
+<tr name="436" id="436">
+<td><a id="l436" class='ln'>436</a></td><td>  <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="436">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' incorporates:</span></td></tr>
+<tr name="437" id="437">
+<td><a id="l437" class='ln'>437</a></td><td><span class="ct">   *  Gain: '<a class="ct blk" blk_line="437">&lt;S2&gt;/Scalefactor1</a>'</span></td></tr>
+<tr name="438" id="438">
+<td><a id="l438" class='ln'>438</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="439" id="439">
+<td><a id="l439" class='ln'>439</a></td><td>  <a id="439c3" class="tk">*</a><a id="439c4" class="tk">rty_Sensor_Data_GPS_Data_lat_ra</a> = 1.745329251783001E-9 <a id="439c59" class="tk">*</a> (<a id="439c62" class="tk">real_T</a>)</td></tr>
+<tr name="440" id="440">
+<td><a id="l440" class='ln'>440</a></td><td>    <a id="440c5" class="tk">*</a><a id="440c6" class="tk">rtu_GPS_uBlox_lat</a>;</td></tr>
+<tr name="441" id="441">
+<td><a id="l441" class='ln'>441</a></td><td></td></tr>
+<tr name="442" id="442">
+<td><a id="l442" class='ln'>442</a></td><td>  <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="442">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' incorporates:</span></td></tr>
+<tr name="443" id="443">
+<td><a id="l443" class='ln'>443</a></td><td><span class="ct">   *  Gain: '<a class="ct blk" blk_line="443">&lt;S2&gt;/Scalefactor3</a>'</span></td></tr>
+<tr name="444" id="444">
+<td><a id="l444" class='ln'>444</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="445" id="445">
+<td><a id="l445" class='ln'>445</a></td><td>  <a id="445c3" class="tk">*</a><a id="445c4" class="tk">rty_Sensor_Data_GPS_Data_height</a> = 0.001F <a id="445c45" class="tk">*</a> (<a id="445c48" class="tk">real32_T</a>)<a id="445c57" class="tk">*</a><a id="445c58" class="tk">rtu_GPS_uBlox_height</a>;</td></tr>
+<tr name="446" id="446">
+<td><a id="l446" class='ln'>446</a></td><td></td></tr>
+<tr name="447" id="447">
+<td><a id="l447" class='ln'>447</a></td><td>  <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="447">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' incorporates:</span></td></tr>
+<tr name="448" id="448">
+<td><a id="l448" class='ln'>448</a></td><td><span class="ct">   *  Gain: '<a class="ct blk" blk_line="448">&lt;S2&gt;/Scalefactor4</a>'</span></td></tr>
+<tr name="449" id="449">
+<td><a id="l449" class='ln'>449</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="450" id="450">
+<td><a id="l450" class='ln'>450</a></td><td>  <a id="450c3" class="tk">*</a><a id="450c4" class="tk">rty_Sensor_Data_GPS_Data_velN_m</a> = (<a id="450c39" class="tk">real32_T</a>)<a id="450c48" class="tk">*</a><a id="450c49" class="tk">rtu_GPS_uBlox_velN</a>;</td></tr>
+<tr name="451" id="451">
+<td><a id="l451" class='ln'>451</a></td><td></td></tr>
+<tr name="452" id="452">
+<td><a id="l452" class='ln'>452</a></td><td>  <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="452">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' incorporates:</span></td></tr>
+<tr name="453" id="453">
+<td><a id="l453" class='ln'>453</a></td><td><span class="ct">   *  Gain: '<a class="ct blk" blk_line="453">&lt;S2&gt;/Scalefactor5</a>'</span></td></tr>
+<tr name="454" id="454">
+<td><a id="l454" class='ln'>454</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="455" id="455">
+<td><a id="l455" class='ln'>455</a></td><td>  <a id="455c3" class="tk">*</a><a id="455c4" class="tk">rty_Sensor_Data_GPS_Data_velE_m</a> = (<a id="455c39" class="tk">real32_T</a>)<a id="455c48" class="tk">*</a><a id="455c49" class="tk">rtu_GPS_uBlox_velE</a>;</td></tr>
+<tr name="456" id="456">
+<td><a id="l456" class='ln'>456</a></td><td></td></tr>
+<tr name="457" id="457">
+<td><a id="l457" class='ln'>457</a></td><td>  <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="457">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' incorporates:</span></td></tr>
+<tr name="458" id="458">
+<td><a id="l458" class='ln'>458</a></td><td><span class="ct">   *  Gain: '<a class="ct blk" blk_line="458">&lt;S2&gt;/Scalefactor6</a>'</span></td></tr>
+<tr name="459" id="459">
+<td><a id="l459" class='ln'>459</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="460" id="460">
+<td><a id="l460" class='ln'>460</a></td><td>  <a id="460c3" class="tk">*</a><a id="460c4" class="tk">rty_Sensor_Data_GPS_Data_velD_m</a> = (<a id="460c39" class="tk">real32_T</a>)<a id="460c48" class="tk">*</a><a id="460c49" class="tk">rtu_GPS_uBlox_velD</a>;</td></tr>
+<tr name="461" id="461">
+<td><a id="l461" class='ln'>461</a></td><td></td></tr>
+<tr name="462" id="462">
+<td><a id="l462" class='ln'>462</a></td><td>  <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="462">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' incorporates:</span></td></tr>
+<tr name="463" id="463">
+<td><a id="l463" class='ln'>463</a></td><td><span class="ct">   *  BusCreator: '<a class="ct blk" blk_line="463">&lt;Root&gt;/BusConversion_InsertedFor_Bus Creator_at_inport_3</a>'</span></td></tr>
+<tr name="464" id="464">
+<td><a id="l464" class='ln'>464</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="465" id="465">
+<td><a id="l465" class='ln'>465</a></td><td>  <a id="465c3" class="tk">*</a><a id="465c4" class="tk">rty_Sensor_Data_Baro_Data_valid</a> = <a id="465c38" class="tk">rtb_LogicalOperator4_n</a>;</td></tr>
+<tr name="466" id="466">
+<td><a id="l466" class='ln'>466</a></td><td></td></tr>
+<tr name="467" id="467">
+<td><a id="l467" class='ln'>467</a></td><td>  <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="467">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' incorporates:</span></td></tr>
+<tr name="468" id="468">
+<td><a id="l468" class='ln'>468</a></td><td><span class="ct">   *  BusCreator: '<a class="ct blk" blk_line="468">&lt;Root&gt;/BusConversion_InsertedFor_Bus Creator_at_inport_3</a>'</span></td></tr>
+<tr name="469" id="469">
+<td><a id="l469" class='ln'>469</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="470" id="470">
+<td><a id="l470" class='ln'>470</a></td><td>  <a id="470c3" class="tk">*</a><a id="470c4" class="tk">rty_Sensor_Data_Baro_Data_altit</a> = <a id="470c38" class="tk">SensorProcessing_B</a>.<a id="470c57" class="tk">DataTypeConversion</a>;</td></tr>
+<tr name="471" id="471">
+<td><a id="l471" class='ln'>471</a></td><td></td></tr>
+<tr name="472" id="472">
+<td><a id="l472" class='ln'>472</a></td><td>  <span class="ct">/* SignalConversion: '<a class="ct blk" blk_line="472">&lt;Root&gt;/BusConversion_InsertedFor_Sensor_Data_at_inport_0</a>' incorporates:</span></td></tr>
+<tr name="473" id="473">
+<td><a id="l473" class='ln'>473</a></td><td><span class="ct">   *  BusCreator: '<a class="ct blk" blk_line="473">&lt;Root&gt;/BusConversion_InsertedFor_Bus Creator_at_inport_3</a>'</span></td></tr>
+<tr name="474" id="474">
+<td><a id="l474" class='ln'>474</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="475" id="475">
+<td><a id="l475" class='ln'>475</a></td><td>  <a id="475c3" class="tk">*</a><a id="475c4" class="tk">rty_Sensor_Data_Baro_Data_relat</a> = <a id="475c38" class="tk">SensorProcessing_B</a>.<a id="475c57" class="tk">Subtract1</a>;</td></tr>
+<tr name="476" id="476">
+<td><a id="l476" class='ln'>476</a></td><td></td></tr>
+<tr name="477" id="477">
+<td><a id="l477" class='ln'>477</a></td><td>  <span class="ct">/* Update for UnitDelay: '<a class="ct blk" blk_line="477">&lt;S25&gt;/Delay Input1</a>'</span></td></tr>
+<tr name="478" id="478">
+<td><a id="l478" class='ln'>478</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="479" id="479">
+<td><a id="l479" class='ln'>479</a></td><td><span class="ct">   * Block description for '<a class="ct blk" blk_line="479">&lt;S25&gt;/Delay Input1</a>':</span></td></tr>
+<tr name="480" id="480">
+<td><a id="l480" class='ln'>480</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="481" id="481">
+<td><a id="l481" class='ln'>481</a></td><td><span class="ct">   *  Store in Global RAM</span></td></tr>
+<tr name="482" id="482">
+<td><a id="l482" class='ln'>482</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="483" id="483">
+<td><a id="l483" class='ln'>483</a></td><td>  <a id="483c3" class="tk">SensorProcessing_DW</a>.<a id="483c23" class="tk">DelayInput1_DSTATE</a> = <a id="483c44" class="tk">*</a><a id="483c45" class="tk">rtu_IMU1_timestamp_ms</a>;</td></tr>
+<tr name="484" id="484">
+<td><a id="l484" class='ln'>484</a></td><td></td></tr>
+<tr name="485" id="485">
+<td><a id="l485" class='ln'>485</a></td><td>  <span class="ct">/* Update for DiscreteIntegrator: '<a class="ct blk" blk_line="485">&lt;S23&gt;/Discrete-Time Integrator</a>' incorporates:</span></td></tr>
+<tr name="486" id="486">
+<td><a id="l486" class='ln'>486</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="486">&lt;S23&gt;/Constant</a>'</span></td></tr>
+<tr name="487" id="487">
+<td><a id="l487" class='ln'>487</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="488" id="488">
+<td><a id="l488" class='ln'>488</a></td><td>  <span class="kw">if</span> ((<a id="488c8" class="tk">real32_T</a>)<a id="488c17" class="tk">SensorProcessing_DW</a>.<a id="488c37" class="tk">DiscreteTimeIntegrator_DSTATE</a> <a id="488c67" class="tk">+</a> 2.0F <a id="488c74" class="tk">&lt;</a></td></tr>
+<tr name="489" id="489">
+<td><a id="l489" class='ln'>489</a></td><td>      4.2949673E+9F) <span class="br">{</span></td></tr>
+<tr name="490" id="490">
+<td><a id="l490" class='ln'>490</a></td><td>    <a id="490c5" class="tk">SensorProcessing_DW</a>.<a id="490c25" class="tk">DiscreteTimeIntegrator_DSTATE</a> = (<a id="490c58" class="tk">uint32_T</a>)((<a id="490c69" class="tk">real32_T</a>)</td></tr>
+<tr name="491" id="491">
+<td><a id="l491" class='ln'>491</a></td><td>      <a id="491c7" class="tk">SensorProcessing_DW</a>.<a id="491c27" class="tk">DiscreteTimeIntegrator_DSTATE</a> <a id="491c57" class="tk">+</a> 2.0F);</td></tr>
+<tr name="492" id="492">
+<td><a id="l492" class='ln'>492</a></td><td>  <span class="br">}</span> <span class="kw">else</span> <span class="br">{</span></td></tr>
+<tr name="493" id="493">
+<td><a id="l493" class='ln'>493</a></td><td>    <a id="493c5" class="tk">SensorProcessing_DW</a>.<a id="493c25" class="tk">DiscreteTimeIntegrator_DSTATE</a> = <a id="493c57" class="tk">MAX_uint32_T</a>;</td></tr>
+<tr name="494" id="494">
+<td><a id="l494" class='ln'>494</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="495" id="495">
+<td><a id="l495" class='ln'>495</a></td><td></td></tr>
+<tr name="496" id="496">
+<td><a id="l496" class='ln'>496</a></td><td>  <span class="ct">/* End of Update for DiscreteIntegrator: '<a class="ct blk" blk_line="496">&lt;S23&gt;/Discrete-Time Integrator</a>' */</span></td></tr>
+<tr name="497" id="497">
+<td><a id="l497" class='ln'>497</a></td><td></td></tr>
+<tr name="498" id="498">
+<td><a id="l498" class='ln'>498</a></td><td>  <span class="ct">/* Update for UnitDelay: '<a class="ct blk" blk_line="498">&lt;S33&gt;/Delay Input1</a>'</span></td></tr>
+<tr name="499" id="499">
+<td><a id="l499" class='ln'>499</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="500" id="500">
+<td><a id="l500" class='ln'>500</a></td><td><span class="ct">   * Block description for '<a class="ct blk" blk_line="500">&lt;S33&gt;/Delay Input1</a>':</span></td></tr>
+<tr name="501" id="501">
+<td><a id="l501" class='ln'>501</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="502" id="502">
+<td><a id="l502" class='ln'>502</a></td><td><span class="ct">   *  Store in Global RAM</span></td></tr>
+<tr name="503" id="503">
+<td><a id="l503" class='ln'>503</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="504" id="504">
+<td><a id="l504" class='ln'>504</a></td><td>  <a id="504c3" class="tk">SensorProcessing_DW</a>.<a id="504c23" class="tk">DelayInput1_DSTATE_b</a> = <a id="504c46" class="tk">*</a><a id="504c47" class="tk">rtu_Mag_timestamp_ms</a>;</td></tr>
+<tr name="505" id="505">
+<td><a id="l505" class='ln'>505</a></td><td></td></tr>
+<tr name="506" id="506">
+<td><a id="l506" class='ln'>506</a></td><td>  <span class="ct">/* Update for DiscreteIntegrator: '<a class="ct blk" blk_line="506">&lt;S31&gt;/Discrete-Time Integrator</a>' incorporates:</span></td></tr>
+<tr name="507" id="507">
+<td><a id="l507" class='ln'>507</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="507">&lt;S31&gt;/Constant</a>'</span></td></tr>
+<tr name="508" id="508">
+<td><a id="l508" class='ln'>508</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="509" id="509">
+<td><a id="l509" class='ln'>509</a></td><td>  <span class="kw">if</span> ((<a id="509c8" class="tk">real32_T</a>)<a id="509c17" class="tk">SensorProcessing_DW</a>.<a id="509c37" class="tk">DiscreteTimeIntegrator_DSTATE_m</a> <a id="509c69" class="tk">+</a> 2.0F <a id="509c76" class="tk">&lt;</a></td></tr>
+<tr name="510" id="510">
+<td><a id="l510" class='ln'>510</a></td><td>      4.2949673E+9F) <span class="br">{</span></td></tr>
+<tr name="511" id="511">
+<td><a id="l511" class='ln'>511</a></td><td>    <a id="511c5" class="tk">SensorProcessing_DW</a>.<a id="511c25" class="tk">DiscreteTimeIntegrator_DSTATE_m</a> = (<a id="511c60" class="tk">uint32_T</a>)((<a id="511c71" class="tk">real32_T</a>)</td></tr>
+<tr name="512" id="512">
+<td><a id="l512" class='ln'>512</a></td><td>      <a id="512c7" class="tk">SensorProcessing_DW</a>.<a id="512c27" class="tk">DiscreteTimeIntegrator_DSTATE_m</a> <a id="512c59" class="tk">+</a> 2.0F);</td></tr>
+<tr name="513" id="513">
+<td><a id="l513" class='ln'>513</a></td><td>  <span class="br">}</span> <span class="kw">else</span> <span class="br">{</span></td></tr>
+<tr name="514" id="514">
+<td><a id="l514" class='ln'>514</a></td><td>    <a id="514c5" class="tk">SensorProcessing_DW</a>.<a id="514c25" class="tk">DiscreteTimeIntegrator_DSTATE_m</a> = <a id="514c59" class="tk">MAX_uint32_T</a>;</td></tr>
+<tr name="515" id="515">
+<td><a id="l515" class='ln'>515</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="516" id="516">
+<td><a id="l516" class='ln'>516</a></td><td></td></tr>
+<tr name="517" id="517">
+<td><a id="l517" class='ln'>517</a></td><td>  <span class="ct">/* End of Update for DiscreteIntegrator: '<a class="ct blk" blk_line="517">&lt;S31&gt;/Discrete-Time Integrator</a>' */</span></td></tr>
+<tr name="518" id="518">
+<td><a id="l518" class='ln'>518</a></td><td>  <span class="kw">if</span> (<a id="518c7" class="tk">rtmIsSampleHit</a>(1, 0)) <span class="br">{</span></td></tr>
+<tr name="519" id="519">
+<td><a id="l519" class='ln'>519</a></td><td>    <span class="ct">/* Sum: '<a class="ct blk" blk_line="519">&lt;S18&gt;/Sum2</a>' incorporates:</span></td></tr>
+<tr name="520" id="520">
+<td><a id="l520" class='ln'>520</a></td><td><span class="ct">     *  Constant: '<a class="ct blk" blk_line="520">&lt;S19&gt;/Constant</a>'</span></td></tr>
+<tr name="521" id="521">
+<td><a id="l521" class='ln'>521</a></td><td><span class="ct">     *  Logic: '<a class="ct blk" blk_line="521">&lt;S18&gt;/Logical Operator</a>'</span></td></tr>
+<tr name="522" id="522">
+<td><a id="l522" class='ln'>522</a></td><td><span class="ct">     *  RelationalOperator: '<a class="ct blk" blk_line="522">&lt;S19&gt;/Compare</a>'</span></td></tr>
+<tr name="523" id="523">
+<td><a id="l523" class='ln'>523</a></td><td><span class="ct">     */</span></td></tr>
+<tr name="524" id="524">
+<td><a id="l524" class='ln'>524</a></td><td>    <a id="524c5" class="tk">SensorProcessing_DW</a>.<a id="524c25" class="tk">UnitDelay_DSTATE</a> = ((<a id="524c46" class="tk">*</a><a id="524c47" class="tk">rtu_GPS_uBlox_hAcc</a> <a id="524c66" class="tk">&lt;</a> 5000U) <a id="524c75" class="tk">&amp;&amp;</a></td></tr>
+<tr name="525" id="525">
+<td><a id="l525" class='ln'>525</a></td><td>      (<a id="525c8" class="tk">rtb_Compare_pz</a> <a id="525c23" class="tk">!=</a> 0) <a id="525c29" class="tk">&amp;&amp;</a> (<a id="525c33" class="tk">rtb_Compare_n</a> <a id="525c47" class="tk">!=</a> 0)) <a id="525c54" class="tk">+</a></td></tr>
+<tr name="526" id="526">
+<td><a id="l526" class='ln'>526</a></td><td>      <a id="526c7" class="tk">SensorProcessing_B</a>.<a id="526c26" class="tk">UnitDelay</a>;</td></tr>
+<tr name="527" id="527">
+<td><a id="l527" class='ln'>527</a></td><td></td></tr>
+<tr name="528" id="528">
+<td><a id="l528" class='ln'>528</a></td><td>    <span class="ct">/* Saturate: '<a class="ct blk" blk_line="528">&lt;S18&gt;/Saturation2</a>' */</span></td></tr>
+<tr name="529" id="529">
+<td><a id="l529" class='ln'>529</a></td><td>    <span class="kw">if</span> (<a id="529c9" class="tk">SensorProcessing_DW</a>.<a id="529c29" class="tk">UnitDelay_DSTATE</a> <a id="529c46" class="tk">&gt;</a> 1111) <span class="br">{</span></td></tr>
+<tr name="530" id="530">
+<td><a id="l530" class='ln'>530</a></td><td>      <span class="ct">/* Sum: '<a class="ct blk" blk_line="530">&lt;S18&gt;/Sum2</a>' incorporates:</span></td></tr>
+<tr name="531" id="531">
+<td><a id="l531" class='ln'>531</a></td><td><span class="ct">       *  UnitDelay: '<a class="ct blk" blk_line="531">&lt;S18&gt;/Unit Delay</a>'</span></td></tr>
+<tr name="532" id="532">
+<td><a id="l532" class='ln'>532</a></td><td><span class="ct">       */</span></td></tr>
+<tr name="533" id="533">
+<td><a id="l533" class='ln'>533</a></td><td>      <a id="533c7" class="tk">SensorProcessing_DW</a>.<a id="533c27" class="tk">UnitDelay_DSTATE</a> = 1111;</td></tr>
+<tr name="534" id="534">
+<td><a id="l534" class='ln'>534</a></td><td>    <span class="br">}</span> <span class="kw">else</span> <span class="br">{</span></td></tr>
+<tr name="535" id="535">
+<td><a id="l535" class='ln'>535</a></td><td>      <span class="kw">if</span> (<a id="535c11" class="tk">SensorProcessing_DW</a>.<a id="535c31" class="tk">UnitDelay_DSTATE</a> <a id="535c48" class="tk">&lt;</a> 0) <span class="br">{</span></td></tr>
+<tr name="536" id="536">
+<td><a id="l536" class='ln'>536</a></td><td>        <span class="ct">/* Sum: '<a class="ct blk" blk_line="536">&lt;S18&gt;/Sum2</a>' incorporates:</span></td></tr>
+<tr name="537" id="537">
+<td><a id="l537" class='ln'>537</a></td><td><span class="ct">         *  UnitDelay: '<a class="ct blk" blk_line="537">&lt;S18&gt;/Unit Delay</a>'</span></td></tr>
+<tr name="538" id="538">
+<td><a id="l538" class='ln'>538</a></td><td><span class="ct">         */</span></td></tr>
+<tr name="539" id="539">
+<td><a id="l539" class='ln'>539</a></td><td>        <a id="539c9" class="tk">SensorProcessing_DW</a>.<a id="539c29" class="tk">UnitDelay_DSTATE</a> = 0;</td></tr>
+<tr name="540" id="540">
+<td><a id="l540" class='ln'>540</a></td><td>      <span class="br">}</span></td></tr>
+<tr name="541" id="541">
+<td><a id="l541" class='ln'>541</a></td><td>    <span class="br">}</span></td></tr>
+<tr name="542" id="542">
+<td><a id="l542" class='ln'>542</a></td><td></td></tr>
+<tr name="543" id="543">
+<td><a id="l543" class='ln'>543</a></td><td>    <span class="ct">/* End of Saturate: '<a class="ct blk" blk_line="543">&lt;S18&gt;/Saturation2</a>' */</span></td></tr>
+<tr name="544" id="544">
+<td><a id="l544" class='ln'>544</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="545" id="545">
+<td><a id="l545" class='ln'>545</a></td><td></td></tr>
+<tr name="546" id="546">
+<td><a id="l546" class='ln'>546</a></td><td>  <span class="ct">/* Update for UnitDelay: '<a class="ct blk" blk_line="546">&lt;S16&gt;/Delay Input1</a>'</span></td></tr>
+<tr name="547" id="547">
+<td><a id="l547" class='ln'>547</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="548" id="548">
+<td><a id="l548" class='ln'>548</a></td><td><span class="ct">   * Block description for '<a class="ct blk" blk_line="548">&lt;S16&gt;/Delay Input1</a>':</span></td></tr>
+<tr name="549" id="549">
+<td><a id="l549" class='ln'>549</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="550" id="550">
+<td><a id="l550" class='ln'>550</a></td><td><span class="ct">   *  Store in Global RAM</span></td></tr>
+<tr name="551" id="551">
+<td><a id="l551" class='ln'>551</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="552" id="552">
+<td><a id="l552" class='ln'>552</a></td><td>  <a id="552c3" class="tk">SensorProcessing_DW</a>.<a id="552c23" class="tk">DelayInput1_DSTATE_g</a> = <a id="552c46" class="tk">*</a><a id="552c47" class="tk">rtu_GPS_uBlox_timestamp_ms</a>;</td></tr>
+<tr name="553" id="553">
+<td><a id="l553" class='ln'>553</a></td><td></td></tr>
+<tr name="554" id="554">
+<td><a id="l554" class='ln'>554</a></td><td>  <span class="ct">/* Update for DiscreteIntegrator: '<a class="ct blk" blk_line="554">&lt;S12&gt;/Discrete-Time Integrator</a>' incorporates:</span></td></tr>
+<tr name="555" id="555">
+<td><a id="l555" class='ln'>555</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="555">&lt;S12&gt;/Constant</a>'</span></td></tr>
+<tr name="556" id="556">
+<td><a id="l556" class='ln'>556</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="557" id="557">
+<td><a id="l557" class='ln'>557</a></td><td>  <span class="kw">if</span> ((<a id="557c8" class="tk">real32_T</a>)<a id="557c17" class="tk">SensorProcessing_DW</a>.<a id="557c37" class="tk">DiscreteTimeIntegrator_DSTATE_e</a> <a id="557c69" class="tk">+</a> 2.0F <a id="557c76" class="tk">&lt;</a></td></tr>
+<tr name="558" id="558">
+<td><a id="l558" class='ln'>558</a></td><td>      4.2949673E+9F) <span class="br">{</span></td></tr>
+<tr name="559" id="559">
+<td><a id="l559" class='ln'>559</a></td><td>    <a id="559c5" class="tk">SensorProcessing_DW</a>.<a id="559c25" class="tk">DiscreteTimeIntegrator_DSTATE_e</a> = (<a id="559c60" class="tk">uint32_T</a>)((<a id="559c71" class="tk">real32_T</a>)</td></tr>
+<tr name="560" id="560">
+<td><a id="l560" class='ln'>560</a></td><td>      <a id="560c7" class="tk">SensorProcessing_DW</a>.<a id="560c27" class="tk">DiscreteTimeIntegrator_DSTATE_e</a> <a id="560c59" class="tk">+</a> 2.0F);</td></tr>
+<tr name="561" id="561">
+<td><a id="l561" class='ln'>561</a></td><td>  <span class="br">}</span> <span class="kw">else</span> <span class="br">{</span></td></tr>
+<tr name="562" id="562">
+<td><a id="l562" class='ln'>562</a></td><td>    <a id="562c5" class="tk">SensorProcessing_DW</a>.<a id="562c25" class="tk">DiscreteTimeIntegrator_DSTATE_e</a> = <a id="562c59" class="tk">MAX_uint32_T</a>;</td></tr>
+<tr name="563" id="563">
+<td><a id="l563" class='ln'>563</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="564" id="564">
+<td><a id="l564" class='ln'>564</a></td><td></td></tr>
+<tr name="565" id="565">
+<td><a id="l565" class='ln'>565</a></td><td>  <span class="ct">/* End of Update for DiscreteIntegrator: '<a class="ct blk" blk_line="565">&lt;S12&gt;/Discrete-Time Integrator</a>' */</span></td></tr>
+<tr name="566" id="566">
+<td><a id="l566" class='ln'>566</a></td><td></td></tr>
+<tr name="567" id="567">
+<td><a id="l567" class='ln'>567</a></td><td>  <span class="ct">/* Update for UnitDelay: '<a class="ct blk" blk_line="567">&lt;S17&gt;/Delay Input1</a>'</span></td></tr>
+<tr name="568" id="568">
+<td><a id="l568" class='ln'>568</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="569" id="569">
+<td><a id="l569" class='ln'>569</a></td><td><span class="ct">   * Block description for '<a class="ct blk" blk_line="569">&lt;S17&gt;/Delay Input1</a>':</span></td></tr>
+<tr name="570" id="570">
+<td><a id="l570" class='ln'>570</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="571" id="571">
+<td><a id="l571" class='ln'>571</a></td><td><span class="ct">   *  Store in Global RAM</span></td></tr>
+<tr name="572" id="572">
+<td><a id="l572" class='ln'>572</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="573" id="573">
+<td><a id="l573" class='ln'>573</a></td><td>  <a id="573c3" class="tk">SensorProcessing_DW</a>.<a id="573c23" class="tk">DelayInput1_DSTATE_c</a> = <a id="573c46" class="tk">*</a><a id="573c47" class="tk">rtu_GPS_uBlox_timestamp_ms</a>;</td></tr>
+<tr name="574" id="574">
+<td><a id="l574" class='ln'>574</a></td><td></td></tr>
+<tr name="575" id="575">
+<td><a id="l575" class='ln'>575</a></td><td>  <span class="ct">/* Update for DiscreteIntegrator: '<a class="ct blk" blk_line="575">&lt;S12&gt;/Discrete-Time Integrator1</a>' incorporates:</span></td></tr>
+<tr name="576" id="576">
+<td><a id="l576" class='ln'>576</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="576">&lt;S12&gt;/Constant2</a>'</span></td></tr>
+<tr name="577" id="577">
+<td><a id="l577" class='ln'>577</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="578" id="578">
+<td><a id="l578" class='ln'>578</a></td><td>  <span class="kw">if</span> ((<a id="578c8" class="tk">real32_T</a>)<a id="578c17" class="tk">SensorProcessing_DW</a>.<a id="578c37" class="tk">DiscreteTimeIntegrator1_DSTATE</a> <a id="578c68" class="tk">+</a> 2.0F <a id="578c75" class="tk">&lt;</a></td></tr>
+<tr name="579" id="579">
+<td><a id="l579" class='ln'>579</a></td><td>      4.2949673E+9F) <span class="br">{</span></td></tr>
+<tr name="580" id="580">
+<td><a id="l580" class='ln'>580</a></td><td>    <a id="580c5" class="tk">SensorProcessing_DW</a>.<a id="580c25" class="tk">DiscreteTimeIntegrator1_DSTATE</a> = (<a id="580c59" class="tk">uint32_T</a>)((<a id="580c70" class="tk">real32_T</a>)</td></tr>
+<tr name="581" id="581">
+<td><a id="l581" class='ln'>581</a></td><td>      <a id="581c7" class="tk">SensorProcessing_DW</a>.<a id="581c27" class="tk">DiscreteTimeIntegrator1_DSTATE</a> <a id="581c58" class="tk">+</a> 2.0F);</td></tr>
+<tr name="582" id="582">
+<td><a id="l582" class='ln'>582</a></td><td>  <span class="br">}</span> <span class="kw">else</span> <span class="br">{</span></td></tr>
+<tr name="583" id="583">
+<td><a id="l583" class='ln'>583</a></td><td>    <a id="583c5" class="tk">SensorProcessing_DW</a>.<a id="583c25" class="tk">DiscreteTimeIntegrator1_DSTATE</a> = <a id="583c58" class="tk">MAX_uint32_T</a>;</td></tr>
+<tr name="584" id="584">
+<td><a id="l584" class='ln'>584</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="585" id="585">
+<td><a id="l585" class='ln'>585</a></td><td></td></tr>
+<tr name="586" id="586">
+<td><a id="l586" class='ln'>586</a></td><td>  <span class="ct">/* End of Update for DiscreteIntegrator: '<a class="ct blk" blk_line="586">&lt;S12&gt;/Discrete-Time Integrator1</a>' */</span></td></tr>
+<tr name="587" id="587">
+<td><a id="l587" class='ln'>587</a></td><td></td></tr>
+<tr name="588" id="588">
+<td><a id="l588" class='ln'>588</a></td><td>  <span class="ct">/* Update for UnitDelay: '<a class="ct blk" blk_line="588">&lt;S8&gt;/Delay Input1</a>'</span></td></tr>
+<tr name="589" id="589">
+<td><a id="l589" class='ln'>589</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="590" id="590">
+<td><a id="l590" class='ln'>590</a></td><td><span class="ct">   * Block description for '<a class="ct blk" blk_line="590">&lt;S8&gt;/Delay Input1</a>':</span></td></tr>
+<tr name="591" id="591">
+<td><a id="l591" class='ln'>591</a></td><td><span class="ct">   *</span></td></tr>
+<tr name="592" id="592">
+<td><a id="l592" class='ln'>592</a></td><td><span class="ct">   *  Store in Global RAM</span></td></tr>
+<tr name="593" id="593">
+<td><a id="l593" class='ln'>593</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="594" id="594">
+<td><a id="l594" class='ln'>594</a></td><td>  <a id="594c3" class="tk">SensorProcessing_DW</a>.<a id="594c23" class="tk">DelayInput1_DSTATE_c0</a> = <a id="594c47" class="tk">*</a><a id="594c48" class="tk">rtu_Baro_timestamp_ms</a>;</td></tr>
+<tr name="595" id="595">
+<td><a id="l595" class='ln'>595</a></td><td></td></tr>
+<tr name="596" id="596">
+<td><a id="l596" class='ln'>596</a></td><td>  <span class="ct">/* Update for DiscreteIntegrator: '<a class="ct blk" blk_line="596">&lt;S5&gt;/Discrete-Time Integrator</a>' incorporates:</span></td></tr>
+<tr name="597" id="597">
+<td><a id="l597" class='ln'>597</a></td><td><span class="ct">   *  Constant: '<a class="ct blk" blk_line="597">&lt;S5&gt;/Constant</a>'</span></td></tr>
+<tr name="598" id="598">
+<td><a id="l598" class='ln'>598</a></td><td><span class="ct">   */</span></td></tr>
+<tr name="599" id="599">
+<td><a id="l599" class='ln'>599</a></td><td>  <span class="kw">if</span> ((<a id="599c8" class="tk">real32_T</a>)<a id="599c17" class="tk">SensorProcessing_DW</a>.<a id="599c37" class="tk">DiscreteTimeIntegrator_DSTATE_c</a> <a id="599c69" class="tk">+</a> 2.0F <a id="599c76" class="tk">&lt;</a></td></tr>
+<tr name="600" id="600">
+<td><a id="l600" class='ln'>600</a></td><td>      4.2949673E+9F) <span class="br">{</span></td></tr>
+<tr name="601" id="601">
+<td><a id="l601" class='ln'>601</a></td><td>    <a id="601c5" class="tk">SensorProcessing_DW</a>.<a id="601c25" class="tk">DiscreteTimeIntegrator_DSTATE_c</a> = (<a id="601c60" class="tk">uint32_T</a>)((<a id="601c71" class="tk">real32_T</a>)</td></tr>
+<tr name="602" id="602">
+<td><a id="l602" class='ln'>602</a></td><td>      <a id="602c7" class="tk">SensorProcessing_DW</a>.<a id="602c27" class="tk">DiscreteTimeIntegrator_DSTATE_c</a> <a id="602c59" class="tk">+</a> 2.0F);</td></tr>
+<tr name="603" id="603">
+<td><a id="l603" class='ln'>603</a></td><td>  <span class="br">}</span> <span class="kw">else</span> <span class="br">{</span></td></tr>
+<tr name="604" id="604">
+<td><a id="l604" class='ln'>604</a></td><td>    <a id="604c5" class="tk">SensorProcessing_DW</a>.<a id="604c25" class="tk">DiscreteTimeIntegrator_DSTATE_c</a> = <a id="604c59" class="tk">MAX_uint32_T</a>;</td></tr>
+<tr name="605" id="605">
+<td><a id="l605" class='ln'>605</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="606" id="606">
+<td><a id="l606" class='ln'>606</a></td><td></td></tr>
+<tr name="607" id="607">
+<td><a id="l607" class='ln'>607</a></td><td>  <span class="ct">/* End of Update for DiscreteIntegrator: '<a class="ct blk" blk_line="607">&lt;S5&gt;/Discrete-Time Integrator</a>' */</span></td></tr>
+<tr name="608" id="608">
+<td><a id="l608" class='ln'>608</a></td><td><span class="br">}</span></td></tr>
+<tr name="609" id="609">
+<td><a id="l609" class='ln'>609</a></td><td></td></tr>
+<tr name="610" id="610">
+<td><a id="l610" class='ln'>610</a></td><td><span class="ct">/* Model initialize function */</span></td></tr>
+<tr name="611" id="611">
+<td><a id="l611" class='ln'>611</a></td><td><span class="kw">void</span> <a id="611c6" class="tk">SensorProcessing_initialize</a>(<span class="kw">const</span> <a id="611c40" class="tk">char_T</a> <a id="611c47" class="tk">*</a><a id="611c48" class="tk">*</a><a id="611c49" class="tk">rt_errorStatus</a>, <span class="kw">const</span></td></tr>
+<tr name="612" id="612">
+<td><a id="l612" class='ln'>612</a></td><td>  <a id="612c3" class="tk">rtTimingBridge</a> <a id="612c18" class="tk">*</a><a id="612c19" class="tk">timingBridge</a>, <a id="612c33" class="tk">int_T</a> <a id="612c39" class="tk">mdlref_TID0</a>, <a id="612c52" class="tk">int_T</a> <a id="612c58" class="tk">mdlref_TID1</a>)</td></tr>
+<tr name="613" id="613">
+<td><a id="l613" class='ln'>613</a></td><td><span class="br">{</span></td></tr>
+<tr name="614" id="614">
+<td><a id="l614" class='ln'>614</a></td><td>  <a id="614c3" class="tk">RT_MODEL_SensorProcessing_T</a> <a id="614c31" class="tk">*</a><span class="kw">const</span> <a id="614c38" class="tk">SensorProcessing_M</a> =</td></tr>
+<tr name="615" id="615">
+<td><a id="l615" class='ln'>615</a></td><td>    <a id="615c5" class="tk">&amp;</a>(<a id="615c7" class="tk">SensorProcessing_MdlrefDW</a>.<a id="615c33" class="tk">rtm</a>);</td></tr>
+<tr name="616" id="616">
+<td><a id="l616" class='ln'>616</a></td><td></td></tr>
+<tr name="617" id="617">
+<td><a id="l617" class='ln'>617</a></td><td>  <span class="ct">/* Registration code */</span></td></tr>
+<tr name="618" id="618">
+<td><a id="l618" class='ln'>618</a></td><td></td></tr>
+<tr name="619" id="619">
+<td><a id="l619" class='ln'>619</a></td><td>  <span class="ct">/* initialize non-finites */</span></td></tr>
+<tr name="620" id="620">
+<td><a id="l620" class='ln'>620</a></td><td>  <a id="620c3" class="tk">rt_InitInfAndNaN</a>(<span class="kw">sizeof</span>(<a id="620c27" class="tk">real_T</a>));</td></tr>
+<tr name="621" id="621">
+<td><a id="l621" class='ln'>621</a></td><td></td></tr>
+<tr name="622" id="622">
+<td><a id="l622" class='ln'>622</a></td><td>  <span class="ct">/* setup the global timing engine */</span></td></tr>
+<tr name="623" id="623">
+<td><a id="l623" class='ln'>623</a></td><td>  <a id="623c3" class="tk">SensorProcessing_GlobalTID</a>[0] = <a id="623c35" class="tk">mdlref_TID0</a>;</td></tr>
+<tr name="624" id="624">
+<td><a id="l624" class='ln'>624</a></td><td>  <a id="624c3" class="tk">SensorProcessing_GlobalTID</a>[1] = <a id="624c35" class="tk">mdlref_TID1</a>;</td></tr>
+<tr name="625" id="625">
+<td><a id="l625" class='ln'>625</a></td><td>  <a id="625c3" class="tk">SensorProcessing_TimingBrdg</a> = <a id="625c33" class="tk">timingBridge</a>;</td></tr>
+<tr name="626" id="626">
+<td><a id="l626" class='ln'>626</a></td><td></td></tr>
+<tr name="627" id="627">
+<td><a id="l627" class='ln'>627</a></td><td>  <span class="ct">/* initialize error status */</span></td></tr>
+<tr name="628" id="628">
+<td><a id="l628" class='ln'>628</a></td><td>  <a id="628c3" class="tk">rtmSetErrorStatusPointer</a>(<a id="628c28" class="tk">SensorProcessing_M</a>, <a id="628c48" class="tk">rt_errorStatus</a>);</td></tr>
+<tr name="629" id="629">
+<td><a id="l629" class='ln'>629</a></td><td></td></tr>
+<tr name="630" id="630">
+<td><a id="l630" class='ln'>630</a></td><td>  <span class="ct">/* block I/O */</span></td></tr>
+<tr name="631" id="631">
+<td><a id="l631" class='ln'>631</a></td><td>  (<span class="kw">void</span>) <a id="631c10" class="tk">memset</a>(((<span class="kw">void</span> <a id="631c24" class="tk">*</a>) <a id="631c27" class="tk">&amp;</a><a id="631c28" class="tk">SensorProcessing_B</a>), 0,</td></tr>
+<tr name="632" id="632">
+<td><a id="l632" class='ln'>632</a></td><td>                <span class="kw">sizeof</span>(<a id="632c24" class="tk">B_SensorProcessing_c_T</a>));</td></tr>
+<tr name="633" id="633">
+<td><a id="l633" class='ln'>633</a></td><td></td></tr>
+<tr name="634" id="634">
+<td><a id="l634" class='ln'>634</a></td><td>  <span class="ct">/* states (dwork) */</span></td></tr>
+<tr name="635" id="635">
+<td><a id="l635" class='ln'>635</a></td><td>  (<span class="kw">void</span>) <a id="635c10" class="tk">memset</a>((<span class="kw">void</span> <a id="635c23" class="tk">*</a>)<a id="635c25" class="tk">&amp;</a><a id="635c26" class="tk">SensorProcessing_DW</a>, 0,</td></tr>
+<tr name="636" id="636">
+<td><a id="l636" class='ln'>636</a></td><td>                <span class="kw">sizeof</span>(<a id="636c24" class="tk">DW_SensorProcessing_f_T</a>));</td></tr>
+<tr name="637" id="637">
+<td><a id="l637" class='ln'>637</a></td><td><span class="br">}</span></td></tr>
+<tr name="638" id="638">
+<td><a id="l638" class='ln'>638</a></td><td></td></tr>
+<tr name="639" id="639">
+<td><a id="l639" class='ln'>639</a></td><td><span class="ct">/*</span></td></tr>
+<tr name="640" id="640">
+<td><a id="l640" class='ln'>640</a></td><td><span class="ct"> * File trailer for generated code.</span></td></tr>
+<tr name="641" id="641">
+<td><a id="l641" class='ln'>641</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="642" id="642">
+<td><a id="l642" class='ln'>642</a></td><td><span class="ct"> * [EOF]</span></td></tr>
+<tr name="643" id="643">
+<td><a id="l643" class='ln'>643</a></td><td><span class="ct"> */</span></td></tr>
+<tr name="644" id="644">
+<td><a id="l644" class='ln'>644</a></td><td></td></tr>
+</table>
+</pre>
+</body>
+</html>

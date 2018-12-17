@@ -14,7 +14,7 @@
 #include "systime.h"
 #include "conversion.h"
 
-#define OSR				4096
+#define OSR				2048
 
 #define POW2(_x)		((_x) * (_x))
 
@@ -31,11 +31,11 @@
 	#define ADDR_CMD_CONVERT_D1			0x42	/* write to this address to start pressure conversion */
 	#define ADDR_CMD_CONVERT_D2			0x52	/* write to this address to start temperature conversion */
 	#define INTERVAL_CONV_TIME			2		/* the max conv time is 9ms */
-#elif OSR==512
+#elif OSR==1024
 	#define ADDR_CMD_CONVERT_D1			0x44	/* write to this address to start pressure conversion */
 	#define ADDR_CMD_CONVERT_D2			0x54	/* write to this address to start temperature conversion */
 	#define INTERVAL_CONV_TIME			3		
-#elif OSR==512
+#elif OSR==2048
 	#define ADDR_CMD_CONVERT_D1			0x46	/* write to this address to start pressure conversion */
 	#define ADDR_CMD_CONVERT_D2			0x56	/* write to this address to start temperature conversion */	
 	#define INTERVAL_CONV_TIME			5		

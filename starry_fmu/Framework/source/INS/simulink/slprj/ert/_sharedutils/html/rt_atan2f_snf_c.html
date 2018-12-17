@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="./js/coder_app.js"></script>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src="./rtwreport_utils.js"></script>
+<script type="text/javascript" src="./rtwannotate.js"></script>
+<link rel="stylesheet" type="text/css" href="./css/coder_app.css"/>
+</head>
+<body onload="srcFileOnload();">
+<pre id="code">
+<table class="code" id="codeTbl">
+<tr name="1" id="1">
+<td><a id="l1" class='ln'>1</a></td><td><span class="ct">/*</span></td></tr>
+<tr name="2" id="2">
+<td><a id="l2" class='ln'>2</a></td><td><span class="ct"> * Academic License - for use in teaching, academic research, and meeting</span></td></tr>
+<tr name="3" id="3">
+<td><a id="l3" class='ln'>3</a></td><td><span class="ct"> * course requirements at degree granting institutions only.  Not for</span></td></tr>
+<tr name="4" id="4">
+<td><a id="l4" class='ln'>4</a></td><td><span class="ct"> * government, commercial, or other organizational use.</span></td></tr>
+<tr name="5" id="5">
+<td><a id="l5" class='ln'>5</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="6" id="6">
+<td><a id="l6" class='ln'>6</a></td><td><span class="ct"> * File: rt_atan2f_snf.c</span></td></tr>
+<tr name="7" id="7">
+<td><a id="l7" class='ln'>7</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="8" id="8">
+<td><a id="l8" class='ln'>8</a></td><td><span class="ct"> * Code generated for Simulink model 'CF_INS'.</span></td></tr>
+<tr name="9" id="9">
+<td><a id="l9" class='ln'>9</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="10" id="10">
+<td><a id="l10" class='ln'>10</a></td><td><span class="ct"> * Model version                  : 1.338</span></td></tr>
+<tr name="11" id="11">
+<td><a id="l11" class='ln'>11</a></td><td><span class="ct"> * Simulink Coder version         : 9.0 (R2018b) 24-May-2018</span></td></tr>
+<tr name="12" id="12">
+<td><a id="l12" class='ln'>12</a></td><td><span class="ct"> * C/C++ source code generated on : Sun Dec 16 13:14:49 2018</span></td></tr>
+<tr name="13" id="13">
+<td><a id="l13" class='ln'>13</a></td><td><span class="ct"> */</span></td></tr>
+<tr name="14" id="14">
+<td><a id="l14" class='ln'>14</a></td><td></td></tr>
+<tr name="15" id="15">
+<td><a id="l15" class='ln'>15</a></td><td><span class="pp">#include "rtwtypes.h"</span></td></tr>
+<tr name="16" id="16">
+<td><a id="l16" class='ln'>16</a></td><td><span class="pp">#include "rtGetNaN.h"</span></td></tr>
+<tr name="17" id="17">
+<td><a id="l17" class='ln'>17</a></td><td><span class="pp">#include "rt_nonfinite.h"</span></td></tr>
+<tr name="18" id="18">
+<td><a id="l18" class='ln'>18</a></td><td><span class="pp">#include &lt;math.h&gt;</span></td></tr>
+<tr name="19" id="19">
+<td><a id="l19" class='ln'>19</a></td><td><span class="pp">#include "rt_defines.h"</span></td></tr>
+<tr name="20" id="20">
+<td><a id="l20" class='ln'>20</a></td><td><span class="pp">#include "rt_atan2f_snf.h"</span></td></tr>
+<tr name="21" id="21">
+<td><a id="l21" class='ln'>21</a></td><td></td></tr>
+<tr name="22" id="22">
+<td><a id="l22" class='ln'>22</a></td><td><a id="22c1" class="tk">real32_T</a> <a id="22c10" class="tk">rt_atan2f_snf</a>(<a id="22c24" class="tk">real32_T</a> <a id="22c33" class="tk">u0</a>, <a id="22c37" class="tk">real32_T</a> <a id="22c46" class="tk">u1</a>)</td></tr>
+<tr name="23" id="23">
+<td><a id="l23" class='ln'>23</a></td><td><span class="br">{</span></td></tr>
+<tr name="24" id="24">
+<td><a id="l24" class='ln'>24</a></td><td>  <a id="24c3" class="tk">real32_T</a> <a id="24c12" class="tk">y</a>;</td></tr>
+<tr name="25" id="25">
+<td><a id="l25" class='ln'>25</a></td><td>  <a id="25c3" class="tk">int32_T</a> <a id="25c11" class="tk">u0_0</a>;</td></tr>
+<tr name="26" id="26">
+<td><a id="l26" class='ln'>26</a></td><td>  <a id="26c3" class="tk">int32_T</a> <a id="26c11" class="tk">u1_0</a>;</td></tr>
+<tr name="27" id="27">
+<td><a id="l27" class='ln'>27</a></td><td>  <span class="kw">if</span> (<a id="27c7" class="tk">rtIsNaNF</a>(<a id="27c16" class="tk">u0</a>) <a id="27c20" class="tk">||</a> <a id="27c23" class="tk">rtIsNaNF</a>(<a id="27c32" class="tk">u1</a>)) <span class="br">{</span></td></tr>
+<tr name="28" id="28">
+<td><a id="l28" class='ln'>28</a></td><td>    <a id="28c5" class="tk">y</a> = (<a id="28c10" class="tk">rtNaNF</a>);</td></tr>
+<tr name="29" id="29">
+<td><a id="l29" class='ln'>29</a></td><td>  <span class="br">}</span> <span class="kw">else</span> <span class="kw">if</span> (<a id="29c14" class="tk">rtIsInfF</a>(<a id="29c23" class="tk">u0</a>) <a id="29c27" class="tk">&amp;&amp;</a> <a id="29c30" class="tk">rtIsInfF</a>(<a id="29c39" class="tk">u1</a>)) <span class="br">{</span></td></tr>
+<tr name="30" id="30">
+<td><a id="l30" class='ln'>30</a></td><td>    <span class="kw">if</span> (<a id="30c9" class="tk">u0</a> <a id="30c12" class="tk">&gt;</a> 0.0F) <span class="br">{</span></td></tr>
+<tr name="31" id="31">
+<td><a id="l31" class='ln'>31</a></td><td>      <a id="31c7" class="tk">u0_0</a> = 1;</td></tr>
+<tr name="32" id="32">
+<td><a id="l32" class='ln'>32</a></td><td>    <span class="br">}</span> <span class="kw">else</span> <span class="br">{</span></td></tr>
+<tr name="33" id="33">
+<td><a id="l33" class='ln'>33</a></td><td>      <a id="33c7" class="tk">u0_0</a> = <a id="33c14" class="tk">-</a>1;</td></tr>
+<tr name="34" id="34">
+<td><a id="l34" class='ln'>34</a></td><td>    <span class="br">}</span></td></tr>
+<tr name="35" id="35">
+<td><a id="l35" class='ln'>35</a></td><td></td></tr>
+<tr name="36" id="36">
+<td><a id="l36" class='ln'>36</a></td><td>    <span class="kw">if</span> (<a id="36c9" class="tk">u1</a> <a id="36c12" class="tk">&gt;</a> 0.0F) <span class="br">{</span></td></tr>
+<tr name="37" id="37">
+<td><a id="l37" class='ln'>37</a></td><td>      <a id="37c7" class="tk">u1_0</a> = 1;</td></tr>
+<tr name="38" id="38">
+<td><a id="l38" class='ln'>38</a></td><td>    <span class="br">}</span> <span class="kw">else</span> <span class="br">{</span></td></tr>
+<tr name="39" id="39">
+<td><a id="l39" class='ln'>39</a></td><td>      <a id="39c7" class="tk">u1_0</a> = <a id="39c14" class="tk">-</a>1;</td></tr>
+<tr name="40" id="40">
+<td><a id="l40" class='ln'>40</a></td><td>    <span class="br">}</span></td></tr>
+<tr name="41" id="41">
+<td><a id="l41" class='ln'>41</a></td><td></td></tr>
+<tr name="42" id="42">
+<td><a id="l42" class='ln'>42</a></td><td>    <a id="42c5" class="tk">y</a> = <a id="42c9" class="tk">atan2f</a>((<a id="42c17" class="tk">real32_T</a>)<a id="42c26" class="tk">u0_0</a>, (<a id="42c33" class="tk">real32_T</a>)<a id="42c42" class="tk">u1_0</a>);</td></tr>
+<tr name="43" id="43">
+<td><a id="l43" class='ln'>43</a></td><td>  <span class="br">}</span> <span class="kw">else</span> <span class="kw">if</span> (<a id="43c14" class="tk">u1</a> <a id="43c17" class="tk">==</a> 0.0F) <span class="br">{</span></td></tr>
+<tr name="44" id="44">
+<td><a id="l44" class='ln'>44</a></td><td>    <span class="kw">if</span> (<a id="44c9" class="tk">u0</a> <a id="44c12" class="tk">&gt;</a> 0.0F) <span class="br">{</span></td></tr>
+<tr name="45" id="45">
+<td><a id="l45" class='ln'>45</a></td><td>      <a id="45c7" class="tk">y</a> = <a id="45c11" class="tk">RT_PIF</a> <a id="45c18" class="tk">/</a> 2.0F;</td></tr>
+<tr name="46" id="46">
+<td><a id="l46" class='ln'>46</a></td><td>    <span class="br">}</span> <span class="kw">else</span> <span class="kw">if</span> (<a id="46c16" class="tk">u0</a> <a id="46c19" class="tk">&lt;</a> 0.0F) <span class="br">{</span></td></tr>
+<tr name="47" id="47">
+<td><a id="l47" class='ln'>47</a></td><td>      <a id="47c7" class="tk">y</a> = <a id="47c11" class="tk">-</a>(<a id="47c13" class="tk">RT_PIF</a> <a id="47c20" class="tk">/</a> 2.0F);</td></tr>
+<tr name="48" id="48">
+<td><a id="l48" class='ln'>48</a></td><td>    <span class="br">}</span> <span class="kw">else</span> <span class="br">{</span></td></tr>
+<tr name="49" id="49">
+<td><a id="l49" class='ln'>49</a></td><td>      <a id="49c7" class="tk">y</a> = 0.0F;</td></tr>
+<tr name="50" id="50">
+<td><a id="l50" class='ln'>50</a></td><td>    <span class="br">}</span></td></tr>
+<tr name="51" id="51">
+<td><a id="l51" class='ln'>51</a></td><td>  <span class="br">}</span> <span class="kw">else</span> <span class="br">{</span></td></tr>
+<tr name="52" id="52">
+<td><a id="l52" class='ln'>52</a></td><td>    <a id="52c5" class="tk">y</a> = <a id="52c9" class="tk">atan2f</a>(<a id="52c16" class="tk">u0</a>, <a id="52c20" class="tk">u1</a>);</td></tr>
+<tr name="53" id="53">
+<td><a id="l53" class='ln'>53</a></td><td>  <span class="br">}</span></td></tr>
+<tr name="54" id="54">
+<td><a id="l54" class='ln'>54</a></td><td></td></tr>
+<tr name="55" id="55">
+<td><a id="l55" class='ln'>55</a></td><td>  <span class="kw">return</span> <a id="55c10" class="tk">y</a>;</td></tr>
+<tr name="56" id="56">
+<td><a id="l56" class='ln'>56</a></td><td><span class="br">}</span></td></tr>
+<tr name="57" id="57">
+<td><a id="l57" class='ln'>57</a></td><td></td></tr>
+<tr name="58" id="58">
+<td><a id="l58" class='ln'>58</a></td><td><span class="ct">/*</span></td></tr>
+<tr name="59" id="59">
+<td><a id="l59" class='ln'>59</a></td><td><span class="ct"> * File trailer for generated code.</span></td></tr>
+<tr name="60" id="60">
+<td><a id="l60" class='ln'>60</a></td><td><span class="ct"> *</span></td></tr>
+<tr name="61" id="61">
+<td><a id="l61" class='ln'>61</a></td><td><span class="ct"> * [EOF]</span></td></tr>
+<tr name="62" id="62">
+<td><a id="l62" class='ln'>62</a></td><td><span class="ct"> */</span></td></tr>
+<tr name="63" id="63">
+<td><a id="l63" class='ln'>63</a></td><td></td></tr>
+</table>
+</pre>
+</body>
+</html>

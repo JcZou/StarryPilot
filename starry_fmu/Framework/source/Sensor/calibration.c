@@ -164,9 +164,9 @@ void gyr_mavlink_calibration(void)
 	}
 
 	if (count == GYR_CALIBRATE_COUNT) {
-		offset_gyr[0] = -sum_gyr[0]/count;
-		offset_gyr[1] = -sum_gyr[1]/count;
-		offset_gyr[2] = -sum_gyr[2]/count;
+		offset_gyr[0] = sum_gyr[0]/count;
+		offset_gyr[1] = sum_gyr[1]/count;
+		offset_gyr[2] = sum_gyr[2]/count;
 		sum_gyr[0] = 0.0f;
 		sum_gyr[1] = 0.0f;
 		sum_gyr[2] = 0.0f;
@@ -953,9 +953,9 @@ int calibrate_gyr_run(uint32_t num, uint32_t period, bool echo, FIL* fid)
 		return 1;
 	}
 	
-	offset_gyr[0] = -sum_gyr[0]/num;
-	offset_gyr[1] = -sum_gyr[1]/num;
-	offset_gyr[2] = -sum_gyr[2]/num;
+	offset_gyr[0] = sum_gyr[0]/num;
+	offset_gyr[1] = sum_gyr[1]/num;
+	offset_gyr[2] = sum_gyr[2]/num;
 	
 	Console.print("gyr offset:%f %f %f\r\n\n" , offset_gyr[0],offset_gyr[1],offset_gyr[2]);
 	

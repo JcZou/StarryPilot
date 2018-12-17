@@ -15,6 +15,7 @@
 #include "systime.h"
 #include "sensor_manager.h"
 #include "uMCN.h"
+#include "INS.h"
 
 #define FNV1_32_INIT	((uint32_t)0x811c9dc5)	// init value for FNV1 hash algorithm
 #define FNV1_32_PRIME	((uint32_t)0x01000193)	// magic prime for FNV1 hash algorithm
@@ -47,7 +48,7 @@ rt_bool_t _got_velned;
 rt_bool_t _got_svinfo;
 
 MCN_DEFINE(GPS_POSITION, sizeof(struct vehicle_gps_position_s));
-MCN_DEFINE(uBLOX_PVT, sizeof(SensorGPS_PVT));
+MCN_DEFINE(uBLOX_PVT, sizeof(GPS_uBlox_Bus));
 
 void _decode_init(void)
 {
@@ -264,7 +265,7 @@ payload_rx_done(void)
 			_got_posllh = RT_TRUE;
 			_got_velned = RT_TRUE;
 
-			SensorGPS_PVT gps_pvt;
+			GPS_uBlox_Bus gps_pvt;
 			gps_pvt.iTOW = _buf.payload_rx_nav_pvt.iTOW;
 			gps_pvt.year = _buf.payload_rx_nav_pvt.year;
 			gps_pvt.month = _buf.payload_rx_nav_pvt.month;
