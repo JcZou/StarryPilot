@@ -260,6 +260,7 @@ void rt_hw_board_init()
     /* NVIC Configuration */
     NVIC_Configuration();
 	
+	/* Config system time module */
 	device_systime_init();
 
     /* Configure the SysTick */
@@ -268,8 +269,7 @@ void rt_hw_board_init()
 	stm32_hw_usart_init();
     stm32_hw_pin_init();
 	stm32_hw_spi_init();
-	pwm_io_init();
-	stm32_pwm_init();
+	stm32_hw_pwm_init();
 }
 
 /*@}*/

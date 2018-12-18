@@ -9,6 +9,7 @@
  
 #include "stm32f4xx.h"
 #include "pwm.h"
+#include "pwm_io.h"
 #include "console.h"
 #include "motor.h"
 
@@ -192,7 +193,7 @@ const static struct rt_pwm_ops _stm32_pwm_ops =
     stm32_pwm_read,
 };
 
-int stm32_pwm_init(void)
+int stm32_hw_pwm_init(void)
 {
 	pwm_freq = PWM_DEFAULT_FREQUENCY;
 	
@@ -204,6 +205,9 @@ int stm32_pwm_init(void)
 	TIM_Cmd(TIM4, DISABLE);
 	
 	rt_device_motor_register("motor_aux", &_stm32_pwm_ops, &_fmu_chan_info);
+
+	/* init pwm io device */
+	pwm_io_init();
 	
 	return 0;
 }

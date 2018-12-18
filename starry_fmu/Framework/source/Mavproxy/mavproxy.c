@@ -85,7 +85,7 @@ uint8_t mavlink_msg_transfer(uint8_t chan, uint8_t* msg_buff, uint16_t len)
 	return mavlink_lowlevel_write(msg_buff, len);
 }
 
-rt_err_t device_mavproxy_init(void)
+rt_err_t mavproxy_init(void)
 {
 	mavlink_system.sysid = 1;        
 	mavlink_system.compid = 1;    

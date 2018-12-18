@@ -13,6 +13,13 @@
 
 #define MAXPATH			256		
 
-int fm_init(const TCHAR* path);
-uint8_t fm_init_complete(void);
-TCHAR* fm_get_cwd(void);
+typedef enum
+{
+  fm_init_none = 0,
+  fm_init_ok,
+  fm_init_err
+}file_manager_status;
+
+file_manager_status filemanager_init(const TCHAR* path, uint8_t opt);
+file_manager_status filemanager_status(void);
+TCHAR* filemanager_get_cwd(void);

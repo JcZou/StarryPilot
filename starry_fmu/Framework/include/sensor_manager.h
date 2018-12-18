@@ -162,9 +162,7 @@ typedef struct
 	uint32_t	timestamp_ms;
 }SensorGPS_PVT;
 
-rt_err_t device_sensor_init(void);
-void sensor_manager_init(void);
-void sensor_loop(void *parameter);
+rt_err_t sensor_manager_init(void);
 
 extern float _lidar_dis;
 extern uint32_t _lidar_recv_stamp;

@@ -534,7 +534,7 @@ int param_parse_state_machine(yxml_t *x, yxml_ret_t r, PARAM_PARSE_STATE* status
 
 void param_store(void)
 {
-	if(fm_init_complete()){
+	if(filemanager_status() == fm_init_ok){
 		FIL fp;
 		FRESULT res = f_open(&fp, PARAM_FILE_NAME, FA_OPEN_ALWAYS | FA_WRITE);
 		if(res == FR_OK){

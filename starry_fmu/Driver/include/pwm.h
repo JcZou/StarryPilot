@@ -12,7 +12,7 @@
 
 #define MAX_PWM_AUX_CHAN      6
 
-int stm32_pwm_init(void);
+int stm32_hw_pwm_init(void);
 
 #endif
 

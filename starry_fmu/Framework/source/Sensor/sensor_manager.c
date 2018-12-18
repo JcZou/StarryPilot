@@ -554,7 +554,7 @@ void sensor_get_mag(float mag[3])
 }
 
 /**************************	INIT FUNC **************************/
-rt_err_t device_sensor_init(void)
+rt_err_t sensor_manager_init(void)
 {
 	rt_err_t res = RT_EOK;
 
@@ -764,11 +764,6 @@ void sensor_collect(void)
 
 		
 	}
-}
-
-void sensor_manager_init(void)
-{
-	// do something here
 }
 
 int handle_gps_shell_cmd(int argc, char** argv)

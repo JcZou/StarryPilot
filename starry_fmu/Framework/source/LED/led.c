@@ -123,7 +123,7 @@ void led_off(void)
 	}
 }
 
-int device_led_init(void)
+int led_init(void)
 {
 	struct rt_device_pin_mode mode = {FMU_LED_PIN , PIN_MODE_OUTPUT , PIN_OUT_TYPE_OD};
 	

@@ -44,7 +44,7 @@ typedef struct
 
 extern ringbuffer* _mav_serial_rb;
 
-rt_err_t device_mavproxy_init(void);
+rt_err_t mavproxy_init(void);
 void mavproxy_rx_entry(void *param);
 void mavproxy_entry(void *parameter);
 uint8_t mavproxy_msg_serial_control_send(uint8_t *data, uint8_t count);

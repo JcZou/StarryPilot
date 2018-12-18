@@ -72,48 +72,47 @@ struct rt_thread thread_led_handle;
 static char thread_cali_stack[4096];
 struct rt_thread thread_cali_handle;
 
-FATFS FatFs;
 
-void vehicle_main_loop(void *parameter);
-extern rt_err_t rt_hw_mavlink_console_init(void);
 void rt_init_thread_entry(void* parameter)
 {
 	rt_err_t res;
 
-	rt_hw_mavlink_console_init();
+	/* init static task */
 	statistic_init();
+
+	/* init usb device */
+	usb_cdc_init();
+
+	/* init file manager, mount SD card immediately */
+	filemanager_init("0:", 1);
+
+	/* init console device, default device is uart3 */
+	console_init(CONSOLE_DEVICE);
+
+	/* init log system */
+	log_init();
+
+	/* init parameter system */
+	param_init();
+
+	/* init led */
+	led_init();
+
+	/* init sensor devices */
+	sensor_manager_init();
+
+	/* init mavlink proxy */
+	mavproxy_init();
 	
     /* GDB STUB */
 #ifdef RT_USING_GDB
     gdb_set_device("uart6");
     gdb_start();
 #endif
-	
-	//fm_init("0:");
-	param_init();
-	device_led_init();
-	device_sensor_init();
-	device_mavproxy_init();
-	
-	//rt_console_set_device(CONSOLE_DEVICE);
-	
-	//Console.print("heap base:%p end:%p\n", STM32_SRAM_BEGIN, STM32_SRAM_END);
 
-    /* LwIP Initialization */
-#ifdef RT_USING_LWIP
-    {
-        extern void lwip_sys_init(void);
+	/* show system version */
+	rt_show_version();
 
-        /* register ethernetif device */
-        eth_system_device_init();
-
-        rt_hw_stm32_eth_init();
-
-        /* init lwip system */
-        lwip_sys_init();
-        rt_kprintf("TCP/IP initialized!\n");
-    }
-#endif
 	
 	/* create thread */
 	res = rt_thread_init(&thread_fastloop_handle,
@@ -185,19 +184,12 @@ void rt_init_thread_entry(void* parameter)
 
 int rt_application_init()
 {
-	usb_cdc_init();
-	fm_init("0:");
-	log_init();
-	console_init(CONSOLE_INTERFACE_SERIAL);
-	rt_console_set_device(CONSOLE_DEVICE);
-	rt_show_version();
-
 	/* init simulink model */
 	INS_initialize();
 	
     tid0 = rt_thread_create("init",
         rt_init_thread_entry, RT_NULL,
-        2048, RT_THREAD_PRIORITY_MAX/2, 20);
+        4096, RT_THREAD_PRIORITY_MAX/2, 20);
 
     if (tid0 != RT_NULL)
         rt_thread_startup(tid0);

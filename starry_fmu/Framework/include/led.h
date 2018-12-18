@@ -22,7 +22,7 @@ typedef enum
 }LED_COLOR;
 
 void led_entry(void *parameter);
-int device_led_init(void);
+int led_init(void);
 void led_on(void);
 void led_off(void);
 uint8_t TCA62724_set_color(LED_COLOR color);

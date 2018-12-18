@@ -76,7 +76,7 @@ const char *finsh_get_prompt()
     getcwd(&finsh_prompt[rt_strlen(finsh_prompt)], RT_CONSOLEBUF_SIZE - rt_strlen(finsh_prompt));
 #endif
 
-	strcat(finsh_prompt, fm_get_cwd());
+	strcat(finsh_prompt, filemanager_get_cwd());
 	
     strcat(finsh_prompt, ">");
 

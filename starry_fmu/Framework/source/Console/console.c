@@ -25,6 +25,8 @@ static rt_device_t console_usb_device;
 #define CONSOLE_SEND_BUFF_SIZE		1024
 static char console_buf[CONSOLE_BUFF_SIZE];
 
+extern rt_err_t rt_hw_mavlink_console_init(void);
+
 /* redefine fputc(),for printf() function to call */
 int fputc(int ch, FILE * file)
 {
@@ -121,7 +123,7 @@ int console_redirect_device(const char *name)
 		return -1;
 	}
 	if (console_device) {
-		rt_device_open(new_dev , RT_DEVICE_OFLAG_RDWR | RT_DEVICE_FLAG_INT_RX);
+		rt_device_open(new_dev , RT_DEVICE_OFLAG_RDWR | RT_DEVICE_FLAG_STREAM | RT_DEVICE_FLAG_INT_RX);
 		rt_device_close(console_device);
 		console_device = new_dev;
 	}
@@ -129,7 +131,7 @@ int console_redirect_device(const char *name)
 	return 0;
 }
 
-uint8_t console_init(CONSOLE_INTERFACE_Typedef console_if)
+uint8_t console_init(char* dev_name)
 {	
 	Console.e = console_error;
 	Console.w = console_warning;
@@ -138,27 +140,11 @@ uint8_t console_init(CONSOLE_INTERFACE_Typedef console_if)
 	Console.print_eachtime = console_print_eachtime;
 	Console.write = console_write;
 	
-	if(console_if == CONSOLE_INTERFACE_SERIAL)
-		console_device = rt_device_find("uart3");
-	else 
-		console_device = rt_device_find("usb");
-	
-	console_uart_device = rt_device_find("uart3");
-	console_usb_device = rt_device_find("usb");
-	
-	if(console_device){
-		if(console_device == console_uart_device)
-			rt_device_open(console_device , RT_DEVICE_OFLAG_RDWR | RT_DEVICE_FLAG_INT_RX);
-		else
-			rt_device_open(console_device , RT_DEVICE_OFLAG_RDWR);
-	}
-	
-	if(console_uart_device && console_uart_device != console_device){
-		rt_device_open(console_uart_device , RT_DEVICE_OFLAG_RDWR | RT_DEVICE_FLAG_INT_RX);
-	}
-	if(console_usb_device && console_usb_device != console_device){
-		rt_device_open(console_usb_device , RT_DEVICE_OFLAG_RDWR);
-	}
+	console_device = rt_device_find(dev_name);
+
+	rt_console_set_device(dev_name);
+
+	rt_hw_mavlink_console_init();
 	
 	return 0;
 }

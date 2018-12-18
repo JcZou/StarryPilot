@@ -19,8 +19,8 @@
 static char* TAG  = "File Manager";
 
 static FATFS _fs;
-static TCHAR Buffer[MAXPATH];
-static uint8_t _fmInit = 0;
+static TCHAR Buffer[MAXPATH] = "";
+static file_manager_status _fm_status = fm_init_none;
  
 FRESULT f_deldir(TCHAR *path)  
 {  
@@ -78,26 +78,25 @@ FRESULT f_deldir(TCHAR *path)
 
 //===================================================================================
 
-int fm_init(const TCHAR* path)
+file_manager_status filemanager_init(const TCHAR* path, uint8_t opt)
 {
-	FRESULT f_res = f_mount(&_fs, "0:", 0);
+	FRESULT f_res = f_mount(&_fs, "0:", opt);
+
 	if(f_res == FR_OK){
-		_fmInit = 1;
-		//Console.print("File Manager Init Success\n");
-		return 0;
+		_fm_status = fm_init_ok;
 	}else{
-		_fmInit = 0;
-		//Console.print("File Manager Init Fail\n");
-		return 1;
+		_fm_status = fm_init_err;
 	}
+
+	return _fm_status;
 }
 
-uint8_t fm_init_complete(void)
+file_manager_status filemanager_status(void)
 {
-	return _fmInit;
+	return _fm_status;
 }
 
-TCHAR* fm_get_cwd(void)
+TCHAR* filemanager_get_cwd(void)
 {
 	FRESULT res;
 	
