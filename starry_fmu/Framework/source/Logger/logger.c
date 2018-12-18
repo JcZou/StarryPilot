@@ -133,14 +133,14 @@ log_field_t _log_field_list[] =
 };
 
 static log_header_t _log_header = { sizeof(_log_field_list)/sizeof(log_field_t), _log_field_list };
-static FIL _log_fil;
+static FIL _log_fid;
 static log_buffer_t _log_buffer;
 static uint8_t _logging = 0;
 
 uint8_t log_push(uint8_t *payload, uint16_t len)
 {
     // log file log is not open
-    if(_log_fil.fs == NULL || !_logging){
+    if(_log_fid.fs == NULL || !_logging){
         return 1;
     }
 
@@ -175,7 +175,7 @@ uint8_t log_push_msg(uint8_t *payload, uint8_t msg_id, uint16_t len)
     uint8_t res = 0;
 
     // log file log is not open
-    if(_log_fil.fs == NULL || !_logging){
+    if(_log_fid.fs == NULL || !_logging){
         return 1;
     }
 
@@ -225,7 +225,7 @@ uint8_t log_write(void)
     uint8_t res = 0;
 
     // log file log is not open
-    if(_log_fil.fs == NULL){
+    if(_log_fid.fs == NULL){
         return 1;
     }
 
@@ -235,10 +235,10 @@ uint8_t log_write(void)
     OS_EXIT_CRITICAL;
 
     if(!_logging){
-        if(_log_fil.fs != NULL && head_p == tail_p){ // no log data in buffer
-            f_write(&_log_fil, &_log_buffer.data[tail_p*LOG_BLOCK_SIZE], _log_buffer.index, &bw);
+        if(_log_fid.fs != NULL && head_p == tail_p){ // no log data in buffer
+            f_write(&_log_fid, &_log_buffer.data[tail_p*LOG_BLOCK_SIZE], _log_buffer.index, &bw);
 
-            FRESULT res = f_close(&_log_fil);
+            FRESULT res = f_close(&_log_fid);
             if(res == FR_OK){
                 Console.print("log stop!\r\n");
             }else{
@@ -249,7 +249,7 @@ uint8_t log_write(void)
 
     while(head_p != tail_p)
     {
-        f_write(&_log_fil, &_log_buffer.data[tail_p*LOG_BLOCK_SIZE], LOG_BLOCK_SIZE, &bw);
+        f_write(&_log_fid, &_log_buffer.data[tail_p*LOG_BLOCK_SIZE], LOG_BLOCK_SIZE, &bw);
         tail_p = (tail_p+1)%_log_buffer.num_sector;
         OS_ENTER_CRITICAL;
         _log_buffer.tail = tail_p;
@@ -303,7 +303,7 @@ uint8_t log_start(char *file_name)
     UINT bw;
 
 	/* create log file */
-	FRESULT fres = f_open(&_log_fil, file_name, FA_OPEN_ALWAYS | FA_WRITE);
+	FRESULT fres = f_open(&_log_fid, file_name, FA_OPEN_ALWAYS | FA_WRITE);
 	if(fres == FR_OK){
 
         // init log buffer
@@ -336,6 +336,29 @@ uint8_t log_start(char *file_name)
 	return res;
 }
 
+uint8_t log_start_auto(void)
+{
+    DIR dir;
+    FILINFO fno;
+    FRESULT fres;
+    char filename_buffer[20];
+    uint16_t file_id = 1;
+
+    while(file_id < 100){
+        sprintf(filename_buffer, "LOG%d.BIN", file_id++);
+        fres = f_open(&_log_fid, filename_buffer, FA_OPEN_EXISTING | FA_READ);
+        if(fres == FR_NO_FILE){
+            f_close(&_log_fid);
+            log_start(filename_buffer);
+            return 1;
+        }else{
+            f_close(&_log_fid);
+        }
+    }
+
+    return 0;
+}
+
 void log_stop(void)
 {
     _logging = 0;
@@ -346,7 +369,7 @@ void log_init(void)
     _log_buffer.num_sector = LOG_BUFFER_SIZE/LOG_BLOCK_SIZE;
     _log_buffer.head = _log_buffer.tail = 0;
     _log_buffer.index = 0;
-    _log_fil.fs = NULL;
+    _log_fid.fs = NULL;
 }
 
 uint8_t log_status(void)
