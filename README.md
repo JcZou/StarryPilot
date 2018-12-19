@@ -52,6 +52,11 @@ The project is developed on Pixhawk (autopilot hardware). To download firmware i
 
 - GNU GCC: For more instructions, please refer to [*README.md*](https://github.com/JcZou/StarryPilot/blob/master/starry_fmu/Project/stm32f40x/README.md)
 
+# Code Style
+- We use **astyle** code beautifier to maintain the consistency of code style. Use following command:
+
+*astyle --style=kr --indent=tab --attach-closing-while --indent-switches --indent-preproc-block --break-blocks --pad-oper --unpad-paren --align-pointer=type -r "&lt;dir&gt;\\\*.c,\*.h"*
+
 # Developer List
 - *JcZou*: jiachi.zou@gmail.com, zoujiachi666@163.com 
 - *weety*: luohui2320@gmail.com
