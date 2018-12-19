@@ -530,3 +530,11 @@ int cmd_log(int argc, char** argv)
 	return handle_log_shell_cmd(argc, argv);
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_log, __cmd_log, log operations);
+
+int cmd_clc(int argc, char** argv)
+{
+	/* move to home position, then clear the screen */
+	Console.print("\x1B[H\x1B[2J");
+	return 0;
+}
+FINSH_FUNCTION_EXPORT_ALIAS(cmd_clc, __cmd_clc, clear the screen);
