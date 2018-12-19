@@ -16,8 +16,8 @@
   *
   *        http://www.st.com/software_license_agreement_liberty_v2
   *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   * See the License for the specific language governing permissions and
   * limitations under the License.
@@ -37,9 +37,9 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 /* send data function */
-void VCP_SendData( USB_OTG_CORE_HANDLE *pdev, uint8_t* pbuf, uint32_t  buf_len);
-uint32_t VCP_CheckDataSent (void);
-void VCP_ReceiveData(USB_OTG_CORE_HANDLE *pdev, uint8_t  *pbuf, uint32_t   buf_len);
+void VCP_SendData(USB_OTG_CORE_HANDLE* pdev, uint8_t* pbuf, uint32_t  buf_len);
+uint32_t VCP_CheckDataSent(void);
+void VCP_ReceiveData(USB_OTG_CORE_HANDLE* pdev, uint8_t*  pbuf, uint32_t   buf_len);
 uint32_t VCP_CheckDataReceived(void);
 
 #endif /* __USBD_CDC_VCP_H */

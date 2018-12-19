@@ -27,7 +27,7 @@
 #include <stddef.h>
 
 #if defined(_MSC_VER) && !defined(__cplusplus) && !defined(inline)
-#define inline __inline
+	#define inline __inline
 #endif
 
 /* Full API documentation for this library can be found in the "yxml.pod" file
@@ -80,7 +80,7 @@ typedef struct {
 	 * after YXML_ELEMSTART. The pointer will remain valid up to and including
 	 * the next non-YXML_ATTR* token, the pointed-to buffer will remain valid
 	 * up to and including the YXML_ELEMEND for the corresponding element. */
-	char *elem;
+	char* elem;
 
 	/* The last read character(s) of an attribute value (YXML_ATTRVAL), element
 	 * data (YXML_CONTENT), or processing instruction (YXML_PICONTENT). Changed
@@ -97,12 +97,12 @@ typedef struct {
 
 	/* Name of the current attribute. Changed after YXML_ATTRSTART, valid up to
 	 * and including the next YXML_ATTREND. */
-	char *attr;
+	char* attr;
 
 	/* Name/target of the current processing instruction, zero-length if not in
 	 * a PI. Changed after YXML_PISTART, valid up to (but excluding)
 	 * the next YXML_PIEND. */
-	char *pi;
+	char* pi;
 
 	/* Line number, byte offset within that line, and total bytes read. These
 	 * values refer to the position _after_ the last byte given to
@@ -114,13 +114,13 @@ typedef struct {
 
 	/* PRIVATE */
 	int state;
-	unsigned char *stack; /* Stack of element names + attribute/PI name, separated by \0. Also starts with a \0. */
+	unsigned char* stack; /* Stack of element names + attribute/PI name, separated by \0. Also starts with a \0. */
 	size_t stacksize, stacklen;
 	unsigned reflen;
 	unsigned quote;
 	int nextstate; /* Used for '@' state remembering and for the "string" consuming state */
 	unsigned ignore;
-	unsigned char *string;
+	unsigned char* string;
 } yxml_t;
 
 
@@ -128,10 +128,10 @@ typedef struct {
 extern "C" {
 #endif
 
-void yxml_init(yxml_t *, void *, size_t);
+void yxml_init(yxml_t*, void*, size_t);
 
 
-yxml_ret_t yxml_parse(yxml_t *, int);
+yxml_ret_t yxml_parse(yxml_t*, int);
 
 
 /* May be called after the last character has been given to yxml_parse().
@@ -140,7 +140,7 @@ yxml_ret_t yxml_parse(yxml_t *, int);
  * that don't end correctly. In particular, an error is returned when the XML
  * document did not contain a (complete) root element, or when the document
  * ended while in a comment or processing instruction. */
-yxml_ret_t yxml_eof(yxml_t *);
+yxml_ret_t yxml_eof(yxml_t*);
 
 #ifdef __cplusplus
 }
@@ -153,7 +153,8 @@ yxml_ret_t yxml_eof(yxml_t *);
  * been returned by yxml_parse(), calling this at any other time may not give
  * the correct results. This function should also NOT be used on strings other
  * than x->elem, x->attr or x->pi. */
-static inline size_t yxml_symlen(yxml_t *x, const char *s) {
+static inline size_t yxml_symlen(yxml_t* x, const char* s)
+{
 	return (x->stack + x->stacklen) - (const unsigned char*)s;
 }
 

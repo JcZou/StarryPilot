@@ -5,7 +5,7 @@
  * Date           Author       Notes
  * 2018-08-21     weety    first version.
  */
- 
+
 #include <string.h>
 #include "global.h"
 #include "param.h"
@@ -13,8 +13,7 @@
 #include "mavproxy.h"
 #include "mavlink_status.h"
 
-static const mav_status_t mav_status[MAV_NOTICE_NUM] =
-{
+static const mav_status_t mav_status[MAV_NOTICE_NUM] = {
 	{
 		.severity = MAV_SEVERITY_INFO,
 		.string  = "[cal] calibration started: 2 gyro"

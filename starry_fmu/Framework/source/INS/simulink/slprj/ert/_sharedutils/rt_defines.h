@@ -33,16 +33,16 @@
  *   accessed by the function body.
  */
 #ifndef UNUSED_PARAMETER
-# if defined(__LCC__)
-#   define UNUSED_PARAMETER(x)                                   /* do nothing */
-# else
+	#if defined(__LCC__)
+		#define UNUSED_PARAMETER(x)                                   /* do nothing */
+	#else
 
-/*
- * This is the semi-ANSI standard way of indicating that an
- * unused function parameter is required.
- */
-#   define UNUSED_PARAMETER(x)         (void) (x)
-# endif
+		/*
+		* This is the semi-ANSI standard way of indicating that an
+		* unused function parameter is required.
+		*/
+		#define UNUSED_PARAMETER(x)         (void) (x)
+	#endif
 #endif
 #endif                                 /* RTW_HEADER_rt_defines_h_ */
 

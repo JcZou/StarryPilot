@@ -10,12 +10,11 @@
 #define __HIL_INTERFACE_H__
 
 #include "global.h"
- 
-typedef enum
-{
+
+typedef enum {
 	HIL_SENSOR_LEVEL,
 	HIL_STATE_LEVEL
-}HIL_Option;
+} HIL_Option;
 
 int hil_sensor_collect(void);
 int hil_interface_init(HIL_Option hil_op);

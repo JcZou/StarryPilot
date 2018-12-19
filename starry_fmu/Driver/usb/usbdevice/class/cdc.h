@@ -22,7 +22,7 @@
  * 2012-10-03     Yi Qiu       first version
  * 2012-12-12     heyuanjie87  add CDC endpoints collection
  */
- 
+
 #ifndef  __CDC_H__
 #define  __CDC_H__
 
@@ -101,83 +101,75 @@
 
 #pragma pack(1)
 
-struct ucdc_header_descriptor
-{
-    rt_uint8_t length;
-    rt_uint8_t type;
-    rt_uint8_t subtype;
-    rt_uint16_t bcd;        
+struct ucdc_header_descriptor {
+	rt_uint8_t length;
+	rt_uint8_t type;
+	rt_uint8_t subtype;
+	rt_uint16_t bcd;
 };
 typedef struct ucdc_header_descriptor* ucdc_hdr_desc_t;
 
-struct ucdc_acm_descriptor
-{
-    rt_uint8_t length;
-    rt_uint8_t type;
-    rt_uint8_t subtype;
-    rt_uint8_t capabilties;
+struct ucdc_acm_descriptor {
+	rt_uint8_t length;
+	rt_uint8_t type;
+	rt_uint8_t subtype;
+	rt_uint8_t capabilties;
 };
 typedef struct ucdc_acm_descriptor* ucdc_acm_desc_t;
 
-struct ucdc_call_mgmt_descriptor
-{
-    rt_uint8_t length;
-    rt_uint8_t type;
-    rt_uint8_t subtype;
-    rt_uint8_t capabilties;    
-    rt_uint8_t data_interface;
+struct ucdc_call_mgmt_descriptor {
+	rt_uint8_t length;
+	rt_uint8_t type;
+	rt_uint8_t subtype;
+	rt_uint8_t capabilties;
+	rt_uint8_t data_interface;
 };
 typedef struct ucdc_call_mgmt_descriptor* ucdc_call_mgmt_desc_t;
 
-struct ucdc_union_descriptor
-{
-    rt_uint8_t length;
-    rt_uint8_t type;
-    rt_uint8_t subtype;
-    rt_uint8_t master_interface;
-    rt_uint8_t slave_interface0;
+struct ucdc_union_descriptor {
+	rt_uint8_t length;
+	rt_uint8_t type;
+	rt_uint8_t subtype;
+	rt_uint8_t master_interface;
+	rt_uint8_t slave_interface0;
 };
 typedef struct ucdc_union_descriptor* ucdc_union_desc_t;
 
-struct ucdc_comm_descriptor
-{
+struct ucdc_comm_descriptor {
 #ifdef RT_USB_DEVICE_COMPOSITE
-    struct uiad_descriptor iad_desc;
+	struct uiad_descriptor iad_desc;
 #endif
-    struct uinterface_descriptor intf_desc;
-    struct ucdc_header_descriptor hdr_desc;
-    struct ucdc_call_mgmt_descriptor call_mgmt_desc;    
-    struct ucdc_acm_descriptor acm_desc;    
-    struct ucdc_union_descriptor union_desc;    
-    struct uendpoint_descriptor ep_desc;
+	struct uinterface_descriptor intf_desc;
+	struct ucdc_header_descriptor hdr_desc;
+	struct ucdc_call_mgmt_descriptor call_mgmt_desc;
+	struct ucdc_acm_descriptor acm_desc;
+	struct ucdc_union_descriptor union_desc;
+	struct uendpoint_descriptor ep_desc;
 };
 typedef struct ucdc_comm_descriptor* ucdc_comm_desc_t;
 
-struct ucdc_data_descriptor
-{
-    struct uinterface_descriptor intf_desc;
-    struct uendpoint_descriptor ep_out_desc;        
-    struct uendpoint_descriptor ep_in_desc;
+struct ucdc_data_descriptor {
+	struct uinterface_descriptor intf_desc;
+	struct uendpoint_descriptor ep_out_desc;
+	struct uendpoint_descriptor ep_in_desc;
 };
 typedef struct ucdc_data_descriptor* ucdc_data_desc_t;
 
-struct ucdc_line_coding
-{
-    rt_uint32_t dwDTERate;
-    rt_uint8_t bCharFormat;
-    rt_uint8_t bParityType;
-    rt_uint8_t bDataBits;
+struct ucdc_line_coding {
+	rt_uint32_t dwDTERate;
+	rt_uint8_t bCharFormat;
+	rt_uint8_t bParityType;
+	rt_uint8_t bDataBits;
 };
 typedef struct ucdc_line_coding* ucdc_line_coding_t;
 
-struct cdc_eps
-{
-    uep_t ep_out;
-    uep_t ep_in;
-    uep_t ep_cmd;
+struct cdc_eps {
+	uep_t ep_out;
+	uep_t ep_in;
+	uep_t ep_cmd;
 };
 typedef struct cdc_eps* cdc_eps_t;
- 
+
 #pragma pack()
 
 #endif

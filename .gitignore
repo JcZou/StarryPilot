@@ -26,3 +26,4 @@ build
 *.uvoptx*
 *.uvguix*
 *.vscode/
+*.orig

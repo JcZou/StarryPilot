@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- * 
+ *
  * Change Logs:
  * Date           Author       Notes
  * 2012-10-02     Yi Qiu       first version
@@ -31,105 +31,103 @@
 #define USB_DEVICE_CONTROLLER_NAME      "usbd"
 
 #ifdef RT_USB_DEVICE_COMPOSITE
-const static char* ustring[] =
-{
-    "Language",
-    "RT-Thread Team.",
-    "RTT Composite Device",
-    "320219198301",
-    "Configuration",
-    "Interface",
+const static char* ustring[] = {
+	"Language",
+	"RT-Thread Team.",
+	"RTT Composite Device",
+	"320219198301",
+	"Configuration",
+	"Interface",
 };
 #endif
 
 #ifdef RT_USB_DEVICE_COMPOSITE
-static struct udevice_descriptor compsit_desc =
-{
-    USB_DESC_LENGTH_DEVICE,     //bLength;
-    USB_DESC_TYPE_DEVICE,       //type;
-    USB_BCD_VERSION,            //bcdUSB;
-    USB_CLASS_MISC,             //bDeviceClass;
-    0x02,                       //bDeviceSubClass;
-    0x01,                       //bDeviceProtocol;
-    0x40,                       //bMaxPacketSize0;
-    _VENDOR_ID,                 //idVendor;
-    _PRODUCT_ID,                //idProduct;
-    USB_BCD_DEVICE,             //bcdDevice;
-    USB_STRING_MANU_INDEX,      //iManufacturer;
-    USB_STRING_PRODUCT_INDEX,   //iProduct;
-    USB_STRING_SERIAL_INDEX,    //iSerialNumber;
-    USB_DYNAMIC,                //bNumConfigurations;
+static struct udevice_descriptor compsit_desc = {
+	USB_DESC_LENGTH_DEVICE,     //bLength;
+	USB_DESC_TYPE_DEVICE,       //type;
+	USB_BCD_VERSION,            //bcdUSB;
+	USB_CLASS_MISC,             //bDeviceClass;
+	0x02,                       //bDeviceSubClass;
+	0x01,                       //bDeviceProtocol;
+	0x40,                       //bMaxPacketSize0;
+	_VENDOR_ID,                 //idVendor;
+	_PRODUCT_ID,                //idProduct;
+	USB_BCD_DEVICE,             //bcdDevice;
+	USB_STRING_MANU_INDEX,      //iManufacturer;
+	USB_STRING_PRODUCT_INDEX,   //iProduct;
+	USB_STRING_SERIAL_INDEX,    //iSerialNumber;
+	USB_DYNAMIC,                //bNumConfigurations;
 };
 #endif
 
 rt_err_t rt_usb_device_init(void)
 {
-    rt_device_t udc;
-    udevice_t udevice;
-    uconfig_t cfg;
-    ufunction_t func;
+	rt_device_t udc;
+	udevice_t udevice;
+	uconfig_t cfg;
+	ufunction_t func;
 
-    /* create and startup usb device thread */
-    rt_usbd_core_init();
+	/* create and startup usb device thread */
+	rt_usbd_core_init();
 
-    /* create a device object */
-    udevice = rt_usbd_device_new();
+	/* create a device object */
+	udevice = rt_usbd_device_new();
 
-    udc = rt_device_find(USB_DEVICE_CONTROLLER_NAME);
-    if(udc == RT_NULL)
-    {
-        rt_kprintf("can't find usb device controller %s\n", USB_DEVICE_CONTROLLER_NAME);
-        return -RT_ERROR;
-    }
+	udc = rt_device_find(USB_DEVICE_CONTROLLER_NAME);
 
-    /* set usb controller driver to the device */
-    rt_usbd_device_set_controller(udevice, (udcd_t)udc);
+	if(udc == RT_NULL) {
+		rt_kprintf("can't find usb device controller %s\n", USB_DEVICE_CONTROLLER_NAME);
+		return -RT_ERROR;
+	}
 
-    /* create a configuration object */
-    cfg = rt_usbd_config_new();
+	/* set usb controller driver to the device */
+	rt_usbd_device_set_controller(udevice, (udcd_t)udc);
+
+	/* create a configuration object */
+	cfg = rt_usbd_config_new();
 
 #ifdef RT_USB_DEVICE_MSTORAGE
-    /* create a mass storage function object */
-    func = rt_usbd_function_mstorage_create(udevice);
+	/* create a mass storage function object */
+	func = rt_usbd_function_mstorage_create(udevice);
 
-    /* add the function to the configuration */
-    rt_usbd_config_add_function(cfg, func);
+	/* add the function to the configuration */
+	rt_usbd_config_add_function(cfg, func);
 #endif
 
 #ifdef RT_USB_DEVICE_CDC
-    /* create a cdc function object */
-    func = rt_usbd_function_cdc_create(udevice);
+	/* create a cdc function object */
+	func = rt_usbd_function_cdc_create(udevice);
 
-    /* add the function to the configuration */
-    rt_usbd_config_add_function(cfg, func);
+	/* add the function to the configuration */
+	rt_usbd_config_add_function(cfg, func);
 #endif
 
 #ifdef RT_USB_DEVICE_RNDIS
-    /* create a rndis function object */
-    func = rt_usbd_function_rndis_create(udevice);
+	/* create a rndis function object */
+	func = rt_usbd_function_rndis_create(udevice);
 
-    /* add the function to the configuration */
-    rt_usbd_config_add_function(cfg, func);
+	/* add the function to the configuration */
+	rt_usbd_config_add_function(cfg, func);
 #endif
 
-    /* set device descriptor to the device */
+	/* set device descriptor to the device */
 #ifdef RT_USB_DEVICE_COMPOSITE
-    rt_usbd_device_set_descriptor(udevice, &compsit_desc);
-    rt_usbd_device_set_string(udevice, ustring);
+	rt_usbd_device_set_descriptor(udevice, &compsit_desc);
+	rt_usbd_device_set_string(udevice, ustring);
 #else
-    rt_usbd_device_set_descriptor(udevice, func->dev_desc);
+	rt_usbd_device_set_descriptor(udevice, func->dev_desc);
 #endif
 
-    /* add the configuration to the device */
-    rt_usbd_device_add_config(udevice, cfg);
+	/* add the configuration to the device */
+	rt_usbd_device_add_config(udevice, cfg);
 
-    /* initialize usb device controller */
-    rt_device_init(udc);
+	/* initialize usb device controller */
+	rt_device_init(udc);
 
-    /* set default configuration to 1 */
-    rt_usbd_set_config(udevice, 1);
+	/* set default configuration to 1 */
+	rt_usbd_set_config(udevice, 1);
 
-    return RT_EOK;
+	return RT_EOK;
 }
 
 #endif

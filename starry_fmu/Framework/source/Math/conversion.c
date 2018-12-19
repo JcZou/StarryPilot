@@ -5,20 +5,20 @@
  * Date           Author       Notes
  * 2018-04-14     zoujiachi    first version.
  */
- 
+
 #include "conversion.h"
 
-void Msb2Lsb(uint8_t* data , uint8_t bytes)
+void Msb2Lsb(uint8_t* data, uint8_t bytes)
 {
 	uint8_t temp;
-	
+
 	if(!bytes)
 		return;
-	
-	for(uint8_t i = 0 ; i<bytes/2 ; i++){
+
+	for(uint8_t i = 0 ; i < bytes / 2 ; i++) {
 		temp = data[i];
-		data[i] = data[bytes-1-i];
-		data[bytes-1-i] = temp;
+		data[i] = data[bytes - 1 - i];
+		data[bytes - 1 - i] = temp;
 	}
 }
 

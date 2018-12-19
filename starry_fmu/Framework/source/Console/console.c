@@ -28,13 +28,13 @@ static char console_buf[CONSOLE_BUFF_SIZE];
 extern rt_err_t rt_hw_mavlink_console_init(void);
 
 /* redefine fputc(),for printf() function to call */
-int fputc(int ch, FILE * file)
+int fputc(int ch, FILE* file)
 {
-	if(console_device != NULL){
+	if(console_device != NULL) {
 		rt_device_write(console_device, 0, (void*)&ch, 1);
 	}
 
-	return ch; 
+	return ch;
 }
 
 void console_output(rt_device_t dev, char* content, uint32_t len)
@@ -42,71 +42,72 @@ void console_output(rt_device_t dev, char* content, uint32_t len)
 	rt_device_write(dev, 0, (void*)content, len);
 }
 
-void console_error(char* tag, const char *fmt, ...)
+void console_error(char* tag, const char* fmt, ...)
 {
 	va_list args;
-    int length;
-	
+	int length;
+
 	va_start(args, fmt);
 	length = vsprintf(console_buf, fmt, args);
 	va_end(args);
-	
+
 	console_output(console_device, console_buf, length);
 }
 
-void console_warning(char* tag, const char *fmt, ...)
+void console_warning(char* tag, const char* fmt, ...)
 {
 	va_list args;
-    int length;
-	
+	int length;
+
 	va_start(args, fmt);
 	length = vsprintf(console_buf, fmt, args);
 	va_end(args);
-	
+
 	console_output(console_device, console_buf, length);
 }
 
-void console_print(const char *fmt, ...)
+void console_print(const char* fmt, ...)
 {
 	va_list args;
-    int length;
-	
+	int length;
+
 	va_start(args, fmt);
 	length = vsprintf(console_buf, fmt, args);
 	va_end(args);
-	
+
 	console_output(console_device, console_buf, length);
 }
 
-void console_print2dev(CONSOLE_INTERFACE_Typedef dev, const char *fmt, ...)
+void console_print2dev(CONSOLE_INTERFACE_Typedef dev, const char* fmt, ...)
 {
 	va_list args;
-    int length;
-	
+	int length;
+
 	va_start(args, fmt);
 	length = vsprintf(console_buf, fmt, args);
 	va_end(args);
-	
-	if(dev == CONSOLE_INTERFACE_SERIAL){
+
+	if(dev == CONSOLE_INTERFACE_SERIAL) {
 		console_output(console_uart_device, console_buf, length);
-	}else if(dev == CONSOLE_INTERFACE_USB){
+	} else if(dev == CONSOLE_INTERFACE_USB) {
 		console_output(console_usb_device, console_buf, length);
 	}
 }
 
-void console_print_eachtime(uint32_t *time_stamp, uint32_t time_ms, const char *fmt, ...)
+void console_print_eachtime(uint32_t* time_stamp, uint32_t time_ms, const char* fmt, ...)
 {
 	uint32_t now = time_nowMs();
-	if(now - *time_stamp > time_ms){
+
+	if(now - *time_stamp > time_ms) {
 		*time_stamp = now;
-		
+
 		va_list args;
 		int length;
-		
+
 		va_start(args, fmt);
 		length = vsprintf(console_buf, fmt, args);
 		va_end(args);
-		
+
 		console_output(console_device, console_buf, length);
 	}
 }
@@ -116,14 +117,16 @@ void console_write(char* content, uint32_t len)
 	console_output(console_device, content, len);
 }
 
-int console_redirect_device(const char *name)
+int console_redirect_device(const char* name)
 {
 	rt_device_t new_dev = rt_device_find(name);
-	if (!new_dev) {
+
+	if(!new_dev) {
 		return -1;
 	}
-	if (console_device) {
-		rt_device_open(new_dev , RT_DEVICE_OFLAG_RDWR | RT_DEVICE_FLAG_STREAM | RT_DEVICE_FLAG_INT_RX);
+
+	if(console_device) {
+		rt_device_open(new_dev, RT_DEVICE_OFLAG_RDWR | RT_DEVICE_FLAG_STREAM | RT_DEVICE_FLAG_INT_RX);
 		rt_device_close(console_device);
 		console_device = new_dev;
 	}
@@ -132,19 +135,19 @@ int console_redirect_device(const char *name)
 }
 
 uint8_t console_init(char* dev_name)
-{	
+{
 	Console.e = console_error;
 	Console.w = console_warning;
 	Console.print = console_print;
 	Console.print2dev = console_print2dev;
 	Console.print_eachtime = console_print_eachtime;
 	Console.write = console_write;
-	
+
 	console_device = rt_device_find(dev_name);
 
 	rt_console_set_device(dev_name);
 
 	rt_hw_mavlink_console_init();
-	
+
 	return 0;
 }

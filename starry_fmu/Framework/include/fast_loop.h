@@ -32,20 +32,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "global.h"
 
-typedef struct
-{
-    int32_t lon_1e7_deg;
-    int32_t lat_1e7_deg;
-    int32_t altitude_cm;
-}position_int_t;
+typedef struct {
+	int32_t lon_1e7_deg;
+	int32_t lat_1e7_deg;
+	int32_t altitude_cm;
+} position_int_t;
 
-typedef struct
-{
-    int32_t vel_cmPs_N;
-    int32_t vel_cmPs_E;
-    int32_t vel_cmPs_D;
-}velocity_int_t;
+typedef struct {
+	int32_t vel_cmPs_N;
+	int32_t vel_cmPs_E;
+	int32_t vel_cmPs_D;
+} velocity_int_t;
 
-void fastloop_entry(void *parameter);
+void fastloop_entry(void* parameter);
 
 #endif

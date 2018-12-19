@@ -10,7 +10,7 @@
  * Change Logs:
  * Date           Author       Notes
  * 2009-01-05     Bernard      the first version
- * 2014-04-27     Bernard      make code cleanup. 
+ * 2014-04-27     Bernard      make code cleanup.
  */
 
 #include <board.h>
@@ -37,14 +37,14 @@
 #include "INS.h"
 
 #ifdef RT_USING_LWIP
-#include <lwip/sys.h>
-#include <lwip/api.h>
-#include <netif/ethernetif.h>
-#include "stm32f4xx_eth.h"
+	#include <lwip/sys.h>
+	#include <lwip/api.h>
+	#include <netif/ethernetif.h>
+	#include "stm32f4xx_eth.h"
 #endif
 
 #ifdef RT_USING_GDB
-#include <gdb_stub.h>
+	#include <gdb_stub.h>
 #endif
 
 #include "sdio.h"
@@ -103,27 +103,28 @@ void rt_init_thread_entry(void* parameter)
 
 	/* init mavlink proxy */
 	mavproxy_init();
-	
-    /* GDB STUB */
+
+	/* GDB STUB */
 #ifdef RT_USING_GDB
-    gdb_set_device("uart6");
-    gdb_start();
+	gdb_set_device("uart6");
+	gdb_start();
 #endif
 
 	/* show system version */
 	rt_show_version();
 
-	
+
 	/* create thread */
 	res = rt_thread_init(&thread_fastloop_handle,
-						   "fastloop",
-						   fastloop_entry,
-						   RT_NULL,
-						   &thread_fastloop_stack[0],
-						   sizeof(thread_fastloop_stack),FASTLOOP_THREAD_PRIORITY,1);
-	if (res == RT_EOK)
+	                     "fastloop",
+	                     fastloop_entry,
+	                     RT_NULL,
+	                     &thread_fastloop_stack[0],
+	                     sizeof(thread_fastloop_stack), FASTLOOP_THREAD_PRIORITY, 1);
+
+	if(res == RT_EOK)
 		rt_thread_startup(&thread_fastloop_handle);
-	
+
 	// res = rt_thread_init(&thread_copter_handle,
 	// 					   "copter",
 	// 					   copter_entry,
@@ -132,50 +133,55 @@ void rt_init_thread_entry(void* parameter)
 	// 					   sizeof(thread_copter_stack),COPTER_THREAD_PRIORITY,1);
 	// if (res == RT_EOK)
 	// 	rt_thread_startup(&thread_copter_handle);
-	
+
 	res = rt_thread_init(&thread_starryio_handle,
-						   "starryio",
-						   starryio_entry,
-						   RT_NULL,
-						   &thread_starryio_stack[0],
-						   sizeof(thread_starryio_stack),STARRYIO_THREAD_PRIORITY,1);
-	if (res == RT_EOK)
+	                     "starryio",
+	                     starryio_entry,
+	                     RT_NULL,
+	                     &thread_starryio_stack[0],
+	                     sizeof(thread_starryio_stack), STARRYIO_THREAD_PRIORITY, 1);
+
+	if(res == RT_EOK)
 		rt_thread_startup(&thread_starryio_handle);
-	
+
 	res = rt_thread_init(&thread_mavlink_handle,
-						   "mavproxy",
-						   mavproxy_entry,
-						   RT_NULL,
-						   &thread_mavlink_stack[0],
-						   sizeof(thread_mavlink_stack),MAVLINK_THREAD_PRIORITY,1);
-	if (res == RT_EOK)
+	                     "mavproxy",
+	                     mavproxy_entry,
+	                     RT_NULL,
+	                     &thread_mavlink_stack[0],
+	                     sizeof(thread_mavlink_stack), MAVLINK_THREAD_PRIORITY, 1);
+
+	if(res == RT_EOK)
 		rt_thread_startup(&thread_mavlink_handle);
-	
+
 	res = rt_thread_init(&thread_logger_handle,
-						   "log",
-						   logger_entry,
-						   RT_NULL,
-						   &thread_logger_stack[0],
-						   sizeof(thread_logger_stack),LOGGER_THREAD_PRIORITY,1);
-	if (res == RT_EOK)
+	                     "log",
+	                     logger_entry,
+	                     RT_NULL,
+	                     &thread_logger_stack[0],
+	                     sizeof(thread_logger_stack), LOGGER_THREAD_PRIORITY, 1);
+
+	if(res == RT_EOK)
 		rt_thread_startup(&thread_logger_handle);
-	
+
 	res = rt_thread_init(&thread_led_handle,
-						   "led",
-						   led_entry,
-						   RT_NULL,
-						   &thread_led_stack[0],
-						   sizeof(thread_led_stack),LED_THREAD_PRIORITY,1);
-	if (res == RT_EOK)
+	                     "led",
+	                     led_entry,
+	                     RT_NULL,
+	                     &thread_led_stack[0],
+	                     sizeof(thread_led_stack), LED_THREAD_PRIORITY, 1);
+
+	if(res == RT_EOK)
 		rt_thread_startup(&thread_led_handle);
 
 	res = rt_thread_init(&thread_cali_handle,
-						   "cali",
-						   rt_cali_thread_entry,
-						   RT_NULL,
-						   &thread_cali_stack[0],
-						   sizeof(thread_cali_stack),CALI_THREAD_PRIORITY,2);
-	if (res == RT_EOK)
+	                     "cali",
+	                     rt_cali_thread_entry,
+	                     RT_NULL,
+	                     &thread_cali_stack[0],
+	                     sizeof(thread_cali_stack), CALI_THREAD_PRIORITY, 2);
+
+	if(res == RT_EOK)
 		rt_thread_startup(&thread_cali_handle);
 
 	/* delete itself */
@@ -186,15 +192,15 @@ int rt_application_init()
 {
 	/* init simulink model */
 	INS_initialize();
-	
-    tid0 = rt_thread_create("init",
-        rt_init_thread_entry, RT_NULL,
-        4096, RT_THREAD_PRIORITY_MAX/2, 20);
 
-    if (tid0 != RT_NULL)
-        rt_thread_startup(tid0);
+	tid0 = rt_thread_create("init",
+	                        rt_init_thread_entry, RT_NULL,
+	                        4096, RT_THREAD_PRIORITY_MAX / 2, 20);
 
-    return 0;
+	if(tid0 != RT_NULL)
+		rt_thread_startup(tid0);
+
+	return 0;
 }
 
 /*@}*/

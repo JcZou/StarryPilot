@@ -38,21 +38,21 @@
 // <o> Internal SRAM memory size[Kbytes] <8-64>
 //	<i>Default: 64
 #ifdef __ICCARM__
-// Use *.icf ram symbal, to avoid hardcode.
-extern char __ICFEDIT_region_RAM_end__;
-#define STM32_SRAM_END          &__ICFEDIT_region_RAM_end__
+	// Use *.icf ram symbal, to avoid hardcode.
+	extern char __ICFEDIT_region_RAM_end__;
+	#define STM32_SRAM_END          &__ICFEDIT_region_RAM_end__
 #elif defined(__CC_ARM) || defined(__ARMCC_VERSION)&& (__ARMCC_VERSION >= 6010050)
-//#define STM32_SRAM_SIZE         128
-/* the size of heap is defined in startup.s, the address can be found in .map file */
-extern int __heap_base;
-extern int __heap_limit;
-#define STM32_SRAM_BEGIN		(&__heap_base)	
-#define STM32_SRAM_END          (&__heap_limit)
+	//#define STM32_SRAM_SIZE         128
+	/* the size of heap is defined in startup.s, the address can be found in .map file */
+	extern int __heap_base;
+	extern int __heap_limit;
+	#define STM32_SRAM_BEGIN		(&__heap_base)
+	#define STM32_SRAM_END          (&__heap_limit)
 #else
-extern int __bss_end;
-#define STM32_SRAM_SIZE         (128 * 1024) /* 112KB(SRAM1) + 16KB(SRAM2) */
-#define STM32_SRAM_BEGIN	(&__bss_end)	
-#define STM32_SRAM_END          (0x20000000 + STM32_SRAM_SIZE) 
+	extern int __bss_end;
+	#define STM32_SRAM_SIZE         (128 * 1024) /* 112KB(SRAM1) + 16KB(SRAM2) */
+	#define STM32_SRAM_BEGIN	(&__bss_end)
+	#define STM32_SRAM_END          (0x20000000 + STM32_SRAM_SIZE)
 
 #endif
 

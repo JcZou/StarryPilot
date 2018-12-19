@@ -26,328 +26,322 @@
 #include <rtdevice.h>
 #include <rthw.h>
 
-struct rt_data_item
-{
-    const void *data_ptr;
-    rt_size_t data_size;
+struct rt_data_item {
+	const void* data_ptr;
+	rt_size_t data_size;
 };
 
 rt_err_t
-rt_data_queue_init(struct rt_data_queue *queue,
+rt_data_queue_init(struct rt_data_queue* queue,
                    rt_uint16_t size,
                    rt_uint16_t lwm,
-                   void (*evt_notify)(struct rt_data_queue *queue, rt_uint32_t event))
+                   void (*evt_notify)(struct rt_data_queue* queue, rt_uint32_t event))
 {
-    RT_ASSERT(queue != RT_NULL);
+	RT_ASSERT(queue != RT_NULL);
 
-    queue->evt_notify = evt_notify;
+	queue->evt_notify = evt_notify;
 
-    queue->size = size;
-    queue->lwm = lwm;
-    queue->waiting_lwm = RT_FALSE;
+	queue->size = size;
+	queue->lwm = lwm;
+	queue->waiting_lwm = RT_FALSE;
 
-    queue->get_index = 0;
-    queue->put_index = 0;
+	queue->get_index = 0;
+	queue->put_index = 0;
 
-    rt_list_init(&(queue->suspended_push_list));
-    rt_list_init(&(queue->suspended_pop_list));
+	rt_list_init(&(queue->suspended_push_list));
+	rt_list_init(&(queue->suspended_pop_list));
 
-    queue->queue = (struct rt_data_item *)rt_malloc(sizeof(struct rt_data_item) * size);
-    if (queue->queue == RT_NULL)
-    {
-        return -RT_ENOMEM;
-    }
+	queue->queue = (struct rt_data_item*)rt_malloc(sizeof(struct rt_data_item) * size);
 
-    return RT_EOK;
+	if(queue->queue == RT_NULL) {
+		return -RT_ENOMEM;
+	}
+
+	return RT_EOK;
 }
 RTM_EXPORT(rt_data_queue_init);
 
-rt_err_t rt_data_queue_push(struct rt_data_queue *queue,
-                            const void *data_ptr,
+rt_err_t rt_data_queue_push(struct rt_data_queue* queue,
+                            const void* data_ptr,
                             rt_size_t data_size,
                             rt_int32_t timeout)
 {
-    rt_uint16_t mask;
-    rt_ubase_t  level;
-    rt_thread_t thread;
-    rt_err_t    result;
-    
-    RT_ASSERT(queue != RT_NULL);
+	rt_uint16_t mask;
+	rt_ubase_t  level;
+	rt_thread_t thread;
+	rt_err_t    result;
 
-    result = RT_EOK;
-    thread = rt_thread_self();
-    mask = queue->size - 1;
+	RT_ASSERT(queue != RT_NULL);
 
-    level = rt_hw_interrupt_disable();
-    while (queue->put_index - queue->get_index == queue->size)
-    {
-        queue->waiting_lwm = RT_TRUE;
+	result = RT_EOK;
+	thread = rt_thread_self();
+	mask = queue->size - 1;
 
-        /* queue is full */
-        if (timeout == 0)
-        {
-            result = -RT_ETIMEOUT;
+	level = rt_hw_interrupt_disable();
 
-            goto __exit;
-        }
+	while(queue->put_index - queue->get_index == queue->size) {
+		queue->waiting_lwm = RT_TRUE;
 
-        /* current context checking */
-        RT_DEBUG_NOT_IN_INTERRUPT;
+		/* queue is full */
+		if(timeout == 0) {
+			result = -RT_ETIMEOUT;
 
-        /* reset thread error number */
-        thread->error = RT_EOK;
-        
-        /* suspend thread on the push list */
-        rt_thread_suspend(thread);
-        rt_list_insert_before(&(queue->suspended_push_list), &(thread->tlist));
-        /* start timer */
-        if (timeout > 0)
-        {
-            /* reset the timeout of thread timer and start it */
-            rt_timer_control(&(thread->thread_timer),
-                             RT_TIMER_CTRL_SET_TIME,
-                             &timeout);
-            rt_timer_start(&(thread->thread_timer));
-        }
+			goto __exit;
+		}
 
-        /* enable interrupt */
-        rt_hw_interrupt_enable(level);
+		/* current context checking */
+		RT_DEBUG_NOT_IN_INTERRUPT;
 
-        /* do schedule */
-        rt_schedule();
+		/* reset thread error number */
+		thread->error = RT_EOK;
 
-        /* thread is waked up */
-        result = thread->error;
-        level = rt_hw_interrupt_disable();
-        if (result != RT_EOK) goto __exit;
-    }
+		/* suspend thread on the push list */
+		rt_thread_suspend(thread);
+		rt_list_insert_before(&(queue->suspended_push_list), &(thread->tlist));
 
-    queue->queue[queue->put_index & mask].data_ptr  = data_ptr;
-    queue->queue[queue->put_index & mask].data_size = data_size;
-    queue->put_index += 1;
+		/* start timer */
+		if(timeout > 0) {
+			/* reset the timeout of thread timer and start it */
+			rt_timer_control(&(thread->thread_timer),
+			                 RT_TIMER_CTRL_SET_TIME,
+			                 &timeout);
+			rt_timer_start(&(thread->thread_timer));
+		}
 
-    if (!rt_list_isempty(&(queue->suspended_pop_list)))
-    {
-        /* there is at least one thread in suspended list */
+		/* enable interrupt */
+		rt_hw_interrupt_enable(level);
 
-        /* get thread entry */
-        thread = rt_list_entry(queue->suspended_pop_list.next,
-                               struct rt_thread,
-                               tlist);
+		/* do schedule */
+		rt_schedule();
 
-        /* resume it */
-        rt_thread_resume(thread);
-        rt_hw_interrupt_enable(level);
+		/* thread is waked up */
+		result = thread->error;
+		level = rt_hw_interrupt_disable();
 
-        /* perform a schedule */
-        rt_schedule();
+		if(result != RT_EOK) goto __exit;
+	}
 
-        return result;
-    }
+	queue->queue[queue->put_index & mask].data_ptr  = data_ptr;
+	queue->queue[queue->put_index & mask].data_size = data_size;
+	queue->put_index += 1;
+
+	if(!rt_list_isempty(&(queue->suspended_pop_list))) {
+		/* there is at least one thread in suspended list */
+
+		/* get thread entry */
+		thread = rt_list_entry(queue->suspended_pop_list.next,
+		                       struct rt_thread,
+		                       tlist);
+
+		/* resume it */
+		rt_thread_resume(thread);
+		rt_hw_interrupt_enable(level);
+
+		/* perform a schedule */
+		rt_schedule();
+
+		return result;
+	}
 
 __exit:
-    rt_hw_interrupt_enable(level);
-    if ((result == RT_EOK) && queue->evt_notify != RT_NULL)
-    {
-        queue->evt_notify(queue, RT_DATAQUEUE_EVENT_PUSH);
-    }
+	rt_hw_interrupt_enable(level);
 
-    return result;
+	if((result == RT_EOK) && queue->evt_notify != RT_NULL) {
+		queue->evt_notify(queue, RT_DATAQUEUE_EVENT_PUSH);
+	}
+
+	return result;
 }
 RTM_EXPORT(rt_data_queue_push);
 
-rt_err_t rt_data_queue_pop(struct rt_data_queue *queue,
+rt_err_t rt_data_queue_pop(struct rt_data_queue* queue,
                            const void** data_ptr,
-                           rt_size_t *size, 
+                           rt_size_t* size,
                            rt_int32_t timeout)
 {
-    rt_ubase_t  level;
-    rt_thread_t thread;
-    rt_err_t    result;
-    rt_uint16_t mask;
+	rt_ubase_t  level;
+	rt_thread_t thread;
+	rt_err_t    result;
+	rt_uint16_t mask;
 
-    RT_ASSERT(queue != RT_NULL);
-    RT_ASSERT(data_ptr != RT_NULL);
-    RT_ASSERT(size != RT_NULL);
+	RT_ASSERT(queue != RT_NULL);
+	RT_ASSERT(data_ptr != RT_NULL);
+	RT_ASSERT(size != RT_NULL);
 
-    result = RT_EOK;
-    thread = rt_thread_self();
-    mask   = queue->size - 1;
+	result = RT_EOK;
+	thread = rt_thread_self();
+	mask   = queue->size - 1;
 
-    level = rt_hw_interrupt_disable();
-    while (queue->get_index == queue->put_index)
-    {
-        /* queue is empty */
-        if (timeout == 0)
-        {
-            result = -RT_ETIMEOUT;
-            goto __exit;
-        }
+	level = rt_hw_interrupt_disable();
 
-        /* current context checking */
-        RT_DEBUG_NOT_IN_INTERRUPT;
+	while(queue->get_index == queue->put_index) {
+		/* queue is empty */
+		if(timeout == 0) {
+			result = -RT_ETIMEOUT;
+			goto __exit;
+		}
 
-        /* reset thread error number */
-        thread->error = RT_EOK;
-        
-        /* suspend thread on the pop list */
-        rt_thread_suspend(thread);
-        rt_list_insert_before(&(queue->suspended_pop_list), &(thread->tlist));
-        /* start timer */
-        if (timeout > 0)
-        {
-            /* reset the timeout of thread timer and start it */
-            rt_timer_control(&(thread->thread_timer),
-                             RT_TIMER_CTRL_SET_TIME,
-                             &timeout);
-            rt_timer_start(&(thread->thread_timer));
-        }
+		/* current context checking */
+		RT_DEBUG_NOT_IN_INTERRUPT;
 
-        /* enable interrupt */
-        rt_hw_interrupt_enable(level);
+		/* reset thread error number */
+		thread->error = RT_EOK;
 
-        /* do schedule */
-        rt_schedule();
+		/* suspend thread on the pop list */
+		rt_thread_suspend(thread);
+		rt_list_insert_before(&(queue->suspended_pop_list), &(thread->tlist));
 
-        /* thread is waked up */
-        result = thread->error;
-        level  = rt_hw_interrupt_disable();
-        if (result != RT_EOK)
-            goto __exit;
-    }
+		/* start timer */
+		if(timeout > 0) {
+			/* reset the timeout of thread timer and start it */
+			rt_timer_control(&(thread->thread_timer),
+			                 RT_TIMER_CTRL_SET_TIME,
+			                 &timeout);
+			rt_timer_start(&(thread->thread_timer));
+		}
 
-    *data_ptr = queue->queue[queue->get_index & mask].data_ptr;
-    *size     = queue->queue[queue->get_index & mask].data_size;
+		/* enable interrupt */
+		rt_hw_interrupt_enable(level);
 
-    queue->get_index += 1;
+		/* do schedule */
+		rt_schedule();
 
-    if ((queue->waiting_lwm == RT_TRUE) && 
-        (queue->put_index - queue->get_index) <= queue->lwm)
-    {
-        queue->waiting_lwm = RT_FALSE;
+		/* thread is waked up */
+		result = thread->error;
+		level  = rt_hw_interrupt_disable();
 
-        /*
-         * there is at least one thread in suspended list
-         * and less than low water mark
-         */
-        if (!rt_list_isempty(&(queue->suspended_push_list)))
-        {
-            /* get thread entry */
-            thread = rt_list_entry(queue->suspended_push_list.next,
-                                   struct rt_thread,
-                                   tlist);
+		if(result != RT_EOK)
+			goto __exit;
+	}
 
-            /* resume it */
-            rt_thread_resume(thread);
-            rt_hw_interrupt_enable(level);
+	*data_ptr = queue->queue[queue->get_index & mask].data_ptr;
+	*size     = queue->queue[queue->get_index & mask].data_size;
 
-            /* perform a schedule */
-            rt_schedule();
-        }
+	queue->get_index += 1;
 
-        if (queue->evt_notify != RT_NULL)
-            queue->evt_notify(queue, RT_DATAQUEUE_EVENT_LWM);
+	if((queue->waiting_lwm == RT_TRUE) &&
+	        (queue->put_index - queue->get_index) <= queue->lwm) {
+		queue->waiting_lwm = RT_FALSE;
 
-        return result;
-    }
+		/*
+		 * there is at least one thread in suspended list
+		 * and less than low water mark
+		 */
+		if(!rt_list_isempty(&(queue->suspended_push_list))) {
+			/* get thread entry */
+			thread = rt_list_entry(queue->suspended_push_list.next,
+			                       struct rt_thread,
+			                       tlist);
+
+			/* resume it */
+			rt_thread_resume(thread);
+			rt_hw_interrupt_enable(level);
+
+			/* perform a schedule */
+			rt_schedule();
+		}
+
+		if(queue->evt_notify != RT_NULL)
+			queue->evt_notify(queue, RT_DATAQUEUE_EVENT_LWM);
+
+		return result;
+	}
 
 __exit:
-    rt_hw_interrupt_enable(level);
-    if ((result == RT_EOK) && (queue->evt_notify != RT_NULL))
-    {
-        queue->evt_notify(queue, RT_DATAQUEUE_EVENT_POP);
-    }
+	rt_hw_interrupt_enable(level);
 
-    return result;
+	if((result == RT_EOK) && (queue->evt_notify != RT_NULL)) {
+		queue->evt_notify(queue, RT_DATAQUEUE_EVENT_POP);
+	}
+
+	return result;
 }
 RTM_EXPORT(rt_data_queue_pop);
 
-rt_err_t rt_data_queue_peak(struct rt_data_queue *queue,
+rt_err_t rt_data_queue_peak(struct rt_data_queue* queue,
                             const void** data_ptr,
-                            rt_size_t *size)
+                            rt_size_t* size)
 {
-    rt_ubase_t  level;
-    rt_uint16_t mask;
+	rt_ubase_t  level;
+	rt_uint16_t mask;
 
-    RT_ASSERT(queue != RT_NULL);
+	RT_ASSERT(queue != RT_NULL);
 
-    mask = queue->size - 1;
+	mask = queue->size - 1;
 
-    level = rt_hw_interrupt_disable();
+	level = rt_hw_interrupt_disable();
 
-    if (queue->get_index == queue->put_index) 
-    {
-        rt_hw_interrupt_enable(level);
-        
-        return -RT_EEMPTY;
-    }
+	if(queue->get_index == queue->put_index) {
+		rt_hw_interrupt_enable(level);
 
-    *data_ptr = queue->queue[queue->get_index & mask].data_ptr;
-    *size     = queue->queue[queue->get_index & mask].data_size;
+		return -RT_EEMPTY;
+	}
 
-    rt_hw_interrupt_enable(level);
+	*data_ptr = queue->queue[queue->get_index & mask].data_ptr;
+	*size     = queue->queue[queue->get_index & mask].data_size;
 
-    return RT_EOK;
+	rt_hw_interrupt_enable(level);
+
+	return RT_EOK;
 }
 RTM_EXPORT(rt_data_queue_peak);
 
-void rt_data_queue_reset(struct rt_data_queue *queue)
+void rt_data_queue_reset(struct rt_data_queue* queue)
 {
-    struct rt_thread *thread;
-    register rt_ubase_t temp;
+	struct rt_thread* thread;
+	register rt_ubase_t temp;
 
-    rt_enter_critical();
-    /* wakeup all suspend threads */
+	rt_enter_critical();
+	/* wakeup all suspend threads */
 
-    /* resume on pop list */
-    while (!rt_list_isempty(&(queue->suspended_pop_list)))
-    {
-        /* disable interrupt */
-        temp = rt_hw_interrupt_disable();
+	/* resume on pop list */
+	while(!rt_list_isempty(&(queue->suspended_pop_list))) {
+		/* disable interrupt */
+		temp = rt_hw_interrupt_disable();
 
-        /* get next suspend thread */
-        thread = rt_list_entry(queue->suspended_pop_list.next,
-                               struct rt_thread,
-                               tlist);
-        /* set error code to RT_ERROR */
-        thread->error = -RT_ERROR;
+		/* get next suspend thread */
+		thread = rt_list_entry(queue->suspended_pop_list.next,
+		                       struct rt_thread,
+		                       tlist);
+		/* set error code to RT_ERROR */
+		thread->error = -RT_ERROR;
 
-        /*
-         * resume thread
-         * In rt_thread_resume function, it will remove current thread from
-         * suspend list
-         */
-        rt_thread_resume(thread);
+		/*
+		 * resume thread
+		 * In rt_thread_resume function, it will remove current thread from
+		 * suspend list
+		 */
+		rt_thread_resume(thread);
 
-        /* enable interrupt */
-        rt_hw_interrupt_enable(temp);
-    }
+		/* enable interrupt */
+		rt_hw_interrupt_enable(temp);
+	}
 
-    /* resume on push list */
-    while (!rt_list_isempty(&(queue->suspended_push_list)))
-    {
-        /* disable interrupt */
-        temp = rt_hw_interrupt_disable();
+	/* resume on push list */
+	while(!rt_list_isempty(&(queue->suspended_push_list))) {
+		/* disable interrupt */
+		temp = rt_hw_interrupt_disable();
 
-        /* get next suspend thread */
-        thread = rt_list_entry(queue->suspended_push_list.next,
-                               struct rt_thread,
-                               tlist);
-        /* set error code to RT_ERROR */
-        thread->error = -RT_ERROR;
+		/* get next suspend thread */
+		thread = rt_list_entry(queue->suspended_push_list.next,
+		                       struct rt_thread,
+		                       tlist);
+		/* set error code to RT_ERROR */
+		thread->error = -RT_ERROR;
 
-        /*
-         * resume thread
-         * In rt_thread_resume function, it will remove current thread from
-         * suspend list
-         */
-        rt_thread_resume(thread);
+		/*
+		 * resume thread
+		 * In rt_thread_resume function, it will remove current thread from
+		 * suspend list
+		 */
+		rt_thread_resume(thread);
 
-        /* enable interrupt */
-        rt_hw_interrupt_enable(temp);
-    }
-    rt_exit_critical();
+		/* enable interrupt */
+		rt_hw_interrupt_enable(temp);
+	}
 
-    rt_schedule();
+	rt_exit_critical();
+
+	rt_schedule();
 }
 RTM_EXPORT(rt_data_queue_reset);

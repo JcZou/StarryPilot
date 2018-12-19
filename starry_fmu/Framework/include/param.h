@@ -6,7 +6,7 @@
  * Date           Author       	Notes
  * 2016-07-01     zoujiachi   	the first version
  */
- 
+
 #ifndef __PARAM_H__
 #define __PARAM_H__
 
@@ -15,11 +15,10 @@
 
 #define PARAM_MAX_NAME_LEN
 
-typedef struct
-{
+typedef struct {
 	/* firmware version */
 	uint16_t version;
-	
+
 	/* sensor compensate param */
 	float accOffset[3];
 	float accTransMat[3][3];
@@ -41,7 +40,7 @@ typedef struct
 	float att_rate_i_limit[3];
 	/* attitude control output limit */
 	float att_control_limit[3];
-	
+
 	/* altitude control pid param */
 	float alt_p;
 	float alt_i;
@@ -52,26 +51,26 @@ typedef struct
 	float alt_acc_p;
 	float alt_acc_i;
 	float alt_acc_d;
-}PARAM_Def;
+} PARAM_Def;
 
 typedef union {
 	int32_t		i;
 	uint32_t	u;
 	float		f;
-}param_value_t;
+} param_value_t;
 
-typedef enum{
+typedef enum {
 	PARAM_TYPE_INT32 = 0,
 	PARAM_TYPE_UINT32,
 	PARAM_TYPE_FLOAT,
 	PARAM_TYPE_UNKNOWN = 0xffff
 } param_type_t;
 
-typedef struct{
+typedef struct {
 	const char* name;
 	const param_type_t type;
 	param_value_t val;
-}param_info_t;
+} param_info_t;
 
 #define PARAM_DECLARE(_name)					param_info_t _name
 #define PARAM_DEFINE_INT32(_name, _default) \
@@ -80,14 +79,14 @@ typedef struct{
 				.type = PARAM_TYPE_INT32, \
 				.val.i = _default \
 			}
-			
+
 #define PARAM_DEFINE_UINT32(_name, _default) \
 			{ \
 				.name = #_name, \
 				.type = PARAM_TYPE_UINT32, \
 				.val.u = _default \
 			}
-			
+
 #define PARAM_DEFINE_FLOAT(_name, _default) \
 			{ \
 				.name = #_name, \
@@ -104,9 +103,8 @@ typedef struct{
 				.content = (param_info_t*)&_param_##_group##_t \
 			}
 
-/* step 1: Parameter Declare */	
-typedef struct
-{
+/* step 1: Parameter Declare */
+typedef struct {
 	PARAM_DECLARE(GYR_X_OFFSET);
 	PARAM_DECLARE(GYR_Y_OFFSET);
 	PARAM_DECLARE(GYR_Z_OFFSET);
@@ -140,10 +138,9 @@ typedef struct
 	PARAM_DECLARE(MAG_TRANS_MAT21);
 	PARAM_DECLARE(MAG_TRANS_MAT22);
 	PARAM_DECLARE(MAG_CALIB);
-}PARAM_GROUP(CALIBRATION);
-			
-typedef struct
-{
+} PARAM_GROUP(CALIBRATION);
+
+typedef struct {
 	PARAM_DECLARE(ATT_ROLL_P);
 	PARAM_DECLARE(ATT_ROLL_RATE_P);
 	PARAM_DECLARE(ATT_ROLL_RATE_I);
@@ -162,10 +159,9 @@ typedef struct
 	PARAM_DECLARE(ATT_ROLLR_I_LIM);
 	PARAM_DECLARE(ATT_PITCHR_I_LIM);
 	PARAM_DECLARE(ATT_YAWR_I_LIM);
-}PARAM_GROUP(ATT_CONTROLLER);
+} PARAM_GROUP(ATT_CONTROLLER);
 
-typedef struct
-{
+typedef struct {
 	PARAM_DECLARE(ALT_P);
 	PARAM_DECLARE(ALT_RATE_P);
 	PARAM_DECLARE(ALT_ACC_P);
@@ -188,10 +184,9 @@ typedef struct
 	PARAM_DECLARE(FEEDFORWARD_EN);
 	PARAM_DECLARE(ACC_ERR_LPF_EN);
 	PARAM_DECLARE(ACC_ERR_LPF_FREQ);
-}PARAM_GROUP(ALT_CONTROLLER);
+} PARAM_GROUP(ALT_CONTROLLER);
 
-typedef struct
-{
+typedef struct {
 	PARAM_DECLARE(ADRC_ENABLE);
 	PARAM_DECLARE(ADRC_MODE);
 	PARAM_DECLARE(TD_CONTROL_R2);
@@ -210,15 +205,14 @@ typedef struct
 	PARAM_DECLARE(T_DOWN);
 	PARAM_DECLARE(GAMMA);
 	PARAM_DECLARE(B0);
-}PARAM_GROUP(ADRC_ATT);
+} PARAM_GROUP(ADRC_ATT);
 
-typedef struct
-{
+typedef struct {
 	PARAM_DECLARE(HIL_ATT_EST_PRD);
 	PARAM_DECLARE(HIL_POS_EST_PRD);
 	PARAM_DECLARE(HIL_CONTROL_PRD);
-}PARAM_GROUP(HIL_SIM);
-/* Parameter Declare End */		
+} PARAM_GROUP(HIL_SIM);
+/* Parameter Declare End */
 
 #define PARAM_GET(_group, _name)				((_param_##_group *)(param_list._param_##_group.content))->_name
 #define PARAM_GET_INT32(_group, _name)			((_param_##_group *)(param_list._param_##_group.content))->_name.val.i
@@ -229,25 +223,25 @@ typedef struct
 #define PARAM_SET_UINT32(_group, _name, _val)	((_param_##_group *)(param_list._param_##_group.content))->_name.val.u = _val
 #define PARAM_SET_FLOAT(_group, _name, _val)	((_param_##_group *)(param_list._param_##_group.content))->_name.val.f = _val
 
-typedef struct{
+typedef struct {
 	const char* name;
 	const uint32_t param_num;
 	param_info_t* content;
-}param_group_info;
+} param_group_info;
 
 /* step 2: param list declare */
-typedef struct{
+typedef struct {
 	param_group_info	PARAM_GROUP(CALIBRATION);
 	param_group_info	PARAM_GROUP(ATT_CONTROLLER);
 	param_group_info	PARAM_GROUP(ALT_CONTROLLER);
 	param_group_info	PARAM_GROUP(ADRC_ATT);
 	param_group_info	PARAM_GROUP(HIL_SIM);
-}param_list_t;
+} param_list_t;
 
 extern param_list_t param_list;
 
 uint8_t param_init(void);
-const PARAM_Def * get_param(void);
+const PARAM_Def* get_param(void);
 void param_release(void);
 
 param_info_t* param_get(char* group_name, char* param_name);
@@ -256,6 +250,6 @@ void param_traverse(void (*param_ops)(param_info_t* param));
 uint32_t param_get_info_count(void);
 uint32_t param_get_info_index(char* param_name);
 int param_set_by_info(param_info_t* param, float val);
-int param_get_by_info(param_info_t* param, float *val);
+int param_get_by_info(param_info_t* param, float* val);
 
 #endif

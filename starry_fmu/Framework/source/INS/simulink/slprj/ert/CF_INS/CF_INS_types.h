@@ -24,9 +24,9 @@
 #define DEFINED_TYPEDEF_FOR_IMU_Data_
 
 typedef struct {
-  real32_T rot_radPs_B[3];
-  real32_T sfor_mPs2_B[3];
-  boolean_T valid;
+	real32_T rot_radPs_B[3];
+	real32_T sfor_mPs2_B[3];
+	boolean_T valid;
 } IMU_Data;
 
 #endif
@@ -35,8 +35,8 @@ typedef struct {
 #define DEFINED_TYPEDEF_FOR_Mag_Data_
 
 typedef struct {
-  real32_T mag_ga_B[3];
-  boolean_T valid;
+	real32_T mag_ga_B[3];
+	boolean_T valid;
 } Mag_Data;
 
 #endif
@@ -45,18 +45,18 @@ typedef struct {
 #define DEFINED_TYPEDEF_FOR_GPS_Data_
 
 typedef struct {
-  real32_T pos_quality;
-  real32_T vel_quality;
-  real32_T status;
-  real_T lon_rad;
+	real32_T pos_quality;
+	real32_T vel_quality;
+	real32_T status;
+	real_T lon_rad;
 
-  /* need double to ensure accurancy */
-  real_T lat_rad;
-  real32_T height_m;
-  real32_T velN_mPs;
-  real32_T velE_mPs;
-  real32_T velD_mPs;
-  uint16_T numSV;
+	/* need double to ensure accurancy */
+	real_T lat_rad;
+	real32_T height_m;
+	real32_T velN_mPs;
+	real32_T velE_mPs;
+	real32_T velD_mPs;
+	uint16_T numSV;
 } GPS_Data;
 
 #endif
@@ -65,9 +65,9 @@ typedef struct {
 #define DEFINED_TYPEDEF_FOR_Baro_Data_
 
 typedef struct {
-  boolean_T valid;
-  real32_T altitude_M;
-  real32_T relative_alt_m;
+	boolean_T valid;
+	real32_T altitude_M;
+	real32_T relative_alt_m;
 } Baro_Data;
 
 #endif
@@ -76,10 +76,10 @@ typedef struct {
 #define DEFINED_TYPEDEF_FOR_Sensor_Data_
 
 typedef struct {
-  IMU_Data IMU_Data;
-  Mag_Data Mag_Data;
-  GPS_Data GPS_Data;
-  Baro_Data Baro_Data;
+	IMU_Data IMU_Data;
+	Mag_Data Mag_Data;
+	GPS_Data GPS_Data;
+	Baro_Data Baro_Data;
 } Sensor_Data;
 
 #endif
@@ -89,15 +89,15 @@ typedef struct {
 
 /* Experimental FCC actuator commands */
 typedef struct {
-  real32_T quat[4];
-  real32_T euler[3];
-  real32_T rot_radPs_B[3];
-  real32_T acc_mPs2_O[3];
-  int32_T vel_cmPs_O[3];
-  int32_T lon_1e7_deg;
-  int32_T lat_1e7_deg;
-  int32_T altitude_cm;
-  uint32_T timestamp_ms;
+	real32_T quat[4];
+	real32_T euler[3];
+	real32_T rot_radPs_B[3];
+	real32_T acc_mPs2_O[3];
+	int32_T vel_cmPs_O[3];
+	int32_T lon_1e7_deg;
+	int32_T lat_1e7_deg;
+	int32_T altitude_cm;
+	uint32_T timestamp_ms;
 } INS_Out_Bus;
 
 #endif

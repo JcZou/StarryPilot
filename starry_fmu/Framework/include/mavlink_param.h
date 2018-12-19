@@ -3,10 +3,9 @@
 
 #include "param.h"
 
-enum
-{
+enum {
 	/*System*/
-	SYS_AUTOSTART,    
+	SYS_AUTOSTART,
 	SYS_AUTOCONFIG,
 	SYS_PARAM_VER,
 	/*MAVLink*/
@@ -45,7 +44,7 @@ enum
 	CAL_ACC0_ZOFF,
 	CAL_ACC0_XSCALE,
 	CAL_ACC0_YSCALE,
-	CAL_ACC0_ZSCALE, 
+	CAL_ACC0_ZSCALE,
 	CAL_ACC_PRIME,
 	CAL_GYRO_PRIME,
 	CAL_MAG_PRIME,
@@ -84,7 +83,7 @@ enum
 	RC4_TRIM,
 	RC4_MAX,
 	RC4_REV,
-	RC4_DZ,    
+	RC4_DZ,
 	RC5_MIN,
 	RC5_TRIM,
 	RC5_MAX,
@@ -280,10 +279,10 @@ enum
 	MAV_PARAM_NUM
 };
 
-typedef struct{
+typedef struct {
 	const char* name;
 	float value;
-	param_info_t *param;
+	param_info_t* param;
 } param_t;
 
 #define MAVLINK_PARAM_DECLARE(_name)		param_t _name
@@ -303,8 +302,7 @@ typedef struct{
 		}
 
 
-typedef struct 
-{
+typedef struct {
 	MAVLINK_PARAM_DECLARE(SYS_AUTOSTART);
 	MAVLINK_PARAM_DECLARE(SYS_AUTOCONFIG);
 	MAVLINK_PARAM_DECLARE(SYS_PARAM_VER);
@@ -380,7 +378,7 @@ typedef struct
 	MAVLINK_PARAM_DECLARE(RC4_TRIM);
 	MAVLINK_PARAM_DECLARE(RC4_MAX);
 	MAVLINK_PARAM_DECLARE(RC4_REV);
-	MAVLINK_PARAM_DECLARE(RC4_DZ);    
+	MAVLINK_PARAM_DECLARE(RC4_DZ);
 	MAVLINK_PARAM_DECLARE(RC5_MIN);
 	MAVLINK_PARAM_DECLARE(RC5_TRIM);
 	MAVLINK_PARAM_DECLARE(RC5_MAX);
@@ -562,11 +560,10 @@ typedef struct
 	MAVLINK_PARAM_DECLARE(MPC_XY_P);
 	MAVLINK_PARAM_DECLARE(MPC_XY_VEL_P);
 	MAVLINK_PARAM_DECLARE(MPC_XY_VEL_I);
-	MAVLINK_PARAM_DECLARE(MPC_XY_VEL_D);    
-}mavlink_param_t;
+	MAVLINK_PARAM_DECLARE(MPC_XY_VEL_D);
+} mavlink_param_t;
 
-enum Rotation 
-{
+enum Rotation {
 	ROTATION_NONE                = 0,
 	ROTATION_YAW_45              = 1,
 	ROTATION_YAW_90              = 2,
@@ -603,13 +600,13 @@ enum Rotation
 };
 
 void mavlink_param_init(void);
-param_t *mavlink_param_get_by_name(const char *name);
-param_t *mavlink_param_get_by_info(param_info_t *param);
-int mavlink_param_set_value(const char *name, float value);
+param_t* mavlink_param_get_by_name(const char* name);
+param_t* mavlink_param_get_by_info(param_info_t* param);
+int mavlink_param_set_value(const char* name, float value);
 int mavlink_param_set_value_by_index(uint32_t index, float value);
 uint32_t mavlink_param_get_info_count(void);
-uint32_t mavlink_param_get_info_index(param_t *param);
-param_t * mavlink_param_get_info_by_index(uint32_t index);
+uint32_t mavlink_param_get_info_index(param_t* param);
+param_t* mavlink_param_get_info_by_index(uint32_t index);
 
 #endif
 

@@ -6,7 +6,7 @@
  * Date           Author       	Notes
  * 2017-10-19     zoujiachi   	the first version
  */
- 
+
 #ifndef __HMC5883_H__
 #define __HMC5883_H__
 

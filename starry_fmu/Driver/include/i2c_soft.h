@@ -12,11 +12,10 @@
 
 #include <rtdevice.h>
 
-typedef enum stm32_i2c
-{
+typedef enum stm32_i2c {
 	BSP_I2C1 = 0,
 	BSP_I2C2,
-}BSP_I2C_Def;
+} BSP_I2C_Def;
 
 extern struct rt_i2c_bit_ops stm32_i2c1_bit_ops;
 extern struct rt_i2c_bit_ops stm32_i2c2_bit_ops;

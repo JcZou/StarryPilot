@@ -29,24 +29,24 @@ extern boolean_T rtIsInfF(real32_T value);
 extern boolean_T rtIsNaN(real_T value);
 extern boolean_T rtIsNaNF(real32_T value);
 typedef struct {
-  struct {
-    uint32_T wordH;
-    uint32_T wordL;
-  } words;
+	struct {
+		uint32_T wordH;
+		uint32_T wordL;
+	} words;
 } BigEndianIEEEDouble;
 
 typedef struct {
-  struct {
-    uint32_T wordL;
-    uint32_T wordH;
-  } words;
+	struct {
+		uint32_T wordL;
+		uint32_T wordH;
+	} words;
 } LittleEndianIEEEDouble;
 
 typedef struct {
-  union {
-    real32_T wordLreal;
-    uint32_T wordLuint;
-  } wordL;
+	union {
+		real32_T wordLreal;
+		uint32_T wordLuint;
+	} wordL;
 } IEEESingle;
 
 #endif                                 /* RTW_HEADER_rt_nonfinite_h_ */

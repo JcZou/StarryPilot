@@ -5,7 +5,7 @@
  * Date           Author       Notes
  * 2017-02-18     zoujiachi   	the first version
  */
- 
+
 #ifndef __PX4IO_PROTOCOL_H__
 #define __PX4IO_PROTOCOL_H__
 
@@ -18,34 +18,30 @@
 #define		PROTOCOL_SERVER
 //#define		PROTOCOL_CLIENT
 
-typedef struct
-{
+typedef struct {
 	uint8_t		head[2];
 	uint16_t	len;
 	uint8_t		cmd;
 	uint8_t* 	usr_data;
 	uint16_t 	checksum;
 	uint8_t		endflag;
-}Package_Def;
+} Package_Def;
 
-typedef struct
-{
+typedef struct {
 	uint8_t* 	send_buff;
 	uint16_t 	buff_size;
-}SendPackage_Def;
+} SendPackage_Def;
 
-typedef enum
-{
+typedef enum {
 	ACK_SYNC = 0x01,
 	CMD_REBOOT = 0x02,
 	CMD_CONFIG_CHANNEL = 0x03,
 	CMD_SET_PWM_CHANNEL = 0x04,
 	CMD_GET_PWM_CHANNEL = 0x05,
 	CMD_CONFIG_PWM_CHANNEL = 0x06,
-}SERVER_CMD_Def;
+} SERVER_CMD_Def;
 
-typedef enum
-{
+typedef enum {
 	CMD_SYNC = 0x01,
 	ACK_REBOOT = 0x02,
 	ACK_CONFIG_CHANNEL = 0x03,
@@ -54,14 +50,14 @@ typedef enum
 	CMD_DEBUG = 0x06,
 	ACK_GET_PWM_CHANNEL = 0x07,
 	ACK_CONFIG_PWM_CHANNEL = 0x08,
-}CLIENT_CMD_Def;
+} CLIENT_CMD_Def;
 
-uint8_t make_package(uint8_t* data , char cmd , uint16_t len , Package_Def* package);
-uint8_t package2sendpack(const Package_Def package , SendPackage_Def* send_pack);
-uint8_t package2sendpack_static(const Package_Def package , SendPackage_Def* send_pack);
+uint8_t make_package(uint8_t* data, char cmd, uint16_t len, Package_Def* package);
+uint8_t package2sendpack(const Package_Def package, SendPackage_Def* send_pack);
+uint8_t package2sendpack_static(const Package_Def package, SendPackage_Def* send_pack);
 void free_pack(Package_Def* package);
 void free_sendpack(SendPackage_Def* send_pack);
 uint8_t wait_complete_pack(uint8_t c);
 void process_recv_pack(void);
 
-#endif 
+#endif

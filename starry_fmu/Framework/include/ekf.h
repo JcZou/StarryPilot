@@ -22,23 +22,22 @@
 
 #define MAT_ELEMENT(mat, row, col)			(mat.pData[row*mat.numCols+col])
 
-typedef struct
-{
+typedef struct {
 	arm_matrix_instance_f32 X;		// states
 	arm_matrix_instance_f32 U;		// control vector
 	arm_matrix_instance_f32 Z;		// observation vector
-	
-	arm_matrix_instance_f32 F;		
+
+	arm_matrix_instance_f32 F;
 	arm_matrix_instance_f32 H;
 	arm_matrix_instance_f32 G;
-	arm_matrix_instance_f32 P;	
-	arm_matrix_instance_f32 Q;	
+	arm_matrix_instance_f32 P;
+	arm_matrix_instance_f32 Q;
 	arm_matrix_instance_f32 R;
-	
+
 	arm_matrix_instance_f32 Y;
 	arm_matrix_instance_f32 S;
 	arm_matrix_instance_f32 K;		// kalman gain
-	
+
 	arm_matrix_instance_f32 IFT;
 	arm_matrix_instance_f32 IFTT;
 	arm_matrix_instance_f32 IFTP;
@@ -46,7 +45,7 @@ typedef struct
 	arm_matrix_instance_f32 GQ;
 	arm_matrix_instance_f32 GT;
 	arm_matrix_instance_f32 GQGT;
-	
+
 	arm_matrix_instance_f32 HT;
 	arm_matrix_instance_f32 PHT;
 	arm_matrix_instance_f32 HPHT;
@@ -54,11 +53,11 @@ typedef struct
 	arm_matrix_instance_f32 KY;
 	arm_matrix_instance_f32 KH;
 	arm_matrix_instance_f32 KHP;
-	
+
 	Vector3f_t magetic_field;
-	
+
 	float32_t dT;	// time interval
-}EKF_Def;
+} EKF_Def;
 
 uint8_t EKF14_Init(EKF_Def* ekf_t, float32_t dT);
 void EKF14_Reset(EKF_Def* ekf_t);

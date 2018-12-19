@@ -5,7 +5,7 @@
  * Date           Author       Notes
  * 2018-08-16     weety    first version.
  */
- 
+
 #include <string.h>
 #include "global.h"
 #include "param.h"
@@ -275,8 +275,8 @@ static mavlink_param_t mavlink_param = {
 
 void mavlink_param_init(void)
 {
-	param_info_t *param;
-	param_t *mav_param = &mavlink_param;
+	param_info_t* param;
+	param_t* mav_param = &mavlink_param;
 
 	mav_param[CAL_GYRO0_XOFF].param = param_get_by_name("GYR_X_OFFSET");
 	mav_param[CAL_GYRO0_YOFF].param = param_get_by_name("GYR_Y_OFFSET");
@@ -312,102 +312,119 @@ void mavlink_param_init(void)
 	mav_param[MC_PITCH_P].param = param_get_by_name("ATT_PITCH_P");
 	mav_param[MC_YAW_P].param = param_get_by_name("ATT_YAW_P");
 
-	for (int i = 0; i < MAV_PARAM_NUM; i++) {
-		if (mav_param[i].param) {
+	for(int i = 0; i < MAV_PARAM_NUM; i++) {
+		if(mav_param[i].param) {
 			param_get_by_info(mav_param[i].param, &(mav_param[i].value));
 		}
 	}
 
 }
 
-param_t *mavlink_param_get_by_name(const char *name)
+param_t* mavlink_param_get_by_name(const char* name)
 {
 	int i = 0;
-	param_t *mav_param = &mavlink_param;
+	param_t* mav_param = &mavlink_param;
+
 	for(i = 0 ; i < MAV_PARAM_NUM ; i++) {
 		if(strncmp(name, mav_param->name, 16) == 0) {
-			if (mav_param->param) {
-				switch (mav_param->param->type) {
+			if(mav_param->param) {
+				switch(mav_param->param->type) {
 					case PARAM_TYPE_FLOAT:
 						mav_param->value = mav_param->param->val.f;
 						break;
+
 					case PARAM_TYPE_INT32:
 						memcpy(&(mav_param->value), &(mav_param->param->val.i), sizeof(mav_param->param->val.i));
 						break;
+
 					case PARAM_TYPE_UINT32:
 						memcpy(&(mav_param->value), &(mav_param->param->val.u), sizeof(mav_param->param->val.u));
 						break;
+
 					default:
 						mav_param->value = mav_param->param->val.f;
 						break;
 				}
 			}
+
 			break;
 		}
+
 		mav_param++;
 	}
 
-	if (i < MAV_PARAM_NUM) {
+	if(i < MAV_PARAM_NUM) {
 		return mav_param;
 	} else {
 		return NULL;
 	}
 }
 
-param_t *mavlink_param_get_by_info(param_info_t *param)
+param_t* mavlink_param_get_by_info(param_info_t* param)
 {
 	int i = 0;
-	param_t *mav_param = &mavlink_param;
+	param_t* mav_param = &mavlink_param;
+
 	for(i = 0 ; i < MAV_PARAM_NUM ; i++) {
 		if(mav_param->param == param) {
-			if (mav_param->param) {
-				switch (mav_param->param->type) {
+			if(mav_param->param) {
+				switch(mav_param->param->type) {
 					case PARAM_TYPE_FLOAT:
 						mav_param->value = mav_param->param->val.f;
 						break;
+
 					case PARAM_TYPE_INT32:
 						memcpy(&(mav_param->value), &(mav_param->param->val.i), sizeof(mav_param->param->val.i));
 						break;
+
 					case PARAM_TYPE_UINT32:
 						memcpy(&(mav_param->value), &(mav_param->param->val.u), sizeof(mav_param->param->val.u));
 						break;
+
 					default:
 						mav_param->value = mav_param->param->val.f;
 						break;
 				}
 			}
+
 			break;
 		}
+
 		mav_param++;
 	}
 
-	if (i < MAV_PARAM_NUM) {
+	if(i < MAV_PARAM_NUM) {
 		return mav_param;
 	} else {
 		return NULL;
 	}
 }
 
-int mavlink_param_set_value(const char *name, float value)
+int mavlink_param_set_value(const char* name, float value)
 {
 	int i = 0;
 	param_info_t* param = NULL;
 
-	param_t *mav_param = &mavlink_param;
+	param_t* mav_param = &mavlink_param;
+
 	for(i = 0 ; i < MAV_PARAM_NUM ; i++) {
 		if(strncmp(name, mav_param->name, 16) == 0) {
-			if (mav_param->param) {
+			if(mav_param->param) {
 				param_set_by_info(mav_param->param, value);
-				switch (mav_param->param->type) {
+
+				switch(mav_param->param->type) {
 					case PARAM_TYPE_FLOAT:
 						mav_param->value = mav_param->param->val.f;
 						break;
+
 					case PARAM_TYPE_INT32:
 						memcpy(&(mav_param->value), &(mav_param->param->val.i), sizeof(mav_param->param->val.i));
 						break;
+
 					case PARAM_TYPE_UINT32:
 						memcpy(&(mav_param->value), &(mav_param->param->val.u), sizeof(mav_param->param->val.u));
 						break;
+
 					default:
 						mav_param->value = mav_param->param->val.f;
 						break;
@@ -415,18 +432,22 @@ int mavlink_param_set_value(const char *name, float value)
 			} else {
 				mav_param->value = value;
 			}
+
 			break;
 		}
+
 		mav_param++;
 	}
 
-	if (i < MAV_PARAM_NUM) {
+	if(i < MAV_PARAM_NUM) {
 		return 0;
 	} else {
 		param = param_get_by_name(name);
-		if (param) {
+
+		if(param) {
 			param_set_by_info(param, value);
 		}
+
 		return 0;
 	}
 
@@ -437,23 +458,30 @@ int mavlink_param_set_value_by_index(uint32_t index, float value)
 {
 	int i = 0;
 	param_info_t* param = NULL;
-	param_t *mav_param = &mavlink_param;
-	if (index >= MAV_PARAM_NUM) {
+	param_t* mav_param = &mavlink_param;
+
+	if(index >= MAV_PARAM_NUM) {
 		return -1;
 	}
+
 	mav_param += index;
-	if (mav_param->param) {
+
+	if(mav_param->param) {
 		param_set_by_info(mav_param->param, value);
-		switch (mav_param->param->type) {
+
+		switch(mav_param->param->type) {
 			case PARAM_TYPE_FLOAT:
 				mav_param->value = mav_param->param->val.f;
 				break;
+
 			case PARAM_TYPE_INT32:
 				memcpy(&(mav_param->value), &(mav_param->param->val.i), sizeof(mav_param->param->val.i));
 				break;
+
 			case PARAM_TYPE_UINT32:
 				memcpy(&(mav_param->value), &(mav_param->param->val.u), sizeof(mav_param->param->val.u));
 				break;
+
 			default:
 				mav_param->value = mav_param->param->val.f;
 				break;
@@ -470,16 +498,16 @@ uint32_t mavlink_param_get_info_count(void)
 	return MAV_PARAM_NUM;
 }
 
-uint32_t mavlink_param_get_info_index(param_t *param)
+uint32_t mavlink_param_get_info_index(param_t* param)
 {
-	param_t *mav_param = &mavlink_param;
+	param_t* mav_param = &mavlink_param;
 
 	return param - mav_param;
 }
 
-param_t * mavlink_param_get_info_by_index(uint32_t index)
+param_t* mavlink_param_get_info_by_index(uint32_t index)
 {
-	param_t *mav_param = &mavlink_param;
+	param_t* mav_param = &mavlink_param;
 
 	return &mav_param[index];
 }

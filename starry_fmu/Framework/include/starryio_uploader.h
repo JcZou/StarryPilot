@@ -6,7 +6,7 @@
  * Date           Author       	Notes
  * 2017-02-04     zoujiachi   	the first version
  */
- 
+
 #ifndef __PX4IO_UPLOADER_H__
 #define __PX4IO_UPLOADER_H__
 

@@ -58,8 +58,8 @@ static uint16_t _gps_cnt = GPS_READ_PERIOD;
 
 static McnNode_t gps_node_t;
 
-MCN_DEFINE(ATT_EULER, 3*sizeof(float));
-MCN_DEFINE(ROT_RAD, 3*sizeof(float));
+MCN_DEFINE(ATT_EULER, 3 * sizeof(float));
+MCN_DEFINE(ROT_RAD, 3 * sizeof(float));
 MCN_DEFINE(POSITION, sizeof(position_int_t));
 MCN_DEFINE(VELOCITY, sizeof(velocity_int_t));
 
@@ -74,22 +74,22 @@ static void timer_fastloop_update(void* parameter)
 
 void fast_loop(void)
 {
-	if(_mag_cnt >= MAG_READ_PERIOD){
+	if(_mag_cnt >= MAG_READ_PERIOD) {
 		_mag_cnt = 0;
 
-		if(sensor_mag_measure(INS_U.Mag.mag_ga_B) == RT_EOK){
+		if(sensor_mag_measure(INS_U.Mag.mag_ga_B) == RT_EOK) {
 			INS_U.Mag.timestamp_ms = time_nowMs();
-		}else{
+		} else {
 			Console.print("fail to get mag data\n");
 		}
 
-		log_push_msg((uint8_t *)&INS_U.Mag, 0x02, sizeof(INS_U.Mag));
+		log_push_msg((uint8_t*)&INS_U.Mag, 0x02, sizeof(INS_U.Mag));
 	}
 
-	if(_baro_cnt >= BARO_READ_PERIOD){
+	if(_baro_cnt >= BARO_READ_PERIOD) {
 		_baro_cnt = 0;
 
-		if(sensor_baro_update()){
+		if(sensor_baro_update()) {
 			MS5611_REPORT_Def* baro_report = sensor_baro_get_report();
 
 			INS_U.Baro.pressure_Pa = baro_report->pressure;
@@ -97,27 +97,27 @@ void fast_loop(void)
 			INS_U.Baro.timestamp_ms = time_nowMs();
 		}
 
-		log_push_msg((uint8_t *)&INS_U.Baro, 0x03, sizeof(INS_U.Baro));
+		log_push_msg((uint8_t*)&INS_U.Baro, 0x03, sizeof(INS_U.Baro));
 	}
 
-	if(_gps_cnt >= GPS_READ_PERIOD){
+	if(_gps_cnt >= GPS_READ_PERIOD) {
 		_gps_cnt = 0;
 
-		if(mcn_poll(gps_node_t)){
-			mcn_copy(MCN_ID(uBLOX_PVT), gps_node_t, &INS_U.GPS_uBlox);	
+		if(mcn_poll(gps_node_t)) {
+			mcn_copy(MCN_ID(uBLOX_PVT), gps_node_t, &INS_U.GPS_uBlox);
 			INS_U.GPS_uBlox.timestamp_ms = time_nowMs();
 		}
 
-		log_push_msg((uint8_t *)&INS_U.GPS_uBlox, 0x04, sizeof(INS_U.GPS_uBlox));
+		log_push_msg((uint8_t*)&INS_U.GPS_uBlox, 0x04, sizeof(INS_U.GPS_uBlox));
 	}
 
 
-	if(_ins_cnt >= INS_STEP_PERIOD){
+	if(_ins_cnt >= INS_STEP_PERIOD) {
 		_ins_cnt = 0;
 
-		if(sensor_gyr_measure(INS_U.IMU1.gyr_radPs_B) == RT_EOK && sensor_acc_measure(INS_U.IMU1.acc_mPs2_B) == RT_EOK){
+		if(sensor_gyr_measure(INS_U.IMU1.gyr_radPs_B) == RT_EOK && sensor_acc_measure(INS_U.IMU1.acc_mPs2_B) == RT_EOK) {
 			INS_U.IMU1.timestamp_ms = time_nowMs();
-		}else{
+		} else {
 			Console.print("fail to get imu data\n");
 		}
 
@@ -128,7 +128,7 @@ void fast_loop(void)
 		mcn_publish(MCN_ID(POSITION), (position_int_t*)&INS_Y.INS_Out.lon_1e7_deg);
 		mcn_publish(MCN_ID(VELOCITY), (velocity_int_t*)INS_Y.INS_Out.vel_cmPs_O);
 
-		log_push_msg((uint8_t *)&INS_U.IMU1, 0x01, sizeof(INS_U.IMU1));
+		log_push_msg((uint8_t*)&INS_U.IMU1, 0x01, sizeof(INS_U.IMU1));
 	}
 
 	_ins_cnt++;
@@ -137,42 +137,50 @@ void fast_loop(void)
 	_gps_cnt++;
 }
 
-void fastloop_entry(void *parameter)
+void fastloop_entry(void* parameter)
 {
 	rt_err_t res;
 	rt_uint32_t recv_set = 0;
 	rt_uint32_t wait_set = EVENT_FAST_LOOP;
-	
+
 	/* create event */
 	res = rt_event_init(&event_fastloop, "fastloop", RT_IPC_FLAG_FIFO);
 
 	/* register timer event */
 	rt_timer_init(&timer_fastloop, "timer_fast",
-					timer_fastloop_update,
-					RT_NULL,
-					1,
-					RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);
+	              timer_fastloop_update,
+	              RT_NULL,
+	              1,
+	              RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);
 	rt_timer_start(&timer_fastloop);
 
 	int mcn_res;
 	mcn_res = mcn_advertise(MCN_ID(ATT_EULER));
-	if(mcn_res != 0){
+
+	if(mcn_res != 0) {
 		Console.e(TAG, "err:%d, ATT_EULER advertise fail!\n", mcn_res);
 	}
+
 	mcn_res = mcn_advertise(MCN_ID(ROT_RAD));
-	if(mcn_res != 0){
+
+	if(mcn_res != 0) {
 		Console.e(TAG, "err:%d, ROT_RAD advertise fail!\n", mcn_res);
 	}
+
 	mcn_res = mcn_advertise(MCN_ID(POSITION));
-	if(mcn_res != 0){
+
+	if(mcn_res != 0) {
 		Console.e(TAG, "err:%d, POSITION advertise fail!\n", mcn_res);
 	}
+
 	mcn_res = mcn_advertise(MCN_ID(VELOCITY));
-	if(mcn_res != 0){
+
+	if(mcn_res != 0) {
 		Console.e(TAG, "err:%d, VELOCITY advertise fail!\n", mcn_res);
 	}
 
 	gps_node_t = mcn_subscribe(MCN_ID(uBLOX_PVT), NULL);
+
 	if(gps_node_t == NULL)
 		Console.print("gps_node_t subscribe err\n");
 
@@ -217,14 +225,13 @@ void fastloop_entry(void *parameter)
 	INS_U.Sensor_Param_j.mag_bias[0] = PARAM_GET_FLOAT(CALIBRATION, MAG_X_OFFSET);
 	INS_U.Sensor_Param_j.mag_bias[1] = PARAM_GET_FLOAT(CALIBRATION, MAG_Y_OFFSET);
 	INS_U.Sensor_Param_j.mag_bias[2] = PARAM_GET_FLOAT(CALIBRATION, MAG_Z_OFFSET);
-	
-	while(1)
-	{
-		res = rt_event_recv(&event_fastloop, wait_set, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, 
-								RT_WAITING_FOREVER, &recv_set);
-		
-		if(res == RT_EOK){
-			if(recv_set & EVENT_FAST_LOOP){
+
+	while(1) {
+		res = rt_event_recv(&event_fastloop, wait_set, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
+		                    RT_WAITING_FOREVER, &recv_set);
+
+		if(res == RT_EOK) {
+			if(recv_set & EVENT_FAST_LOOP) {
 				fast_loop();
 			}
 		}

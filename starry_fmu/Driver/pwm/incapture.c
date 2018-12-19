@@ -12,14 +12,13 @@ static wheel_encoder _wheel_pulse_cnt = {0, 0};
   */
 void TIM4_IRQHandler(void)
 {
-	if(TIM_GetITStatus(TIM4, TIM_IT_CC2) == SET)
-	{
+	if(TIM_GetITStatus(TIM4, TIM_IT_CC2) == SET) {
 		// left wheel count increase
 		TIM_ClearITPendingBit(TIM4, TIM_IT_CC2);
 		_wheel_pulse_cnt.left_count++;
 	}
-	if(TIM_GetITStatus(TIM4, TIM_IT_CC3) == SET)
-	{
+
+	if(TIM_GetITStatus(TIM4, TIM_IT_CC3) == SET) {
 		// right wheel count increase
 		TIM_ClearITPendingBit(TIM4, TIM_IT_CC3);
 		_wheel_pulse_cnt.right_count++;
@@ -46,7 +45,7 @@ void capture_init(void)
 	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN ;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
 
-	/* Connect TIM4 pins to AF */  
+	/* Connect TIM4 pins to AF */
 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource13, GPIO_AF_TIM4);
 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource14, GPIO_AF_TIM4);
 
@@ -55,24 +54,24 @@ void capture_init(void)
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);	
-	
+	NVIC_Init(&NVIC_InitStructure);
+
 	TIM_ICInitStructure.TIM_Channel = TIM_Channel_2;
 	TIM_ICInitStructure.TIM_ICPolarity = TIM_ICPolarity_Rising;
-    TIM_ICInitStructure.TIM_ICSelection = TIM_ICSelection_DirectTI;
-    TIM_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
+	TIM_ICInitStructure.TIM_ICSelection = TIM_ICSelection_DirectTI;
+	TIM_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
 	TIM_ICInitStructure.TIM_ICFilter = 0x1;	/* do filter */
-	
+
 	TIM_ICInit(TIM4, &TIM_ICInitStructure);
-	
+
 	TIM_ICInitStructure.TIM_Channel = TIM_Channel_3;
 	TIM_ICInitStructure.TIM_ICPolarity = TIM_ICPolarity_Rising;
-    TIM_ICInitStructure.TIM_ICSelection = TIM_ICSelection_DirectTI;
-    TIM_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
+	TIM_ICInitStructure.TIM_ICSelection = TIM_ICSelection_DirectTI;
+	TIM_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
 	TIM_ICInitStructure.TIM_ICFilter = 0x1;	/* do filter */
-	
+
 	TIM_ICInit(TIM4, &TIM_ICInitStructure);
-	
+
 	/* TIM enable counter */
 	TIM_Cmd(TIM4, ENABLE);
 
@@ -84,10 +83,10 @@ void capture_init(void)
 wheel_encoder capture_read(void)
 {
 	wheel_encoder pulse_cnt;
-	
+
 	OS_ENTER_CRITICAL;
 	pulse_cnt = _wheel_pulse_cnt;
 	OS_EXIT_CRITICAL;
-	
+
 	return pulse_cnt;
 }

@@ -227,159 +227,146 @@ extern "C" {
     (((rt_uint16_t)(*((rt_uint8_t *)(x)))) + \
     (((rt_uint16_t)(*(((rt_uint8_t *)(x)) + 1))) << 8))
 
-typedef void (*func_callback)(void *context);
-typedef enum
-{
-    USB_STATE_NOTATTACHED = 0,
-    USB_STATE_ATTACHED,
-    USB_STATE_POWERED,
-    USB_STATE_RECONNECTING,
-    USB_STATE_UNAUTHENTICATED,
-    USB_STATE_DEFAULT,
-    USB_STATE_ADDRESS,
-    USB_STATE_CONFIGURED,
-    USB_STATE_SUSPENDED
-}udevice_state_t;
+typedef void (*func_callback)(void* context);
+typedef enum {
+	USB_STATE_NOTATTACHED = 0,
+	USB_STATE_ATTACHED,
+	USB_STATE_POWERED,
+	USB_STATE_RECONNECTING,
+	USB_STATE_UNAUTHENTICATED,
+	USB_STATE_DEFAULT,
+	USB_STATE_ADDRESS,
+	USB_STATE_CONFIGURED,
+	USB_STATE_SUSPENDED
+} udevice_state_t;
 
 #pragma pack(1)
 
-struct usb_descriptor
-{
-    rt_uint8_t bLength;
-    rt_uint8_t type;
+struct usb_descriptor {
+	rt_uint8_t bLength;
+	rt_uint8_t type;
 };
 typedef struct usb_descriptor* udesc_t;
 
-struct udevice_descriptor
-{
-    rt_uint8_t bLength;
-    rt_uint8_t type;
-    rt_uint16_t bcdUSB;
-    rt_uint8_t bDeviceClass;
-    rt_uint8_t bDeviceSubClass;
-    rt_uint8_t bDeviceProtocol;
-    rt_uint8_t bMaxPacketSize0;
-    rt_uint16_t idVendor;
-    rt_uint16_t idProduct;
-    rt_uint16_t bcdDevice;
-    rt_uint8_t iManufacturer;
-    rt_uint8_t iProduct;
-    rt_uint8_t iSerialNumber;
-    rt_uint8_t bNumConfigurations;
+struct udevice_descriptor {
+	rt_uint8_t bLength;
+	rt_uint8_t type;
+	rt_uint16_t bcdUSB;
+	rt_uint8_t bDeviceClass;
+	rt_uint8_t bDeviceSubClass;
+	rt_uint8_t bDeviceProtocol;
+	rt_uint8_t bMaxPacketSize0;
+	rt_uint16_t idVendor;
+	rt_uint16_t idProduct;
+	rt_uint16_t bcdDevice;
+	rt_uint8_t iManufacturer;
+	rt_uint8_t iProduct;
+	rt_uint8_t iSerialNumber;
+	rt_uint8_t bNumConfigurations;
 };
 typedef struct udevice_descriptor* udev_desc_t;
 
-struct uconfig_descriptor
-{
-    rt_uint8_t bLength;
-    rt_uint8_t type;
-    rt_uint16_t wTotalLength;
-    rt_uint8_t bNumInterfaces;
-    rt_uint8_t bConfigurationValue;
-    rt_uint8_t iConfiguration;
-    rt_uint8_t bmAttributes;
-    rt_uint8_t MaxPower;
-    rt_uint8_t data[256];
+struct uconfig_descriptor {
+	rt_uint8_t bLength;
+	rt_uint8_t type;
+	rt_uint16_t wTotalLength;
+	rt_uint8_t bNumInterfaces;
+	rt_uint8_t bConfigurationValue;
+	rt_uint8_t iConfiguration;
+	rt_uint8_t bmAttributes;
+	rt_uint8_t MaxPower;
+	rt_uint8_t data[256];
 };
 typedef struct uconfig_descriptor* ucfg_desc_t;
 
-struct uinterface_descriptor
-{
-    rt_uint8_t bLength;
-    rt_uint8_t type;
-    rt_uint8_t bInterfaceNumber;
-    rt_uint8_t bAlternateSetting;
-    rt_uint8_t bNumEndpoints;
-    rt_uint8_t bInterfaceClass;
-    rt_uint8_t bInterfaceSubClass;
-    rt_uint8_t bInterfaceProtocol;
-    rt_uint8_t iInterface;
+struct uinterface_descriptor {
+	rt_uint8_t bLength;
+	rt_uint8_t type;
+	rt_uint8_t bInterfaceNumber;
+	rt_uint8_t bAlternateSetting;
+	rt_uint8_t bNumEndpoints;
+	rt_uint8_t bInterfaceClass;
+	rt_uint8_t bInterfaceSubClass;
+	rt_uint8_t bInterfaceProtocol;
+	rt_uint8_t iInterface;
 };
 typedef struct uinterface_descriptor* uintf_desc_t;
 
 /* Interface Association Descriptor (IAD) */
-struct uiad_descriptor
-{
-    rt_uint8_t bLength;
-    rt_uint8_t bDescriptorType;
-    rt_uint8_t bFirstInterface;
-    rt_uint8_t bInterfaceCount;
-    rt_uint8_t bFunctionClass;
-    rt_uint8_t bFunctionSubClass;
-    rt_uint8_t bFunctionProtocol;
-    rt_uint8_t iFunction;
+struct uiad_descriptor {
+	rt_uint8_t bLength;
+	rt_uint8_t bDescriptorType;
+	rt_uint8_t bFirstInterface;
+	rt_uint8_t bInterfaceCount;
+	rt_uint8_t bFunctionClass;
+	rt_uint8_t bFunctionSubClass;
+	rt_uint8_t bFunctionProtocol;
+	rt_uint8_t iFunction;
 };
 typedef struct uiad_descriptor* uiad_desc_t;
 
-struct uendpoint_descriptor
-{
-    rt_uint8_t bLength;
-    rt_uint8_t type;
-    rt_uint8_t bEndpointAddress;
-    rt_uint8_t bmAttributes;
-    rt_uint16_t wMaxPacketSize;
-    rt_uint8_t bInterval;
+struct uendpoint_descriptor {
+	rt_uint8_t bLength;
+	rt_uint8_t type;
+	rt_uint8_t bEndpointAddress;
+	rt_uint8_t bmAttributes;
+	rt_uint16_t wMaxPacketSize;
+	rt_uint8_t bInterval;
 };
 typedef struct uendpoint_descriptor* uep_desc_t;
 
-struct ustring_descriptor
-{
-    rt_uint8_t bLength;
-    rt_uint8_t type;
-    rt_uint8_t String[64];
+struct ustring_descriptor {
+	rt_uint8_t bLength;
+	rt_uint8_t type;
+	rt_uint8_t String[64];
 };
 typedef struct ustring_descriptor* ustr_desc_t;
 
-struct uhub_descriptor
-{
-    rt_uint8_t length;
-    rt_uint8_t type;
-    rt_uint8_t num_ports;
-    rt_uint16_t characteristics;
-    rt_uint8_t pwron_to_good;        /* power on to power good */
-    rt_uint8_t current;
-    rt_uint8_t removable[8];
-    rt_uint8_t pwr_ctl[8];
+struct uhub_descriptor {
+	rt_uint8_t length;
+	rt_uint8_t type;
+	rt_uint8_t num_ports;
+	rt_uint16_t characteristics;
+	rt_uint8_t pwron_to_good;        /* power on to power good */
+	rt_uint8_t current;
+	rt_uint8_t removable[8];
+	rt_uint8_t pwr_ctl[8];
 };
 typedef struct uhub_descriptor* uhub_desc_t;
 
 /* USB_DESC_TYPE_DEVICEQUALIFIER: Device Qualifier descriptor */
-struct usb_qualifier_descriptor
-{
-    rt_uint8_t  bLength;
-    rt_uint8_t  bDescriptorType;
+struct usb_qualifier_descriptor {
+	rt_uint8_t  bLength;
+	rt_uint8_t  bDescriptorType;
 
-    rt_uint16_t bcdUSB; // TODO: big-endian.
-    rt_uint8_t  bDeviceClass;
-    rt_uint8_t  bDeviceSubClass;
-    rt_uint8_t  bDeviceProtocol;
-    rt_uint8_t  bMaxPacketSize0;
-    rt_uint8_t  bNumConfigurations;
-    rt_uint8_t  bRESERVED;
-} __attribute__ ((packed));
+	rt_uint16_t bcdUSB; // TODO: big-endian.
+	rt_uint8_t  bDeviceClass;
+	rt_uint8_t  bDeviceSubClass;
+	rt_uint8_t  bDeviceProtocol;
+	rt_uint8_t  bMaxPacketSize0;
+	rt_uint8_t  bNumConfigurations;
+	rt_uint8_t  bRESERVED;
+} __attribute__((packed));
 
-struct uhid_descriptor
-{
-    rt_uint8_t bLength;
-    rt_uint8_t type;
-    rt_uint16_t bcdHID;
-    rt_uint8_t bCountryCode;
-    rt_uint8_t bNumDescriptors;
-    struct hid_descriptor_list
-    {
-        rt_uint8_t type;
-        rt_uint16_t wLength;
-    }Descriptor[1];
+struct uhid_descriptor {
+	rt_uint8_t bLength;
+	rt_uint8_t type;
+	rt_uint16_t bcdHID;
+	rt_uint8_t bCountryCode;
+	rt_uint8_t bNumDescriptors;
+	struct hid_descriptor_list {
+		rt_uint8_t type;
+		rt_uint16_t wLength;
+	} Descriptor[1];
 };
 typedef struct uhid_descriptor* uhid_desc_t;
 
-struct urequest
-{
-    rt_uint8_t request_type;
-    rt_uint8_t request;
-    rt_uint16_t value;
-    rt_uint16_t index;
-    rt_uint16_t length;
+struct urequest {
+	rt_uint8_t request_type;
+	rt_uint8_t request;
+	rt_uint16_t value;
+	rt_uint16_t index;
+	rt_uint16_t length;
 };
 typedef struct urequest* ureq_t;
 
@@ -422,24 +409,22 @@ typedef struct urequest* ureq_t;
 #define CSW_SIGNATURE                   0x53425355
 #define CBW_TAG_VALUE                   0x12345678
 
-struct ustorage_cbw
-{
-    rt_uint32_t signature;
-    rt_uint32_t tag;
-    rt_uint32_t xfer_len;
-    rt_uint8_t dflags;
-    rt_uint8_t lun;
-    rt_uint8_t cb_len;
-    rt_uint8_t cb[16];
+struct ustorage_cbw {
+	rt_uint32_t signature;
+	rt_uint32_t tag;
+	rt_uint32_t xfer_len;
+	rt_uint8_t dflags;
+	rt_uint8_t lun;
+	rt_uint8_t cb_len;
+	rt_uint8_t cb[16];
 };
 typedef struct ustorage_cbw* ustorage_cbw_t;
 
-struct ustorage_csw
-{
-    rt_uint32_t signature;
-    rt_uint32_t tag;
-    rt_int32_t data_reside;
-    rt_uint8_t  status;
+struct ustorage_csw {
+	rt_uint32_t signature;
+	rt_uint32_t tag;
+	rt_int32_t data_reside;
+	rt_uint8_t  status;
 };
 typedef struct ustorage_csw* ustorage_csw_t;
 

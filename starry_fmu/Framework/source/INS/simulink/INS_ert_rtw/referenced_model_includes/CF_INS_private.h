@@ -23,19 +23,19 @@
 
 /* Macros for accessing real-time model data structure */
 #ifndef rtmGetErrorStatus
-# define rtmGetErrorStatus(rtm)        (*((rtm)->errorStatus))
+	#define rtmGetErrorStatus(rtm)        (*((rtm)->errorStatus))
 #endif
 
 #ifndef rtmSetErrorStatus
-# define rtmSetErrorStatus(rtm, val)   (*((rtm)->errorStatus) = (val))
+	#define rtmSetErrorStatus(rtm, val)   (*((rtm)->errorStatus) = (val))
 #endif
 
 #ifndef rtmGetErrorStatusPointer
-# define rtmGetErrorStatusPointer(rtm) (rtm)->errorStatus
+	#define rtmGetErrorStatusPointer(rtm) (rtm)->errorStatus
 #endif
 
 #ifndef rtmSetErrorStatusPointer
-# define rtmSetErrorStatusPointer(rtm, val) ((rtm)->errorStatus = (val))
+	#define rtmSetErrorStatusPointer(rtm, val) ((rtm)->errorStatus = (val))
 #endif
 
 extern const ConstB_CF_INS_h_T CF_INS_ConstB;

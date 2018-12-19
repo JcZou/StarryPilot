@@ -6,7 +6,7 @@
  * Date           Author       	Notes
  * 2018-06-13     zoujiachi   	the first version
  */
- 
+
 #include <rtthread.h>
 #include <finsh.h>
 #include <shell.h>
@@ -26,11 +26,11 @@ int _is_option(char* str)
 {
 	if(strlen(str) < 2)
 		return 0;
-	
-	if(str[0] == '-' && !(str[1]>='0'&&str[1]<='9')){
+
+	if(str[0] == '-' && !(str[1] >= '0' && str[1] <= '9')) {
 		// the case of negative number, like -3, -2.1, these are not options
 		return 1;
-	}else{
+	} else {
 		return 0;
 	}
 }
@@ -39,9 +39,9 @@ bool shell_is_number(char* str)
 {
 	if(str == NULL)
 		return false;
-	
-	for(int i = 0 ; i < strlen(str) ; i++){
-		if(!(str[i]>='0'&&str[i]<='9')){
+
+	for(int i = 0 ; i < strlen(str) ; i++) {
+		if(!(str[i] >= '0' && str[i] <= '9')) {
 			return false;
 		}
 	}
@@ -54,24 +54,27 @@ int shell_cmd_process(int argc, char** argv, shell_handle_func func)
 	int res = 1;
 	int arg_c = 0;
 	int opt_c = 0;
-	char **arg_v = NULL;
-	sh_optv *opt_v = NULL;
-	
+	char** arg_v = NULL;
+	sh_optv* opt_v = NULL;
+
 	// pre-process to determine arguments and options count
-	for(int i = 0 ; i < argc ; i++){
-		if(_is_option(argv[i])){
+	for(int i = 0 ; i < argc ; i++) {
+		if(_is_option(argv[i])) {
 			opt_c++;
-		}else{
+		} else {
 			arg_c++;
 		}
 	}
 
-	arg_v = (char**)rt_malloc(arg_c*sizeof(char*));
+	arg_v = (char**)rt_malloc(arg_c * sizeof(char*));
+
 	if(arg_v == NULL)
 		return 1;
-	if(opt_c){
-		opt_v = (sh_optv*)rt_malloc(opt_c*sizeof(sh_optv));
-		if(opt_v == NULL){
+
+	if(opt_c) {
+		opt_v = (sh_optv*)rt_malloc(opt_c * sizeof(sh_optv));
+
+		if(opt_v == NULL) {
 			rt_free(arg_v);
 			return 1;
 		}
@@ -79,112 +82,125 @@ int shell_cmd_process(int argc, char** argv, shell_handle_func func)
 
 	int arg_cnt = 0;
 	int opt_cnt = 0;
+
 	// process for arguments and options
-	for(int i = 0 ; i < argc ; i++){
-		if(_is_option(argv[i])){
+	for(int i = 0 ; i < argc ; i++) {
+		if(_is_option(argv[i])) {
 			/* handle option */
 			int opt_len = strlen(argv[i]);
 			int val_len = 0;
 			int val_start;
+
 			// find option value
-			for(int n = 1 ; n < opt_len ; n++){
-				if(argv[i][n] == '='){
-					val_len = opt_len-n-1;
+			for(int n = 1 ; n < opt_len ; n++) {
+				if(argv[i][n] == '=') {
+					val_len = opt_len - n - 1;
 					val_len = val_len > 0 ? val_len : 0;
 					opt_len = opt_len - val_len - 1;
 					opt_len = opt_len > 0 ? opt_len : 0;
-					val_start = n+1;
+					val_start = n + 1;
 				}
 			}
-			
-			opt_v[opt_cnt].opt = (char*)rt_malloc(opt_len+1); // 1byte for '\0'
 
-			if(opt_v[opt_cnt].opt == NULL){
+			opt_v[opt_cnt].opt = (char*)rt_malloc(opt_len + 1); // 1byte for '\0'
+
+			if(opt_v[opt_cnt].opt == NULL) {
 				Console.print("opt malloc err\n");
 				goto opt_release;
 			}
-			
+
 			memcpy(opt_v[opt_cnt].opt, argv[i], opt_len);
 			opt_v[opt_cnt].opt[opt_len] = '\0';
-			
-			if(val_len){
-				opt_v[opt_cnt].val = (char*)rt_malloc(val_len+1);
-				if(opt_v[opt_cnt].val == NULL){
+
+			if(val_len) {
+				opt_v[opt_cnt].val = (char*)rt_malloc(val_len + 1);
+
+				if(opt_v[opt_cnt].val == NULL) {
 					Console.print("opt val malloc err\n");
 					goto opt_release;
 				}
+
 				memcpy(opt_v[opt_cnt].val, &argv[i][val_start], val_len);
 				opt_v[opt_cnt].val[val_len] = '\0';
-			}else{
+			} else {
 				opt_v[opt_cnt].val = NULL;
 			}
-			
+
 			//Console.print("opt:%s val:%s\n", opt_v[opt_cnt].opt, opt_v[opt_cnt].val);
-			
+
 			opt_cnt++;
-		}else{
+		} else {
 			/* handle argument */
 			int arg_len = strlen(argv[i]);
-			
-			arg_v[arg_cnt] = (char*)rt_malloc(arg_len+1);
-			if(arg_v[arg_cnt] == NULL){
+
+			arg_v[arg_cnt] = (char*)rt_malloc(arg_len + 1);
+
+			if(arg_v[arg_cnt] == NULL) {
 				Console.print("arg malloc err\n");
 				goto opt_release;
 			}
+
 			memcpy(arg_v[arg_cnt], argv[i], arg_len);
 			arg_v[arg_cnt][arg_len] = '\0';
-			
+
 			//Console.print("arg:%s\n", arg_v[arg_cnt]);
-			
+
 			arg_cnt++;
 		}
 	}
-	
+
 	// invoke handle function
-	if(func != NULL){
+	if(func != NULL) {
 		res = func(arg_c, arg_v, opt_c, opt_v);
 	}
 
-opt_release:	
+opt_release:
+
 	// release memory
-	if(arg_v != NULL){
-		for(int i = 0 ; i < arg_c ; i++){
-			if(arg_v[i] != NULL){
+	if(arg_v != NULL) {
+		for(int i = 0 ; i < arg_c ; i++) {
+			if(arg_v[i] != NULL) {
 				rt_free(arg_v[i]);
 			}
 		}
+
 		rt_free(arg_v);
 	}
-	
-	if(opt_v != NULL){
-		for(int i = 0 ; i < opt_c ; i++){
-			if(opt_v[i].opt != NULL){
+
+	if(opt_v != NULL) {
+		for(int i = 0 ; i < opt_c ; i++) {
+			if(opt_v[i].opt != NULL) {
 				rt_free(opt_v[i].opt);
 			}
-			if(opt_v[i].val != NULL){
+
+			if(opt_v[i].val != NULL) {
 				rt_free(opt_v[i].val);
 			}
 		}
+
 		rt_free(opt_v);
 	}
-	
+
 	return res;
 }
 
 int handle_help_shell_cmd(int argc, char** argv)
-{	
-	if(argc > 1){
-		if( strcmp(argv[1], "help") == 0 ){
+{
+	if(argc > 1) {
+		if(strcmp(argv[1], "help") == 0) {
 			Console.print("StarryPilot shell help.\n");
 			Console.print("Usage: help [command]\n");
 		}
-		if( strcmp(argv[1], "reboot") == 0 ){
+
+		if(strcmp(argv[1], "reboot") == 0) {
 			Console.print("Reboot system.\n");
 		}
-		if( strcmp(argv[1], "sys") == 0 ){
+
+		if(strcmp(argv[1], "sys") == 0) {
 			Console.print("Show system status.\n");
 		}
-		if( strcmp(argv[1], "calib") == 0 ){
+
+		if(strcmp(argv[1], "calib") == 0) {
 			Console.print("Calibrate sensors.\n");
 			Console.print("Usage: cali <sensor>\n");
 			Console.print("\n");
@@ -193,19 +209,21 @@ int handle_help_shell_cmd(int argc, char** argv)
 			Console.print("%8s,\t%s\n", "acc", "Calibrate the accelerometer.");
 			Console.print("%8s,\t%s\n", "mag", "Calibrate the magnetometer.");
 		}
-		if( strcmp(argv[1], "uploader") == 0 ){
+
+		if(strcmp(argv[1], "uploader") == 0) {
 			Console.print("Upload bin file to starry io.\n");
 		}
-		if( strcmp(argv[1], "sensor") == 0 ){
+
+		if(strcmp(argv[1], "sensor") == 0) {
 			Console.print("Get sensor information.\n");
 			Console.print("Usage: sensor <sensor> [-n <cnt> | -t <period> | -r | -nc]\n");
 			Console.print("\n");
-			
+
 			Console.print("sensor:\n");
 			Console.print("\t%-5s - %s\n", "gyr", "Get gyroscope data.");
 			Console.print("\t%-5s - %s\n", "acc", "Get accelerometer data.");
 			Console.print("\t%-5s - %s\n", "mag", "Get magnetometer data.");
-			
+
 			Console.print("-n <cnt>:\n");
 			Console.print("\t%s\n", "Set repeat count.");
 			Console.print("-t <period>:\n");
@@ -215,70 +233,82 @@ int handle_help_shell_cmd(int argc, char** argv)
 			Console.print("-nc:\n");
 			Console.print("\t%s\n", "Show not calibrated data.");
 		}
-		if( strcmp(argv[1], "motor") == 0 ){
+
+		if(strcmp(argv[1], "motor") == 0) {
 			Console.print("Motor operations.\n");
 			Console.print("Usage: motor <action> [...]\n");
 			Console.print("\n");
-			
+
 			Console.print("action:\n");
 			Console.print("\t%-33s - %s\n", "setall <throttle>", "Set throttle for all motors.");
 			Console.print("\t%-33s - %s\n", "set <throttle1, throttle2, ...>", "Set throttle for each motor.");
 			Console.print("\t%-33s - %s\n", "get", "Get current motor throttle.");
 			Console.print("\t%-33s - %s\n", "switch <on | off>", "Switch motor status.");
 		}
-		if( strcmp(argv[1], "rc") == 0 ){
+
+		if(strcmp(argv[1], "rc") == 0) {
 			Console.print("Remote Controller information.\n");
 			Console.print("Usage: rc <action> [...]\n");
 			Console.print("\n");
-			
+
 			Console.print("action:\n");
 			Console.print("%8s,\t%s\n", "status", "Show RC status.");
 		}
-		if( strcmp(argv[1], "param") == 0 ){
+
+		if(strcmp(argv[1], "param") == 0) {
 			Console.print("Configure parameters.\n");
 			Console.print("Usage: param <action> [...]\n");
 			Console.print("\n");
-			
+
 			Console.print("action:\n");
 			Console.print("\t%-29s - %s\n", "load", "Load parameter from file.");
 			Console.print("\t%-29s - %s\n", "store", "Store parameter to file.");
 			Console.print("\t%-29s - %s\n", "get [group [param] | -g]", "Get parameter value.");
 			Console.print("\t%-29s - %s\n", "set <group> <param> <value>", "Set parameter value.");
 		}
-		if( strcmp(argv[1], "test") == 0 ){
+
+		if(strcmp(argv[1], "test") == 0) {
 			Console.print("Customn test function.\n");
 		}
-		if( strcmp(argv[1], "ls") == 0 ){
+
+		if(strcmp(argv[1], "ls") == 0) {
 			Console.print("List files/directories.\n");
 			Console.print("Usage: ls [-l]\n");
 			Console.print("\n");
-			
+
 			Console.print("-l:\n");
 			Console.print("\t%s\n", "Show detail information.");
 		}
-		if( strcmp(argv[1], "cd") == 0 ){
+
+		if(strcmp(argv[1], "cd") == 0) {
 			Console.print("Change current directory.\n");
 			Console.print("Usage: cd <dir>\n");
 		}
-		if( strcmp(argv[1], "mv") == 0 ){
+
+		if(strcmp(argv[1], "mv") == 0) {
 			Console.print("Move file/directory.\n");
 			Console.print("Usage: mv <src> <des>\n");
 		}
-		if( strcmp(argv[1], "rm") == 0 ){
+
+		if(strcmp(argv[1], "rm") == 0) {
 			Console.print("Remove file/directory.\n");
 			Console.print("Usage: rm <file | dir> <des>\n");
 		}
-		if( strcmp(argv[1], "cat") == 0 ){
+
+		if(strcmp(argv[1], "cat") == 0) {
 			Console.print("Show file content.\n");
 			Console.print("Usage: cat <file> <des>\n");
 		}
-		if( strcmp(argv[1], "mkfs") == 0 ){
+
+		if(strcmp(argv[1], "mkfs") == 0) {
 			Console.print("Formate file system.\n");
 		}
-		if( strcmp(argv[1], "getfree") == 0 ){
+
+		if(strcmp(argv[1], "getfree") == 0) {
 			Console.print("Show storage usage.\n");
 		}
-		if( strcmp(argv[1], "rtt") == 0 ){
+
+		if(strcmp(argv[1], "rtt") == 0) {
 			Console.print("RT-Thread system commands.\n");
 			Console.print("Usage: rtt <action>\n");
 			Console.print("\n");
@@ -293,7 +323,8 @@ int handle_help_shell_cmd(int argc, char** argv)
 			Console.print("\t%-15s - %s\n", "list_timer", "List timer in system.");
 			Console.print("\t%-15s - %s\n", "list_device", "List device in system.");
 		}
-		if( strcmp(argv[1], "att_est") == 0 ){
+
+		if(strcmp(argv[1], "att_est") == 0) {
 			Console.print("Attitude estimator commands.\n");
 			Console.print("Usage: att_est <action>\n");
 			Console.print("\n");
@@ -301,7 +332,8 @@ int handle_help_shell_cmd(int argc, char** argv)
 			Console.print("\t%-7s - %s\n", "show", "Show attitude information.");
 			Console.print("\t%-7s - %s\n", "reset", "Reset attitude estimator.");
 		}
-		if( strcmp(argv[1], "att_est") == 0 ){
+
+		if(strcmp(argv[1], "att_est") == 0) {
 			Console.print("Attitude estimator commands.\n");
 			Console.print("Usage: att_est <action>\n");
 			Console.print("\n");
@@ -309,7 +341,8 @@ int handle_help_shell_cmd(int argc, char** argv)
 			Console.print("\t%-7s - %s\n", "show", "Show attitude information.");
 			Console.print("\t%-7s - %s\n", "reset", "Reset attitude estimator.");
 		}
-		if( strcmp(argv[1], "logger") == 0 ){
+
+		if(strcmp(argv[1], "logger") == 0) {
 			Console.print("Log operations.\n");
 			Console.print("Usage: logger <action> [...]\n");
 			Console.print("\n");
@@ -318,7 +351,8 @@ int handle_help_shell_cmd(int argc, char** argv)
 			Console.print("\t%-23s - %s\n", "stop", "Stop logger.");
 			Console.print("\t%-23s - %s\n", "info <file>", "Show log file information.");
 		}
-		if( strcmp(argv[1], "control") == 0 ){
+
+		if(strcmp(argv[1], "control") == 0) {
 			Console.print("Control commands.\n");
 			Console.print("Usage: control <action> [...]\n");
 			Console.print("\n");
@@ -328,26 +362,28 @@ int handle_help_shell_cmd(int argc, char** argv)
 			Console.print("\t%-13s - %s\n", "set <param>", "Set the value of control parameter.");
 			Console.print("\t%-13s - %s\n", "get", "Get the value of control parameter.");
 		}
-	}else{
+	} else {
 		// list all commands
-        struct finsh_syscall *index;
+		struct finsh_syscall* index;
 
 		Console.print("StarryPilot shell commands:\n");
-        for (index = _syscall_table_begin;
-                index < _syscall_table_end;
-                FINSH_NEXT_SYSCALL(index))
-        {
-            if (strncmp(index->name, "__cmd_", 6) != 0) continue;
-#if defined(FINSH_USING_DESCRIPTION) && defined(FINSH_USING_SYMTAB)
-            Console.print("%-16s - %s\n", &index->name[6], index->desc);
-#else
-            Console.print("%s ", &index->name[6]);
-#endif
-        }
-    }
-    Console.print("\n");
 
-    return 0;
+		for(index = _syscall_table_begin;
+		        index < _syscall_table_end;
+		        FINSH_NEXT_SYSCALL(index)) {
+			if(strncmp(index->name, "__cmd_", 6) != 0) continue;
+
+#if defined(FINSH_USING_DESCRIPTION) && defined(FINSH_USING_SYMTAB)
+			Console.print("%-16s - %s\n", &index->name[6], index->desc);
+#else
+			Console.print("%s ", &index->name[6]);
+#endif
+		}
+	}
+
+	Console.print("\n");
+
+	return 0;
 }
 
 int cmd_reboot(int argc, char** argv)
@@ -369,7 +405,7 @@ int handle_calibrate_shell_cmd(int argc, char** argv, int optc, sh_optv* optv);
 int cmd_calibrate(int argc, char** argv)
 {
 	return shell_cmd_process(argc, argv, handle_calibrate_shell_cmd);
-	
+
 	return 0;
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_calibrate, __cmd_calibrate, calibrate the acc and mag sensor.);
@@ -377,7 +413,7 @@ FINSH_FUNCTION_EXPORT_ALIAS(cmd_calibrate, __cmd_calibrate, calibrate the acc an
 int cmd_uploader(int argc, char** argv)
 {
 	starryio_upload();
-	
+
 	return 1;
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_uploader, __cmd_uploader, upload bin file to starryio.);
@@ -423,7 +459,7 @@ int cmd_ls(int argc, char** argv)
 {
 	return handle_fm_shell_cmd(argc, argv);
 }
-FINSH_FUNCTION_EXPORT_ALIAS(cmd_ls, __cmd_ls, list files/directories);
+FINSH_FUNCTION_EXPORT_ALIAS(cmd_ls, __cmd_ls, list files / directories);
 
 int cmd_cd(int argc, char** argv)
 {
@@ -441,7 +477,7 @@ int cmd_rm(int argc, char** argv)
 {
 	return handle_fm_shell_cmd(argc, argv);
 }
-FINSH_FUNCTION_EXPORT_ALIAS(cmd_rm, __cmd_rm, remove file/directory);
+FINSH_FUNCTION_EXPORT_ALIAS(cmd_rm, __cmd_rm, remove file / directory);
 
 int cmd_mkfs(int argc, char** argv)
 {
@@ -472,7 +508,7 @@ int cmd_rtt(int argc, char** argv)
 {
 	return handle_rtt_shell_cmd(argc, argv);
 }
-FINSH_FUNCTION_EXPORT_ALIAS(cmd_rtt, __cmd_rtt, rt-thread rtos commands);
+FINSH_FUNCTION_EXPORT_ALIAS(cmd_rtt, __cmd_rtt, rt - thread rtos commands);
 
 int handle_mavproxy_shell_cmd(int argc, char** argv);
 int cmd_mavproxy(int argc, char** argv)

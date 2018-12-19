@@ -15,34 +15,31 @@
 #define CHAN_NUM			6
 
 #ifdef BLUEJAY
-typedef enum
-{
+typedef enum {
 	CHAN_THROTTLE = 0,	//channel 1
-	CHAN_ROLL,	
+	CHAN_ROLL,
 	CHAN_PITCH,
 	CHAN_YAW,
 	CHAN_CTRL_MODE,
 	CHAN_THROTTLE_SWITCH,
-}RC_CHANEL;
+} RC_CHANEL;
 #else
-typedef enum
-{
+typedef enum {
 	CHAN_ROLL = 0,	//channel 1
 	CHAN_PITCH,
 	CHAN_THROTTLE,
 	CHAN_YAW,
 	CHAN_CTRL_MODE,
 	CHAN_THROTTLE_SWITCH,
-}RC_CHANEL;
+} RC_CHANEL;
 #endif
 
-typedef enum
-{
+typedef enum {
 	RC_LOCK_STATUS = 0,
 	RC_LOCK_READY_STATUS,
 	RC_UNLOCK_STATUS,
 	RC_UNLOCK_READY_STATUS,
-}RC_STATUS;
+} RC_STATUS;
 
 float rc_raw2chanval(uint32_t raw);
 float rc_get_chanval(RC_CHANEL rc_chan);

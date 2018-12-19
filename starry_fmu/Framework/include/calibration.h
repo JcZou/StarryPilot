@@ -6,7 +6,7 @@
  * Date           Author       	Notes
  * 2016-6-20      zoujiachi   	the first version
  */
- 
+
 #ifndef __CALIBRATION_H__
 #define __CALIBRATION_H__
 
@@ -20,18 +20,17 @@
 #define ACC_POS_DETECT_COUNT  100
 #define ACC_SAMPLE_COUNT      500
 
-typedef struct
-{
+typedef struct {
 	double V[9];
 	double D[9];
 	double P[9][9];
 	double R;
-	
+
 	double OFS[3];
 	double GAIN[3];
 	Mat	  EigVec;
 	Mat	  RotM;
-}Cali_Obj;
+} Cali_Obj;
 void gyr_mavlink_calibration(void);
 void gyr_mavlink_calibration_start(void);
 void acc_mavlink_calibration(void);

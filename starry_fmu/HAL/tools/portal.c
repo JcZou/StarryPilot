@@ -30,111 +30,112 @@
 
 static rt_err_t _portal_init(rt_device_t dev)
 {
-    rt_err_t err;
-    struct rt_portal_device *portal;
+	rt_err_t err;
+	struct rt_portal_device* portal;
 
-    RT_ASSERT(dev);
+	RT_ASSERT(dev);
 
-    portal = (struct rt_portal_device*)dev;
+	portal = (struct rt_portal_device*)dev;
 
-    err = rt_device_init(portal->write_dev);
-    if (err != RT_EOK)
-        return err;
+	err = rt_device_init(portal->write_dev);
 
-    err = rt_device_init(portal->read_dev);
+	if(err != RT_EOK)
+		return err;
 
-    return err;
+	err = rt_device_init(portal->read_dev);
+
+	return err;
 }
 
 static rt_err_t _portal_open(rt_device_t dev, rt_uint16_t oflag)
 {
-    rt_err_t err;
-    struct rt_portal_device *portal;
+	rt_err_t err;
+	struct rt_portal_device* portal;
 
-    RT_ASSERT(dev);
+	RT_ASSERT(dev);
 
-    if (!oflag)
-        return -RT_ERROR;
+	if(!oflag)
+		return -RT_ERROR;
 
-    portal = (struct rt_portal_device*)dev;
+	portal = (struct rt_portal_device*)dev;
 
-    if (oflag & RT_DEVICE_OFLAG_RDONLY)
-    {
-        err = rt_device_open(portal->read_dev, RT_DEVICE_OFLAG_RDONLY);
-        if (err != RT_EOK)
-            return err;
-    }
+	if(oflag & RT_DEVICE_OFLAG_RDONLY) {
+		err = rt_device_open(portal->read_dev, RT_DEVICE_OFLAG_RDONLY);
 
-    if (oflag & RT_DEVICE_OFLAG_WRONLY)
-    {
-        err = rt_device_open(portal->write_dev, RT_DEVICE_OFLAG_WRONLY);
-        if (err != RT_EOK)
-            return err;
-    }
+		if(err != RT_EOK)
+			return err;
+	}
 
-    return RT_EOK;
+	if(oflag & RT_DEVICE_OFLAG_WRONLY) {
+		err = rt_device_open(portal->write_dev, RT_DEVICE_OFLAG_WRONLY);
+
+		if(err != RT_EOK)
+			return err;
+	}
+
+	return RT_EOK;
 }
 
 static rt_err_t _portal_close(rt_device_t dev)
 {
-    struct rt_portal_device *portal;
+	struct rt_portal_device* portal;
 
-    RT_ASSERT(dev);
+	RT_ASSERT(dev);
 
-    portal = (struct rt_portal_device*)dev;
+	portal = (struct rt_portal_device*)dev;
 
-    rt_device_close(portal->write_dev);
-    rt_device_close(portal->read_dev);
+	rt_device_close(portal->write_dev);
+	rt_device_close(portal->read_dev);
 
-    return RT_EOK;
+	return RT_EOK;
 }
 
 static rt_size_t _portal_read(rt_device_t dev,
                               rt_off_t pos,
-                              void *buffer,
+                              void* buffer,
                               rt_size_t size)
 {
-    return rt_device_read(PT_READ_DEV(dev),
-                          pos, buffer, size);
+	return rt_device_read(PT_READ_DEV(dev),
+	                      pos, buffer, size);
 }
 
 static rt_size_t _portal_write(rt_device_t dev,
                                rt_off_t pos,
-                               const void *buffer,
+                               const void* buffer,
                                rt_size_t size)
 {
-    return rt_device_write(PT_WRITE_DEV(dev),
-                           pos, buffer, size);
+	return rt_device_write(PT_WRITE_DEV(dev),
+	                       pos, buffer, size);
 }
 
 static rt_err_t _portal_rx_indicate(rt_device_t dev, rt_size_t size)
 {
-    struct rt_pipe_device *pipe;
+	struct rt_pipe_device* pipe;
 
-    RT_ASSERT(dev && dev->type == RT_Device_Class_Pipe);
+	RT_ASSERT(dev && dev->type == RT_Device_Class_Pipe);
 
-    pipe = (struct rt_pipe_device*)dev;
+	pipe = (struct rt_pipe_device*)dev;
 
-    if (pipe->read_portal->parent.rx_indicate)
-        return pipe->read_portal->parent.rx_indicate(
-                (rt_device_t)pipe->read_portal, size);
+	if(pipe->read_portal->parent.rx_indicate)
+		return pipe->read_portal->parent.rx_indicate(
+		           (rt_device_t)pipe->read_portal, size);
 
-    return -RT_ENOSYS;
+	return -RT_ENOSYS;
 }
 
-static rt_err_t _portal_tx_complete(rt_device_t dev, void *buf)
+static rt_err_t _portal_tx_complete(rt_device_t dev, void* buf)
 {
-    struct rt_pipe_device *pipe;
+	struct rt_pipe_device* pipe;
 
-    RT_ASSERT(dev && dev->type == RT_Device_Class_Pipe);
+	RT_ASSERT(dev && dev->type == RT_Device_Class_Pipe);
 
-    pipe = (struct rt_pipe_device*)dev;
+	pipe = (struct rt_pipe_device*)dev;
 
-    if (pipe->write_portal->parent.tx_complete)
-        return pipe->write_portal->parent.tx_complete(
-                (rt_device_t)pipe->write_portal, buf);
+	if(pipe->write_portal->parent.tx_complete)
+		return pipe->write_portal->parent.tx_complete(
+		           (rt_device_t)pipe->write_portal, buf);
 
-    return -RT_ENOSYS;
+	return -RT_ENOSYS;
 }
 
 /**
@@ -167,48 +168,51 @@ static rt_err_t _portal_tx_complete(rt_device_t dev, void *buf)
  * @return the operation status, RT_EOK on successful. -RT_ENOSYS on one pipe
  * device could not be found.
  */
-rt_err_t rt_portal_init(struct rt_portal_device *portal,
-                        const char *portal_name,
-                        const char *write_dev,
-                        const char *read_dev)
+rt_err_t rt_portal_init(struct rt_portal_device* portal,
+                        const char* portal_name,
+                        const char* write_dev,
+                        const char* read_dev)
 {
-    rt_device_t dev;
+	rt_device_t dev;
 
-    RT_ASSERT(portal);
+	RT_ASSERT(portal);
 
-    portal->parent.type        = RT_Device_Class_Portal;
-    portal->parent.init        = _portal_init;
-    portal->parent.open        = _portal_open;
-    portal->parent.close       = _portal_close;
-    portal->parent.write       = _portal_write;
-    portal->parent.read        = _portal_read;
-    /* single control of the two devices makes no sense */
-    portal->parent.control     = RT_NULL;
+	portal->parent.type        = RT_Device_Class_Portal;
+	portal->parent.init        = _portal_init;
+	portal->parent.open        = _portal_open;
+	portal->parent.close       = _portal_close;
+	portal->parent.write       = _portal_write;
+	portal->parent.read        = _portal_read;
+	/* single control of the two devices makes no sense */
+	portal->parent.control     = RT_NULL;
 
-    dev = rt_device_find(write_dev);
-    if (dev == RT_NULL)
-        return -RT_ENOSYS;
-    RT_ASSERT(dev->type == RT_Device_Class_Pipe);
-    portal->write_dev = dev;
-    rt_device_set_tx_complete(&portal->parent, dev->tx_complete);
-    rt_device_set_tx_complete(dev, _portal_tx_complete);
-    ((struct rt_pipe_device*)dev)->write_portal = portal;
+	dev = rt_device_find(write_dev);
 
-    dev = rt_device_find(read_dev);
-    if (dev == RT_NULL)
-    {
-        rt_device_set_tx_complete(dev, portal->parent.tx_complete);
-        return -RT_ENOSYS;
-    }
-    RT_ASSERT(dev->type == RT_Device_Class_Pipe);
-    portal->read_dev = dev;
-    rt_device_set_rx_indicate(&portal->parent, dev->rx_indicate);
-    rt_device_set_rx_indicate(dev, _portal_rx_indicate);
-    ((struct rt_pipe_device*)dev)->read_portal = portal;
+	if(dev == RT_NULL)
+		return -RT_ENOSYS;
 
-    return rt_device_register(&(portal->parent),
-                              portal_name,
-                              RT_DEVICE_FLAG_RDWR);
+	RT_ASSERT(dev->type == RT_Device_Class_Pipe);
+	portal->write_dev = dev;
+	rt_device_set_tx_complete(&portal->parent, dev->tx_complete);
+	rt_device_set_tx_complete(dev, _portal_tx_complete);
+	((struct rt_pipe_device*)dev)->write_portal = portal;
+
+	dev = rt_device_find(read_dev);
+
+	if(dev == RT_NULL) {
+		rt_device_set_tx_complete(dev, portal->parent.tx_complete);
+		return -RT_ENOSYS;
+	}
+
+	RT_ASSERT(dev->type == RT_Device_Class_Pipe);
+	portal->read_dev = dev;
+	rt_device_set_rx_indicate(&portal->parent, dev->rx_indicate);
+	rt_device_set_rx_indicate(dev, _portal_rx_indicate);
+	((struct rt_pipe_device*)dev)->read_portal = portal;
+
+	return rt_device_register(&(portal->parent),
+	                          portal_name,
+	                          RT_DEVICE_FLAG_RDWR);
 }
 RTM_EXPORT(rt_portal_init);
 
@@ -219,37 +223,38 @@ RTM_EXPORT(rt_portal_init);
  *
  * @return the operation status, RT_EOK on successful
  */
-rt_err_t rt_portal_detach(struct rt_portal_device *portal)
+rt_err_t rt_portal_detach(struct rt_portal_device* portal)
 {
-    return rt_device_unregister(&portal->parent);
+	return rt_device_unregister(&portal->parent);
 }
 RTM_EXPORT(rt_portal_detach);
 
 #ifdef RT_USING_HEAP
-rt_err_t rt_portal_create(const char *name,
-                          const char *write_dev,
-                          const char *read_dev)
+rt_err_t rt_portal_create(const char* name,
+                          const char* write_dev,
+                          const char* read_dev)
 {
-    struct rt_portal_device *portal;
+	struct rt_portal_device* portal;
 
-    portal = (struct rt_portal_device*)rt_calloc(1, sizeof(*portal));
-    if (portal == RT_NULL)
-        return -RT_ENOMEM;
+	portal = (struct rt_portal_device*)rt_calloc(1, sizeof(*portal));
 
-    return rt_portal_init(portal, name, write_dev, read_dev);
+	if(portal == RT_NULL)
+		return -RT_ENOMEM;
+
+	return rt_portal_init(portal, name, write_dev, read_dev);
 }
 RTM_EXPORT(rt_portal_create);
 
-void rt_portal_destroy(struct rt_portal_device *portal)
+void rt_portal_destroy(struct rt_portal_device* portal)
 {
-    if (portal == RT_NULL)
-        return;
+	if(portal == RT_NULL)
+		return;
 
-    rt_portal_detach(portal);
+	rt_portal_detach(portal);
 
-    rt_free(portal);
+	rt_free(portal);
 
-    return;
+	return;
 }
 RTM_EXPORT(rt_portal_destroy);
 #endif /* RT_USING_HEAP */

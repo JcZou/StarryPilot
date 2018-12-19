@@ -3,8 +3,7 @@
 
 #include "global.h"
 
-typedef enum 
-{
+typedef enum {
 	CAL_START_GYRO,
 	CAL_START_ACC,
 	CAL_START_MAG,
@@ -61,7 +60,7 @@ typedef enum
 	MAV_NOTICE_NUM
 } mav_status_type;
 
-typedef struct{
+typedef struct {
 	uint8_t severity;
 	char*   string;
 } mav_status_t;

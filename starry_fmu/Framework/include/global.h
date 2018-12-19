@@ -6,7 +6,7 @@
  * Date           Author       	Notes
  * 2016-10-02     zoujiachi   	the first version
  */
- 
+
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 
@@ -34,9 +34,9 @@
 
 // Macro to define packed structures
 #ifdef __GNUC__
-  #define __PACKED__( __Declaration__ ) __Declaration__ __attribute__((packed))
+	#define __PACKED__( __Declaration__ ) __Declaration__ __attribute__((packed))
 #else
-  #define __PACKED__( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop) )
+	#define __PACKED__( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop) )
 #endif
 
 //extern const float PI;
@@ -61,9 +61,9 @@
 #define AHRS_USE_EKF
 
 #ifndef bool
-  #define bool    uint8_t
-  #define true	  1
-  #define false	  0
+	#define bool    uint8_t
+	#define true	  1
+	#define false	  0
 #endif
 // #ifndef true
 //   #define true	  1

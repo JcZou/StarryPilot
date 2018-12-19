@@ -6,7 +6,7 @@
  * Date           Author       	Notes
  * 2016-6-20      zoujiachi   	the first version
  */
- 
+
 #ifndef __SENSOR_H__
 #define __SENSOR_H__
 
@@ -21,7 +21,7 @@
 //#define USE_LIDAR
 
 #ifdef USE_LIDAR
-	#ifdef BLUEJAY	
+	#ifdef BLUEJAY
 		#define USE_LIDAR_I2C
 	#else
 		#define USE_LIDAR_PWM
@@ -31,9 +31,9 @@
 //#define ACC_DEVICE_NAME			"lsm303d"
 #define ACC_DEVICE_NAME			"mpu6000"
 #ifdef USE_EXTERNAL_MAG_DEV
-#define MAG_DEVICE_NAME			"hmc5883"
+	#define MAG_DEVICE_NAME			"hmc5883"
 #else
-#define MAG_DEVICE_NAME			"lsm303d"
+	#define MAG_DEVICE_NAME			"lsm303d"
 #endif
 //#define GYR_DEVICE_NAME			"l3gd20h"
 #define GYR_DEVICE_NAME			"mpu6000"
@@ -73,63 +73,54 @@
 #define SENSOR_CONVERSION			0x30
 #define SENSOR_IS_CONV_FIN			0x31
 
-typedef enum
-{
+typedef enum {
 	S_CONV_1 = 0,
 	S_RAW_PRESS,
 	S_CONV_2,
 	S_RAW_TEMP,
 	S_COLLECT_REPORT
-}Baro_Machine_State;
+} Baro_Machine_State;
 
-typedef struct
-{
+typedef struct {
 	float altitude;
 	float velocity;
 	uint32_t time_stamp;
-}BaroPosition;
+} BaroPosition;
 
-typedef enum
-{
+typedef enum {
 	GPS_UNDETECTED,
 	GPS_AVAILABLE,
 	GPS_INAVAILABLE
-}GPS_Status_Def;
+} GPS_Status_Def;
 
-typedef struct
-{
+typedef struct {
 	GPS_Status_Def status;
 	uint8_t fix_cnt;
-}GPS_Status;
+} GPS_Status;
 
-typedef struct
-{
+typedef struct {
 	Vector3f_t velocity;
 	Vector3f_t last_pos;
-}GPS_Driv_Vel;
+} GPS_Driv_Vel;
 
-typedef struct
-{
+typedef struct {
 	float gyr_dps[3];
 	float acc_mps2[3];
 	uint32_t timestamp_ms;
-}SensorIMU;
+} SensorIMU;
 
-typedef struct
-{
+typedef struct {
 	float mag_ga[3];
 	uint32_t timestamp_ms;
-}SensorMag;
+} SensorMag;
 
-typedef struct
-{
+typedef struct {
 	int32_t pressure_Pa;
 	float temperature_deg;
 	uint32_t timestamp_ms;
-}SensorBaro;
+} SensorBaro;
 
-typedef struct
-{
+typedef struct {
 	uint32_t	iTOW;		/**< GPS Time of Week [ms] */
 	uint16_t	year; 		/**< Year (UTC)*/
 	uint8_t		month; 		/**< Month, range 1..12 (UTC) */
@@ -160,7 +151,7 @@ typedef struct
 	uint16_t	pDOP;		/**< Position DOP [0.01] */
 	uint16_t	reserved2;
 	uint32_t	timestamp_ms;
-}SensorGPS_PVT;
+} SensorGPS_PVT;
 
 rt_err_t sensor_manager_init(void);
 

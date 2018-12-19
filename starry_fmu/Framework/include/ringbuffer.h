@@ -10,15 +10,14 @@
 #define __RINGBUFFER_H__
 
 #include <stdint.h>
- 
-typedef struct
-{
+
+typedef struct {
 	uint8_t	static_flag;
 	unsigned head;
 	unsigned tail;
 	unsigned size;
 	uint8_t* buff;
-}ringbuffer;
+} ringbuffer;
 
 ringbuffer* ringbuffer_create(uint16_t size);
 ringbuffer* ringbuffer_static_create(uint8_t* buffer, uint16_t size);

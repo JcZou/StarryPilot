@@ -5,7 +5,7 @@
  * Date           Author       Notes
  * 2017-02-04     zoujiachi   	the first version
  */
- 
+
 #include <rtdevice.h>
 #include <rtthread.h>
 #include "shell.h"
@@ -86,52 +86,52 @@ enum {
 };
 
 struct serial_configure _io_serial_config = {                                          \
-    BAUD_RATE_115200, /* 115200 bits/s */  \
-    DATA_BITS_8,      /* 8 databits */     \
-    STOP_BITS_1,      /* 1 stopbit */      \
-    PARITY_NONE,      /* No parity  */     \
-    BIT_ORDER_LSB,    /* LSB first sent */ \
-    NRZ_NORMAL,       /* Normal mode */    \
-    RT_SERIAL_RB_BUFSZ, /* Buffer size */  \
-    0                                      \
+	BAUD_RATE_115200, /* 115200 bits/s */  \
+	DATA_BITS_8,      /* 8 databits */     \
+	STOP_BITS_1,      /* 1 stopbit */      \
+	PARITY_NONE,      /* No parity  */     \
+	BIT_ORDER_LSB,    /* LSB first sent */ \
+	NRZ_NORMAL,       /* Normal mode */    \
+	RT_SERIAL_RB_BUFSZ, /* Buffer size */  \
+	0                                      \
 };
 
 static rt_device_t _dev;
 static ringbuffer* rb;
 
-uint32_t crc32part(const uint8_t *src, size_t len, uint32_t crc32val)
+uint32_t crc32part(const uint8_t* src, size_t len, uint32_t crc32val)
 {
 	size_t i;
 
-	for (i = 0;  i < len;  i++) {
+	for(i = 0;  i < len;  i++) {
 		crc32val = crc32_tab[(crc32val ^ src[i]) & 0xff] ^ (crc32val >> 8);
 	}
 
 	return crc32val;
 }
 
-static rt_err_t recv_byte_with_timeout(uint8_t *c, unsigned timeout)
+static rt_err_t recv_byte_with_timeout(uint8_t* c, unsigned timeout)
 {
 	uint32_t time = time_nowMs();
-	
-	while(time_nowMs()-time < timeout){
-		if(ringbuffer_getlen(rb)){
+
+	while(time_nowMs() - time < timeout) {
+		if(ringbuffer_getlen(rb)) {
 			*c = ringbuffer_getc(rb);
 			return RT_EOK;
 		}
 	}
-	
+
 	return RT_ETIMEOUT;
 }
 
-static rt_err_t recv_bytes(uint8_t *buff, unsigned count)
+static rt_err_t recv_bytes(uint8_t* buff, unsigned count)
 {
 	int ret = RT_EOK;
 
-	while (count--) {
+	while(count--) {
 		ret = recv_byte_with_timeout(buff++, 5000);
 
-		if (ret != RT_EOK) {
+		if(ret != RT_EOK) {
 			break;
 		}
 	}
@@ -142,22 +142,24 @@ static rt_err_t recv_bytes(uint8_t *buff, unsigned count)
 static rt_err_t _send_char(uint8_t c)
 {
 	rt_size_t bytes;
-	
-	bytes = rt_device_write(_dev, 0, (const void *)&c, 1);
+
+	bytes = rt_device_write(_dev, 0, (const void*)&c, 1);
+
 	if(bytes != 1)
 		return RT_ERROR;
-	
+
 	return RT_EOK;
 }
 
 static rt_err_t send(uint8_t* buff, uint32_t size)
 {
 	rt_size_t bytes;
-	
-	bytes = rt_device_write(_dev, 0, (const void *)buff, size);
+
+	bytes = rt_device_write(_dev, 0, (const void*)buff, size);
+
 	if(bytes != size)
 		return RT_ERROR;
-	
+
 	return RT_EOK;
 }
 
@@ -168,17 +170,17 @@ static rt_err_t get_sync(unsigned timeout)
 
 	ret = recv_byte_with_timeout(c, timeout);
 
-	if (ret != RT_EOK) {
+	if(ret != RT_EOK) {
 		return ret;
 	}
 
 	ret = recv_byte_with_timeout(c + 1, timeout);
 
-	if (ret != RT_EOK) {
+	if(ret != RT_EOK) {
 		return ret;
 	}
 
-	if ((c[0] != PROTO_INSYNC) || (c[1] != PROTO_OK)) {
+	if((c[0] != PROTO_INSYNC) || (c[1] != PROTO_OK)) {
 		//Console.print("bad sync 0x%02x,0x%02x\r\n", c[0], c[1]);
 		return RT_ERROR;
 	}
@@ -193,10 +195,10 @@ static rt_err_t sync(void)
 //	for (unsigned i = 0; i < (PROG_MULTI_MAX + 6); i++) {
 //		_send_char(0);
 //	}
-	
+
 	_send_char(PROTO_GET_SYNC);
 	_send_char(PROTO_EOC);
-	
+
 	return get_sync(50);
 }
 
@@ -210,7 +212,7 @@ static rt_err_t get_info(int param, uint8_t* val, uint32_t size)
 
 	ret = recv_bytes(val, size);
 
-	if (ret != RT_EOK) {
+	if(ret != RT_EOK) {
 		return ret;
 	}
 
@@ -234,115 +236,119 @@ static rt_err_t program_fs(char* file_name)
 	uint32_t fw_size_remote;
 	uint8_t fill_blank = 0xff;
 	uint32_t crc = 0;
-	
+
 	FIL fp;
 	FRESULT res = f_open(&fp, file_name, FA_OPEN_EXISTING | FA_READ);
-	if(res != FR_OK){
+
+	if(res != FR_OK) {
 		Console.print("can not open the file:%s err:%d\n", file_name, res);
 		return RT_ERROR;
 	}
-	
-	prog_cnt = fp.fsize/PROG_MULTI_MAX;
-	prog_offset = fp.fsize%PROG_MULTI_MAX;
-	
+
+	prog_cnt = fp.fsize / PROG_MULTI_MAX;
+	prog_offset = fp.fsize % PROG_MULTI_MAX;
+
 	file_buf = (uint8_t*)rt_malloc(PROG_MULTI_MAX);
-	
-	if(file_buf == NULL){
+
+	if(file_buf == NULL) {
 		Console.print("malloc fail\r\n");
 		return RT_ERROR;
 	}
-	
-	UINT br; 
-	
+
+	UINT br;
+
 	Console.print("erase...\r\n");
 	ret = erase();
 	Console.print("program...\r\n");
-	
-	for (uint32_t i = 0 ; i < prog_cnt ; i++) {
+
+	for(uint32_t i = 0 ; i < prog_cnt ; i++) {
 
 		res = f_read(&fp, file_buf, PROG_MULTI_MAX, &br);
-		if(br != PROG_MULTI_MAX){
+
+		if(br != PROG_MULTI_MAX) {
 			Console.print("read fail err. size:%d br:%d\n", PROG_MULTI_MAX, br);
 			rt_free(file_buf);
 			return RT_ERROR;
 		}
-	
+
 		/* calculate crc32 sum */
-		sum = crc32part((uint8_t *)file_buf, PROG_MULTI_MAX, sum);
-		
+		sum = crc32part((uint8_t*)file_buf, PROG_MULTI_MAX, sum);
+
 		_send_char(PROTO_PROG_MULTI);
 		_send_char(PROG_MULTI_MAX);
 		send(file_buf, PROG_MULTI_MAX);
 		_send_char(PROTO_EOC);
 
 		ret = get_sync(1000);
-		
-		if (ret != RT_EOK) {
+
+		if(ret != RT_EOK) {
 			Console.print("program fail %ld\r\n", ret);
 			break;
 		}
 	}
-	
-	if (prog_offset) {
+
+	if(prog_offset) {
 		res = f_read(&fp, file_buf, prog_offset, &br);
-		if(br != prog_offset){
+
+		if(br != prog_offset) {
 			Console.print("read fail err. size:%d br:%d\n", prog_offset, br);
 			rt_free(file_buf);
 			return RT_ERROR;
 		}
-		
+
 		/* calculate crc32 sum */
-		sum = crc32part((uint8_t *)file_buf, prog_offset, sum);
-		
+		sum = crc32part((uint8_t*)file_buf, prog_offset, sum);
+
 		_send_char(PROTO_PROG_MULTI);
 		_send_char(prog_offset);
 		send(file_buf, prog_offset);
 		_send_char(PROTO_EOC);
 
 		ret = get_sync(1000);
-		
-		if (ret != RT_EOK) {
+
+		if(ret != RT_EOK) {
 			Console.print("program fail %ld\r\n", ret);
 		}
 	}
-	
+
 	/* free file_buf */
 	rt_free(file_buf);
-	
+
 	ret = get_info(INFO_FLASH_SIZE, (uint8_t*)&fw_size_remote, sizeof(fw_size_remote));
 	_send_char(PROTO_EOC);
 
-	if (ret != RT_EOK) {
+	if(ret != RT_EOK) {
 		Console.print("could not read firmware size\r\n");
 		return ret;
 	}
-	
+
 	/* fill the rest with 0xff */
 	count = fp.fsize;
-	while (count < fw_size_remote) {
+
+	while(count < fw_size_remote) {
 		sum = crc32part(&fill_blank, sizeof(fill_blank), sum);
 		count += sizeof(fill_blank);
 	}
-	
+
 	/* request CRC from IO */
 	_send_char(PROTO_GET_CRC);
 	_send_char(PROTO_EOC);
 
-	ret = recv_bytes((uint8_t *)(&crc), sizeof(crc));
-	
-	if (ret != RT_EOK) {
+	ret = recv_bytes((uint8_t*)(&crc), sizeof(crc));
+
+	if(ret != RT_EOK) {
 		Console.print("did not receive CRC checksum\r\n");
 		return ret;
 	}
 
 	/* compare the CRC sum from the IO with the one calculated */
-	if (sum != crc) {
+	if(sum != crc) {
 		Console.print("CRC wrong: received: %x, expected: %x\r\n", crc, sum);
 		return RT_ERROR;
-	}else{
+	} else {
 		Console.print("CRC check ok, received: %x, expected: %x\r\n", crc, sum);
 	}
-	
+
 	return RT_EOK;
 }
 
@@ -356,109 +362,110 @@ static rt_err_t program_serial(size_t fw_size)
 	uint32_t fw_size_remote;
 	uint8_t fill_blank = 0xff;
 	uint32_t crc = 0;
-	
+
 	struct finsh_shell* shell = finsh_get_shell();
-	
-	prog_cnt = fw_size/PROG_MULTI_MAX;
-	prog_offset = fw_size%PROG_MULTI_MAX;
-	
+
+	prog_cnt = fw_size / PROG_MULTI_MAX;
+	prog_offset = fw_size % PROG_MULTI_MAX;
+
 	/* read file from serial */
 	file_buf = (uint8_t*)rt_malloc(fw_size);
-	
-	if(file_buf == NULL){
+
+	if(file_buf == NULL) {
 		Console.print("malloc fail\r\n");
 		return RT_ERROR;
 	}
-	
-	while(count < fw_size){
-		count += rt_device_read(shell->device, 0, &file_buf[count], fw_size-count);
+
+	while(count < fw_size) {
+		count += rt_device_read(shell->device, 0, &file_buf[count], fw_size - count);
 	}
-	
+
 	Console.print("program...\r\n");
-	
-	for (uint32_t i = 0 ; i < prog_cnt ; i++) {
-		
+
+	for(uint32_t i = 0 ; i < prog_cnt ; i++) {
+
 //		Console.print("i:%d\r\n", i);
-//		
+//
 //		while (count < PROG_MULTI_MAX) {
 //			count += rt_device_read(shell->device, 0, &file_buf[count], PROG_MULTI_MAX-count);
 //		}
-		
+
 		//Console.print("cnt:%d\r\n", count);
-		
+
 		/* calculate crc32 sum */
-		sum = crc32part((uint8_t *)&file_buf[i*PROG_MULTI_MAX], PROG_MULTI_MAX, sum);
-		
+		sum = crc32part((uint8_t*)&file_buf[i * PROG_MULTI_MAX], PROG_MULTI_MAX, sum);
+
 		_send_char(PROTO_PROG_MULTI);
 		_send_char(PROG_MULTI_MAX);
-		send(&file_buf[i*PROG_MULTI_MAX], PROG_MULTI_MAX);
+		send(&file_buf[i * PROG_MULTI_MAX], PROG_MULTI_MAX);
 		_send_char(PROTO_EOC);
 
 		ret = get_sync(1000);
-		
-		if (ret != RT_EOK) {
+
+		if(ret != RT_EOK) {
 			Console.print("program fail %ld\r\n", ret);
 			break;
 		}
 	}
-	
-	if (prog_offset) {
-		
+
+	if(prog_offset) {
+
 //		count = 0;
-//		
+//
 //		while (count < prog_offset) {
 //			count += rt_device_read(shell->device, 0, &file_buf[count], PROG_MULTI_MAX-count);
 //		}
-		
+
 		/* calculate crc32 sum */
-		sum = crc32part((uint8_t *)&file_buf[prog_cnt*PROG_MULTI_MAX], prog_offset, sum);
-		
+		sum = crc32part((uint8_t*)&file_buf[prog_cnt * PROG_MULTI_MAX], prog_offset, sum);
+
 		_send_char(PROTO_PROG_MULTI);
 		_send_char(prog_offset);
-		send(&file_buf[prog_cnt*PROG_MULTI_MAX], prog_offset);
+		send(&file_buf[prog_cnt * PROG_MULTI_MAX], prog_offset);
 		_send_char(PROTO_EOC);
 
 		ret = get_sync(1000);
-		
-		if (ret != RT_EOK) {
+
+		if(ret != RT_EOK) {
 			Console.print("program fail %ld\r\n", ret);
 		}
 	}
-	
+
 	/* free file_buf */
 	rt_free(file_buf);
-	
+
 	ret = get_info(INFO_FLASH_SIZE, (uint8_t*)&fw_size_remote, sizeof(fw_size_remote));
 	_send_char(PROTO_EOC);
 
-	if (ret != RT_EOK) {
+	if(ret != RT_EOK) {
 		Console.print("could not read firmware size\r\n");
 		return ret;
 	}
-	
+
 	/* fill the rest with 0xff */
 	count = fw_size;
-	while (count < fw_size_remote) {
+
+	while(count < fw_size_remote) {
 		sum = crc32part(&fill_blank, sizeof(fill_blank), sum);
 		count += sizeof(fill_blank);
 	}
-	
+
 	/* request CRC from IO */
 	_send_char(PROTO_GET_CRC);
 	_send_char(PROTO_EOC);
 
-	ret = recv_bytes((uint8_t *)(&crc), sizeof(crc));
-	
-	if (ret != RT_EOK) {
+	ret = recv_bytes((uint8_t*)(&crc), sizeof(crc));
+
+	if(ret != RT_EOK) {
 		Console.print("did not receive CRC checksum\r\n");
 		return ret;
 	}
 
 	/* compare the CRC sum from the IO with the one calculated */
-	if (sum != crc) {
+	if(sum != crc) {
 		Console.print("CRC wrong: received: %x, expected: %x\r\n", crc, sum);
 		return RT_ERROR;
-	}else{
+	} else {
 		Console.print("CRC check ok, received: %x, expected: %x\r\n", crc, sum);
 	}
 
@@ -479,19 +486,19 @@ static rt_err_t uploader_serial_rx_ind(rt_device_t dev, rt_size_t size)
 {
 	rt_size_t bytes;
 	uint8_t ch[RT_SERIAL_RB_BUFSZ];
-	
-	bytes = rt_device_read(_dev , 0 , ch , size);
-	
-	if(bytes){
-		for(uint32_t i = 0 ; i<bytes ; i++){
+
+	bytes = rt_device_read(_dev, 0, ch, size);
+
+	if(bytes) {
+		for(uint32_t i = 0 ; i < bytes ; i++) {
 			if(!ringbuffer_putc(rb, ch[i]))
 				Console.print("ringbuffer full\r\n");
 		}
-	}else{
-		Console.print("uploader listen err:%ld\r\n" , bytes);
+	} else {
+		Console.print("uploader listen err:%ld\r\n", bytes);
 	}
 
-    return RT_EOK;
+	return RT_EOK;
 }
 
 void starryio_upload(void)
@@ -500,78 +507,80 @@ void starryio_upload(void)
 	rt_err_t ret;
 	uint8_t file_size[32] = {0};
 	uint32_t time = time_nowMs();
-	
+
 	struct finsh_shell* shell = finsh_get_shell();
-	
+
 	Console.print("starryio uploader, wait sync signal...\r\n");
-	
+
 	request_reboot();	/* reboot starryio to let device enter bootloader */
 	rt_thread_delay(10);
-	
-	if(uploader_init() != RT_EOK){
+
+	if(uploader_init() != RT_EOK) {
 		uploader_deinit();
 		return ;
 	}
-	
+
 	ringbuffer_flush(rb);	/*flush ring buffer*/
-	
+
 	while(time_nowMs() - time < 10000) {
-		if(sync() == RT_EOK){
+		if(sync() == RT_EOK) {
 			char ch;
 			Console.print("sync success\r\n");
 			get_info(INFO_BL_REV, (uint8_t*)&bl_rev, sizeof(bl_rev));
 			Console.print("found bootloader revision: %d\r\n", bl_rev);
-			
+
 			Console.print("please choose download method:\n1:file system  2:serial  3:cancel\n");
 			ch = shell_wait_ch();
-			
-			if(ch == '1'){
+
+			if(ch == '1') {
 				ret = program_fs("starryio.bin");
-			}else if(ch == '2'){
+			} else if(ch == '2') {
 				Console.print(".bin file size:");
-			
-				for(uint32_t i = 0 ; ; i++){
+
+				for(uint32_t i = 0 ; ; i++) {
 					//rt_sem_take(&shell->rx_sem, RT_WAITING_FOREVER);
 					//rt_device_read(shell->device, 0, &file_size[i], 1);
 					file_size[i] = shell_wait_ch();
 					Console.print("%c", file_size[i]);
-					if(file_size[i] < '0' || file_size[i] > '9'){
+
+					if(file_size[i] < '0' || file_size[i] > '9') {
 						file_size[i] = '\0';
 						break;
 					}
 				}
-				
+
 				size_t f_size = atoi((char*)file_size);
 				Console.print("file size is %d, upload now? Y/N\r\n", f_size);
-				
+
 				ch = shell_wait_ch();
-				if(ch == 'Y' || ch == 'y'){
+
+				if(ch == 'Y' || ch == 'y') {
 					Console.print("erase...\r\n");
 					ret = erase();
 					ret = program_serial(f_size);
-				}else{
+				} else {
 					return ;
 				}
-			}else{
+			} else {
 				return ;
 			}
-			
-			if (ret != RT_EOK) {
+
+			if(ret != RT_EOK) {
 				Console.print("program failed!\r\n");
 				return ;
-			}else{
+			} else {
 				Console.print("program success!\r\n");
-				
+
 				ret = reboot();
-			
-				if (ret != RT_EOK) {
+
+				if(ret != RT_EOK) {
 					Console.print("reboot failed\r\n");
 					rt_device_close(_dev);
-				}else{
+				} else {
 					Console.print("update complete\r\n");
 				}
 			}
-			
+
 			uploader_deinit();
 			return;
 		}
@@ -579,42 +588,41 @@ void starryio_upload(void)
 }
 
 rt_err_t uploader_init(void)
-{	
+{
 	_dev = starryio_get_device();
-	
-	if(_dev == RT_NULL)
-    {
-        Console.print("serial device usart6 not found!\r\n");
-        return RT_EEMPTY;
-    }
-	
+
+	if(_dev == RT_NULL) {
+		Console.print("serial device usart6 not found!\r\n");
+		return RT_EEMPTY;
+	}
+
 	starryio_suspend_comm(true); // suspend io protocol communication
-	
-	struct rt_serial_device *serial = (struct rt_serial_device *)_dev;
+
+	struct rt_serial_device* serial = (struct rt_serial_device*)_dev;
 	serial->ops->configure(serial, &_io_serial_config);
-	
+
 	rb = ringbuffer_create(256);
 	rt_device_set_rx_indicate(_dev, uploader_serial_rx_ind);
 
-	if(rb == NULL){
+	if(rb == NULL) {
 		Console.print("create ringbuffer err\r\n");
 		return RT_ERROR;
 	}
-	
+
 	return RT_EOK;
 }
 
 rt_err_t uploader_deinit(void)
 {
-	struct rt_serial_device *serial = (struct rt_serial_device *)_dev;
+	struct rt_serial_device* serial = (struct rt_serial_device*)_dev;
 	serial->ops->configure(serial, &serial->config);
-	
+
 	starryio_suspend_comm(false);	// resume io protocol communication
-	
+
 	ringbuffer_delete(rb);
 	px4io_reset_rx_ind();
 	_dev = NULL;
-	
+
 	return RT_EOK;
 }
 

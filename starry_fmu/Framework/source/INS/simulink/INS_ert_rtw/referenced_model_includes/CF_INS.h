@@ -22,8 +22,8 @@
 #include <math.h>
 #include <string.h>
 #ifndef CF_INS_COMMON_INCLUDES_
-# define CF_INS_COMMON_INCLUDES_
-#include "rtwtypes.h"
+	#define CF_INS_COMMON_INCLUDES_
+	#include "rtwtypes.h"
 #endif                                 /* CF_INS_COMMON_INCLUDES_ */
 
 #include "CF_INS_types.h"
@@ -34,18 +34,18 @@
 #ifndef CF_INS_MDLREF_HIDE_CHILD_
 
 typedef struct {
-  real32_T DiscreteTimeIntegrator_DSTATE[4];/* '<S5>/Discrete-Time Integrator' */
-  real32_T DiscreteTimeIntegrator1_DSTATE[3];/* '<S37>/Discrete-Time Integrator1' */
-  real32_T DiscreteTimeIntegrator_DSTATE_k;/* '<S61>/Discrete-Time Integrator' */
-  real32_T DiscreteTimeIntegrator1_DSTAT_h;/* '<S66>/Discrete-Time Integrator1' */
-  real32_T DiscreteTimeIntegrator_DSTATE_i;/* '<S59>/Discrete-Time Integrator' */
-  real32_T DiscreteTimeIntegrator_DSTAT_ku;/* '<S62>/Discrete-Time Integrator' */
-  real32_T DiscreteTimeIntegrator1_DSTAT_c;/* '<S62>/Discrete-Time Integrator1' */
-  int8_T DiscreteTimeIntegrator_PrevRese;/* '<S5>/Discrete-Time Integrator' */
-  int8_T DiscreteTimeIntegrator1_PrevRes;/* '<S37>/Discrete-Time Integrator1' */
-  uint8_T DiscreteTimeIntegrator_IC_LOADI;/* '<S5>/Discrete-Time Integrator' */
-  uint8_T DiscreteTimeIntegrator_IC_LOA_c;/* '<S59>/Discrete-Time Integrator' */
-  uint8_T DiscreteTimeIntegrator1_IC_LOAD;/* '<S62>/Discrete-Time Integrator1' */
+	real32_T DiscreteTimeIntegrator_DSTATE[4];/* '<S5>/Discrete-Time Integrator' */
+	real32_T DiscreteTimeIntegrator1_DSTATE[3];/* '<S37>/Discrete-Time Integrator1' */
+	real32_T DiscreteTimeIntegrator_DSTATE_k;/* '<S61>/Discrete-Time Integrator' */
+	real32_T DiscreteTimeIntegrator1_DSTAT_h;/* '<S66>/Discrete-Time Integrator1' */
+	real32_T DiscreteTimeIntegrator_DSTATE_i;/* '<S59>/Discrete-Time Integrator' */
+	real32_T DiscreteTimeIntegrator_DSTAT_ku;/* '<S62>/Discrete-Time Integrator' */
+	real32_T DiscreteTimeIntegrator1_DSTAT_c;/* '<S62>/Discrete-Time Integrator1' */
+	int8_T DiscreteTimeIntegrator_PrevRese;/* '<S5>/Discrete-Time Integrator' */
+	int8_T DiscreteTimeIntegrator1_PrevRes;/* '<S37>/Discrete-Time Integrator1' */
+	uint8_T DiscreteTimeIntegrator_IC_LOADI;/* '<S5>/Discrete-Time Integrator' */
+	uint8_T DiscreteTimeIntegrator_IC_LOA_c;/* '<S59>/Discrete-Time Integrator' */
+	uint8_T DiscreteTimeIntegrator1_IC_LOAD;/* '<S62>/Discrete-Time Integrator1' */
 } DW_CF_INS_f_T;
 
 #endif                                 /*CF_INS_MDLREF_HIDE_CHILD_*/
@@ -54,7 +54,7 @@ typedef struct {
 #ifndef CF_INS_MDLREF_HIDE_CHILD_
 
 typedef struct {
-  const real32_T Constant7[3];         /* '<S37>/Constant7' */
+	const real32_T Constant7[3];         /* '<S37>/Constant7' */
 } ConstB_CF_INS_h_T;
 
 #endif                                 /*CF_INS_MDLREF_HIDE_CHILD_*/
@@ -63,7 +63,7 @@ typedef struct {
 
 /* Real-time Model Data Structure */
 struct tag_RTM_CF_INS_T {
-  const char_T **errorStatus;
+	const char_T** errorStatus;
 };
 
 #endif                                 /*CF_INS_MDLREF_HIDE_CHILD_*/
@@ -71,7 +71,7 @@ struct tag_RTM_CF_INS_T {
 #ifndef CF_INS_MDLREF_HIDE_CHILD_
 
 typedef struct {
-  RT_MODEL_CF_INS_T rtm;
+	RT_MODEL_CF_INS_T rtm;
 } MdlrefDW_CF_INS_T;
 
 #endif                                 /*CF_INS_MDLREF_HIDE_CHILD_*/
@@ -85,21 +85,21 @@ extern void CF_INS(const real32_T rtu_Sensor_Data_IMU_Data_rot_ra[3], const
                    *rtu_Sensor_Data_GPS_Data_height, const real32_T
                    *rtu_Sensor_Data_GPS_Data_velD_m, const boolean_T
                    *rtu_Sensor_Data_Baro_Data_valid, const real32_T
-                   *rtu_Sensor_Data_Baro_Data_relat, INS_Out_Bus *rty_INS_Out);
+                   *rtu_Sensor_Data_Baro_Data_relat, INS_Out_Bus* rty_INS_Out);
 
 /* Model reference registration function */
-extern void CF_INS_initialize(const char_T **rt_errorStatus);
+extern void CF_INS_initialize(const char_T** rt_errorStatus);
 
 #ifndef CF_INS_MDLREF_HIDE_CHILD_
 
-extern MdlrefDW_CF_INS_T CF_INS_MdlrefDW;
+	extern MdlrefDW_CF_INS_T CF_INS_MdlrefDW;
 
 #endif                                 /*CF_INS_MDLREF_HIDE_CHILD_*/
 
 #ifndef CF_INS_MDLREF_HIDE_CHILD_
 
-/* Block states (default storage) */
-extern DW_CF_INS_f_T CF_INS_DW;
+	/* Block states (default storage) */
+	extern DW_CF_INS_f_T CF_INS_DW;
 
 #endif                                 /*CF_INS_MDLREF_HIDE_CHILD_*/
 

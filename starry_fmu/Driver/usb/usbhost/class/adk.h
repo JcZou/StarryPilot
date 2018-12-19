@@ -27,13 +27,12 @@
 
 #include <rtthread.h>
 
-struct uadkinst
-{
-    upipe_t pipe_in;
-    upipe_t pipe_out;
+struct uadkinst {
+	upipe_t pipe_in;
+	upipe_t pipe_out;
 
-    struct rt_device device;
-};    
+	struct rt_device device;
+};
 typedef struct uadkinst* uadk_t;
 
 #define USB_ACCESSORY_VENDOR_ID         0x18D1

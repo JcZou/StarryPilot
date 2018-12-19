@@ -31,18 +31,18 @@ void _thread_idle_hook_func(void)
 static void timer_sta_entry(void* parameter)
 {
 	/* calculate cpu usage */
-	_cpu_usage = 100.0f * (1.0f - ((float)_os_idle_ctr)/_os_ctr_max);
+	_cpu_usage = 100.0f * (1.0f - ((float)_os_idle_ctr) / _os_ctr_max);
 	_os_idle_ctr = 0;
 }
 
 float get_cpu_usage(void)
 {
 	float usage;
-	
+
 	rt_enter_critical();
 	usage = _cpu_usage;
 	rt_exit_critical();
-	
+
 	return usage;
 }
 
@@ -50,7 +50,7 @@ void statistic_init(void)
 {
 	/* we increment idle counter in idle thread */
 	rt_thread_idle_sethook(_thread_idle_hook_func);
-	
+
 	rt_enter_critical();
 	_os_idle_ctr = 0;
 	rt_exit_critical();
@@ -59,12 +59,12 @@ void statistic_init(void)
 	rt_enter_critical();
 	_os_ctr_max = _os_idle_ctr;
 	rt_exit_critical();
-	
+
 	/* register a timer event to calculate CPU usage */
 	rt_timer_init(&timer_sta, "timer_sta",
-					timer_sta_entry,
-					RT_NULL,
-					OS_STATISTIC_INTERVAL,
-					RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);
+	              timer_sta_entry,
+	              RT_NULL,
+	              OS_STATISTIC_INTERVAL,
+	              RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER);
 	rt_timer_start(&timer_sta);
 }

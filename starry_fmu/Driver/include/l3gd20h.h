@@ -6,7 +6,7 @@
  * Date           Author       	Notes
  * 2016-6-17      zoujiachi   	the first version
  */
- 
+
 #ifndef __L3GD20H_SENSOR_H__
 #define __L3GD20H_SENSOR_H__
 

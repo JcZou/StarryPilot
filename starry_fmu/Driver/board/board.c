@@ -63,15 +63,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void NVIC_Configuration(void)
 {
 #ifdef  VECT_TAB_RAM
-    /* Set the Vector Table base location at 0x20000000 */
-    NVIC_SetVectorTable(NVIC_VectTab_RAM, 0x0);
+	/* Set the Vector Table base location at 0x20000000 */
+	NVIC_SetVectorTable(NVIC_VectTab_RAM, 0x0);
 #else  /* VECT_TAB_FLASH  */
-    /* Set the Vector Table base location at 0x08000000 */
+	/* Set the Vector Table base location at 0x08000000 */
 	/* app start from 0x8004000,so need configure vectortab offset to 0x4000 */
 	NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x4000);
 #endif
 
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 }
 
 /*******************************************************************************
@@ -83,16 +83,16 @@ void NVIC_Configuration(void)
  *******************************************************************************/
 void  SysTick_Configuration(void)
 {
-    RCC_ClocksTypeDef  rcc_clocks;
-    rt_uint32_t         cnts;
+	RCC_ClocksTypeDef  rcc_clocks;
+	rt_uint32_t         cnts;
 
-    RCC_GetClocksFreq(&rcc_clocks);
+	RCC_GetClocksFreq(&rcc_clocks);
 
-    cnts = (rt_uint32_t)rcc_clocks.HCLK_Frequency / RT_TICK_PER_SECOND;
-    cnts = cnts / 8;
+	cnts = (rt_uint32_t)rcc_clocks.HCLK_Frequency / RT_TICK_PER_SECOND;
+	cnts = cnts / 8;
 
-    SysTick_Config(cnts);
-    SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK_Div8);
+	SysTick_Config(cnts);
+	SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK_Div8);
 }
 
 /**
@@ -101,15 +101,15 @@ void  SysTick_Configuration(void)
  */
 void SysTick_Handler(void)
 {
-    /* enter interrupt */
-    rt_interrupt_enter();
+	/* enter interrupt */
+	rt_interrupt_enter();
 
-    rt_tick_increase();
-	
+	rt_tick_increase();
+
 	_systime_t.msPeriod += _systime_t.msPerPeriod;
 
-    /* leave interrupt */
-    rt_interrupt_leave();
+	/* leave interrupt */
+	rt_interrupt_leave();
 }
 
 /*** SPI1 BUS and device
@@ -121,14 +121,14 @@ void stm32_hw_spi_init(void)
 {
 	/* register SPI bus */
 	static struct stm32_spi_bus stm32_spi1;
-	
+
 	/* SPI1 configure */
 	{
 		GPIO_InitTypeDef GPIO_InitStructure;
 
 		/* Enable SPI1 Periph clock */
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA , ENABLE);
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 
 		GPIO_PinAFConfig(GPIOA, GPIO_PinSource5, GPIO_AF_SPI1);
 		GPIO_PinAFConfig(GPIOA, GPIO_PinSource6, GPIO_AF_SPI1);
@@ -155,9 +155,9 @@ void stm32_hw_spi_init(void)
 	{
 		static struct rt_spi_device rt_spi_device_1;
 		static struct stm32_spi_cs  stm32_spi_cs_1;
-		
+
 		GPIO_InitTypeDef GPIO_InitStructure;
-		
+
 		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
 
 		stm32_spi_cs_1.GPIOx = GPIOC;
@@ -175,16 +175,16 @@ void stm32_hw_spi_init(void)
 		/* rt name max is 8 (RT_NAME_MAX	   8) */
 		rt_spi_bus_attach_device(&rt_spi_device_1, "spi_d1", "spi1", (void*)&stm32_spi_cs_1);
 	}
-	
+
 	/* attach spi_device_2 to spi1 */
 	{
 		static struct rt_spi_device rt_spi_device_2;
 		static struct stm32_spi_cs  stm32_spi_cs_2;
-		
+
 		GPIO_InitTypeDef GPIO_InitStructure;
-		
+
 		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-		
+
 		stm32_spi_cs_2.GPIOx = GPIOC;
 		stm32_spi_cs_2.GPIO_Pin = GPIO_Pin_13;
 
@@ -200,16 +200,16 @@ void stm32_hw_spi_init(void)
 		/* rt name max is 8 (RT_NAME_MAX	   8) */
 		rt_spi_bus_attach_device(&rt_spi_device_2, "spi_d2", "spi1", (void*)&stm32_spi_cs_2);
 	}
-	
+
 	/* attach spi_device_3 to spi1 */
 	{
 		static struct rt_spi_device rt_spi_device_3;
 		static struct stm32_spi_cs  stm32_spi_cs_3;
-		
+
 		GPIO_InitTypeDef GPIO_InitStructure;
-		
+
 		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-		
+
 		stm32_spi_cs_3.GPIOx = GPIOD;
 		stm32_spi_cs_3.GPIO_Pin = GPIO_Pin_7;
 
@@ -225,16 +225,16 @@ void stm32_hw_spi_init(void)
 		/* rt name max is 8 (RT_NAME_MAX	   8) */
 		rt_spi_bus_attach_device(&rt_spi_device_3, "spi_d3", "spi1", (void*)&stm32_spi_cs_3);
 	}
-	
+
 	/* attach spi_device_4 to spi1 */
 	{
 		static struct rt_spi_device rt_spi_device_4;
 		static struct stm32_spi_cs  stm32_spi_cs_4;
-		
+
 		GPIO_InitTypeDef GPIO_InitStructure;
-		
+
 		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-		
+
 		stm32_spi_cs_4.GPIOx = GPIOC;
 		stm32_spi_cs_4.GPIO_Pin = GPIO_Pin_2;
 
@@ -257,17 +257,17 @@ void stm32_hw_spi_init(void)
  */
 void rt_hw_board_init()
 {
-    /* NVIC Configuration */
-    NVIC_Configuration();
-	
+	/* NVIC Configuration */
+	NVIC_Configuration();
+
 	/* Config system time module */
 	device_systime_init();
 
-    /* Configure the SysTick */
-    SysTick_Configuration();
+	/* Configure the SysTick */
+	SysTick_Configuration();
 
 	stm32_hw_usart_init();
-    stm32_hw_pin_init();
+	stm32_hw_pin_init();
 	stm32_hw_spi_init();
 	stm32_hw_pwm_init();
 }

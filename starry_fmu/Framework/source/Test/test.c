@@ -36,7 +36,7 @@ MCN_DECLARE(SENSOR_GYR);
 
 #define Equal(x, y)					( fabs(x-y) < 1e-7 )
 
-int calibrate_mag_run(struct finsh_shell *shell);
+int calibrate_mag_run(struct finsh_shell* shell);
 
 extern FIL my_fp;
 extern int start;
@@ -76,7 +76,7 @@ int handle_test_shell_cmd(int argc, char** argv)
 //		control_request(false);
 //		Console.print("finish\n");
 //	}
-	
+
 //	float gyr[3];
 //	Euler e = {0,0,0};
 //	float h = 0.002;
@@ -93,7 +93,7 @@ int handle_test_shell_cmd(int argc, char** argv)
 //			Console.print_eachtime(&time, 200, "%.2f %.2f %.2f\n", Rad2Deg(e.roll),Rad2Deg(e.pitch),Rad2Deg(e.yaw));
 //		}
 //	}
-	
+
 //	if(argc > 1){
 //		if(strcmp(argv[1], "start") == 0){
 //			FRESULT fres = f_open(&my_fp, "log", FA_OPEN_ALWAYS | FA_WRITE);
@@ -108,7 +108,7 @@ int handle_test_shell_cmd(int argc, char** argv)
 //	}
 
 	//calibrate_mag_run(NULL);
-	
+
 //	Mat A;
 //	MatCreate(&A, 5, 5);
 //	LIGHT_MATRIX_TYPE val[25] = {
@@ -120,12 +120,12 @@ int handle_test_shell_cmd(int argc, char** argv)
 //	};
 //	MatSetVal(&A, val);
 //	MatDump(&A);
-//	
+//
 //	LIGHT_MATRIX_TYPE eig_val[5];
 //	Mat eig_vec;
 //	MatCreate(&eig_vec, 5, 5);
 //	MatEig(&A, eig_val, &eig_vec, 1e-6, 100);
-//	
+//
 //	Console.print("eig val: %lf %lf\n %lf %lf %lf\n\n", eig_val[0],eig_val[1],eig_val[2],eig_val[3],eig_val[4]);
 //	MatDump(&eig_vec);
 
@@ -134,7 +134,7 @@ int handle_test_shell_cmd(int argc, char** argv)
 //	sensor_get_acc(acc);
 //	sensor_get_mag(mag);
 //	sensor_get_gyr(gyr);
-//	
+//
 //	Console.print("acc:%f %f %f\n", acc[0], acc[1], acc[2]);
 //	Console.print("mag:%f %f %f\n", mag[0], mag[1], mag[2]);
 //	if(acc[0] == 0.0f && acc[1]==0.0f  && acc[2] == 0.0f){
@@ -143,6 +143,6 @@ int handle_test_shell_cmd(int argc, char** argv)
 //	if(mag[0] == 0.0f && mag[1] == 0.0f && mag[2] == 0.0f){
 //		Console.print("mag null\n");
 //	}
-	
+
 	return 0;
 }

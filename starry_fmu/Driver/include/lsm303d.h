@@ -6,7 +6,7 @@
  * Date           Author       	Notes
  * 2016-6-17      zoujiachi   	the first version
  */
- 
+
 #ifndef __LSM303D_SENSOR_H__
 #define __LSM303D_SENSOR_H__
 

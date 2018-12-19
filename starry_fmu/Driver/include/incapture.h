@@ -3,11 +3,10 @@
 
 #include "global.h"
 
-typedef struct
-{
+typedef struct {
 	uint32_t left_count;
 	uint32_t right_count;
-}wheel_encoder;
+} wheel_encoder;
 
 void capture_init(void);
 wheel_encoder capture_read(void);

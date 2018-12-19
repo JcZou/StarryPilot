@@ -55,11 +55,11 @@
 #define STOP_BITS_4                     3
 
 #ifdef _WIN32
-#include <windows.h>
+	#include <windows.h>
 #else
-#define PARITY_NONE                     0
-#define PARITY_ODD                      1
-#define PARITY_EVEN                     2
+	#define PARITY_NONE                     0
+	#define PARITY_ODD                      1
+	#define PARITY_EVEN                     2
 #endif
 
 #define BIT_ORDER_LSB                   0
@@ -69,7 +69,7 @@
 #define NRZ_INVERTED                    1       /* Non Return to Zero : inverted mode */
 
 #ifndef RT_SERIAL_RB_BUFSZ
-#define RT_SERIAL_RB_BUFSZ              64
+	#define RT_SERIAL_RB_BUFSZ              64
 #endif
 
 #define RT_SERIAL_EVENT_RX_IND          0x01    /* Rx indication */
@@ -104,82 +104,75 @@
     0                                      \
 }
 
-struct serial_configure
-{
-    rt_uint32_t baud_rate;
+struct serial_configure {
+	rt_uint32_t baud_rate;
 
-    rt_uint32_t data_bits               :4;
-    rt_uint32_t stop_bits               :2;
-    rt_uint32_t parity                  :2;
-    rt_uint32_t bit_order               :1;
-    rt_uint32_t invert                  :1;
-    rt_uint32_t bufsz                   :16;
-    rt_uint32_t reserved                :4;
+	rt_uint32_t data_bits               : 4;
+	rt_uint32_t stop_bits               : 2;
+	rt_uint32_t parity                  : 2;
+	rt_uint32_t bit_order               : 1;
+	rt_uint32_t invert                  : 1;
+	rt_uint32_t bufsz                   : 16;
+	rt_uint32_t reserved                : 4;
 };
 
 /*
- * Serial FIFO mode 
+ * Serial FIFO mode
  */
-struct rt_serial_rx_fifo
-{
-    /* software fifo */
-    rt_uint8_t *buffer;
+struct rt_serial_rx_fifo {
+	/* software fifo */
+	rt_uint8_t* buffer;
 
-    rt_uint16_t put_index, get_index;
+	rt_uint16_t put_index, get_index;
 
-    rt_bool_t is_full;
+	rt_bool_t is_full;
 };
 
-struct rt_serial_tx_fifo
-{
-    struct rt_completion completion;
+struct rt_serial_tx_fifo {
+	struct rt_completion completion;
 };
 
-/* 
+/*
  * Serial DMA mode
  */
-struct rt_serial_rx_dma
-{
-    rt_bool_t activated;
+struct rt_serial_rx_dma {
+	rt_bool_t activated;
 };
 
-struct rt_serial_tx_dma
-{
-    rt_bool_t activated;
-    struct rt_data_queue data_queue;
+struct rt_serial_tx_dma {
+	rt_bool_t activated;
+	struct rt_data_queue data_queue;
 };
 
-struct rt_serial_device
-{
-    struct rt_device          parent;
+struct rt_serial_device {
+	struct rt_device          parent;
 
-    const struct rt_uart_ops *ops;
-    struct serial_configure   config;
+	const struct rt_uart_ops* ops;
+	struct serial_configure   config;
 
-    void *serial_rx;
-    void *serial_tx;
+	void* serial_rx;
+	void* serial_tx;
 };
 typedef struct rt_serial_device rt_serial_t;
 
 /**
  * uart operators
  */
-struct rt_uart_ops
-{
-    rt_err_t (*configure)(struct rt_serial_device *serial, struct serial_configure *cfg);
-    rt_err_t (*control)(struct rt_serial_device *serial, int cmd, void *arg);
+struct rt_uart_ops {
+	rt_err_t (*configure)(struct rt_serial_device* serial, struct serial_configure* cfg);
+	rt_err_t (*control)(struct rt_serial_device* serial, int cmd, void* arg);
 
-    int (*putc)(struct rt_serial_device *serial, char c);
-    int (*getc)(struct rt_serial_device *serial);
+	int (*putc)(struct rt_serial_device* serial, char c);
+	int (*getc)(struct rt_serial_device* serial);
 
-    rt_size_t (*dma_transmit)(struct rt_serial_device *serial, rt_uint8_t *buf, rt_size_t size, int direction);
+	rt_size_t (*dma_transmit)(struct rt_serial_device* serial, rt_uint8_t* buf, rt_size_t size, int direction);
 };
 
-void rt_hw_serial_isr(struct rt_serial_device *serial, int event);
+void rt_hw_serial_isr(struct rt_serial_device* serial, int event);
 
-rt_err_t rt_hw_serial_register(struct rt_serial_device *serial,
-                               const char              *name,
+rt_err_t rt_hw_serial_register(struct rt_serial_device* serial,
+                               const char*              name,
                                rt_uint32_t              flag,
-                               void                    *data);
+                               void*                    data);
 
 #endif

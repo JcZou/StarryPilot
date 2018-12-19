@@ -6,7 +6,7 @@
  * Date           Author       	Notes
  * 2016-10-01     zoujiachi   	the first version
  */
- 
+
 #ifndef __GPS_UBX_H__
 #define __GPS_UBX_H__
 
@@ -413,7 +413,7 @@ typedef union {
 	ubx_payload_tx_cfg_sbas_t		payload_tx_cfg_sbas;
 	ubx_payload_tx_cfg_msg_t		payload_tx_cfg_msg;
 
-uint8_t					raw[256];
+	uint8_t					raw[256];
 } ubx_buf_t;
 
 #pragma pack(pop)
@@ -450,33 +450,33 @@ typedef enum {
 
 //struct vehicle_gps_position_s
 //{
-//    uint64_t timestamp_position;            
-//    int32_t lat;                    
-//    int32_t lon;                    
-//    int32_t alt;                    
+//    uint64_t timestamp_position;
+//    int32_t lat;
+//    int32_t lon;
+//    int32_t alt;
 //    uint64_t timestamp_variance;
-//    float s_variance_m_s;               
-//    float p_variance_m;             
-//    float c_variance_rad;               
-//    uint8_t fix_type;               
-//    float eph;                    
-//    float epv;                    
-//    uint64_t timestamp_velocity;            
-//    float vel_m_s;                  
-//    float vel_n_m_s;                
-//    float vel_e_m_s;                
-//    float vel_d_m_s;                
-//    float cog_rad;                  
-//    rt_bool_t vel_ned_valid;             
-//    uint64_t timestamp_time;            
-//    uint64_t time_gps_usec;             
-//    uint64_t timestamp_satellites;          
-//    uint8_t satellites_visible;         
-//    uint8_t satellite_prn[20];          
-////    uint8_t satellite_used[20];         
-//    uint8_t satellite_elevation[20];        
-//    uint8_t satellite_azimuth[20];          
-//    uint8_t satellite_snr[20];          
+//    float s_variance_m_s;
+//    float p_variance_m;
+//    float c_variance_rad;
+//    uint8_t fix_type;
+//    float eph;
+//    float epv;
+//    uint64_t timestamp_velocity;
+//    float vel_m_s;
+//    float vel_n_m_s;
+//    float vel_e_m_s;
+//    float vel_d_m_s;
+//    float cog_rad;
+//    rt_bool_t vel_ned_valid;
+//    uint64_t timestamp_time;
+//    uint64_t time_gps_usec;
+//    uint64_t timestamp_satellites;
+//    uint8_t satellites_visible;
+//    uint8_t satellite_prn[20];
+////    uint8_t satellite_used[20];
+//    uint8_t satellite_elevation[20];
+//    uint8_t satellite_azimuth[20];
+//    uint8_t satellite_snr[20];
 //    rt_bool_t satellite_info_available;
 //	float hdop;
 //	float vdop;
@@ -530,17 +530,16 @@ struct satellite_info_s {
 	uint8_t snr[SAT_INFO_MAX_SATELLITES];		/**< dBHz, Signal to noise ratio of satellite C/N0, range 0..99, zero when not tracking this satellite. */
 };
 
-struct tm
-{
-  int tm_sec;     /* second (0-61, allows for leap seconds) */
-  int tm_min;     /* minute (0-59) */
-  int tm_hour;    /* hour (0-23) */
-  int tm_mday;    /* day of the month (1-31) */
-  int tm_mon;     /* month (0-11) */
-  int tm_year;    /* years since 1900 */
-  int tm_wday;    /* day of the week (0-6) */                         /*not supported by NuttX*/
-  int tm_yday;    /* day of the year (0-365) */                       /*not supported by NuttX*/
-  int tm_isdst;   /* non-0 if daylight savings time is in effect */   /*not supported by NuttX*/
+struct tm {
+	int tm_sec;     /* second (0-61, allows for leap seconds) */
+	int tm_min;     /* minute (0-59) */
+	int tm_hour;    /* hour (0-23) */
+	int tm_mday;    /* day of the month (1-31) */
+	int tm_mon;     /* month (0-11) */
+	int tm_year;    /* years since 1900 */
+	int tm_wday;    /* day of the week (0-6) */                         /*not supported by NuttX*/
+	int tm_yday;    /* day of the year (0-365) */                       /*not supported by NuttX*/
+	int tm_isdst;   /* non-0 if daylight savings time is in effect */   /*not supported by NuttX*/
 };
 
 #endif

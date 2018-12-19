@@ -22,16 +22,16 @@
 
 /* Invariant block signals (default storage) */
 const ConstB_SensorProcessing_h_T SensorProcessing_ConstB = {
-  -1.865825,                           /* '<S6>/Multiply' */
-  1.865825,                            /* '<S6>/Gain1' */
-  0.19026217037505355,                 /* '<S6>/Divide1' */
-  1,                                   /* '<S27>/Lower Test' */
-  1,                                   /* '<S27>/Upper Test' */
-  1,                                   /* '<S27>/AND' */
-  1,                                   /* '<S34>/Lower Test' */
-  1,                                   /* '<S34>/Upper Test' */
-  1                                    /* '<S34>/AND' */
-};
+	-1.865825,                           /* '<S6>/Multiply' */
+	    1.865825,                            /* '<S6>/Gain1' */
+	    0.19026217037505355,                 /* '<S6>/Divide1' */
+	    1,                                   /* '<S27>/Lower Test' */
+	    1,                                   /* '<S27>/Upper Test' */
+	    1,                                   /* '<S27>/AND' */
+	    1,                                   /* '<S34>/Lower Test' */
+	    1,                                   /* '<S34>/Upper Test' */
+	    1                                    /* '<S34>/AND' */
+    };
 
 /*
  * File trailer for generated code.

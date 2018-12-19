@@ -6,7 +6,7 @@
  * Date           Author       	Notes
  * 2017-10-16     zoujiachi   	the first version
  */
- 
+
 #ifndef __UMCN_H__
 #define __UMCN_H__
 
@@ -15,7 +15,7 @@
 #include <rtdevice.h>
 #include "global.h"
 
-#define MCN_EVENT_HANDLE			rt_event_t	
+#define MCN_EVENT_HANDLE			rt_event_t
 #define MCN_SEND_EVENT(event_t)		rt_event_send(event_t, 1)
 #define MCN_MALLOC(size)			rt_malloc(size)
 #define MCN_FREE(ptr)				rt_free(ptr)
@@ -26,16 +26,14 @@
 
 typedef struct mcn_node		McnNode;
 typedef struct mcn_node*	McnNode_t;
-struct mcn_node
-{
+struct mcn_node {
 	volatile uint8_t renewal;
-	void (*cb)(void *parameter);
+	void (*cb)(void* parameter);
 	McnNode_t next;
 };
 
 typedef struct mcn_hub		McnHub;
-struct mcn_hub
-{
+struct mcn_hub {
 	const char* obj_name;
 	const uint32_t obj_size;
 	void* pdata;
@@ -48,7 +46,7 @@ struct mcn_hub
 #define MCN_ID(_name)				(&__mcn_##_name)
 
 #define MCN_DECLARE(_name) 			extern McnHub __mcn_##_name
-	
+
 #define MCN_DEFINE(_name, _size)			\
 	McnHub __mcn_##_name = {	        	\
 		.obj_name = #_name,					\
@@ -59,13 +57,12 @@ struct mcn_hub
 		.link_num = 0,						\
 		.published = 0						\
 	}
-	
+
 int mcn_advertise(McnHub* hub);
-McnNode_t mcn_subscribe(McnHub* hub, void (*cb)(void *parameter));
+McnNode_t mcn_subscribe(McnHub* hub, void (*cb)(void* parameter));
 int mcn_publish(McnHub* hub, const void* data);
 bool mcn_poll(McnNode_t node_t);
 int mcn_copy(McnHub* hub, McnNode_t node_t, void* buffer);
 int mcn_copy_from_hub(McnHub* hub, void* buffer);
 
 #endif
-	

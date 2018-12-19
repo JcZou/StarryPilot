@@ -6,7 +6,7 @@
  * Date			  Author       	Notes
  * 2016-06-30	  zoujiachi   	the first version
  */
- 
+
 #ifndef __GPS_SENSOR_H__
 #define __GPS_SENSOR_H__
 
@@ -59,7 +59,7 @@ struct vehicle_gps_position_s {
 	uint32_t alt_ellipsoid;
 });
 
-rt_err_t rt_gps_init(char* serial_device_name , struct vehicle_gps_position_s *gps_position, struct satellite_info_s *satellite_info);
+rt_err_t rt_gps_init(char* serial_device_name, struct vehicle_gps_position_s* gps_position, struct satellite_info_s* satellite_info);
 
 #endif
 

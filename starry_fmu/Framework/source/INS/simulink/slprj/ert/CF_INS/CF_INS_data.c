@@ -22,7 +22,7 @@
 
 /* Invariant block signals (default storage) */
 const ConstB_CF_INS_h_T CF_INS_ConstB = {
-  { 0.0F, 0.0F, 0.0F }                 /* '<S37>/Constant7' */
+	{ 0.0F, 0.0F, 0.0F }                 /* '<S37>/Constant7' */
 };
 
 /*

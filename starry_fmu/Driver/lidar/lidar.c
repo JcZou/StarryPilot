@@ -7,7 +7,7 @@
 #include "systime.h"
 #include "lidar.h"
 
-static rt_device_t _i2c_device; 
+static rt_device_t _i2c_device;
 static struct rt_device _lidar_device;
 
 #define SALVE_ADDR		0x62	/* 7 bit address, i2c_bit_send_address() will left shift address by 1 bit */
@@ -18,7 +18,7 @@ static int _write_reg(uint8_t reg, uint8_t val)
 {
 	uint16_t flags = 0x0000;
 	rt_off_t pos = (rt_off_t)((flags << 16) | SALVE_ADDR);
-	
+
 	uint8_t buffer[2] = {reg, val};
 	return rt_device_write(_i2c_device, pos, (void*)buffer, sizeof(buffer));
 }
@@ -27,12 +27,13 @@ static int _read_reg(uint8_t reg, uint8_t* buffer, uint8_t count)
 {
 	uint16_t flags = 0x0000;
 	rt_off_t pos = (rt_off_t)((flags << 16) | SALVE_ADDR);
-	
+
 	int ret;
 	ret = rt_device_write(_i2c_device, pos, (void*)&reg, 1);
+
 	if(ret != 1)
 		return 0;
-	
+
 	return rt_device_read(_i2c_device, pos, (void*)buffer, count);
 }
 
@@ -44,33 +45,34 @@ float lidar_measure(void)
 	int res;
 
 	res = _read_reg(0x8f, dis_reg, 2);
-	if(res != 2){
+
+	if(res != 2) {
 		return -1;
 	}
-	distance_cm = dis_reg[0]<<8 | dis_reg[1];
+
+	distance_cm = dis_reg[0] << 8 | dis_reg[1];
 	distance_m = (float)distance_cm * 0.01f;
 
 	return distance_m;
 }
 
-rt_size_t lidar_read(rt_device_t dev, rt_off_t pos, void *buffer, rt_size_t size)
+rt_size_t lidar_read(rt_device_t dev, rt_off_t pos, void* buffer, rt_size_t size)
 {
-	if(pos == 1)	/* read lidar data */
-	{
+	if(pos == 1) {	/* read lidar data */
 		float dis;
 		dis = lidar_measure();
-		if(dis < 0.0f){
+
+		if(dis < 0.0f) {
 			Console.e(TAG, "lidar read fail\n");
 			return 0;
 		}
+
 		*((float*)buffer) = dis;
-	}
-	else
-	{
+	} else {
 		/* unknow pos */
 		return 0;
 	}
-	
+
 	return size;
 }
 
@@ -78,22 +80,23 @@ rt_err_t lidar_init(rt_device_t dev)
 {
 	rt_err_t res;
 
-	if(_i2c_device != RT_NULL)
-	{
-		res = rt_device_open(_i2c_device , RT_DEVICE_OFLAG_RDWR);
-		if(res != RT_EOK){
+	if(_i2c_device != RT_NULL) {
+		res = rt_device_open(_i2c_device, RT_DEVICE_OFLAG_RDWR);
+
+		if(res != RT_EOK) {
 			printf("fail to open lidar i2c\n");
 			return res;
 		}
+
 		//_write_reg(0x45, 0x28);	//50Hz
 		_write_reg(0x45, 0x14);	//100Hz
 		_write_reg(0x11, 0xff);	//indefinite repetition measure
 		_write_reg(0x00, 0x04);	//start measurement
-	}else{
+	} else {
 		printf("can not find lidar i2c device!\n");
 		res = RT_EEMPTY;
 	}
-	
+
 	return res;
 }
 
@@ -101,27 +104,27 @@ rt_err_t lidar_init(rt_device_t dev)
 rt_err_t rt_lidar_init(char* i2c_device_name)
 {
 	rt_err_t res = RT_EOK;
-	
+
 	/* set device type */
-    _lidar_device.type    = RT_Device_Class_Char;
-    _lidar_device.init    = lidar_init;
-    _lidar_device.open    = RT_NULL;
-    _lidar_device.close   = RT_NULL;
-    _lidar_device.read    = lidar_read;
-    _lidar_device.write   = RT_NULL;
-    _lidar_device.control = RT_NULL;
-	
+	_lidar_device.type    = RT_Device_Class_Char;
+	_lidar_device.init    = lidar_init;
+	_lidar_device.open    = RT_NULL;
+	_lidar_device.close   = RT_NULL;
+	_lidar_device.read    = lidar_read;
+	_lidar_device.write   = RT_NULL;
+	_lidar_device.control = RT_NULL;
+
 	/* register to device manager */
-    res |= rt_device_register(&_lidar_device , "lidar", RT_DEVICE_FLAG_RDWR);
-	
+	res |= rt_device_register(&_lidar_device, "lidar", RT_DEVICE_FLAG_RDWR);
+
 	res |= device_i2c_init(i2c_device_name);
 
 	_i2c_device = rt_device_find(i2c_device_name);
-	if(_i2c_device == RT_NULL)
-    {
-        rt_kprintf("i2c device %s not found!\r\n", i2c_device_name);
-        return RT_EEMPTY;
-    }
-	
+
+	if(_i2c_device == RT_NULL) {
+		rt_kprintf("i2c device %s not found!\r\n", i2c_device_name);
+		return RT_EEMPTY;
+	}
+
 	return res;
 }

@@ -6,7 +6,7 @@
  * Date           Author       	Notes
  * 2018-04-14     zoujiachi   	the first version
  */
- 
+
 #ifndef __MPU6000_H__
 #define __MPU6000_H__
 
