@@ -253,12 +253,12 @@ void mavproxy_msg_param_pack(mavlink_message_t* msg_t, param_info_t* param)
 
 		case PARAM_TYPE_INT32:
 			param_value.param_type = MAVLINK_TYPE_INT32_T;
-			memcpy(&(param_value.param_value), &(param->val.i), sizeof(param->val.i));
+			memcpy(&(param_value.param_value), &(param->val.i32), sizeof(param->val.i32));
 			break;
 
 		case PARAM_TYPE_UINT32:
 			param_value.param_type = MAVLINK_TYPE_UINT32_T;
-			memcpy(&(param_value.param_value), &(param->val.u), sizeof(param->val.u));
+			memcpy(&(param_value.param_value), &(param->val.u32), sizeof(param->val.u32));
 			break;
 
 		default:
@@ -630,7 +630,7 @@ void mavproxy_rx_entry(void* param)
 				break;
 
 				default : {
-					Console.print("mav unknown msg:%d\n", msg.msgid);
+					//Console.print("mav unknown msg:%d\n", msg.msgid);
 				} break;
 			}
 		}

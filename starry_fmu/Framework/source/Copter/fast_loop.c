@@ -196,40 +196,40 @@ void fastloop_entry(void* parameter)
 	INS_U.Sensor_Param_j.gyr_rotM[7] = 0;
 	INS_U.Sensor_Param_j.gyr_rotM[8] = 1;
 
-	INS_U.Sensor_Param_j.gyr_bias[0] = PARAM_GET_FLOAT(CALIBRATION, GYR_X_OFFSET);
-	INS_U.Sensor_Param_j.gyr_bias[1] = PARAM_GET_FLOAT(CALIBRATION, GYR_Y_OFFSET);
-	INS_U.Sensor_Param_j.gyr_bias[2] = PARAM_GET_FLOAT(CALIBRATION, GYR_Z_OFFSET);
+	INS_U.Sensor_Param_j.gyr_bias[0] = PARAM_GET_FLOAT(CALIBRATION, GYR_BIAS_X);
+	INS_U.Sensor_Param_j.gyr_bias[1] = PARAM_GET_FLOAT(CALIBRATION, GYR_BIAS_Y);
+	INS_U.Sensor_Param_j.gyr_bias[2] = PARAM_GET_FLOAT(CALIBRATION, GYR_BIAS_Z);
 
-	INS_U.Sensor_Param_j.acc_rotM[0] = PARAM_GET_FLOAT(CALIBRATION, ACC_TRANS_MAT00);
-	INS_U.Sensor_Param_j.acc_rotM[1] = PARAM_GET_FLOAT(CALIBRATION, ACC_TRANS_MAT01);
-	INS_U.Sensor_Param_j.acc_rotM[2] = PARAM_GET_FLOAT(CALIBRATION, ACC_TRANS_MAT02);
-	INS_U.Sensor_Param_j.acc_rotM[3] = PARAM_GET_FLOAT(CALIBRATION, ACC_TRANS_MAT10);
-	INS_U.Sensor_Param_j.acc_rotM[4] = PARAM_GET_FLOAT(CALIBRATION, ACC_TRANS_MAT11);
-	INS_U.Sensor_Param_j.acc_rotM[5] = PARAM_GET_FLOAT(CALIBRATION, ACC_TRANS_MAT12);
-	INS_U.Sensor_Param_j.acc_rotM[6] = PARAM_GET_FLOAT(CALIBRATION, ACC_TRANS_MAT20);
-	INS_U.Sensor_Param_j.acc_rotM[7] = PARAM_GET_FLOAT(CALIBRATION, ACC_TRANS_MAT21);
-	INS_U.Sensor_Param_j.acc_rotM[8] = PARAM_GET_FLOAT(CALIBRATION, ACC_TRANS_MAT22);
+	INS_U.Sensor_Param_j.acc_rotM[0] = PARAM_GET_FLOAT(CALIBRATION, ACC_ROT_MAT_1);
+	INS_U.Sensor_Param_j.acc_rotM[1] = PARAM_GET_FLOAT(CALIBRATION, ACC_ROT_MAT_2);
+	INS_U.Sensor_Param_j.acc_rotM[2] = PARAM_GET_FLOAT(CALIBRATION, ACC_ROT_MAT_3);
+	INS_U.Sensor_Param_j.acc_rotM[3] = PARAM_GET_FLOAT(CALIBRATION, ACC_ROT_MAT_4);
+	INS_U.Sensor_Param_j.acc_rotM[4] = PARAM_GET_FLOAT(CALIBRATION, ACC_ROT_MAT_5);
+	INS_U.Sensor_Param_j.acc_rotM[5] = PARAM_GET_FLOAT(CALIBRATION, ACC_ROT_MAT_6);
+	INS_U.Sensor_Param_j.acc_rotM[6] = PARAM_GET_FLOAT(CALIBRATION, ACC_ROT_MAT_7);
+	INS_U.Sensor_Param_j.acc_rotM[7] = PARAM_GET_FLOAT(CALIBRATION, ACC_ROT_MAT_8);
+	INS_U.Sensor_Param_j.acc_rotM[8] = PARAM_GET_FLOAT(CALIBRATION, ACC_ROT_MAT_9);
 
-	INS_U.Sensor_Param_j.acc_bias[0] = PARAM_GET_FLOAT(CALIBRATION, ACC_X_OFFSET);
-	INS_U.Sensor_Param_j.acc_bias[1] = PARAM_GET_FLOAT(CALIBRATION, ACC_Y_OFFSET);
-	INS_U.Sensor_Param_j.acc_bias[2] = PARAM_GET_FLOAT(CALIBRATION, ACC_Z_OFFSET);
+	INS_U.Sensor_Param_j.acc_bias[0] = PARAM_GET_FLOAT(CALIBRATION, ACC_BIAS_X);
+	INS_U.Sensor_Param_j.acc_bias[1] = PARAM_GET_FLOAT(CALIBRATION, ACC_BIAS_Y);
+	INS_U.Sensor_Param_j.acc_bias[2] = PARAM_GET_FLOAT(CALIBRATION, ACC_BIAS_Z);
 
-	INS_U.Sensor_Param_j.mag_rotM[0] = PARAM_GET_FLOAT(CALIBRATION, MAG_TRANS_MAT00);
-	INS_U.Sensor_Param_j.mag_rotM[1] = PARAM_GET_FLOAT(CALIBRATION, MAG_TRANS_MAT01);
-	INS_U.Sensor_Param_j.mag_rotM[2] = PARAM_GET_FLOAT(CALIBRATION, MAG_TRANS_MAT02);
-	INS_U.Sensor_Param_j.mag_rotM[3] = PARAM_GET_FLOAT(CALIBRATION, MAG_TRANS_MAT10);
-	INS_U.Sensor_Param_j.mag_rotM[4] = PARAM_GET_FLOAT(CALIBRATION, MAG_TRANS_MAT11);
-	INS_U.Sensor_Param_j.mag_rotM[5] = PARAM_GET_FLOAT(CALIBRATION, MAG_TRANS_MAT12);
-	INS_U.Sensor_Param_j.mag_rotM[6] = PARAM_GET_FLOAT(CALIBRATION, MAG_TRANS_MAT20);
-	INS_U.Sensor_Param_j.mag_rotM[7] = PARAM_GET_FLOAT(CALIBRATION, MAG_TRANS_MAT21);
-	INS_U.Sensor_Param_j.mag_rotM[8] = PARAM_GET_FLOAT(CALIBRATION, MAG_TRANS_MAT22);
+	INS_U.Sensor_Param_j.mag_rotM[0] = PARAM_GET_FLOAT(CALIBRATION, MAG_ROT_MAT_1);
+	INS_U.Sensor_Param_j.mag_rotM[1] = PARAM_GET_FLOAT(CALIBRATION, MAG_ROT_MAT_2);
+	INS_U.Sensor_Param_j.mag_rotM[2] = PARAM_GET_FLOAT(CALIBRATION, MAG_ROT_MAT_3);
+	INS_U.Sensor_Param_j.mag_rotM[3] = PARAM_GET_FLOAT(CALIBRATION, MAG_ROT_MAT_4);
+	INS_U.Sensor_Param_j.mag_rotM[4] = PARAM_GET_FLOAT(CALIBRATION, MAG_ROT_MAT_5);
+	INS_U.Sensor_Param_j.mag_rotM[5] = PARAM_GET_FLOAT(CALIBRATION, MAG_ROT_MAT_6);
+	INS_U.Sensor_Param_j.mag_rotM[6] = PARAM_GET_FLOAT(CALIBRATION, MAG_ROT_MAT_7);
+	INS_U.Sensor_Param_j.mag_rotM[7] = PARAM_GET_FLOAT(CALIBRATION, MAG_ROT_MAT_8);
+	INS_U.Sensor_Param_j.mag_rotM[8] = PARAM_GET_FLOAT(CALIBRATION, MAG_ROT_MAT_9);
 
-	INS_U.Sensor_Param_j.mag_bias[0] = PARAM_GET_FLOAT(CALIBRATION, MAG_X_OFFSET);
-	INS_U.Sensor_Param_j.mag_bias[1] = PARAM_GET_FLOAT(CALIBRATION, MAG_Y_OFFSET);
-	INS_U.Sensor_Param_j.mag_bias[2] = PARAM_GET_FLOAT(CALIBRATION, MAG_Z_OFFSET);
+	INS_U.Sensor_Param_j.mag_bias[0] = PARAM_GET_FLOAT(CALIBRATION, MAG_BIAS_X);
+	INS_U.Sensor_Param_j.mag_bias[1] = PARAM_GET_FLOAT(CALIBRATION, MAG_BIAS_Y);
+	INS_U.Sensor_Param_j.mag_bias[2] = PARAM_GET_FLOAT(CALIBRATION, MAG_BIAS_Z);
 
 	/* start logging */
-	if(filemanager_status() == fm_init_ok) {
+	if(filemanager_status() == fm_init_ok && PARAM_GET_FLOAT(SYSTEM, LOG_AUTO_START)) {
 		log_auto_start();
 	}
 

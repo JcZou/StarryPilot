@@ -40,129 +40,51 @@ typedef enum {
 PARAM_GROUP(CALIBRATION) PARAM_DECLARE_GROUP(CALIBRATION) = \
 {
 	\
-	PARAM_DEFINE_FLOAT(GYR_X_OFFSET, 0.0),
-	PARAM_DEFINE_FLOAT(GYR_Y_OFFSET, 0.0),
-	PARAM_DEFINE_FLOAT(GYR_Z_OFFSET, 0.0),
+	PARAM_DEFINE_FLOAT(GYR_BIAS_X, 0.0),
+	PARAM_DEFINE_FLOAT(GYR_BIAS_Y, 0.0),
+	PARAM_DEFINE_FLOAT(GYR_BIAS_Z, 0.0),
 	PARAM_DEFINE_FLOAT(GYR_X_GAIN, 1.0),
 	PARAM_DEFINE_FLOAT(GYR_Y_GAIN, 1.0),
 	PARAM_DEFINE_FLOAT(GYR_Z_GAIN, 1.0),
 	PARAM_DEFINE_UINT32(GYR_CALIB, 0),
-	PARAM_DEFINE_FLOAT(ACC_X_OFFSET, 0.0),
-	PARAM_DEFINE_FLOAT(ACC_Y_OFFSET, 0.0),
-	PARAM_DEFINE_FLOAT(ACC_Z_OFFSET, 0.0),
-	PARAM_DEFINE_FLOAT(ACC_TRANS_MAT00, 1.0),
-	PARAM_DEFINE_FLOAT(ACC_TRANS_MAT01, 0.0),
-	PARAM_DEFINE_FLOAT(ACC_TRANS_MAT02, 0.0),
-	PARAM_DEFINE_FLOAT(ACC_TRANS_MAT10, 0.0),
-	PARAM_DEFINE_FLOAT(ACC_TRANS_MAT11, 1.0),
-	PARAM_DEFINE_FLOAT(ACC_TRANS_MAT12, 0.0),
-	PARAM_DEFINE_FLOAT(ACC_TRANS_MAT20, 0.0),
-	PARAM_DEFINE_FLOAT(ACC_TRANS_MAT21, 0.0),
-	PARAM_DEFINE_FLOAT(ACC_TRANS_MAT22, 1.0),
+	PARAM_DEFINE_FLOAT(ACC_BIAS_X, 0.0),
+	PARAM_DEFINE_FLOAT(ACC_BIAS_Y, 0.0),
+	PARAM_DEFINE_FLOAT(ACC_BIAS_Z, 0.0),
+	PARAM_DEFINE_FLOAT(ACC_ROT_MAT_1, 1.0),
+	PARAM_DEFINE_FLOAT(ACC_ROT_MAT_2, 0.0),
+	PARAM_DEFINE_FLOAT(ACC_ROT_MAT_3, 0.0),
+	PARAM_DEFINE_FLOAT(ACC_ROT_MAT_4, 0.0),
+	PARAM_DEFINE_FLOAT(ACC_ROT_MAT_5, 1.0),
+	PARAM_DEFINE_FLOAT(ACC_ROT_MAT_6, 0.0),
+	PARAM_DEFINE_FLOAT(ACC_ROT_MAT_7, 0.0),
+	PARAM_DEFINE_FLOAT(ACC_ROT_MAT_8, 0.0),
+	PARAM_DEFINE_FLOAT(ACC_ROT_MAT_9, 1.0),
 	PARAM_DEFINE_UINT32(ACC_CALIB, 0),
-	PARAM_DEFINE_FLOAT(MAG_X_OFFSET, 0.0),
-	PARAM_DEFINE_FLOAT(MAG_Y_OFFSET, 0.0),
-	PARAM_DEFINE_FLOAT(MAG_Z_OFFSET, 0.0),
-	PARAM_DEFINE_FLOAT(MAG_TRANS_MAT00, 1.0),
-	PARAM_DEFINE_FLOAT(MAG_TRANS_MAT01, 0.0),
-	PARAM_DEFINE_FLOAT(MAG_TRANS_MAT02, 0.0),
-	PARAM_DEFINE_FLOAT(MAG_TRANS_MAT10, 0.0),
-	PARAM_DEFINE_FLOAT(MAG_TRANS_MAT11, 1.0),
-	PARAM_DEFINE_FLOAT(MAG_TRANS_MAT12, 0.0),
-	PARAM_DEFINE_FLOAT(MAG_TRANS_MAT20, 0.0),
-	PARAM_DEFINE_FLOAT(MAG_TRANS_MAT21, 0.0),
-	PARAM_DEFINE_FLOAT(MAG_TRANS_MAT22, 1.0),
+	PARAM_DEFINE_FLOAT(MAG_BIAS_X, 0.0),
+	PARAM_DEFINE_FLOAT(MAG_BIAS_Y, 0.0),
+	PARAM_DEFINE_FLOAT(MAG_BIAS_Z, 0.0),
+	PARAM_DEFINE_FLOAT(MAG_ROT_MAT_1, 1.0),
+	PARAM_DEFINE_FLOAT(MAG_ROT_MAT_2, 0.0),
+	PARAM_DEFINE_FLOAT(MAG_ROT_MAT_3, 0.0),
+	PARAM_DEFINE_FLOAT(MAG_ROT_MAT_4, 0.0),
+	PARAM_DEFINE_FLOAT(MAG_ROT_MAT_5, 1.0),
+	PARAM_DEFINE_FLOAT(MAG_ROT_MAT_6, 0.0),
+	PARAM_DEFINE_FLOAT(MAG_ROT_MAT_7, 0.0),
+	PARAM_DEFINE_FLOAT(MAG_ROT_MAT_8, 0.0),
+	PARAM_DEFINE_FLOAT(MAG_ROT_MAT_9, 1.0),
 	PARAM_DEFINE_UINT32(MAG_CALIB, 0),
 };
 
-PARAM_GROUP(ATT_CONTROLLER) PARAM_DECLARE_GROUP(ATT_CONTROLLER) = \
+PARAM_GROUP(SYSTEM) PARAM_DECLARE_GROUP(SYSTEM) = \
 {
 	\
-	PARAM_DEFINE_FLOAT(ATT_ROLL_P, 0.1),
-	PARAM_DEFINE_FLOAT(ATT_ROLL_RATE_P, 0.05),
-	PARAM_DEFINE_FLOAT(ATT_ROLL_RATE_I, 0.05),
-	PARAM_DEFINE_FLOAT(ATT_ROLL_RATE_D, 0.0005),
-	PARAM_DEFINE_FLOAT(ATT_PITCH_P, 0.1),
-	PARAM_DEFINE_FLOAT(ATT_PITCH_RATE_P, 0.05),
-	PARAM_DEFINE_FLOAT(ATT_PITCH_RATE_I, 0.05),
-	PARAM_DEFINE_FLOAT(ATT_PITCH_RATE_D, 0.0005),
-	PARAM_DEFINE_FLOAT(ATT_YAW_P, 0.1),
-	PARAM_DEFINE_FLOAT(ATT_YAW_RATE_P, 0.2),
-	PARAM_DEFINE_FLOAT(ATT_YAW_RATE_I, 0.05),
-	PARAM_DEFINE_FLOAT(ATT_YAW_RATE_D, 0.0005),
-	PARAM_DEFINE_FLOAT(ATT_ROLLOUT_LIM, 0.5),
-	PARAM_DEFINE_FLOAT(ATT_PITCHOUT_LIM, 0.5),
-	PARAM_DEFINE_FLOAT(ATT_YAWOUT_LIM, 0.2),
-	PARAM_DEFINE_FLOAT(ATT_ROLLR_I_LIM, 0.1),
-	PARAM_DEFINE_FLOAT(ATT_PITCHR_I_LIM, 0.1),
-	PARAM_DEFINE_FLOAT(ATT_YAWR_I_LIM, 0.1),
-};
-
-PARAM_GROUP(ALT_CONTROLLER) PARAM_DECLARE_GROUP(ALT_CONTROLLER) = \
-{
-	\
-	PARAM_DEFINE_FLOAT(ALT_P, 1.0),
-	PARAM_DEFINE_FLOAT(ALT_RATE_P, 4.0),
-	PARAM_DEFINE_FLOAT(ALT_ACC_P, 0.35),
-	PARAM_DEFINE_FLOAT(ALT_ACC_I, 0.85),
-	PARAM_DEFINE_FLOAT(ALT_ACC_D, 0.002),
-	PARAM_DEFINE_FLOAT(ALT_ERR_MIN, -200.0),
-	PARAM_DEFINE_FLOAT(ALT_ERR_MAX, 200.0),
-	PARAM_DEFINE_FLOAT(VEL_ERR_MIN, -400),
-	PARAM_DEFINE_FLOAT(VEL_ERR_MAX, 400),
-	PARAM_DEFINE_FLOAT(ACC_ERR_MIN, -600),
-	PARAM_DEFINE_FLOAT(ACC_ERR_MAX, 600),
-	PARAM_DEFINE_FLOAT(ALT_OUTPUT_MIN, -250.0),
-	PARAM_DEFINE_FLOAT(ALT_OUTPUT_MAX, 250.0),
-	PARAM_DEFINE_FLOAT(VEL_OUTPUT_MIN, -600),
-	PARAM_DEFINE_FLOAT(VEL_OUTPUT_MAX, 600),
-	PARAM_DEFINE_FLOAT(ACC_OUTPUT_MIN, 100),
-	PARAM_DEFINE_FLOAT(ACC_OUTPUT_MAX, 900),
-	PARAM_DEFINE_FLOAT(ACC_I_MIN, -300),
-	PARAM_DEFINE_FLOAT(ACC_I_MAX, 300),
-	PARAM_DEFINE_INT32(FEEDFORWARD_EN, 1),
-	PARAM_DEFINE_INT32(ACC_ERR_LPF_EN, 1),
-	PARAM_DEFINE_FLOAT(ACC_ERR_LPF_FREQ, 5), /* LPF CUTOFF FREQ */
-};
-
-PARAM_GROUP(ADRC_ATT) PARAM_DECLARE_GROUP(ADRC_ATT) = \
-{
-	\
-	PARAM_DEFINE_INT32(ADRC_ENABLE, 1),
-	PARAM_DEFINE_INT32(ADRC_MODE, 1),		// MODE1: FULL ADRC		MODE2: PID + LESO
-	PARAM_DEFINE_FLOAT(TD_CONTROL_R2, 25.0f),
-	PARAM_DEFINE_FLOAT(TD_CONTROL_H2F, 20.0f),
-	PARAM_DEFINE_FLOAT(TD_R0, 1000.0f),
-	PARAM_DEFINE_FLOAT(NLSEF_R1, 100.0f),
-	PARAM_DEFINE_FLOAT(NLSEF_H1F, 50.0f),
-	PARAM_DEFINE_FLOAT(NLSEF_C, 0.01f),
-	PARAM_DEFINE_FLOAT(NLSEF_KI, 0.05f),
-	PARAM_DEFINE_FLOAT(LESO_W, 120.0f),
-//	PARAM_DEFINE_FLOAT(ADRC_BETA1, 70.0f),
-//	PARAM_DEFINE_FLOAT(ADRC_BETA2, 2500.0f),
-//	PARAM_DEFINE_FLOAT(ADRC_ALPHA, 0.25f),
-//	PARAM_DEFINE_FLOAT(ADRC_DELTA, 0.1f),
-	PARAM_DEFINE_FLOAT(T_UP, 0.0125f),
-	PARAM_DEFINE_FLOAT(T_DOWN, 0.025f),
-	PARAM_DEFINE_FLOAT(GAMMA, 0.50f),
-	PARAM_DEFINE_FLOAT(B0, 400.0f),
-};
-
-PARAM_GROUP(HIL_SIM) PARAM_DECLARE_GROUP(HIL_SIM) = \
-{
-	\
-	PARAM_DEFINE_UINT32(HIL_ATT_EST_PRD, 4),  /* ATT EST PERIOD */
-	PARAM_DEFINE_UINT32(HIL_POS_EST_PRD, 10), /* POS EST PERIOD */
-	PARAM_DEFINE_UINT32(HIL_CONTROL_PRD, 4),  /* CONTROL PERIOD */
+	PARAM_DEFINE_UINT8(LOG_AUTO_START, 0),
 };
 
 /* step 4: Define param list */
 param_list_t param_list = { \
                             PARAM_DEFINE_GROUP(CALIBRATION),
-                            PARAM_DEFINE_GROUP(ATT_CONTROLLER),
-                            PARAM_DEFINE_GROUP(ALT_CONTROLLER),
-                            PARAM_DEFINE_GROUP(ADRC_ATT),
-                            PARAM_DEFINE_GROUP(HIL_SIM),
+                            PARAM_DEFINE_GROUP(SYSTEM),
                           };
 /* Define Parameter End */
 
@@ -251,16 +173,37 @@ uint32_t param_get_info_index(char* param_name)
 int param_set_by_info(param_info_t* param, float val)
 {
 	switch(param->type) {
+
+		case PARAM_TYPE_INT8:
+			memcpy(&(param->val.i8), &val, sizeof(param->val.i8));
+			break;
+
+		case PARAM_TYPE_UINT8:
+			memcpy(&(param->val.u8), &val, sizeof(param->val.u8));
+			break;
+
+		case PARAM_TYPE_INT16:
+			memcpy(&(param->val.i16), &val, sizeof(param->val.i16));
+			break;
+
+		case PARAM_TYPE_UINT16:
+			memcpy(&(param->val.u16), &val, sizeof(param->val.u16));
+			break;
+
+		case PARAM_TYPE_INT32:
+			memcpy(&(param->val.i32), &val, sizeof(param->val.i32));
+			break;
+
+		case PARAM_TYPE_UINT32:
+			memcpy(&(param->val.u32), &val, sizeof(param->val.u32));
+			break;
+
 		case PARAM_TYPE_FLOAT:
 			param->val.f = val;
 			break;
 
-		case PARAM_TYPE_INT32:
-			memcpy(&(param->val.i), &val, sizeof(param->val.i));
-			break;
-
-		case PARAM_TYPE_UINT32:
-			memcpy(&(param->val.u), &val, sizeof(param->val.u));
+		case PARAM_TYPE_DOUBLE:
+			param->val.lf = val;
 			break;
 
 		default:
@@ -276,16 +219,37 @@ int param_set_by_info(param_info_t* param, float val)
 int param_get_by_info(param_info_t* param, float* val)
 {
 	switch(param->type) {
+
+		case PARAM_TYPE_INT8:
+			memcpy(&val, &(param->val.i8), sizeof(param->val.i8));
+			break;
+
+		case PARAM_TYPE_UINT8:
+			memcpy(&val, &(param->val.u8), sizeof(param->val.u8));
+			break;
+
+		case PARAM_TYPE_INT16:
+			memcpy(&val, &(param->val.i16), sizeof(param->val.i16));
+			break;
+
+		case PARAM_TYPE_UINT16:
+			memcpy(&val, &(param->val.u16), sizeof(param->val.u16));
+			break;
+
+		case PARAM_TYPE_INT32:
+			memcpy(&val, &(param->val.i32), sizeof(param->val.i32));
+			break;
+
+		case PARAM_TYPE_UINT32:
+			memcpy(&val, &(param->val.u32), sizeof(param->val.u32));
+			break;
+
 		case PARAM_TYPE_FLOAT:
 			*val = param->val.f;
 			break;
 
-		case PARAM_TYPE_INT32:
-			memcpy(&val, &(param->val.i), sizeof(param->val.i));
-			break;
-
-		case PARAM_TYPE_UINT32:
-			memcpy(&val, &(param->val.u), sizeof(param->val.u));
+		case PARAM_TYPE_DOUBLE:
+			*val = param->val.lf;
 			break;
 
 		default:
@@ -306,6 +270,46 @@ void param_show_group_list(void)
 	}
 }
 
+void param_disp(param_info_t* p)
+{
+	if(p == NULL)
+		return;
+
+	Console.print("%25s: ", p->name);
+
+	if(p->type == PARAM_TYPE_INT8) {
+		Console.print("%d\n", p->val.i8);
+	}
+
+	if(p->type == PARAM_TYPE_UINT8) {
+		Console.print("%d\n", p->val.u8);
+	}
+
+	if(p->type == PARAM_TYPE_INT16) {
+		Console.print("%d\n", p->val.i16);
+	}
+
+	if(p->type == PARAM_TYPE_UINT16) {
+		Console.print("%d\n", p->val.u16);
+	}
+
+	if(p->type == PARAM_TYPE_INT32) {
+		Console.print("%d\n", p->val.i32);
+	}
+
+	if(p->type == PARAM_TYPE_UINT32) {
+		Console.print("%d\n", p->val.u32);
+	}
+
+	if(p->type == PARAM_TYPE_FLOAT) {
+		Console.print("%f\n", p->val.f);
+	}
+
+	if(p->type == PARAM_TYPE_DOUBLE) {
+		Console.print("%lf\n", p->val.lf);
+	}
+}
+
 void param_dump(void)
 {
 	param_info_t* p;
@@ -316,20 +320,7 @@ void param_dump(void)
 		p = gp->content;
 
 		for(int i = 0 ; i < gp->param_num ; i++) {
-			Console.print("%25s: ", p->name);
-
-			if(p->type == PARAM_TYPE_INT32) {
-				Console.print("%d\n", p->val.i);
-			}
-
-			if(p->type == PARAM_TYPE_UINT32) {
-				Console.print("%d\n", p->val.u);
-			}
-
-			if(p->type == PARAM_TYPE_FLOAT) {
-				Console.print("%f\n", p->val.f);
-			}
-
+			param_disp(p);
 			p++;
 		}
 
@@ -348,20 +339,7 @@ int param_dump_group(char* group_name)
 			p = gp->content;
 
 			for(int i = 0 ; i < gp->param_num ; i++) {
-				Console.print("%25s: ", p->name);
-
-				if(p->type == PARAM_TYPE_INT32) {
-					Console.print("%d\n", p->val.i);
-				}
-
-				if(p->type == PARAM_TYPE_UINT32) {
-					Console.print("%d\n", p->val.u);
-				}
-
-				if(p->type == PARAM_TYPE_FLOAT) {
-					Console.print("%f\n", p->val.f);
-				}
-
+				param_disp(p);
 				p++;
 			}
 
@@ -379,19 +357,7 @@ int param_dump_param(char* group_name, char* param_name)
 	param_info_t* p = param_get(group_name, param_name);
 
 	if(p != NULL) {
-		Console.print("%25s: ", p->name);
-
-		if(p->type == PARAM_TYPE_INT32) {
-			Console.print("%d\n", p->val.i);
-		}
-
-		if(p->type == PARAM_TYPE_UINT32) {
-			Console.print("%d\n", p->val.u);
-		}
-
-		if(p->type == PARAM_TYPE_FLOAT) {
-			Console.print("%f\n", p->val.f);
-		}
+		param_disp(p);
 
 		return 1;
 	}
@@ -427,24 +393,40 @@ int param_set(char* group_name, char* param_name, char* val)
 	param_info_t* p = param_get(group_name, param_name);
 
 	if(p != NULL) {
+		if(p->type == PARAM_TYPE_INT8) {
+			p->val.i8 = atoi(val);
+		}
+
+		if(p->type == PARAM_TYPE_UINT8) {
+			p->val.u8 = atoi(val);
+		}
+
+		if(p->type == PARAM_TYPE_INT16) {
+			p->val.i16 = atoi(val);
+		}
+
+		if(p->type == PARAM_TYPE_UINT16) {
+			p->val.u16 = atoi(val);
+		}
+
 		if(p->type == PARAM_TYPE_INT32) {
-			p->val.i = atoi(val);
-			//Console.print("%s in group %s is set to %d\n", param_name, group_name, p->val.i);
+			p->val.i32 = atoi(val);
 		}
 
 		if(p->type == PARAM_TYPE_UINT32) {
-			p->val.u = atoi(val);
-			//Console.print("%s in group %s is set to %d\n", param_name, group_name, p->val.u);
+			p->val.u32 = atoi(val);
 		}
 
 		if(p->type == PARAM_TYPE_FLOAT) {
 			p->val.f = atof(val);
-			//Console.print("%s in group %s is set to %f\n", param_name, group_name, p->val.f);
+		}
+
+		if(p->type == PARAM_TYPE_DOUBLE) {
+			p->val.lf = atof(val);
 		}
 
 		return 0;
 	} else {
-		//Console.print("can not find %s in group %s\n", param_name, group_name);
 		return 1;
 	}
 }
@@ -581,7 +563,7 @@ int param_parse_state_machine(yxml_t* x, yxml_ret_t r, PARAM_PARSE_STATE* status
 
 			if(r == YXML_ELEMEND) {
 				content[attr_cnt] = '\0';
-				//Console.print("val %s\n", content);
+
 				attr_cnt = 0;
 				*status = PARAM_PARSE_PARAM;
 
@@ -610,31 +592,49 @@ void param_store(void)
 			param_group_info* gp = (param_group_info*)&param_list;
 
 			for(int j = 0 ; j < sizeof(param_list) / sizeof(param_group_info) ; j++) {
-				//Console.print("%s:\n", gp->name);
 				/* add group element */
 				f_printf(&fp, "\x20\x20<group name=\"%s\">\n", gp->name);
 				p = gp->content;
 
 				for(int i = 0 ; i < gp->param_num ; i++) {
 					/* add param element */
-					//Console.print("%25s: ", p->name);
 					f_printf(&fp, "\x20\x20\x20\x20<param name=\"%s\">\n", p->name);
 
 					/* add value element */
+					if(p->type == PARAM_TYPE_INT8) {
+						f_printf(&fp, "\x20\x20\x20\x20\x20\x20<value>%d</value>\n", p->val.i8);
+					}
+
+					if(p->type == PARAM_TYPE_UINT8) {
+						f_printf(&fp, "\x20\x20\x20\x20\x20\x20<value>%d</value>\n", p->val.u8);
+					}
+
+					if(p->type == PARAM_TYPE_INT16) {
+						f_printf(&fp, "\x20\x20\x20\x20\x20\x20<value>%d</value>\n", p->val.i16);
+					}
+
+					if(p->type == PARAM_TYPE_UINT16) {
+						f_printf(&fp, "\x20\x20\x20\x20\x20\x20<value>%d</value>\n", p->val.u16);
+					}
+
 					if(p->type == PARAM_TYPE_INT32) {
-						//Console.print("%d\n", p->val.i);
-						f_printf(&fp, "\x20\x20\x20\x20\x20\x20<value>%d</value>\n", p->val.i);
+						f_printf(&fp, "\x20\x20\x20\x20\x20\x20<value>%d</value>\n", p->val.i32);
 					}
 
 					if(p->type == PARAM_TYPE_UINT32) {
-						//Console.print("%d\n", p->val.u);
-						f_printf(&fp, "\x20\x20\x20\x20\x20\x20<value>%d</value>\n", p->val.u);
+						f_printf(&fp, "\x20\x20\x20\x20\x20\x20<value>%d</value>\n", p->val.u32);
 					}
 
 					if(p->type == PARAM_TYPE_FLOAT) {
-						//Console.print("%f\n", p->val.f);
 						char val[32];
 						sprintf(val, "%f", p->val.f);
+						/* f_printf do not support %f */
+						f_printf(&fp, "\x20\x20\x20\x20\x20\x20<value>%s</value>\n", val);
+					}
+
+					if(p->type == PARAM_TYPE_DOUBLE) {
+						char val[50];
+						sprintf(val, "%lf", p->val.lf);
 						/* f_printf do not support %f */
 						f_printf(&fp, "\x20\x20\x20\x20\x20\x20<value>%s</value>\n", val);
 					}
@@ -722,12 +722,10 @@ int handle_param_shell_cmd(int argc, char** argv)
 		param_num = argc - flag_cnt;
 
 		if(strcmp(argv[1], "load") == 0) {
-			//load_param(global_param_t);
 			param_load();
 		}
 
 		if(strcmp(argv[1], "store") == 0) {
-			//store_param(global_param_t);
 			param_store();
 		}
 

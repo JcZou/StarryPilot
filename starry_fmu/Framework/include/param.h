@@ -54,15 +54,25 @@ typedef struct {
 } PARAM_Def;
 
 typedef union {
-	int32_t		i;
-	uint32_t	u;
+	int8_t		i8;
+	uint8_t		u8;
+	int16_t		i16;
+	uint16_t	u16;
+	int32_t		i32;
+	uint32_t	u32;
 	float		f;
+	double		lf;
 } param_value_t;
 
 typedef enum {
-	PARAM_TYPE_INT32 = 0,
+	PARAM_TYPE_INT8 = 0,
+	PARAM_TYPE_UINT8,
+	PARAM_TYPE_INT16,
+	PARAM_TYPE_UINT16,
+	PARAM_TYPE_INT32,
 	PARAM_TYPE_UINT32,
 	PARAM_TYPE_FLOAT,
+	PARAM_TYPE_DOUBLE,
 	PARAM_TYPE_UNKNOWN = 0xffff
 } param_type_t;
 
@@ -73,18 +83,47 @@ typedef struct {
 } param_info_t;
 
 #define PARAM_DECLARE(_name)					param_info_t _name
+
+#define PARAM_DEFINE_INT8(_name, _default) \
+			{ \
+				.name = #_name, \
+				.type = PARAM_TYPE_INT8, \
+				.val.i8 = _default \
+			}
+
+#define PARAM_DEFINE_UINT8(_name, _default) \
+			{ \
+				.name = #_name, \
+				.type = PARAM_TYPE_UINT8, \
+				.val.u8 = _default \
+			}
+
+#define PARAM_DEFINE_INT16(_name, _default) \
+			{ \
+				.name = #_name, \
+				.type = PARAM_TYPE_INT16, \
+				.val.i16 = _default \
+			}
+
+#define PARAM_DEFINE_UINT16(_name, _default) \
+			{ \
+				.name = #_name, \
+				.type = PARAM_TYPE_UINT16, \
+				.val.u16 = _default \
+			}
+
 #define PARAM_DEFINE_INT32(_name, _default) \
 			{ \
 				.name = #_name, \
 				.type = PARAM_TYPE_INT32, \
-				.val.i = _default \
+				.val.i32 = _default \
 			}
 
 #define PARAM_DEFINE_UINT32(_name, _default) \
 			{ \
 				.name = #_name, \
 				.type = PARAM_TYPE_UINT32, \
-				.val.u = _default \
+				.val.u32 = _default \
 			}
 
 #define PARAM_DEFINE_FLOAT(_name, _default) \
@@ -92,6 +131,13 @@ typedef struct {
 				.name = #_name, \
 				.type = PARAM_TYPE_FLOAT, \
 				.val.f = _default \
+			}
+
+#define PARAM_DEFINE_DOUBLE(_name, _default) \
+			{ \
+				.name = #_name, \
+				.type = PARAM_TYPE_DOUBLE, \
+				.val.lf = _default \
 			}
 
 #define PARAM_GROUP(_group)						_param_##_group
@@ -105,123 +151,64 @@ typedef struct {
 
 /* step 1: Parameter Declare */
 typedef struct {
-	PARAM_DECLARE(GYR_X_OFFSET);
-	PARAM_DECLARE(GYR_Y_OFFSET);
-	PARAM_DECLARE(GYR_Z_OFFSET);
+	PARAM_DECLARE(GYR_BIAS_X);
+	PARAM_DECLARE(GYR_BIAS_Y);
+	PARAM_DECLARE(GYR_BIAS_Z);
 	PARAM_DECLARE(GYR_X_GAIN);
 	PARAM_DECLARE(GYR_Y_GAIN);
 	PARAM_DECLARE(GYR_Z_GAIN);
 	PARAM_DECLARE(GYR_CALIB);
-	PARAM_DECLARE(ACC_X_OFFSET);
-	PARAM_DECLARE(ACC_Y_OFFSET);
-	PARAM_DECLARE(ACC_Z_OFFSET);
-	PARAM_DECLARE(ACC_TRANS_MAT00);
-	PARAM_DECLARE(ACC_TRANS_MAT01);
-	PARAM_DECLARE(ACC_TRANS_MAT02);
-	PARAM_DECLARE(ACC_TRANS_MAT10);
-	PARAM_DECLARE(ACC_TRANS_MAT11);
-	PARAM_DECLARE(ACC_TRANS_MAT12);
-	PARAM_DECLARE(ACC_TRANS_MAT20);
-	PARAM_DECLARE(ACC_TRANS_MAT21);
-	PARAM_DECLARE(ACC_TRANS_MAT22);
+	PARAM_DECLARE(ACC_BIAS_X);
+	PARAM_DECLARE(ACC_BIAS_Y);
+	PARAM_DECLARE(ACC_BIAS_Z);
+	PARAM_DECLARE(ACC_ROT_MAT_1);
+	PARAM_DECLARE(ACC_ROT_MAT_2);
+	PARAM_DECLARE(ACC_ROT_MAT_3);
+	PARAM_DECLARE(ACC_ROT_MAT_4);
+	PARAM_DECLARE(ACC_ROT_MAT_5);
+	PARAM_DECLARE(ACC_ROT_MAT_6);
+	PARAM_DECLARE(ACC_ROT_MAT_7);
+	PARAM_DECLARE(ACC_ROT_MAT_8);
+	PARAM_DECLARE(ACC_ROT_MAT_9);
 	PARAM_DECLARE(ACC_CALIB);
-	PARAM_DECLARE(MAG_X_OFFSET);
-	PARAM_DECLARE(MAG_Y_OFFSET);
-	PARAM_DECLARE(MAG_Z_OFFSET);
-	PARAM_DECLARE(MAG_TRANS_MAT00);
-	PARAM_DECLARE(MAG_TRANS_MAT01);
-	PARAM_DECLARE(MAG_TRANS_MAT02);
-	PARAM_DECLARE(MAG_TRANS_MAT10);
-	PARAM_DECLARE(MAG_TRANS_MAT11);
-	PARAM_DECLARE(MAG_TRANS_MAT12);
-	PARAM_DECLARE(MAG_TRANS_MAT20);
-	PARAM_DECLARE(MAG_TRANS_MAT21);
-	PARAM_DECLARE(MAG_TRANS_MAT22);
+	PARAM_DECLARE(MAG_BIAS_X);
+	PARAM_DECLARE(MAG_BIAS_Y);
+	PARAM_DECLARE(MAG_BIAS_Z);
+	PARAM_DECLARE(MAG_ROT_MAT_1);
+	PARAM_DECLARE(MAG_ROT_MAT_2);
+	PARAM_DECLARE(MAG_ROT_MAT_3);
+	PARAM_DECLARE(MAG_ROT_MAT_4);
+	PARAM_DECLARE(MAG_ROT_MAT_5);
+	PARAM_DECLARE(MAG_ROT_MAT_6);
+	PARAM_DECLARE(MAG_ROT_MAT_7);
+	PARAM_DECLARE(MAG_ROT_MAT_8);
+	PARAM_DECLARE(MAG_ROT_MAT_9);
 	PARAM_DECLARE(MAG_CALIB);
 } PARAM_GROUP(CALIBRATION);
 
 typedef struct {
-	PARAM_DECLARE(ATT_ROLL_P);
-	PARAM_DECLARE(ATT_ROLL_RATE_P);
-	PARAM_DECLARE(ATT_ROLL_RATE_I);
-	PARAM_DECLARE(ATT_ROLL_RATE_D);
-	PARAM_DECLARE(ATT_PITCH_P);
-	PARAM_DECLARE(ATT_PITCH_RATE_P);
-	PARAM_DECLARE(ATT_PITCH_RATE_I);
-	PARAM_DECLARE(ATT_PITCH_RATE_D);
-	PARAM_DECLARE(ATT_YAW_P);
-	PARAM_DECLARE(ATT_YAW_RATE_P);
-	PARAM_DECLARE(ATT_YAW_RATE_I);
-	PARAM_DECLARE(ATT_YAW_RATE_D);
-	PARAM_DECLARE(ATT_ROLLOUT_LIM);
-	PARAM_DECLARE(ATT_PITCHOUT_LIM);
-	PARAM_DECLARE(ATT_YAWOUT_LIM);
-	PARAM_DECLARE(ATT_ROLLR_I_LIM);
-	PARAM_DECLARE(ATT_PITCHR_I_LIM);
-	PARAM_DECLARE(ATT_YAWR_I_LIM);
-} PARAM_GROUP(ATT_CONTROLLER);
-
-typedef struct {
-	PARAM_DECLARE(ALT_P);
-	PARAM_DECLARE(ALT_RATE_P);
-	PARAM_DECLARE(ALT_ACC_P);
-	PARAM_DECLARE(ALT_ACC_I);
-	PARAM_DECLARE(ALT_ACC_D);
-	PARAM_DECLARE(ALT_ERR_MIN);
-	PARAM_DECLARE(ALT_ERR_MAX);
-	PARAM_DECLARE(VEL_ERR_MIN);
-	PARAM_DECLARE(VEL_ERR_MAX);
-	PARAM_DECLARE(ACC_ERR_MIN);
-	PARAM_DECLARE(ACC_ERR_MAX);
-	PARAM_DECLARE(ALT_OUTPUT_MIN);
-	PARAM_DECLARE(ALT_OUTPUT_MAX);
-	PARAM_DECLARE(VEL_OUTPUT_MIN);
-	PARAM_DECLARE(VEL_OUTPUT_MAX);
-	PARAM_DECLARE(ACC_OUTPUT_MIN);
-	PARAM_DECLARE(ACC_OUTPUT_MAX);
-	PARAM_DECLARE(ACC_I_MIN);
-	PARAM_DECLARE(ACC_I_MAX);
-	PARAM_DECLARE(FEEDFORWARD_EN);
-	PARAM_DECLARE(ACC_ERR_LPF_EN);
-	PARAM_DECLARE(ACC_ERR_LPF_FREQ);
-} PARAM_GROUP(ALT_CONTROLLER);
-
-typedef struct {
-	PARAM_DECLARE(ADRC_ENABLE);
-	PARAM_DECLARE(ADRC_MODE);
-	PARAM_DECLARE(TD_CONTROL_R2);
-	PARAM_DECLARE(TD_CONTROL_H2F);
-	PARAM_DECLARE(TD_R0);
-	PARAM_DECLARE(NLSEF_R1);
-	PARAM_DECLARE(NLSEF_H1F);
-	PARAM_DECLARE(NLSEF_C);
-	PARAM_DECLARE(NLSEF_KI);
-	PARAM_DECLARE(LESO_W);
-//	PARAM_DECLARE(ADRC_BETA1);
-//	PARAM_DECLARE(ADRC_BETA2);
-//	PARAM_DECLARE(ADRC_ALPHA);
-//	PARAM_DECLARE(ADRC_DELTA);
-	PARAM_DECLARE(T_UP);
-	PARAM_DECLARE(T_DOWN);
-	PARAM_DECLARE(GAMMA);
-	PARAM_DECLARE(B0);
-} PARAM_GROUP(ADRC_ATT);
-
-typedef struct {
-	PARAM_DECLARE(HIL_ATT_EST_PRD);
-	PARAM_DECLARE(HIL_POS_EST_PRD);
-	PARAM_DECLARE(HIL_CONTROL_PRD);
-} PARAM_GROUP(HIL_SIM);
+	PARAM_DECLARE(LOG_AUTO_START);
+} PARAM_GROUP(SYSTEM);
 /* Parameter Declare End */
 
 #define PARAM_GET(_group, _name)				((_param_##_group *)(param_list._param_##_group.content))->_name
-#define PARAM_GET_INT32(_group, _name)			((_param_##_group *)(param_list._param_##_group.content))->_name.val.i
-#define PARAM_GET_UINT32(_group, _name)			((_param_##_group *)(param_list._param_##_group.content))->_name.val.u
+#define PARAM_GET_INT8(_group, _name)			((_param_##_group *)(param_list._param_##_group.content))->_name.val.i8
+#define PARAM_GET_UINT8(_group, _name)			((_param_##_group *)(param_list._param_##_group.content))->_name.val.u8
+#define PARAM_GET_INT16(_group, _name)			((_param_##_group *)(param_list._param_##_group.content))->_name.val.i16
+#define PARAM_GET_UINT16(_group, _name)			((_param_##_group *)(param_list._param_##_group.content))->_name.val.u16
+#define PARAM_GET_INT32(_group, _name)			((_param_##_group *)(param_list._param_##_group.content))->_name.val.i32
+#define PARAM_GET_UINT32(_group, _name)			((_param_##_group *)(param_list._param_##_group.content))->_name.val.u32
 #define PARAM_GET_FLOAT(_group, _name)			((_param_##_group *)(param_list._param_##_group.content))->_name.val.f
+#define PARAM_GET_DOUBLE(_group, _name)			((_param_##_group *)(param_list._param_##_group.content))->_name.val.lf
 
-#define PARAM_SET_INT32(_group, _name, _val)	((_param_##_group *)(param_list._param_##_group.content))->_name.val.i = _val
-#define PARAM_SET_UINT32(_group, _name, _val)	((_param_##_group *)(param_list._param_##_group.content))->_name.val.u = _val
+#define PARAM_SET_INT8(_group, _name, _val)		((_param_##_group *)(param_list._param_##_group.content))->_name.val.i8 = _val
+#define PARAM_SET_UINT8(_group, _name, _val)	((_param_##_group *)(param_list._param_##_group.content))->_name.val.u8 = _val
+#define PARAM_SET_INT16(_group, _name, _val)	((_param_##_group *)(param_list._param_##_group.content))->_name.val.i16 = _val
+#define PARAM_SET_UINT16(_group, _name, _val)	((_param_##_group *)(param_list._param_##_group.content))->_name.val.u16 = _val
+#define PARAM_SET_INT32(_group, _name, _val)	((_param_##_group *)(param_list._param_##_group.content))->_name.val.i32 = _val
+#define PARAM_SET_UINT32(_group, _name, _val)	((_param_##_group *)(param_list._param_##_group.content))->_name.val.u32 = _val
 #define PARAM_SET_FLOAT(_group, _name, _val)	((_param_##_group *)(param_list._param_##_group.content))->_name.val.f = _val
+#define PARAM_SET_DOUBLE(_group, _name, _val)	((_param_##_group *)(param_list._param_##_group.content))->_name.val.lf = _val
 
 typedef struct {
 	const char* name;
@@ -232,10 +219,7 @@ typedef struct {
 /* step 2: param list declare */
 typedef struct {
 	param_group_info	PARAM_GROUP(CALIBRATION);
-	param_group_info	PARAM_GROUP(ATT_CONTROLLER);
-	param_group_info	PARAM_GROUP(ALT_CONTROLLER);
-	param_group_info	PARAM_GROUP(ADRC_ATT);
-	param_group_info	PARAM_GROUP(HIL_SIM);
+	param_group_info	PARAM_GROUP(SYSTEM);
 } param_list_t;
 
 extern param_list_t param_list;
