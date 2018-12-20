@@ -630,7 +630,7 @@ void mavproxy_rx_entry(void* param)
 				break;
 
 				default : {
-					//Console.print("mav unknown msg:%d\n", msg.msgid);
+					Console.print("mav unknown msg:%d\n", msg.msgid);
 				} break;
 			}
 		}

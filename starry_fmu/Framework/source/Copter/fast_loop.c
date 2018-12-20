@@ -40,6 +40,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "logger.h"
 #include "param.h"
 #include "quaternion.h"
+#include "file_manager.h"
+#include "logger.h"
 
 #define EVENT_FAST_LOOP				(1<<0)
 #define INS_STEP_PERIOD				2
@@ -225,6 +227,11 @@ void fastloop_entry(void* parameter)
 	INS_U.Sensor_Param_j.mag_bias[0] = PARAM_GET_FLOAT(CALIBRATION, MAG_X_OFFSET);
 	INS_U.Sensor_Param_j.mag_bias[1] = PARAM_GET_FLOAT(CALIBRATION, MAG_Y_OFFSET);
 	INS_U.Sensor_Param_j.mag_bias[2] = PARAM_GET_FLOAT(CALIBRATION, MAG_Z_OFFSET);
+
+	/* start logging */
+	if(filemanager_status() == fm_init_ok) {
+		log_auto_start();
+	}
 
 	while(1) {
 		res = rt_event_recv(&event_fastloop, wait_set, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,

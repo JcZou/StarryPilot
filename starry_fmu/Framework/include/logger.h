@@ -58,6 +58,7 @@ typedef struct {
 
 void log_init(void);
 uint8_t log_start(char* file_name);
+uint8_t log_auto_start(void);
 void log_stop(void);
 uint8_t log_write(void);
 uint8_t log_push(uint8_t* payload, uint16_t len);

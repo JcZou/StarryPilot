@@ -339,7 +339,7 @@ uint8_t log_start(char* file_name)
 	return res;
 }
 
-uint8_t log_start_auto(void)
+uint8_t log_auto_start(void)
 {
 	DIR dir;
 	FILINFO fno;
