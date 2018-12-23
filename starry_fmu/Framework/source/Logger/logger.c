@@ -14,6 +14,7 @@
 #include "file_manager.h"
 #include "console.h"
 #include "logger.h"
+#include "msh_usr_cmd.h"
 
 static char* TAG = "Logger";
 
@@ -110,15 +111,6 @@ log_elem_t _INS_Out_elem[] = {
 	LOG_ELEMENT("timestamp_ms", LOG_UINT32)
 };
 
-log_elem_t _Sensor_Param_elem[] = {
-	LOG_ELEMENT_ARRAY("gyr_rotM", LOG_FLOAT, 9),
-	LOG_ELEMENT("gyr_bias", LOG_FLOAT),
-	LOG_ELEMENT_ARRAY("acc_rotM", LOG_FLOAT, 9),
-	LOG_ELEMENT("acc_bias", LOG_FLOAT),
-	LOG_ELEMENT_ARRAY("mag_rotM", LOG_FLOAT, 9),
-	LOG_ELEMENT("mag_bias", LOG_FLOAT),
-};
-
 /////////////////////////////////////////////////////
 
 log_field_t _log_field_list[] = {
@@ -127,18 +119,42 @@ log_field_t _log_field_list[] = {
 	LOG_FIELD("BARO", 0x03, _BARO_elem),
 	LOG_FIELD("GPS_uBlox", 0x04, _GPS_uBlox_elem),
 	LOG_FIELD("INS_Out", 0x05, _INS_Out_elem),
-	//LOG_FIELD("Sensor_Param", 0x06, _Sensor_Param_elem),
 };
+
+typedef struct
+{
+	uint32_t total_msg;
+	uint32_t lost_msg;
+}log_filed_status;
+
+struct log_status_t
+{
+	uint8_t 			file_name[20];
+	uint8_t 			is_logging;
+	log_filed_status	field_status[sizeof(_log_field_list)/sizeof(log_field_t)];
+}_log_status;
 
 static log_header_t _log_header = { sizeof(_log_field_list) / sizeof(log_field_t), _log_field_list };
 static FIL _log_fid;
 static log_buffer_t _log_buffer;
-static uint8_t _logging = 0;
+// static uint8_t _logging = 0;
+// static uint8_t _log_filename[20];
+
+static int32_t _find_filed_index(uint8_t msg_id)
+{
+	for(int i = 0 ; i < sizeof(_log_field_list)/sizeof(log_field_t) ; i++){
+		if(_log_field_list[i].msg_id == msg_id) {
+			return i;
+		}
+	}	
+
+	return -1;
+}
 
 uint8_t log_push(uint8_t* payload, uint16_t len)
 {
 	// log file log is not open
-	if(_log_fid.fs == NULL || !_logging) {
+	if(_log_fid.fs == NULL || !_log_status.is_logging) {
 		return 1;
 	}
 
@@ -148,7 +164,8 @@ uint8_t log_push(uint8_t* payload, uint16_t len)
 	if(free_space_in_sector < 1 + len) {
 		if((_log_buffer.head + 1) % _log_buffer.num_sector == _log_buffer.tail) {
 			// log buffer is full
-			Console.print("log buffer full\r\n");
+			//Console.print("log buffer full\r\n");
+
 			return 2;
 		}
 	}
@@ -173,7 +190,7 @@ uint8_t log_push_msg(uint8_t* payload, uint8_t msg_id, uint16_t len)
 	uint8_t res = 0;
 
 	// log file log is not open
-	if(_log_fid.fs == NULL || !_logging) {
+	if(_log_fid.fs == NULL || !_log_status.is_logging) {
 		return 1;
 	}
 
@@ -182,8 +199,12 @@ uint8_t log_push_msg(uint8_t* payload, uint8_t msg_id, uint16_t len)
 	// check if buffer is full
 	if(free_space_in_sector < 1 + len) {
 		if((_log_buffer.head + 1) % _log_buffer.num_sector == _log_buffer.tail) {
-			// log buffer is full
-			Console.print("log buffer full\r\n");
+			// log buffer is full, drop this msg
+			int32_t index = _find_filed_index(msg_id);
+
+			if(index >= 0)
+				_log_status.field_status[index].lost_msg += 1;
+
 			return 2;
 		}
 	}
@@ -215,6 +236,11 @@ uint8_t log_push_msg(uint8_t* payload, uint8_t msg_id, uint16_t len)
 		_log_buffer.index += len;
 	}
 
+	int32_t index = _find_filed_index(msg_id);
+
+	if(index >= 0)
+		_log_status.field_status[index].total_msg += 1;
+
 	return 0;
 }
 
@@ -234,16 +260,16 @@ uint8_t log_write(void)
 	tail_p = _log_buffer.tail;
 	OS_EXIT_CRITICAL;
 
-	if(!_logging) {
+	if(!_log_status.is_logging) {
 		if(_log_fid.fs != NULL && head_p == tail_p) { // no log data in buffer
 			f_write(&_log_fid, &_log_buffer.data[tail_p * LOG_BLOCK_SIZE], _log_buffer.index, &bw);
 
 			FRESULT res = f_close(&_log_fid);
 
 			if(res == FR_OK) {
-				Console.print("log stop!\r\n");
+				Console.print("stop logging: %s\n", _log_status.file_name);
 			} else {
-				Console.print("log stop err:%d\r\n", res);
+				Console.print("log stop err:%d\n", res);
 			}
 		}
 	}
@@ -259,44 +285,6 @@ uint8_t log_write(void)
 	return 0;
 }
 
-void log_test(char* file_name, uint32_t sec_size)
-{
-	// char test_data[4096];
-	// memset(test_data, 'a', sizeof(test_data));
-	// FIL fid;
-	// UINT bw;
-	// FRESULT fres = f_open(&fid, file_name, FA_OPEN_ALWAYS | FA_WRITE);
-	// f_lseek(&fid, 4096);
-
-	// Console.print("start log test, sec_size:%d\r\n", sec_size);
-	// float max = 0;
-	// float min = 10000000;
-	// float total_time = 0;
-	// for(int i = 0 ; i < 1024 ; i++)
-	// {
-
-	// 	timediff_us();
-	// 	uint32_t start_ms = Uptime_ms();
-
-	// 	f_write(&fid, test_data, sec_size, &bw);
-
-	//     uint32_t time_us = timediff_us();
-	// 	uint32_t time_ms = Uptime_ms() - start_ms;
-
-	//     float elapse_time = (float)time_ms + (float)time_us/1000;
-	//     total_time += elapse_time;
-	//     if(elapse_time > max){
-	//         max = elapse_time;
-	//     }
-	//     if(elapse_time < min){
-	//         min = elapse_time;
-	//     }
-	// }
-
-	// Console.print("total:%f avg:%f min:%f max:%f\r\n", total_time, total_time/1024, min, max);
-	// f_close(&fid);
-}
-
 uint8_t log_start(char* file_name)
 {
 	uint8_t res = 0;
@@ -310,8 +298,6 @@ uint8_t log_start(char* file_name)
 		// init log buffer
 		_log_buffer.head = _log_buffer.tail = 0;
 		_log_buffer.index = 0;
-		// set log flag
-		_logging = 1;
 
 		/* write header */
 		log_push(&_log_header.num_field, sizeof(_log_header.num_field));    // write num_filed
@@ -330,9 +316,17 @@ uint8_t log_start(char* file_name)
 			}
 		}
 
-		Console.print("log start: %s\r\n", file_name);
+		/* set log status */
+		strcpy(_log_status.file_name, file_name);
+		_log_status.is_logging = 1;
+		for(int i = 0 ; i < sizeof(_log_field_list)/sizeof(log_field_t) ; i++) {
+			_log_status.field_status[i].total_msg = 0;
+			_log_status.field_status[i].lost_msg = 0;
+		}
+
+		Console.print("start logging: %s\n", file_name);
 	} else {
-		Console.print("log file open fail:%d\r\n", fres);
+		Console.print("log file open fail:%d\n", fres);
 		res = 1;
 	}
 
@@ -365,7 +359,7 @@ uint8_t log_auto_start(void)
 
 void log_stop(void)
 {
-	_logging = 0;
+	_log_status.is_logging = 0;
 }
 
 void log_init(void)
@@ -374,14 +368,32 @@ void log_init(void)
 	_log_buffer.head = _log_buffer.tail = 0;
 	_log_buffer.index = 0;
 	_log_fid.fs = NULL;
+
+	/* initialize log status */
+	strcpy(_log_status.file_name, "");
+	_log_status.is_logging = 0;
 }
 
-uint8_t log_status(void)
+uint8_t log_is_logging(void)
 {
-	return _logging;
+	return _log_status.is_logging;
 }
 
-int handle_log_shell_cmd(int argc, char** argv)
+void log_dump_status(void)
+{
+	if(log_is_logging()) {
+		Console.print("%s is logging.\n", _log_status.file_name);
+		
+		for(int i = 0 ; i < sizeof(_log_field_list)/sizeof(log_field_t) ; i++) {
+			Console.print("%-20s msg id:%-3d total msg:%-10d lost msg:%-5d\n", _log_field_list[i].name, _log_field_list[i].msg_id,
+				_log_status.field_status[i].total_msg, _log_status.field_status[i].lost_msg);
+		}
+	} else {
+		Console.print("no file is logging.\n");
+	}
+}
+
+int handle_log_shell_cmd(int argc, char** argv, int optc, sh_optv* optv)
 {
 	int res = 0;
 
@@ -394,6 +406,10 @@ int handle_log_shell_cmd(int argc, char** argv)
 		if(strcmp(argv[1], "stop") == 0) {
 			log_stop();
 		}
+
+		if(strcmp(argv[1], "status") == 0) {
+			log_dump_status();
+		}
 	}
 
 	return res;
@@ -401,6 +417,7 @@ int handle_log_shell_cmd(int argc, char** argv)
 
 void logger_entry(void* parameter)
 {
+
 	while(1) {
 		log_write();
 		rt_thread_delay(1);

@@ -436,7 +436,6 @@ int handle_motor_shell_cmd(int argc, char** argv, int optc, sh_optv* optv);
 int cmd_motor(int argc, char** argv)
 {
 	return shell_cmd_process(argc, argv, handle_motor_shell_cmd);
-	//return handle_motor_shell_cmd(argc, argv);
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_motor, __cmd_motor, motor operation);
 
@@ -524,17 +523,18 @@ int cmd_exit(int argc, char** argv)
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_exit, __cmd_exit, redirect console device);
 
-int handle_log_shell_cmd(int argc, char** argv);
+int handle_log_shell_cmd(int argc, char** argv, int optc, sh_optv* optv);
 int cmd_log(int argc, char** argv)
 {
-	return handle_log_shell_cmd(argc, argv);
+	return shell_cmd_process(argc, argv, handle_log_shell_cmd);
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_log, __cmd_log, log operations);
 
 int cmd_clc(int argc, char** argv)
 {
-	/* move to home position, then clear the screen */
+	/* move to home cursor, then clear the screen */
 	Console.print("\x1B[H\x1B[2J");
+
 	return 0;
 }
 FINSH_FUNCTION_EXPORT_ALIAS(cmd_clc, __cmd_clc, clear the screen);
