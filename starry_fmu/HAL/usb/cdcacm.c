@@ -33,6 +33,7 @@ static volatile uint8_t data_sent, data_receive;
 	static uint8_t receiv_pack[RX_FIFO_FS_SIZE];
 #endif
 
+static uint8_t _cdc_connected = 0;
 uint8_t rb_buffer[RECEIVE_RINGBUFF_SIZE];
 ringbuffer* rb;
 
@@ -45,6 +46,16 @@ CDC_IF_Prop_TypeDef VCP_fops = {
 
 extern void usbd_set_connect_callback(void (*callback)(int));
 extern void usbd_is_connected(int connect);
+
+void cdc_connected_status_change(uint8_t connected)
+{
+	_cdc_connected = connected;
+}
+
+uint8_t cdc_is_connected(void)
+{
+	return _cdc_connected;
+}
 
 /* This callback is called when the send status is finished */
 static uint16_t cdc_data_tx(void)
@@ -124,6 +135,9 @@ rt_size_t usb_read(rt_device_t dev, rt_off_t pos, void* buffer, rt_size_t size)
 rt_size_t usb_write(rt_device_t dev, rt_off_t pos, const void* buffer, rt_size_t size)
 {
 	uint32_t timeout = USB_SEND_TIMEOUT;
+
+	if(!cdc_is_connected())
+		return 0;
 
 	/* usb is busy now */
 	while(!cdc_check_sent()) {

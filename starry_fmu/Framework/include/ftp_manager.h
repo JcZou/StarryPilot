@@ -50,13 +50,6 @@ typedef struct {
 	uint8_t		data[];		///< command data, varies by Opcode
 })FTP_Msg_Payload;
 
-typedef struct {
-	FTP_Msg_Payload ftp_msg;
-	FIL fp;
-	uint8_t target_system;
-	bool burst_reading;
-} Session_Info;
-
 enum Opcode {
 	kCmdNone = 0,		    ///< ignored, always acked
 	kCmdTerminateSession,	///< Terminates open Read session

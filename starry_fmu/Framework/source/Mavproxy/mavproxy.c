@@ -619,11 +619,6 @@ void mavproxy_rx_entry(void* param)
 					ftp_protocol_t.target_system = msg.sysid;
 					ftp_protocol_t.target_component = msg.compid;
 
-					// FTP_Msg_Payload *ftp_msg_t = (FTP_Msg_Payload *)ftp_protocol_t.payload;
-					// Console.print("send seq:%d sess:%d op:%d size:%d req_op:%d burst_comp:%d offset:%d\n", ftp_msg_t->seq_number,
-					// 	ftp_msg_t->session, ftp_msg_t->opcode, ftp_msg_t->size, ftp_msg_t->req_opcode, ftp_msg_t->burst_complete,
-					// 	 ftp_msg_t->offset);
-
 					mavlink_msg_file_transfer_protocol_encode(mavlink_system.sysid, mavlink_system.compid, &msg, &ftp_protocol_t);
 					mavproxy_temp_msg_push(&msg);
 				}
@@ -774,11 +769,11 @@ uint8_t mavproxy_try_send_temp_msg(void)
 	}
 
 	uint16_t len;
-
 	len = mavlink_msg_to_send_buffer(mav_tx_buff, &_temp_msg_queue.queue[_temp_msg_queue.tail]);
-	_temp_msg_queue.tail = (_temp_msg_queue.tail + 1) % MAX_TEMP_MSG_QUEUE_SIZE;
 
-	mavlink_msg_transfer(0, mav_tx_buff, len);
+	if(mavlink_msg_transfer(0, mav_tx_buff, len) == 0) {
+		_temp_msg_queue.tail = (_temp_msg_queue.tail + 1) % MAX_TEMP_MSG_QUEUE_SIZE;
+	}
 
 	return 1;
 }

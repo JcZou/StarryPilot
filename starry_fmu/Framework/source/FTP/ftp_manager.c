@@ -36,6 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.h"
 
 #define MAX_DIR_PATH_LEN        50
+#define READ_BUFFER_SIZE		4096
 
 static const char   kDirentFile = 'F';  ///< Identifies File returned from List command
 static const char   kDirentDir = 'D';   ///< Identifies Directory returned from List command
@@ -43,8 +44,10 @@ static const char   kDirentSkip = 'S';  ///< Identifies Skipped entry from List 
 
 static uint8_t _errno = FR_OK;
 static FIL _fp;
-
-Session_Info _ftp_session_info;
+static uint8_t* _read_buffer_t = NULL;
+static int32_t _read_buffer_index;
+static uint32_t _data_in_buffer;
+static uint32_t _total_data_in_buffer;
 
 uint8_t ftp_list(uint8_t* payload)
 {
@@ -151,34 +154,67 @@ uint8_t ftp_open(uint8_t* payload, uint8_t oflag)
 	ftp_msg_t->size = sizeof(uint32_t);
 	memcpy(ftp_msg_t->data, &fno.fsize, ftp_msg_t->size);
 
+	/* malloc a file read buffer */
+	_read_buffer_index = -1;
+	_data_in_buffer = 0;
+	_total_data_in_buffer = 0;
+	if(_read_buffer_t == NULL)
+		_read_buffer_t = (uint8_t*)rt_malloc(READ_BUFFER_SIZE);
+
 	return kErrNone;
 }
 
-uint8_t ftp_read(uint8_t* payload, uint8_t target_system)
+uint8_t ftp_read(uint8_t* payload, uint8_t target_system, uint8_t burst_read)
 {
 	/* since we are in a seperate thread, just read data here */
 	FTP_Msg_Payload* ftp_msg_t = (FTP_Msg_Payload*)payload;
 	FRESULT fres;
 
-	fres = f_lseek(&_fp, ftp_msg_t->offset);
+	if(burst_read && _read_buffer_t != NULL){
+		int index = ftp_msg_t->offset / READ_BUFFER_SIZE;
 
-	if(fres != FR_OK) {
-		_errno = fres;
-		return kErrFailErrno;
-	}
+		if(index > _read_buffer_index){
+			/* read file data into read buffer */
+			fres = f_read(&_fp, _read_buffer_t, READ_BUFFER_SIZE, &_total_data_in_buffer);
 
-	UINT br;
-	fres = f_read(&_fp, ftp_msg_t->data, MAX_FTP_DATA_LEN, &br);
+			if(fres != FR_OK) {
+				_errno = fres;
+				return kErrFailErrno;
+			}
 
-	if(fres != FR_OK) {
-		_errno = fres;
-		return kErrFailErrno;
-	}
+			_read_buffer_index = index;	
+		}
 
-	ftp_msg_t->size = br;
+		uint32_t offset_in_buffer = ftp_msg_t->offset % READ_BUFFER_SIZE;
+		_data_in_buffer = _total_data_in_buffer - offset_in_buffer;
+		ftp_msg_t->size = _data_in_buffer > MAX_FTP_DATA_LEN ? MAX_FTP_DATA_LEN : _data_in_buffer;
+		memcpy(ftp_msg_t->data, &_read_buffer_t[offset_in_buffer], ftp_msg_t->size);
 
-	if(f_eof(&_fp) && br == 0) {
-		return kErrEOF;
+		if(f_eof(&_fp) && _data_in_buffer == 0) {
+			return kErrEOF;
+		}
+
+	} else {
+		fres = f_lseek(&_fp, ftp_msg_t->offset);
+
+		if(fres != FR_OK) {
+			_errno = fres;
+			return kErrFailErrno;
+		}
+
+		UINT br;
+		fres = f_read(&_fp, ftp_msg_t->data, MAX_FTP_DATA_LEN, &br);
+
+		if(fres != FR_OK) {
+			_errno = fres;
+			return kErrFailErrno;
+		}
+
+		ftp_msg_t->size = br;
+
+		if(f_eof(&_fp) && br == 0) {
+			return kErrEOF;
+		}
 	}
 
 	return kErrNone;
@@ -196,6 +232,12 @@ uint8_t ftp_close(uint8_t* payload)
 	}
 
 	ftp_msg_t->size = 0;
+
+	if(_read_buffer_t != NULL){
+		rt_free(_read_buffer_t);
+		_read_buffer_t = NULL;
+	}
+
 	return kErrNone;
 }
 
@@ -203,10 +245,6 @@ void ftp_msg_parse(uint8_t* payload, uint8_t target_system)
 {
 	FTP_Msg_Payload* ftp_msg_t = (FTP_Msg_Payload*)payload;
 	uint8_t err_code;
-
-	// Console.print("seq:%d sess:%d op:%d size:%d req_op:%d burst_comp:%d pad:%d offset:%d\n", ftp_msg_t->seq_number,
-	//     ftp_msg_t->session, ftp_msg_t->opcode, ftp_msg_t->size, ftp_msg_t->req_opcode, ftp_msg_t->burst_complete,
-	//     ftp_msg_t->padding, ftp_msg_t->offset);
 
 	switch(ftp_msg_t->opcode) {
 		case kCmdTerminateSession:
@@ -227,7 +265,7 @@ void ftp_msg_parse(uint8_t* payload, uint8_t target_system)
 
 		case kCmdReadFile:
 		case kCmdBurstReadFile: {
-			err_code = ftp_read(payload, target_system);
+			err_code = ftp_read(payload, target_system, 1);
 		}
 		break;
 
