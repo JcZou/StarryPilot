@@ -18,23 +18,3 @@ Transform matrix:
 2.0705 -0.16344 0.033428
 -0.16344 2.1662 0.03384
 0.033428 0.03384 2.1876
-
-//使用如下代码对传感器数据进行校准，in[3]为原始数据，out[3]为校准后的数据。
-//其中ofs[3]为Ellipsoid center，transM[3][3]为Transform matrix
-void calibrate_data(float in[3], float out[3])
-{
-	float ofs[3] = { -0.18096, 0.11072, 1.1492};
-	float transM[3][3] = {
-		{0.98656, -0.00092413, -0.0048647},
-		{-0.00092413, 1.0092, 0.013932},
-		{-0.0048647, 0.013932, 1.0203}
-	};
-	
-	float ofs_val[3];
-	for(uint8_t i=0 ; i<3 ; i++){
-		ofs_val[i] = in[i] - ofs[i];
-	}
-	for(uint8_t i=0 ; i<3 ; i++){
-		out[i] = ofs_val[0]*transM[0][i] + ofs_val[1]*transM[1][i] + ofs_val[2]*transM[2][i];
-	}
-}
