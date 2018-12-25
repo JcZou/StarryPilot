@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define INS_STEP_PERIOD				2
 #define CONTROL_STEP_PERIOD			2
 #define MAG_READ_PERIOD				10
-#define BARO_READ_PERIOD			5
+#define BARO_READ_PERIOD			10
 #define GPS_READ_PERIOD				100
 
 static struct rt_timer timer_fastloop;
@@ -97,9 +97,9 @@ void fast_loop(void)
 			INS_U.Baro.pressure_Pa = baro_report->pressure;
 			INS_U.Baro.temperature_deg = baro_report->temperature;
 			INS_U.Baro.timestamp_ms = time_nowMs();
-		}
 
-		log_push_msg((uint8_t*)&INS_U.Baro, 0x03, sizeof(INS_U.Baro));
+			log_push_msg((uint8_t*)&INS_U.Baro, 0x03, sizeof(INS_U.Baro));
+		}
 	}
 
 	if(_gps_cnt >= GPS_READ_PERIOD) {
@@ -131,6 +131,7 @@ void fast_loop(void)
 		mcn_publish(MCN_ID(VELOCITY), (velocity_int_t*)INS_Y.INS_Out.vel_cmPs_O);
 
 		log_push_msg((uint8_t*)&INS_U.IMU1, 0x01, sizeof(INS_U.IMU1));
+
 		INS_Y.INS_Out.timestamp_ms = time_nowMs();
 		log_push_msg((uint8_t*)&INS_Y.INS_Out, 0x05, sizeof(INS_Y.INS_Out));
 	}

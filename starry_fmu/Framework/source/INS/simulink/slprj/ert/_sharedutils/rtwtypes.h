@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'CF_INS'.
  *
- * Model version                  : 1.338
+ * Model version                  : 1.440
  * Simulink Coder version         : 9.0 (R2018b) 24-May-2018
- * C/C++ source code generated on : Sun Dec 16 13:14:49 2018
+ * C/C++ source code generated on : Tue Dec 25 18:22:29 2018
  */
 
 #ifndef RTWTYPES_H
@@ -17,13 +17,13 @@
 
 /* Logical type definitions */
 #if (!defined(__cplusplus))
-	#ifndef false
-		#define false                       (0U)
-	#endif
+#  ifndef false
+#   define false                       (0U)
+#  endif
 
-	#ifndef true
-		#define true                        (1U)
-	#endif
+#  ifndef true
+#   define true                        (1U)
+#  endif
 #endif
 
 /*=======================================================================*
@@ -72,60 +72,60 @@ typedef char_T byte_T;
 #define CREAL_T
 
 typedef struct {
-	real32_T re;
-	real32_T im;
+  real32_T re;
+  real32_T im;
 } creal32_T;
 
 typedef struct {
-	real64_T re;
-	real64_T im;
+  real64_T re;
+  real64_T im;
 } creal64_T;
 
 typedef struct {
-	real_T re;
-	real_T im;
+  real_T re;
+  real_T im;
 } creal_T;
 
 #define CINT8_T
 
 typedef struct {
-	int8_T re;
-	int8_T im;
+  int8_T re;
+  int8_T im;
 } cint8_T;
 
 #define CUINT8_T
 
 typedef struct {
-	uint8_T re;
-	uint8_T im;
+  uint8_T re;
+  uint8_T im;
 } cuint8_T;
 
 #define CINT16_T
 
 typedef struct {
-	int16_T re;
-	int16_T im;
+  int16_T re;
+  int16_T im;
 } cint16_T;
 
 #define CUINT16_T
 
 typedef struct {
-	uint16_T re;
-	uint16_T im;
+  uint16_T re;
+  uint16_T im;
 } cuint16_T;
 
 #define CINT32_T
 
 typedef struct {
-	int32_T re;
-	int32_T im;
+  int32_T re;
+  int32_T im;
 } cint32_T;
 
 #define CUINT32_T
 
 typedef struct {
-	uint32_T re;
-	uint32_T im;
+  uint32_T re;
+  uint32_T im;
 } cuint32_T;
 
 /*=======================================================================*
@@ -144,7 +144,7 @@ typedef struct {
 #define MAX_uint32_T                   ((uint32_T)(0xFFFFFFFFU))
 
 /* Block D-Work pointer type */
-typedef void* pointer_T;
+typedef void * pointer_T;
 
 #endif                                 /* RTWTYPES_H */
 

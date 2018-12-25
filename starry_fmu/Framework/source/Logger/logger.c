@@ -268,6 +268,11 @@ uint8_t log_write(void)
 
 			if(res == FR_OK) {
 				Console.print("stop logging: %s\n", _log_status.file_name);
+
+				for(int i = 0 ; i < sizeof(_log_field_list)/sizeof(log_field_t) ; i++) {
+					Console.print("%-20s msg id:%-3d total msg:%-10d lost msg:%-5d\n", _log_field_list[i].name, _log_field_list[i].msg_id,
+						_log_status.field_status[i].total_msg, _log_status.field_status[i].lost_msg);
+				}
 			} else {
 				Console.print("log stop err:%d\n", res);
 			}

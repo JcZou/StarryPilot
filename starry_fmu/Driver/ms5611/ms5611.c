@@ -14,7 +14,7 @@
 #include "systime.h"
 #include "conversion.h"
 
-#define OSR				2048
+#define OSR				4096
 
 #define POW2(_x)		((_x) * (_x))
 

@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'SensorProcessing'.
  *
- * Model version                  : 1.174
+ * Model version                  : 1.175
  * Simulink Coder version         : 9.0 (R2018b) 24-May-2018
- * C/C++ source code generated on : Sun Dec 16 13:15:05 2018
+ * C/C++ source code generated on : Tue Dec 25 18:22:39 2018
  */
 
 #ifndef SHARE_rt_powd_snf

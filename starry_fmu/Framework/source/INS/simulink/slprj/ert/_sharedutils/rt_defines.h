@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'CF_INS'.
  *
- * Model version                  : 1.338
+ * Model version                  : 1.440
  * Simulink Coder version         : 9.0 (R2018b) 24-May-2018
- * C/C++ source code generated on : Sun Dec 16 13:14:49 2018
+ * C/C++ source code generated on : Tue Dec 25 18:22:29 2018
  */
 
 #ifndef RTW_HEADER_rt_defines_h_
@@ -33,16 +33,16 @@
  *   accessed by the function body.
  */
 #ifndef UNUSED_PARAMETER
-	#if defined(__LCC__)
-		#define UNUSED_PARAMETER(x)                                   /* do nothing */
-	#else
+# if defined(__LCC__)
+#   define UNUSED_PARAMETER(x)                                   /* do nothing */
+# else
 
-		/*
-		* This is the semi-ANSI standard way of indicating that an
-		* unused function parameter is required.
-		*/
-		#define UNUSED_PARAMETER(x)         (void) (x)
-	#endif
+/*
+ * This is the semi-ANSI standard way of indicating that an
+ * unused function parameter is required.
+ */
+#   define UNUSED_PARAMETER(x)         (void) (x)
+# endif
 #endif
 #endif                                 /* RTW_HEADER_rt_defines_h_ */
 

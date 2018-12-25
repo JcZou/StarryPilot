@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'CF_INS'.
  *
- * Model version                  : 1.338
+ * Model version                  : 1.440
  * Simulink Coder version         : 9.0 (R2018b) 24-May-2018
- * C/C++ source code generated on : Sun Dec 16 13:14:49 2018
+ * C/C++ source code generated on : Tue Dec 25 18:22:29 2018
  */
 
 /*
@@ -25,23 +25,22 @@
  */
 real_T rtGetNaN(void)
 {
-	size_t bitsPerReal = sizeof(real_T) * (NumBitsPerChar);
-	real_T nan = 0.0;
+  size_t bitsPerReal = sizeof(real_T) * (NumBitsPerChar);
+  real_T nan = 0.0;
+  if (bitsPerReal == 32U) {
+    nan = rtGetNaNF();
+  } else {
+    union {
+      LittleEndianIEEEDouble bitVal;
+      real_T fltVal;
+    } tmpVal;
 
-	if(bitsPerReal == 32U) {
-		nan = rtGetNaNF();
-	} else {
-		union {
-			LittleEndianIEEEDouble bitVal;
-			real_T fltVal;
-		} tmpVal;
+    tmpVal.bitVal.words.wordH = 0xFFF80000U;
+    tmpVal.bitVal.words.wordL = 0x00000000U;
+    nan = tmpVal.fltVal;
+  }
 
-		tmpVal.bitVal.words.wordH = 0xFFF80000U;
-		tmpVal.bitVal.words.wordL = 0x00000000U;
-		nan = tmpVal.fltVal;
-	}
-
-	return nan;
+  return nan;
 }
 
 /*
@@ -50,10 +49,10 @@ real_T rtGetNaN(void)
  */
 real32_T rtGetNaNF(void)
 {
-	IEEESingle nanF = { { 0 } };
+  IEEESingle nanF = { { 0 } };
 
-	nanF.wordL.wordLuint = 0xFFC00000U;
-	return nanF.wordL.wordLreal;
+  nanF.wordL.wordLuint = 0xFFC00000U;
+  return nanF.wordL.wordLreal;
 }
 
 /*

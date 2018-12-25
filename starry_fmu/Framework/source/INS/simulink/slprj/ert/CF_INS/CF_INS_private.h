@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'CF_INS'.
  *
- * Model version                  : 1.338
+ * Model version                  : 1.440
  * Simulink Coder version         : 9.0 (R2018b) 24-May-2018
- * C/C++ source code generated on : Sun Dec 16 13:14:49 2018
+ * C/C++ source code generated on : Tue Dec 25 18:22:29 2018
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex
@@ -23,19 +23,19 @@
 
 /* Macros for accessing real-time model data structure */
 #ifndef rtmGetErrorStatus
-	#define rtmGetErrorStatus(rtm)        (*((rtm)->errorStatus))
+# define rtmGetErrorStatus(rtm)        (*((rtm)->errorStatus))
 #endif
 
 #ifndef rtmSetErrorStatus
-	#define rtmSetErrorStatus(rtm, val)   (*((rtm)->errorStatus) = (val))
+# define rtmSetErrorStatus(rtm, val)   (*((rtm)->errorStatus) = (val))
 #endif
 
 #ifndef rtmGetErrorStatusPointer
-	#define rtmGetErrorStatusPointer(rtm) (rtm)->errorStatus
+# define rtmGetErrorStatusPointer(rtm) (rtm)->errorStatus
 #endif
 
 #ifndef rtmSetErrorStatusPointer
-	#define rtmSetErrorStatusPointer(rtm, val) ((rtm)->errorStatus = (val))
+# define rtmSetErrorStatusPointer(rtm, val) ((rtm)->errorStatus = (val))
 #endif
 
 extern const ConstB_CF_INS_h_T CF_INS_ConstB;

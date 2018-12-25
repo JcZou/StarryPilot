@@ -2,7 +2,7 @@
 ## Makefile generated for Simulink model 'CF_INS'. 
 ## 
 ## Makefile     : CF_INS.mk
-## Generated on : Sun Dec 16 13:15:01 2018
+## Generated on : Tue Dec 25 18:22:37 2018
 ## MATLAB Coder version: 4.1 (R2018b)
 ## 
 ## Build Info:

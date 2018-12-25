@@ -7,9 +7,9 @@
  *
  * Code generated for Simulink model 'CF_INS'.
  *
- * Model version                  : 1.338
+ * Model version                  : 1.440
  * Simulink Coder version         : 9.0 (R2018b) 24-May-2018
- * C/C++ source code generated on : Sun Dec 16 13:14:49 2018
+ * C/C++ source code generated on : Tue Dec 25 18:22:29 2018
  */
 
 #ifndef RTW_HEADER_rt_nonfinite_h_
@@ -29,24 +29,24 @@ extern boolean_T rtIsInfF(real32_T value);
 extern boolean_T rtIsNaN(real_T value);
 extern boolean_T rtIsNaNF(real32_T value);
 typedef struct {
-	struct {
-		uint32_T wordH;
-		uint32_T wordL;
-	} words;
+  struct {
+    uint32_T wordH;
+    uint32_T wordL;
+  } words;
 } BigEndianIEEEDouble;
 
 typedef struct {
-	struct {
-		uint32_T wordL;
-		uint32_T wordH;
-	} words;
+  struct {
+    uint32_T wordL;
+    uint32_T wordH;
+  } words;
 } LittleEndianIEEEDouble;
 
 typedef struct {
-	union {
-		real32_T wordLreal;
-		uint32_T wordLuint;
-	} wordL;
+  union {
+    real32_T wordLreal;
+    uint32_T wordLuint;
+  } wordL;
 } IEEESingle;
 
 #endif                                 /* RTW_HEADER_rt_nonfinite_h_ */
