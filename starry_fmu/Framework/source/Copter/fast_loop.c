@@ -131,6 +131,8 @@ void fast_loop(void)
 		mcn_publish(MCN_ID(VELOCITY), (velocity_int_t*)INS_Y.INS_Out.vel_cmPs_O);
 
 		log_push_msg((uint8_t*)&INS_U.IMU1, 0x01, sizeof(INS_U.IMU1));
+		INS_Y.INS_Out.timestamp_ms = time_nowMs();
+		log_push_msg((uint8_t*)&INS_Y.INS_Out, 0x05, sizeof(INS_Y.INS_Out));
 	}
 
 	_ins_cnt++;

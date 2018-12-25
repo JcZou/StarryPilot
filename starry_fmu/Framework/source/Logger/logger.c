@@ -103,8 +103,8 @@ log_elem_t _INS_Out_elem[] = {
 	LOG_ELEMENT_ARRAY("quat", LOG_FLOAT, 4),
 	LOG_ELEMENT_ARRAY("euler", LOG_FLOAT, 3),
 	LOG_ELEMENT_ARRAY("rot_radPs_B", LOG_FLOAT, 3),
-	LOG_ELEMENT_ARRAY("sfor_mPs2_B", LOG_FLOAT, 3),
-	LOG_ELEMENT_ARRAY("qvel_cmPs_O", LOG_INT32, 3),
+	LOG_ELEMENT_ARRAY("acc_mPs2_O", LOG_FLOAT, 3),
+	LOG_ELEMENT_ARRAY("vel_cmPs_O", LOG_INT32, 3),
 	LOG_ELEMENT("lon_1e7_deg", LOG_INT32),
 	LOG_ELEMENT("lat_1e7_deg", LOG_INT32),
 	LOG_ELEMENT("altitude_cm", LOG_INT32),
@@ -299,6 +299,14 @@ uint8_t log_start(char* file_name)
 		_log_buffer.head = _log_buffer.tail = 0;
 		_log_buffer.index = 0;
 
+		/* set log status */
+		strcpy(_log_status.file_name, file_name);
+		_log_status.is_logging = 1;
+		for(int i = 0 ; i < sizeof(_log_field_list)/sizeof(log_field_t) ; i++) {
+			_log_status.field_status[i].total_msg = 0;
+			_log_status.field_status[i].lost_msg = 0;
+		}
+
 		/* write header */
 		log_push(&_log_header.num_field, sizeof(_log_header.num_field));    // write num_filed
 
@@ -314,14 +322,6 @@ uint8_t log_start(char* file_name)
 				log_push(&_log_header.filed_list[n].elem_list[k].type, sizeof(_log_header.filed_list[n].elem_list[k].type));
 				log_push(&_log_header.filed_list[n].elem_list[k].number, sizeof(_log_header.filed_list[n].elem_list[k].number));
 			}
-		}
-
-		/* set log status */
-		strcpy(_log_status.file_name, file_name);
-		_log_status.is_logging = 1;
-		for(int i = 0 ; i < sizeof(_log_field_list)/sizeof(log_field_t) ; i++) {
-			_log_status.field_status[i].total_msg = 0;
-			_log_status.field_status[i].lost_msg = 0;
 		}
 
 		Console.print("start logging: %s\n", file_name);

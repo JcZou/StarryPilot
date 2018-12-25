@@ -3,7 +3,7 @@
 % @StarryPilot 
 
 %% config sensor type
-sensor = 'acc';
+sensor = 'mag';
 iteration_fit = 1;
 
 %% read sensor data
