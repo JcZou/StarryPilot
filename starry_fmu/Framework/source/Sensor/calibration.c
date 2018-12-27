@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ACC_DEFAULT_NUM			100
 #define ACC_DEFAULT_PERIOD		5
 
-#define MAG_DEFAULT_NUM			1500
+#define MAG_DEFAULT_NUM			1000
 #define MAG_DEFAULT_PERIOD		20
 
 static bool gyr_calibrate_flag;
@@ -313,7 +313,7 @@ void cali_least_squre_update(Cali_Obj* obj, float val[3])
 	}
 }
 
-void cali_solve(Cali_Obj* obj, double radius)
+void cali_solve(Cali_Obj* obj)
 {
 	Mat A, B;
 	Mat InvB;
@@ -389,9 +389,9 @@ void cali_solve(Cali_Obj* obj, double radius)
 
 	/* calculate transform matrix */
 	MatZeros(&GMat);
-	GMat.element[0][0] = 1.0 / obj->GAIN[0] * radius;
-	GMat.element[1][1] = 1.0 / obj->GAIN[1] * radius;
-	GMat.element[2][2] = 1.0 / obj->GAIN[2] * radius;
+	GMat.element[0][0] = 1.0 / obj->GAIN[0];
+	GMat.element[1][1] = 1.0 / obj->GAIN[1];
+	GMat.element[2][2] = 1.0 / obj->GAIN[2];
 
 	MatInv(&obj->EigVec, &InvEigVec);
 
@@ -399,6 +399,13 @@ void cali_solve(Cali_Obj* obj, double radius)
 	MatCreate(&tmp, 3, 3);
 	MatMul(&obj->EigVec, &GMat, &tmp);
 	MatMul(&tmp, &InvEigVec, &obj->RotM);
+	
+	/* maintain the norm of input data */
+	float norm = MatNorm(&obj->RotM);
+	for(int row = 0 ; row < obj->RotM.row ; row++) {
+		for(int col = 0 ; col < obj->RotM.col ; col++)
+			obj->RotM.element[row][col] = obj->RotM.element[row][col] / norm;
+	}
 
 	MatDelete(&A);
 	MatDelete(&B);
@@ -638,7 +645,7 @@ void acc_mavlink_calibration(void)
 	}
 
 	if((acc.pos.bit.step == 6) && (acc.sample_cnt > ACC_SAMPLE_COUNT)) {
-		cali_solve(&(acc.obj), GRAVITY_MSS);
+		cali_solve(&(acc.obj));
 		Console.print("Center:%f %f %f\n", acc.obj.OFS[0], acc.obj.OFS[1], acc.obj.OFS[2]);
 		Console.print("Radius:%f %f %f\n", acc.obj.GAIN[0], acc.obj.GAIN[1], acc.obj.GAIN[2]);
 		Console.print("Rotation Matrix:\n");
@@ -768,7 +775,7 @@ void mag_mavlink_calibration(void)
 		}
 
 		case 4: {
-			cali_solve(&(mag.obj), 1);
+			cali_solve(&(mag.obj));
 
 			Console.print("Center:%f %f %f\n", mag.obj.OFS[0], mag.obj.OFS[1], mag.obj.OFS[2]);
 			Console.print("Radius:%f %f %f\n", mag.obj.GAIN[0], mag.obj.GAIN[1], mag.obj.GAIN[2]);
@@ -854,7 +861,7 @@ int calibrate_acc_run(uint32_t num, uint32_t period, bool echo, FIL* fid, bool r
 		}
 	}
 
-	cali_solve(&obj, GRAVITY_MSS);
+	cali_solve(&obj);
 	Console.print("center:%f %f %f\n", obj.OFS[0], obj.OFS[1], obj.OFS[2]);
 	Console.print("radius:%f %f %f\n", obj.GAIN[0], obj.GAIN[1], obj.GAIN[2]);
 	Console.print("rotation matrix:\n");
@@ -929,7 +936,7 @@ int calibrate_mag_run(uint32_t num, uint32_t period, bool echo, FIL* fid, bool r
 	}
 
 	// solve
-	cali_solve(&obj, 1);
+	cali_solve(&obj);
 
 	Console.print("center:%f %f %f\n", obj.OFS[0], obj.OFS[1], obj.OFS[2]);
 	Console.print("radius:%f %f %f\n", obj.GAIN[0], obj.GAIN[1], obj.GAIN[2]);

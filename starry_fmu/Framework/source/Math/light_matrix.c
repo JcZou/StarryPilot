@@ -17,9 +17,10 @@
  * along with code.  If not, see <http:#www.gnu.org/licenses/>.
  */
 
-#include "light_matrix.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include "light_matrix.h"
 #include "global.h"
 
 #define MAT_LEGAL_CHECKING
@@ -464,6 +465,10 @@ void MatEig(Mat* mat, LIGHT_MATRIX_TYPE* eig_val, Mat* eig_vec, LIGHT_MATRIX_TYP
 
 #endif
 
+	Mat temp_mat;
+	MatCreate(&temp_mat, mat->row, mat->col);
+	MatCopy(mat, &temp_mat);
+
 	for(i = 0; i < nDim; i ++) {
 		eig_vec->element[i][i] = 1.0f;
 
@@ -477,13 +482,13 @@ void MatEig(Mat* mat, LIGHT_MATRIX_TYPE* eig_val, Mat* eig_vec, LIGHT_MATRIX_TYP
 
 	while(1) {
 		//find maxial element in non-diagram of mat
-		LIGHT_MATRIX_TYPE dbMax = mat->element[0][1];
+		LIGHT_MATRIX_TYPE dbMax = temp_mat.element[0][1];
 		int nRow = 0;
 		int nCol = 1;
 
 		for(i = 0; i < nDim; i ++) {         //row
 			for(j = 0; j < nDim; j ++) {     //col
-				LIGHT_MATRIX_TYPE d = fabs(mat->element[i][j]);
+				LIGHT_MATRIX_TYPE d = fabs(temp_mat.element[i][j]);
 
 				if((i != j) && (d > dbMax)) {
 					dbMax = d;
@@ -504,9 +509,9 @@ void MatEig(Mat* mat, LIGHT_MATRIX_TYPE* eig_val, Mat* eig_vec, LIGHT_MATRIX_TYP
 
 		nCount++;
 
-		LIGHT_MATRIX_TYPE dbApp = mat->element[nRow][nRow];
-		LIGHT_MATRIX_TYPE dbApq = mat->element[nRow][nCol];
-		LIGHT_MATRIX_TYPE dbAqq = mat->element[nCol][nCol];
+		LIGHT_MATRIX_TYPE dbApp = temp_mat.element[nRow][nRow];
+		LIGHT_MATRIX_TYPE dbApq = temp_mat.element[nRow][nCol];
+		LIGHT_MATRIX_TYPE dbAqq = temp_mat.element[nCol][nCol];
 
 		// calculate rotation angle
 		LIGHT_MATRIX_TYPE dbAngle = 0.5 * atan2(-2 * dbApq, dbAqq - dbApp);
@@ -515,26 +520,26 @@ void MatEig(Mat* mat, LIGHT_MATRIX_TYPE* eig_val, Mat* eig_vec, LIGHT_MATRIX_TYP
 		LIGHT_MATRIX_TYPE dbSin2Theta = sin(2 * dbAngle);
 		LIGHT_MATRIX_TYPE dbCos2Theta = cos(2 * dbAngle);
 
-		mat->element[nRow][nRow] = dbApp * dbCosTheta * dbCosTheta +
+		temp_mat.element[nRow][nRow] = dbApp * dbCosTheta * dbCosTheta +
 		                           dbAqq * dbSinTheta * dbSinTheta + 2 * dbApq * dbCosTheta * dbSinTheta;
-		mat->element[nCol][nCol] = dbApp * dbSinTheta * dbSinTheta +
+		temp_mat.element[nCol][nCol] = dbApp * dbSinTheta * dbSinTheta +
 		                           dbAqq * dbCosTheta * dbCosTheta - 2 * dbApq * dbCosTheta * dbSinTheta;
-		mat->element[nRow][nCol] = 0.5 * (dbAqq - dbApp) * dbSin2Theta + dbApq * dbCos2Theta;
-		mat->element[nCol][nRow] = mat->element[nRow][nCol];
+		temp_mat.element[nRow][nCol] = 0.5 * (dbAqq - dbApp) * dbSin2Theta + dbApq * dbCos2Theta;
+		temp_mat.element[nCol][nRow] = temp_mat.element[nRow][nCol];
 
 		for(i = 0; i < nDim; i ++) {
 			if((i != nCol) && (i != nRow)) {
-				dbMax = mat->element[i][nRow];
-				mat->element[i][nRow] = mat->element[i][nCol] * dbSinTheta + dbMax * dbCosTheta;
-				mat->element[i][nCol] = mat->element[i][nCol] * dbCosTheta - dbMax * dbSinTheta;
+				dbMax = temp_mat.element[i][nRow];
+				temp_mat.element[i][nRow] = temp_mat.element[i][nCol] * dbSinTheta + dbMax * dbCosTheta;
+				temp_mat.element[i][nCol] = temp_mat.element[i][nCol] * dbCosTheta - dbMax * dbSinTheta;
 			}
 		}
 
 		for(j = 0; j < nDim; j ++) {
 			if((j != nCol) && (j != nRow)) {
-				dbMax = mat->element[nRow][j];
-				mat->element[nRow][j] = mat->element[nCol][j] * dbSinTheta + dbMax * dbCosTheta;
-				mat->element[nCol][j] = mat->element[nCol][j] * dbCosTheta - dbMax * dbSinTheta;
+				dbMax = temp_mat.element[nRow][j];
+				temp_mat.element[nRow][j] = temp_mat.element[nCol][j] * dbSinTheta + dbMax * dbCosTheta;
+				temp_mat.element[nCol][j] = temp_mat.element[nCol][j] * dbCosTheta - dbMax * dbSinTheta;
 			}
 		}
 
@@ -549,7 +554,7 @@ void MatEig(Mat* mat, LIGHT_MATRIX_TYPE* eig_val, Mat* eig_vec, LIGHT_MATRIX_TYP
 
 	// calculate eigen value
 	for(i = 0; i < nDim; i ++) {
-		eig_val[i] = mat->element[i][i];
+		eig_val[i] = temp_mat.element[i][i];
 	}
 
 	// set sign
@@ -564,4 +569,37 @@ void MatEig(Mat* mat, LIGHT_MATRIX_TYPE* eig_val, Mat* eig_vec, LIGHT_MATRIX_TYP
 				eig_vec->element[j][i] *= -1;
 		}
 	}
+
+	MatDelete(&temp_mat);
+}
+
+LIGHT_MATRIX_TYPE MatNorm(Mat* mat)
+{
+	LIGHT_MATRIX_TYPE max_eig_val = 0.0f;
+
+#ifdef MAT_LEGAL_CHECKING
+
+	if(mat->row != mat->row) {
+		printf("err check, not a squre matrix for MatEig\n");
+		MatDump(mat);
+		return ;
+	}
+
+#endif
+
+	LIGHT_MATRIX_TYPE *eig_val = (LIGHT_MATRIX_TYPE*)rt_malloc(mat->row*sizeof(LIGHT_MATRIX_TYPE));
+	Mat eig_vec;
+	MatCreate(&eig_vec, mat->row, mat->col);
+
+	MatEig(mat, eig_val, &eig_vec, 1e-6, 100);
+
+	for(int i = 0 ; i < mat->row ; i++) {
+		if(eig_val[i] > max_eig_val)
+			max_eig_val = eig_val[i];
+	}
+
+	rt_free(eig_val);
+	MatDelete(&eig_vec);
+
+	return max_eig_val;
 }

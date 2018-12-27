@@ -43,6 +43,7 @@ LIGHT_MATRIX_TYPE MatDet(Mat* mat);
 Mat* MatAdj(Mat* src, Mat* dst);
 Mat* MatInv(Mat* src, Mat* dst);
 
+LIGHT_MATRIX_TYPE MatNorm(Mat* mat);
 void MatEig(Mat* mat, LIGHT_MATRIX_TYPE* eig_val, Mat* eig_vec, LIGHT_MATRIX_TYPE eps, int njt);
 
 void MatCopy(Mat* src, Mat* dst);
