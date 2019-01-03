@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "file_manager.h": "c",
+        "cmath": "c",
+        "light_matrix.h": "c"
+    }
+}
