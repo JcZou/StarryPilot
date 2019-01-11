@@ -281,6 +281,8 @@ uint8_t log_write(void)
 
 	while(head_p != tail_p) {
 		f_write(&_log_fid, &_log_buffer.data[tail_p * LOG_BLOCK_SIZE], LOG_BLOCK_SIZE, &bw);
+		f_sync(&_log_fid);	// sync to ensure data is written into SD and file system is updated
+
 		tail_p = (tail_p + 1) % _log_buffer.num_sector;
 		OS_ENTER_CRITICAL;
 		_log_buffer.tail = tail_p;

@@ -51,7 +51,21 @@ while ~feof(fileID) && ftell(fileID)<fileDir.bytes
         type = LogHeader.field_list(index).elem_list(k).type+1;
         number = LogHeader.field_list(index).elem_list(k).number;
         
-        LogMsg{msg_id}{k}(1:number,msg_cnt{msg_id}) = fread(fileID, [number, 1], data_type(type));
+        [msg_content, rb] = fread(fileID, [number, 1], data_type(type));
+        
+        if rb < number
+            fprintf('msg:%d read err, stop parsing\n', msg_id);
+            
+            % clear msg data
+            for p = 1:k-1
+                LogMsg{msg_id}{p}(:, msg_cnt{msg_id}) = [];
+            end
+            msg_cnt{msg_id} = msg_cnt{msg_id} - 1;
+            break;
+        else
+            LogMsg{msg_id}{k}(1:number,msg_cnt{msg_id}) = msg_content;
+        end
+%         LogMsg{msg_id}{k}(1:number,msg_cnt{msg_id}) = fread(fileID, [number, 1], data_type(type));
     end
 end
 fclose(fileID);
@@ -77,7 +91,7 @@ for n = 1:LogHeader.num_filed
     end
     
     if timestamp_id <= 0
-       fprintf("can't find Timestamp_ms element for %s\n", LogHeader.field_list(n).name);
+       fprintf("create timestamp for %s\n", LogHeader.field_list(n).name);
        % construct a fake time_stamp
        [row col] = size(LogMsg{msg_id}{1});
        period = 0.001;	% TODO: add period list for each msg
