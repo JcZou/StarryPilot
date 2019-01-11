@@ -64,7 +64,7 @@ typedef union {
 	double		lf;
 } param_value_t;
 
-typedef enum {
+enum param_type_t{
 	PARAM_TYPE_INT8 = 0,
 	PARAM_TYPE_UINT8,
 	PARAM_TYPE_INT16,
@@ -73,14 +73,20 @@ typedef enum {
 	PARAM_TYPE_UINT32,
 	PARAM_TYPE_FLOAT,
 	PARAM_TYPE_DOUBLE,
-	PARAM_TYPE_UNKNOWN = 0xffff
-} param_type_t;
+	PARAM_TYPE_UNKNOWN = 0xFF
+};
 
 typedef struct {
 	const char* name;
-	const param_type_t type;
+	const uint8_t type;
 	param_value_t val;
 } param_info_t;
+
+typedef struct {
+	const char* name;
+	const uint32_t param_num;
+	param_info_t* content;
+} param_group_info;
 
 #define PARAM_DECLARE(_name)					param_info_t _name
 
@@ -209,12 +215,6 @@ typedef struct {
 #define PARAM_SET_UINT32(_group, _name, _val)	((_param_##_group *)(param_list._param_##_group.content))->_name.val.u32 = _val
 #define PARAM_SET_FLOAT(_group, _name, _val)	((_param_##_group *)(param_list._param_##_group.content))->_name.val.f = _val
 #define PARAM_SET_DOUBLE(_group, _name, _val)	((_param_##_group *)(param_list._param_##_group.content))->_name.val.lf = _val
-
-typedef struct {
-	const char* name;
-	const uint32_t param_num;
-	param_info_t* content;
-} param_group_info;
 
 /* step 2: param list declare */
 typedef struct {

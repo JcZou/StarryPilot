@@ -89,11 +89,11 @@ void rt_init_thread_entry(void* parameter)
 	/* init console device, default device is uart3 */
 	console_init(CONSOLE_DEVICE);
 
-	/* init log system */
-	log_init();
-
 	/* init parameter system */
 	param_init();
+
+	/* init log system */
+	log_init();
 
 	/* init led */
 	led_init();

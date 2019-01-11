@@ -134,11 +134,10 @@ struct log_status_t
 	log_filed_status	field_status[sizeof(_log_field_list)/sizeof(log_field_t)];
 }_log_status;
 
-static log_header_t _log_header = { sizeof(_log_field_list) / sizeof(log_field_t), _log_field_list };
+static log_header_t _log_header;
 static FIL _log_fid;
 static log_buffer_t _log_buffer;
-// static uint8_t _logging = 0;
-// static uint8_t _log_filename[20];
+
 
 static int32_t _find_filed_index(uint8_t msg_id)
 {
@@ -314,10 +313,11 @@ uint8_t log_start(char* file_name)
 			_log_status.field_status[i].lost_msg = 0;
 		}
 
-		/* write header */
+		/* write log header */
+
+		/* write log field info */
 		log_push(&_log_header.num_field, sizeof(_log_header.num_field));    // write num_filed
 
-		// write log filed
 		for(int n = 0 ; n < _log_header.num_field ; n++) {
 			log_push(_log_header.filed_list[n].name, LOG_MAX_NAME_LEN);
 			log_push(&_log_header.filed_list[n].msg_id, sizeof(_log_header.filed_list[n].msg_id));
@@ -328,6 +328,50 @@ uint8_t log_start(char* file_name)
 				log_push(_log_header.filed_list[n].elem_list[k].name, LOG_MAX_NAME_LEN);
 				log_push(&_log_header.filed_list[n].elem_list[k].type, sizeof(_log_header.filed_list[n].elem_list[k].type));
 				log_push(&_log_header.filed_list[n].elem_list[k].number, sizeof(_log_header.filed_list[n].elem_list[k].number));
+			}
+		}
+
+		/* write parameter info */
+		log_push(&_log_header.num_param_group, sizeof(_log_header.num_param_group)); 
+
+		char name_buffer[LOG_MAX_NAME_LEN];
+
+		for(int n = 0 ; n < _log_header.num_param_group ; n++){
+			memset(name_buffer, 0, LOG_MAX_NAME_LEN);
+			strncpy(name_buffer, _log_header.param_group_list[n].name, LOG_MAX_NAME_LEN-1);
+
+			log_push(name_buffer, LOG_MAX_NAME_LEN);
+			log_push(&_log_header.param_group_list[n].param_num, sizeof(_log_header.param_group_list[n].param_num));
+
+			for(int k = 0; k < _log_header.param_group_list[n].param_num ; k++){
+				memset(name_buffer, 0, LOG_MAX_NAME_LEN);
+				strncpy(name_buffer, _log_header.param_group_list[n].content[k].name, LOG_MAX_NAME_LEN-1);
+
+				log_push(name_buffer, LOG_MAX_NAME_LEN);
+				log_push(&_log_header.param_group_list[n].content[k].type, sizeof(_log_header.param_group_list[n].content[k].type));
+
+				int type = _log_header.param_group_list[n].content[k].type;
+				if(type == PARAM_TYPE_INT8){
+					log_push(&_log_header.param_group_list[n].content[k].val.i8, sizeof(int8_t));
+				}else if(type == PARAM_TYPE_UINT8){
+					log_push(&_log_header.param_group_list[n].content[k].val.u8, sizeof(uint8_t));
+				}else if(type == PARAM_TYPE_INT16){
+					log_push(&_log_header.param_group_list[n].content[k].val.i16, sizeof(int16_t));
+				}else if(type == PARAM_TYPE_UINT16){
+					log_push(&_log_header.param_group_list[n].content[k].val.u16, sizeof(uint16_t));
+				}else if(type == PARAM_TYPE_INT32){
+					log_push(&_log_header.param_group_list[n].content[k].val.i32, sizeof(int32_t));
+				}else if(type == PARAM_TYPE_UINT32){
+					log_push(&_log_header.param_group_list[n].content[k].val.u32, sizeof(uint32_t));
+				}else if(type == PARAM_TYPE_FLOAT){
+					log_push(&_log_header.param_group_list[n].content[k].val.f, sizeof(float));
+				}else if(type == PARAM_TYPE_DOUBLE){
+					log_push(&_log_header.param_group_list[n].content[k].val.lf, sizeof(double));
+				}else{
+					// unknow type
+					Console.print("unknow data type:%d\n", type);
+				}
+				
 			}
 		}
 
@@ -375,6 +419,12 @@ void log_init(void)
 	_log_buffer.head = _log_buffer.tail = 0;
 	_log_buffer.index = 0;
 	_log_fid.fs = NULL;
+
+	/* init log header */
+	_log_header.num_field = sizeof(_log_field_list) / sizeof(log_field_t);
+	_log_header.filed_list = _log_field_list;
+	_log_header.num_param_group = sizeof(param_list) / sizeof(param_group_info);
+	_log_header.param_group_list = (param_group_info*)&param_list;
 
 	/* initialize log status */
 	strcpy(_log_status.file_name, "");

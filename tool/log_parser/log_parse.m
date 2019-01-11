@@ -3,6 +3,7 @@ function log_parse(logfile)
 % defiine data type
 data_type = ["int8=>int8", "uint8=>uint8", "int16=>int16", "uint16=>uint16",...
     "int32=>int32", "uint32=>uint32", "float=>float", "double=>double"];
+skip_bytes = [7, 7, 6, 6, 4, 4, 4, 0];
 
 % open log file
 fileID = fopen(logfile, 'r');
@@ -13,7 +14,10 @@ if ~fileID
 end
 
 %% read log header
+
+% read log filed
 LogHeader.num_filed = fread(fileID, 1, 'uint8=>uint8');
+
 for n = 1:LogHeader.num_filed
     LogHeader.field_list(n).name = fread(fileID, [1 20], 'uint8=>char');
     LogHeader.field_list(n).msg_id = fread(fileID, 1, 'uint8=>uint8');
@@ -29,6 +33,20 @@ for n = 1:LogHeader.num_filed
     LogMsg{LogHeader.field_list(n).msg_id} = {};
 end
 
+% read parameter
+LogHeader.num_param_group = fread(fileID, 1, 'uint8=>uint8');
+
+for n = 1:LogHeader.num_param_group
+    LogHeader.param_group_list(n).name = fread(fileID, [1 20], 'uint8=>char');
+    LogHeader.param_group_list(n).num_param = fread(fileID, 1, 'uint32=>uint32');
+    
+    for k = 1:LogHeader.param_group_list(n).num_param
+        LogHeader.param_group_list(n).param(k).name = fread(fileID, [1 20], 'uint8=>char');
+        LogHeader.param_group_list(n).param(k).type = fread(fileID, 1, 'uint8=>uint8');
+        index = LogHeader.param_group_list(n).param(k).type+1;
+        LogHeader.param_group_list(n).param(k).val = fread(fileID, 1, data_type(index));
+    end
+end
 %% read log msg
 while ~feof(fileID) && ftell(fileID)<fileDir.bytes
     msg_id = fread(fileID, 1, 'uint8=>uint8');

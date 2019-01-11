@@ -13,6 +13,7 @@
 #include <rtthread.h>
 #include <rtdevice.h>
 #include "global.h"
+#include "param.h"
 
 
 #define LOG_MAX_NAME_LEN            20
@@ -43,8 +44,12 @@ typedef struct {
 
 LOGPACKED(
 typedef struct {
+	/* log filed info */
 	uint8_t num_field;
 	log_field_t* filed_list;
+	/* parameter info */
+	uint8_t num_param_group;
+	param_group_info* param_group_list;
 })log_header_t;
 
 typedef struct {
